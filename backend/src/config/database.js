@@ -1,16 +1,11 @@
-const { Sequelize } = require('sequelize')
-import 'dotenv/config'
+import { Sequelize } from 'sequelize'
+import { env } from './environment.js'
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT,
-    port: process.env.DB_PORT
-  }
-)
+const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
+  host: env.DB_HOST,
+  dialect: env.DB_DIALECT,
+  port: env.DB_PORT
+})
 
 const connectDB = async () => {
   try {
