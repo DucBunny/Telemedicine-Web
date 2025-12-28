@@ -6,12 +6,14 @@ import { connectDB } from './config/database.js'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
+import { errorConverter, errorHandler } from './middlewares/error.middleware.js'
+import { env } from './config/environment.js'
 
-const port = process.env.PORT || 8080
+const port = env.PORT
 const app = express()
 app.use(
   cors({
-    origin: process.env.BASE_URL_FRONTEND || 'http://localhost:3000',
+    origin: env.BASE_URL_FRONTEND,
     credentials: true
   })
 )
@@ -25,7 +27,7 @@ connectDB()
 const socketServer = createServer(app)
 const io = new Server(socketServer, {
   cors: {
-    origin: process.env.BASE_URL_FRONTEND || 'http://localhost:3000',
+    origin: env.BASE_URL_FRONTEND,
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -38,6 +40,12 @@ app.use((req, res, next) => {
 })
 
 app.use('/api-v1', router)
+
+// Convert error to ApiError, if needed
+app.use(errorConverter)
+
+// Handle error
+app.use(errorHandler)
 
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id)

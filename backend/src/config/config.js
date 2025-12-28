@@ -48,7 +48,7 @@ module.exports = {
       typeCast: true,
       ssl: {
         require: true,
-        rejectUnauthorized: false
+        rejectUnauthorized: true
       }
     }
   }

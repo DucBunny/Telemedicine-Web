@@ -2,27 +2,64 @@
 const { Model } = require('sequelize')
 
 module.exports = (sequelize, DataTypes) => {
-  class PatientDetail extends Model {
+  class Patient extends Model {
     static associate(models) {
-      // Thuộc về tài khoản User chính (Quan hệ 1-1)
-      PatientDetail.belongsTo(models.User, {
+      // 1-1 với User (Tài khoản bệnh nhân)
+      Patient.belongsTo(models.User, {
         foreignKey: 'userId',
         as: 'userAccount'
       })
 
-      // Thuộc về Bác sĩ phụ trách (Quan hệ N-1)
-      PatientDetail.belongsTo(models.User, {
-        foreignKey: 'doctorId',
-        as: 'doctor'
+      // N-N với Doctor (Bác sĩ phụ trách)
+      Patient.belongsToMany(models.Doctor, {
+        through: models.PatientDoctor,
+        foreignKey: 'patientId',
+        otherKey: 'doctorId',
+        as: 'doctors'
+      })
+
+      // 1-N với Device (Bệnh nhân có thể có nhiều thiết bị)
+      Patient.hasMany(models.Device, {
+        foreignKey: 'assignedTo',
+        sourceKey: 'userId',
+        as: 'devices'
+      })
+
+      // 1-N với Alert (Cảnh báo của bệnh nhân)
+      Patient.hasMany(models.Alert, {
+        foreignKey: 'patientId',
+        sourceKey: 'userId',
+        as: 'alerts'
+      })
+
+      // 1-N với HealthPrediction (Dự đoán sức khỏe của bệnh nhân)
+      Patient.hasMany(models.HealthPrediction, {
+        foreignKey: 'patientId',
+        sourceKey: 'userId',
+        as: 'healthPredictions'
+      })
+
+      // 1-N với MedicalRecord (Hồ sơ bệnh án của bệnh nhân)
+      Patient.hasMany(models.MedicalRecord, {
+        foreignKey: 'patientId',
+        sourceKey: 'userId',
+        as: 'medicalHistory'
+      })
+
+      // 1-N với Appointment (Lịch hẹn của bệnh nhân)
+      Patient.hasMany(models.Appointment, {
+        foreignKey: 'patientId',
+        sourceKey: 'userId',
+        as: 'patientAppointments'
       })
     }
   }
 
-  PatientDetail.init(
+  Patient.init(
     {
       userId: {
         type: DataTypes.INTEGER,
-        primaryKey: true, // Vì quan hệ 1-1 nên dùng luôn ID của User làm khóa chính
+        primaryKey: true,
         allowNull: false
       },
       dateOfBirth: DataTypes.DATEONLY,
@@ -31,14 +68,13 @@ module.exports = (sequelize, DataTypes) => {
       height: DataTypes.FLOAT,
       weight: DataTypes.FLOAT,
       medicalHistory: DataTypes.TEXT,
-      address: DataTypes.STRING,
-      doctorId: DataTypes.INTEGER
+      address: DataTypes.STRING
     },
     {
       sequelize,
-      modelName: 'PatientDetail'
+      modelName: 'Patient'
     }
   )
 
-  return PatientDetail
+  return Patient
 }

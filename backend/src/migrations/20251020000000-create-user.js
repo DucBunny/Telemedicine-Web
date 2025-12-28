@@ -32,13 +32,23 @@ module.exports = {
       phone_number: {
         type: Sequelize.STRING
       },
+      status: {
+        type: Sequelize.ENUM('active', 'locked'),
+        defaultValue: 'active'
+      },
+      last_login_at: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

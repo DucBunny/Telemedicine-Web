@@ -1,14 +1,19 @@
 'use strict'
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('alerts', {
+    await queryInterface.createTable('refresh_tokens', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      patient_id: {
+      token: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
@@ -18,34 +23,30 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      type: {
-        type: Sequelize.STRING
+      expires_at: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      value: {
-        type: Sequelize.STRING
-      },
-      message: {
-        type: Sequelize.STRING
-      },
-      severity: {
-        type: Sequelize.ENUM('low', 'medium', 'critical'),
-        defaultValue: 'medium'
-      },
-      is_resolved: {
+      is_revoked: {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      device_info: {
+        type: Sequelize.STRING
+      },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('alerts')
+    await queryInterface.dropTable('refresh_tokens')
   }
 }

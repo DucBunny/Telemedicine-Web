@@ -5,8 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   class Device extends Model {
     static associate(models) {
       // Thiết bị thuộc về 1 bệnh nhân
-      Device.belongsTo(models.User, {
-        foreignKey: 'assignedToUserId',
+      Device.belongsTo(models.Patient, {
+        foreignKey: 'assignedTo',
+        targetKey: 'userId',
         as: 'patient'
       })
     }
@@ -24,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('active', 'inactive', 'maintenance'),
         defaultValue: 'active'
       },
-      assignedToUserId: DataTypes.INTEGER
+      assignedTo: DataTypes.INTEGER
     },
     {
       sequelize,

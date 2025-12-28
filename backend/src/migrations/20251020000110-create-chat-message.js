@@ -1,4 +1,5 @@
 'use strict'
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('chat_messages', {
@@ -10,13 +11,19 @@ module.exports = {
       },
       sender_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'users', key: 'id' },
+        references: {
+          model: 'users',
+          key: 'id'
+        },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
       receiver_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'users', key: 'id' },
+        references: {
+          model: 'users',
+          key: 'id'
+        },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
@@ -32,11 +39,13 @@ module.exports = {
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

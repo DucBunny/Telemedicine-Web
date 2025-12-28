@@ -1,4 +1,5 @@
 'use strict'
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('appointments', {
@@ -10,19 +11,28 @@ module.exports = {
       },
       patient_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'users', key: 'id' },
+        references: {
+          model: 'patients',
+          key: 'user_id'
+        },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
       doctor_id: {
         type: Sequelize.INTEGER,
-        references: { model: 'users', key: 'id' },
+        references: {
+          model: 'doctors',
+          key: 'user_id'
+        },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
       scheduled_at: {
         type: Sequelize.DATE,
         allowNull: false
+      },
+      ended_at: {
+        type: Sequelize.DATE
       },
       status: {
         type: Sequelize.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
@@ -34,13 +44,18 @@ module.exports = {
       reason: {
         type: Sequelize.TEXT
       },
+      cancel_reason: {
+        type: Sequelize.TEXT
+      },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

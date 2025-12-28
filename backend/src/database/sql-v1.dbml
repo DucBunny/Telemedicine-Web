@@ -1,0 +1,259 @@
+// ======================
+// ENUM DEFINITIONS
+// ======================
+
+Enum user_role {
+  admin
+  doctor
+  patient
+}
+
+Enum user_status {
+  active
+  locked
+}
+
+Enum gender_type {
+  male
+  female
+  other
+}
+
+Enum device_status {
+  active
+  inactive
+  maintenance
+}
+
+Enum alert_severity {
+  low
+  medium
+  critical
+}
+
+Enum appointment_status {
+  pending     // Chờ bác sĩ xác nhận
+  confirmed   // Đã chốt
+  completed   // Đã khám xong
+  cancelled   // Đã hủy
+}
+
+Enum call_status {
+  missed      // Gọi nhỡ
+  rejected    // Bị từ chối
+  completed   // Gọi thành công
+}
+
+Enum health_status {
+  normal      // Trạng thái bình thường
+  warning     // Có dấu hiệu bất thường
+  critical    // Nguy hiểm, cần can thiệp
+}
+
+// ======================
+// USERS & AUTH
+// ======================
+
+Table users {
+  id int [pk, increment]
+  full_name varchar [not null]
+  email varchar [unique, not null]
+  password varchar [not null]
+  role user_role [default: 'patient']
+  avatar varchar  
+  phone_number varchar
+
+  status user_status [default: 'active']
+  last_login_at datetime
+
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table refresh_tokens {
+  id int [pk, increment]
+  token varchar [not null]
+  user_id int [not null, ref: > users.id] 
+  expires_at datetime [not null]
+  is_revoked boolean [default: false]
+  device_info varchar
+
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// ======================
+// MEDICAL ROLES
+// ======================
+
+Table doctors {
+  user_id int [pk, ref: - users.id]
+  
+  specialization varchar
+  degree varchar
+  experience_years int
+  bio text
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table patients {
+  user_id int [pk, ref: - users.id] 
+  
+  date_of_birth date
+  gender gender_type
+  blood_type varchar
+  height float [note: 'cm']
+  weight float [note: 'kg']
+  medical_history text
+  address varchar
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table patient_doctors {
+  patient_id int [ref: > patients.user_id]
+  doctor_id int [ref: > doctors.user_id]
+
+  role varchar                // Vai trò bác sĩ: primary / consultant
+  assigned_at datetime        // Thời điểm phân công
+
+  primary key (patient_id, doctor_id)
+}
+
+// ======================
+// DEVICES & IOT
+// ======================
+
+Table devices {
+  device_id varchar [pk]                      // MAC Address của thiết bị ESP32
+  name varchar
+  status device_status [default: 'active']
+  
+  assigned_to int [ref: > patients.user_id, null]   // Thiết bị đang gắn cho bệnh nhân nào
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+// ======================
+// ALERTS & AI
+// ======================
+
+Table alerts {
+  id int [pk, increment]
+  
+  patient_id int [not null, ref: > patients.user_id]
+  prediction_id int [ref: > health_predictions.id, null]    // Cảnh báo sinh từ kết quả AI nào (nếu có)
+  
+  type varchar 
+  value varchar
+  message varchar
+  severity alert_severity [default: 'medium']
+
+  source varchar                                            // Nguồn sinh cảnh báo: threshold | ml | manual
+  is_resolved boolean [default: false]
+
+  acknowledged_by int [ref: > doctors.user_id, null]        // Bác sĩ xác nhận xử lý
+  acknowledged_at datetime
+
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table health_predictions {
+  id int [pk, increment]
+
+  patient_id int [ref: > patients.user_id]
+
+  predicted_status health_status        // Kết quả dự đoán sức khỏe
+  confidence float                      // Độ tin cậy của mô hình (0–1)
+
+  model_version varchar                 // Phiên bản mô hình ML
+  input_window int                      // Số mẫu đầu vào (window size)
+
+  created_at datetime [default: `now()`]
+}
+
+// ======================
+// MEDICAL DATA
+// ======================
+
+Table medical_records {
+  id int [pk, increment]
+  
+  patient_id int [ref: > patients.user_id]
+  doctor_id int [ref: > doctors.user_id]
+  
+  diagnosis text
+  prescription text
+  notes text
+  visit_date datetime [default: `now()`]      // Ngày khám
+
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table medical_attachments {
+  id int [pk, increment]
+
+  medical_record_id int [ref: > medical_records.id]
+
+  file_url varchar
+  file_type varchar   // image | pdf
+  uploaded_at datetime
+}
+
+// ======================
+// TELEMEDICINE
+// ======================
+
+Table appointments {
+  id int [pk, increment]
+
+  patient_id int [ref: > patients.user_id]
+  doctor_id int [ref: > doctors.user_id]
+  
+  scheduled_at datetime [not null]
+  ended_at datetime
+  
+  status appointment_status [default: 'pending']
+  meeting_link varchar 
+  reason text
+  cancel_reason text
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table chat_messages {
+  id int [pk, increment]
+  
+  sender_id int [ref: > users.id]
+  receiver_id int [ref: > users.id]
+  
+  message text
+  attachment_url varchar // Ảnh/File kèm
+  is_read boolean [default: false]
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table call_logs {
+  id int [pk, increment]
+  
+  caller_id int [ref: > users.id]
+  receiver_id int [ref: > users.id]
+  
+  start_time datetime
+  end_time datetime
+  duration_seconds int
+  
+  status call_status [default: 'missed']
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}

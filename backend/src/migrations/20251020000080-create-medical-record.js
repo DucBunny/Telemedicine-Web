@@ -1,4 +1,5 @@
 'use strict'
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('medical_records', {
@@ -11,8 +12,8 @@ module.exports = {
       patient_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'users',
-          key: 'id'
+          model: 'patients',
+          key: 'user_id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
@@ -20,8 +21,8 @@ module.exports = {
       doctor_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: 'users',
-          key: 'id'
+          model: 'doctors',
+          key: 'user_id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
@@ -41,11 +42,13 @@ module.exports = {
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

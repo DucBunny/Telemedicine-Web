@@ -32,8 +32,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'CallLog',
-      tableName: 'call_logs'
+      modelName: 'CallLog'
     }
   )
 

@@ -1,9 +1,9 @@
 'use strict'
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('patients', {
       user_id: {
-        // Vừa là khóa chính, vừa là khóa ngoại (Quan hệ 1-1)
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false,
@@ -12,7 +12,7 @@ module.exports = {
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE' // Xóa User thì xóa luôn thông tin chi tiết
+        onDelete: 'CASCADE'
       },
       date_of_birth: {
         type: Sequelize.DATEONLY
@@ -35,22 +35,15 @@ module.exports = {
       address: {
         type: Sequelize.STRING
       },
-      doctor_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'users',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL' // Xóa bác sĩ thì hồ sơ này ko mất, chỉ null field doctor
-      },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

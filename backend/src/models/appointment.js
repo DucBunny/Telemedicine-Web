@@ -5,14 +5,16 @@ module.exports = (sequelize, DataTypes) => {
   class Appointment extends Model {
     static associate(models) {
       // Lịch hẹn thuộc về 1 Bệnh nhân
-      Appointment.belongsTo(models.User, {
+      Appointment.belongsTo(models.Patient, {
         foreignKey: 'patientId',
+        targetKey: 'userId',
         as: 'patient'
       })
 
       // Lịch hẹn thuộc về 1 Bác sĩ
-      Appointment.belongsTo(models.User, {
+      Appointment.belongsTo(models.Doctor, {
         foreignKey: 'doctorId',
+        targetKey: 'userId',
         as: 'doctor'
       })
     }
@@ -26,17 +28,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false
       },
+      endAt: DataTypes.DATE,
       status: {
         type: DataTypes.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
         defaultValue: 'pending'
       },
       meetingLink: DataTypes.STRING,
-      reason: DataTypes.TEXT
+      reason: DataTypes.TEXT,
+      cancelReason: DataTypes.TEXT
     },
     {
       sequelize,
-      modelName: 'Appointment',
-      tableName: 'appointments'
+      modelName: 'Appointment'
     }
   )
 

@@ -2,6 +2,7 @@ import 'dotenv/config'
 
 export const env = {
   PORT: process.env.PORT || 8080,
+  NODE_ENV: process.env.NODE_ENV || 'development',
 
   // TiDB Cloud configuration
   DB_PORT: process.env.DB_PORT || 3306,
@@ -19,6 +20,7 @@ export const env = {
   // JWT configuration
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_ACCESS_EXPIRE: process.env.JWT_ACCESS_EXPIRE || '15m',
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
   JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE || '30d',
 
   // Frontend URL
