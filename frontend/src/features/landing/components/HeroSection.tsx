@@ -13,7 +13,7 @@ import { HERO_STATS } from '../constants'
 
 export const HeroSection = () => {
   return (
-    <section className="relative overflow-hidden px-6 pt-32 pb-20 lg:pt-48 lg:pb-32">
+    <section className="relative overflow-hidden px-6 pt-32 pb-20 lg:pt-40 lg:pb-32">
       {/* Background Blobs */}
       <div className="pointer-events-none absolute top-0 left-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-400 opacity-20 blur-[80px]" />
       <div className="pointer-events-none absolute top-1/3 right-0 h-125 w-125 translate-x-1/2 rounded-full bg-blue-400 opacity-20 blur-[80px]" />
@@ -29,7 +29,7 @@ export const HeroSection = () => {
             Giải pháp Telemedicine Toàn diện
           </div>
 
-          <h1 className="text-5xl leading-[1.1] font-extrabold tracking-tight text-gray-900 lg:text-7xl">
+          <h1 className="text-5xl leading-[1.1] font-extrabold tracking-tight text-gray-700 lg:text-7xl">
             Bác sĩ riêng <br />
             <span className="bg-linear-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
               Ngay tại nhà bạn

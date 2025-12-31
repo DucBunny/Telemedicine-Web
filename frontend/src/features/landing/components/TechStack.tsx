@@ -1,48 +1,67 @@
-import {
-  Atom,
-  Code2,
-  Container,
-  Cpu,
-  Database,
-  MessageCircle,
-  Server,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import mongoDarkLogo from '../assets/MongoDB.svg'
+import reactLogo from '../assets/React_Light.svg'
+import mysqlLogo from '../assets/MySQL.svg'
+import nodejsLogo from '../assets/Nodejs.svg'
+import pythonLogo from '../assets/Python.svg'
+import dockerLogo from '../assets/Docker.svg'
+import rabbitmqLogo from '../assets/RabbitMQ.svg'
+import espLogo from '../assets/Espressif.svg'
+import { LogoCloud } from '@/components/ui/logo-cloud-4'
+import { cn } from '@/lib/utils'
 
-type TechItem = {
-  name: string
-  icon: LucideIcon
-  color: string
-}
-
-const TECH_ITEMS: Array<TechItem> = [
-  { name: 'React', icon: Atom, color: 'text-blue-500' },
-  { name: 'Node.js', icon: Server, color: 'text-green-600' },
-  { name: 'MySQL', icon: Database, color: 'text-blue-600' },
-  { name: 'MongoDB', icon: Database, color: 'text-green-500' },
-  { name: 'RabbitMQ', icon: MessageCircle, color: 'text-orange-500' },
-  { name: 'ESP32', icon: Cpu, color: 'text-red-500' },
-  { name: 'Python', icon: Code2, color: 'text-yellow-500' },
-  { name: 'Docker', icon: Container, color: 'text-blue-400' },
+const LOGOS = [
+  {
+    src: reactLogo,
+    alt: 'React Logo',
+  },
+  {
+    src: nodejsLogo,
+    alt: 'Node.js Logo',
+  },
+  {
+    src: mongoDarkLogo,
+    alt: 'MongoDB Logo',
+  },
+  {
+    src: mysqlLogo,
+    alt: 'MySQL Logo',
+  },
+  {
+    src: dockerLogo,
+    alt: 'Docker Logo',
+  },
+  {
+    src: pythonLogo,
+    alt: 'Python Logo',
+  },
+  {
+    src: rabbitmqLogo,
+    alt: 'RabbitMQ Logo',
+  },
+  {
+    src: espLogo,
+    alt: 'ESP32 Logo',
+  },
 ]
 
-export const TechStack = () => (
-  <section className="border-y border-gray-100 bg-gray-50/50 py-10">
-    <div className="mx-auto max-w-7xl px-6">
-      <p className="mb-8 text-center text-sm font-bold tracking-widest text-gray-400 uppercase">
-        Được xây dựng trên nền tảng công nghệ
-      </p>
+export const TechStack = () => {
+  return (
+    <section className="w-full place-content-center border-y border-gray-100 bg-gray-50/50 pt-10">
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute -top-1/2 left-1/2 h-[120vmin] w-[120vmin] -translate-x-1/2 rounded-b-full',
+          'bg-[radial-gradient(ellipse_at_center,--theme(--color-foreground/.1),transparent_50%)]',
+          'blur-[30px]',
+        )}
+      />
+      <div className="w-full">
+        <p className="text-center text-sm font-bold tracking-widest text-gray-400 uppercase">
+          Được xây dựng trên nền tảng công nghệ
+        </p>
 
-      <div className="flex flex-wrap justify-center gap-8 opacity-60 grayscale transition duration-500 hover:opacity-100 hover:grayscale-0 md:gap-12">
-        {TECH_ITEMS.map((tech) => (
-          <div
-            key={tech.name}
-            className="flex items-center gap-2 text-xl font-bold text-gray-600">
-            <tech.icon className={tech.color} />
-            {tech.name}
-          </div>
-        ))}
+        <LogoCloud logos={LOGOS} />
       </div>
-    </div>
-  </section>
-)
+    </section>
+  )
+}

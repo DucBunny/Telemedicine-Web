@@ -65,7 +65,7 @@ export const Footer = () => (
       </div>
     </div>
     <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-gray-200 px-6 pt-8 text-sm text-gray-400 md:flex-row">
-      <p>© 2024 MedCare Inc. All rights reserved.</p>
+      <p>© 2025 MedCare Inc. All rights reserved.</p>
       <div className="flex gap-6">
         <a href="#" className="hover:text-gray-600">
           Điều khoản

@@ -1,0 +1,53 @@
+- Thêm vào mySQL - bảng config hệ thống cho admin
+
+Table system_configs {
+  key varchar [pk]  // Ví dụ: "maintenance_mode", "allow_registration"
+  value varchar     // Ví dụ: "true", "false", "1.0.2"
+  description text
+  updated_at datetime
+  updated_by int [ref: > users.id]
+}
+
+- Thêm vào mySQL - bảng thông báo
+
+Table notifications {
+  id int [pk, increment]
+  user_id int [ref: > users.id] // Thông báo của ai
+  title varchar                 // Tiêu đề: "Nhắc lịch hẹn"
+  content text                  // Nội dung: "Bạn có lịch khám lúc 9h..."
+  type varchar                  // alert | appointment | system | chat
+  is_read boolean [default: false]
+  created_at timestamp
+}
+
+- Bảng ghi log - mongoDB
+
+const mongoose = require('mongoose');
+
+const SystemLogSchema = new mongoose.Schema({
+  level: { 
+    type: String, 
+    enum: ['INFO', 'WARN', 'ERROR', 'CRITICAL'], 
+    default: 'INFO' 
+  },
+  action: { type: String, required: true }, // Ví dụ: "LOGIN", "UPDATE_PATIENT", "DEVICE_ALERT"
+  actor: {
+    user_id: Number,      // ID từ MySQL
+    role: String,         // 'admin', 'doctor', 'patient'
+    ip_address: String,
+    user_agent: String
+  },
+  target: {               // Đối tượng bị tác động (nếu có)
+    collection: String,   // Ví dụ: "patients"
+    document_id: String   // ID của bản ghi bị sửa
+  },
+  details: { type: Object }, // Dữ liệu JSON linh hoạt (Old value -> New value)
+  
+  created_at: { type: Date, default: Date.now }
+});
+
+// Tạo Index TTL (Time To Live): Tự động xóa log sau 30 ngày
+SystemLogSchema.index({ created_at: 1 }, { expireAfterSeconds: 2592000 });
+
+module.exports = mongoose.model('SystemLog', SystemLogSchema);
+
