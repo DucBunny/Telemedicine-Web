@@ -1,155 +1,120 @@
-import { useState } from 'react'
-import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
-import { ArrowRight, Loader2, Lock, Mail } from 'lucide-react'
+import { Lock, Mail } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { loginSchema } from '../schemas'
+import { useLoginMutation } from '../hooks/useAuthMutations'
 import type { LoginFormData } from '../schemas'
-import { Input } from '@/components/ui/input'
+import { InputField } from '@/components/InputField'
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { FieldInfo } from '@/components/FieldInfo'
-import { apiClient } from '@/lib/axios'
 
 export const LoginForm = () => {
-  const navigate = useNavigate()
-  const [globalError, setGlobalError] = useState('')
+  const loginMutation = useLoginMutation()
+  const navigate = useNavigate({ from: '/login' })
 
   const form = useForm({
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     } as LoginFormData,
-
+    validators: {
+      onSubmit: loginSchema,
+    },
     onSubmit: async ({ value }) => {
-      setGlobalError('')
       try {
-        const response = await apiClient.post('/auth/login', value)
-        const { accessToken, refreshToken, user } = response.data.data
-
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
-        localStorage.setItem('user', JSON.stringify(user))
-
-        // Chuyển hướng
-        navigate({ to: '/' }) // Sửa lại route thực tế
-      } catch (err: any) {
-        const msg = err.response?.data?.error?.message || 'Đăng nhập thất bại'
-        setGlobalError(msg)
+        await loginMutation.mutateAsync(value)
+        toast.success('Đăng nhập thành công!')
+        navigate({ to: '/' })
+      } catch (error) {
+        toast.error('Đăng nhập thất bại')
+        console.error(error)
       }
     },
   })
 
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        form.handleSubmit()
-      }}
-      className="space-y-4">
-      {globalError && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-600">
-          ⚠️ {globalError}
+    <div className="mx-auto w-full max-w-md">
+      <div className="mb-8">
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">
+          Chào mừng trở lại!
+        </h1>
+        <p className="text-gray-500">
+          Vui lòng đăng nhập để tiếp tục theo dõi sức khỏe.
+        </p>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          form.handleSubmit()
+        }}>
+        {/* Field: Email */}
+        <form.Field
+          name="username"
+          children={(field) => (
+            <InputField
+              label="Email hoặc Số điện thoại"
+              type="text"
+              placeholder="Nhập email hoặc số điện thoại"
+              icon={Mail}
+              field={field}
+            />
+          )}
+        />
+
+        {/* Field: Password */}
+        <form.Field
+          name="password"
+          children={(field) => (
+            <InputField
+              label="Mật khẩu"
+              type="password"
+              placeholder="••••••••"
+              icon={Lock}
+              field={field}
+            />
+          )}
+        />
+
+        <div className="mb-6 flex items-center justify-end">
+          <Link
+            to="/"
+            className="text-sm font-medium text-teal-600 transition-colors hover:text-teal-700">
+            Quên mật khẩu?
+          </Link>
         </div>
-      )}
 
-      <form.Field
-        name="email"
-        // Validate thủ công dùng Zod safeParse
-        validators={{
-          onChange: ({ value }) => {
-            const result = loginSchema.shape.email.safeParse(value)
-            return result.success ? undefined : result.error.issues[0].message
-          },
-        }}
-        children={(field) => (
-          <div className="space-y-2">
-            <Label htmlFor={field.name}>Email</Label>
-            <div className="relative">
-              <Mail className="absolute top-2.5 left-3 h-5 w-5 text-gray-400" />
-              <Input
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="bacsi@medcare.com"
-                className="pl-10"
-              />
-            </div>
-            <FieldInfo field={field} />
-          </div>
-        )}
-      />
-
-      <form.Field
-        name="password"
-        // Validate thủ công dùng Zod safeParse
-        validators={{
-          onChange: ({ value }) => {
-            const result = loginSchema.shape.password.safeParse(value)
-            return result.success ? undefined : result.error.issues[0].message
-          },
-        }}
-        children={(field) => (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor={field.name}>Mật khẩu</Label>
-              <Link
-                to="/"
-                className="text-xs font-medium text-teal-600 hover:text-teal-700">
-                Quên mật khẩu?
-              </Link>
-            </div>
-            <div className="relative">
-              <Lock className="absolute top-2.5 left-3 h-5 w-5 text-gray-400" />
-              <Input
-                id={field.name}
-                name={field.name}
-                type="password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="••••••••"
-                className="pl-10"
-              />
-            </div>
-            <FieldInfo field={field} />
-          </div>
-        )}
-      />
-
-      <div className="pt-4">
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
             <Button
               type="submit"
-              disabled={!canSubmit || isSubmitting}
-              className="h-11 w-full text-base shadow-lg shadow-teal-100">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Đang xử
-                  lý...
-                </>
-              ) : (
-                <>
-                  Đăng nhập <ArrowRight className="ml-2 h-4 w-4" />
-                </>
-              )}
+              size="lg"
+              disabled={!canSubmit || loginMutation.isPending}
+              className={`w-full rounded-xl bg-teal-600 font-bold shadow-md shadow-teal-200 transition-colors ${
+                !canSubmit
+                  ? 'cursor-not-allowed opacity-50'
+                  : 'hover:bg-teal-700'
+              }`}>
+              {isSubmitting || loginMutation.isPending
+                ? 'Đang xử lý...'
+                : 'Đăng nhập'}
             </Button>
           )}
         />
-      </div>
+      </form>
 
-      <p className="mt-4 text-center text-sm text-gray-500">
-        Chưa có tài khoản?{' '}
-        <Link
-          to="/register"
-          className="font-bold text-teal-600 hover:text-teal-700 hover:underline">
-          Đăng ký ngay
-        </Link>
-      </p>
-    </form>
+      <div className="mt-8 text-center">
+        <p className="text-sm text-gray-500">
+          Chưa có tài khoản?{' '}
+          <Link
+            to="/register"
+            className="font-bold text-teal-600 transition-colors hover:text-teal-700">
+            Đăng ký ngay
+          </Link>
+        </p>
+      </div>
+    </div>
   )
 }
