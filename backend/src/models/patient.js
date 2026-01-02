@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
       Patient.hasMany(models.MedicalRecord, {
         foreignKey: 'patientId',
         sourceKey: 'userId',
-        as: 'medicalHistory'
+        as: 'medicalRecords'
       })
 
       // 1-N với Appointment (Lịch hẹn của bệnh nhân)

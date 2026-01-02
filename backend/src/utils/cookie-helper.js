@@ -1,4 +1,4 @@
-import { env } from '@/config/environment.js'
+import { env } from '@/config/environment'
 
 /**
  * Cookie configuration constants

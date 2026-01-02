@@ -1,7 +1,7 @@
 import { BaseError as SequelizeBaseError } from 'sequelize'
-import ApiError from '@/utils/api-error.js'
+import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '@/config/environment.js'
+import { env } from '@/config/environment'
 
 /**
  * Middleware to convert any error to an instance of ApiError.
@@ -11,8 +11,8 @@ export const errorConverter = (err, req, res, next) => {
 
   // 1. Kiểm tra xem lỗi có phải là Instance của ApiError không
   if (!(error instanceof ApiError)) {
-    const statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR
-    const message = error.message || 'Internal Server Error'
+    let statusCode = error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR
+    let message = error.message || 'Internal Server Error'
 
     // 2. Xử lý riêng cho Sequelize errors
     if (error instanceof SequelizeBaseError) {

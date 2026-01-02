@@ -12,7 +12,7 @@ module.exports = {
         email: 'admin@gmail.com',
         password: passwordHash,
         role: 'admin',
-        phone_number: '0123456789',
+        phone_number: '0912345678',
         created_at: new Date(),
         updated_at: new Date()
       },

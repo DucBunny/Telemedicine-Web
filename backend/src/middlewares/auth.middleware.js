@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
-import ApiError from '@/utils/api-error.js'
+import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
 
 export const authMiddleware = (req, res, next) => {
   // Whitelist paths that do not require authentication
-  const whitelists = ['/auth/login', '/auth/register']
+  const whitelists = []
   if (whitelists.find((path) => '/api-v1' + path === req.originalUrl))
     return next()
 

@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
-import * as authService from '@/services/auth.service.js'
+import * as authService from '@/services/auth.service'
 import {
   setRefreshTokenCookie,
   clearRefreshTokenCookie,
   getRefreshTokenFromCookie
-} from '@/utils/cookie-helper.js'
+} from '@/utils/cookie-helper'
 import ApiError from '@/utils/api-error'
 
 export const register = async (req, res, next) => {
@@ -22,7 +22,8 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const result = await authService.login(req.body)
+    const deviceInfo = req.headers['user-agent'] || req.body.deviceInfo || null
+    const result = await authService.login({ ...req.body, deviceInfo })
 
     setRefreshTokenCookie(res, result.refreshToken)
 
@@ -41,6 +42,7 @@ export const login = async (req, res, next) => {
 
 export const refreshToken = async (req, res, next) => {
   try {
+    const deviceInfo = req.headers['user-agent'] || req.body.deviceInfo || null
     const refreshToken = getRefreshTokenFromCookie(req)
 
     if (!refreshToken)
@@ -52,7 +54,7 @@ export const refreshToken = async (req, res, next) => {
 
     const result = await authService.refreshToken({
       requestToken: refreshToken,
-      deviceInfo: req.body.deviceInfo
+      deviceInfo: deviceInfo
     })
 
     // Set refresh token mới trong httpOnly cookie
@@ -73,11 +75,12 @@ export const refreshToken = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
+    const deviceInfo = req.headers['user-agent'] || req.body.deviceInfo || null
     const refreshToken = getRefreshTokenFromCookie(req)
 
     await authService.logout({
       refreshToken,
-      deviceInfo: req.body.deviceInfo
+      deviceInfo: deviceInfo
     })
 
     clearRefreshTokenCookie(res)

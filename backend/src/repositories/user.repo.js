@@ -1,4 +1,4 @@
-import User from '@/models/user.js'
+import { User } from '@/models/index'
 
 export const create = async (data) => {
   return await User.create(data)
@@ -9,11 +9,11 @@ export const findById = async (id) => {
 }
 
 export const findByEmail = async (email) => {
-  return await User.findOne({ email })
+  return await User.findOne({ where: { email } })
 }
 
 export const findByPhoneNumber = async (phoneNumber) => {
-  return await User.findOne({ phoneNumber })
+  return await User.findOne({ where: { phoneNumber } })
 }
 
 export const getAll = async () => {

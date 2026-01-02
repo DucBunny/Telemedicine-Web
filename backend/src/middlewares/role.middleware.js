@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '@/utils/api-error.js'
+import ApiError from '@/utils/api-error'
 
 export const authorize = (roles = []) => {
   if (typeof roles === 'string') {

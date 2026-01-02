@@ -1,11 +1,11 @@
-import * as userRepo from '@/repositories/user.repo.js'
-import * as refreshTokenRepo from '@/repositories/refreshToken.repo.js'
-import { hashPassword, comparePassword } from '@/utils/hash-password.js'
+import * as userRepo from '@/repositories/user.repo'
+import * as refreshTokenRepo from '@/repositories/refreshToken.repo'
+import { hashPassword, comparePassword } from '@/utils/hash-password'
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '@/utils/api-error.js'
+import ApiError from '@/utils/api-error'
 import jwt from 'jsonwebtoken'
 import ms from 'ms'
-import { env } from '@/config/environment.js'
+import { env } from '@/config/environment'
 
 /**
  * Helpers to generate access and refresh tokens
@@ -25,8 +25,7 @@ const generateTokens = async (user, deviceInfo = null) => {
     expiresIn: env.JWT_REFRESH_EXPIRE
   })
 
-  const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + ms(env.JWT_REFRESH_EXPIRE))
+  const expiresAt = new Date(Date.now() + ms(env.JWT_REFRESH_EXPIRE))
 
   await refreshTokenRepo.create({
     token: refreshToken,
@@ -43,7 +42,7 @@ const generateTokens = async (user, deviceInfo = null) => {
  * Helpers to remove sensitive fields from user object
  */
 const publicUser = (user) => {
-  const safeUser = { ...user }
+  const safeUser = { ...user.get() }
   delete safeUser.password
   delete safeUser.createdAt
   delete safeUser.updatedAt
@@ -52,7 +51,7 @@ const publicUser = (user) => {
 }
 
 export const register = async ({ email, password, fullName, phoneNumber }) => {
-  const existingEmail = await userRepo.findUserByEmail(email)
+  const existingEmail = await userRepo.findByEmail(email)
   if (existingEmail)
     throw new ApiError(
       StatusCodes.CONFLICT,
@@ -60,7 +59,7 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
       'EMAIL_EXISTS'
     )
 
-  const existingPhone = await userRepo.findUserByPhoneNumber(phoneNumber)
+  const existingPhone = await userRepo.findByPhoneNumber(phoneNumber)
   if (existingPhone)
     throw new ApiError(
       StatusCodes.CONFLICT,
@@ -70,7 +69,7 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
 
   const hashedPassword = await hashPassword(password)
 
-  const newUser = await userRepo.createUser({
+  const newUser = await userRepo.create({
     email,
     password: hashedPassword,
     fullName,
@@ -83,8 +82,8 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
 
 export const login = async ({ username, password, deviceInfo }) => {
   const user =
-    (await userRepo.findUserByEmail(username)) ||
-    (await userRepo.findUserByPhoneNumber(username))
+    (await userRepo.findByEmail(username)) ||
+    (await userRepo.findByPhoneNumber(username))
   if (!user)
     throw new ApiError(
       StatusCodes.UNAUTHORIZED,

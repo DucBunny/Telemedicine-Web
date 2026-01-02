@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize'
-import { env } from './environment.js'
+import { env } from './environment'
 
 const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
   host: env.DB_HOST,

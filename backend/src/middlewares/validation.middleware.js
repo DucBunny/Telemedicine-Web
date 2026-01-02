@@ -1,4 +1,4 @@
-import ApiError from '@/utils/api-error.js'
+import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
 
 const formatZodError = (error) => {

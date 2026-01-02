@@ -1,4 +1,4 @@
-import RefreshToken from '@/models/refreshToken.js'
+import { RefreshToken } from '@/models/index'
 
 export const create = async (data) => {
   return await RefreshToken.create(data)

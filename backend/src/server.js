@@ -1,13 +1,13 @@
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
-import router from './routes/api.js'
-import { connectDB } from './config/database.js'
+import router from './routes/api'
+import { connectDB } from './config/database'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
-import { errorConverter, errorHandler } from './middlewares/error.middleware.js'
-import { env } from './config/environment.js'
+import { errorConverter, errorHandler } from './middlewares/error.middleware'
+import { env } from './config/environment'
 
 const port = env.PORT
 const app = express()
