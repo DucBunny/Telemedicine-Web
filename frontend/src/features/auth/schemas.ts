@@ -34,6 +34,9 @@ export const registerSchema = z
     phoneNumber,
     password,
     confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
+    terms: z.boolean().refine((val) => val === true, {
+      message: 'Vui lòng đồng ý với điều khoản dịch vụ',
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Xác nhận mật khẩu không khớp',

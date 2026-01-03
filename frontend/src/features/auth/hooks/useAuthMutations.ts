@@ -4,9 +4,7 @@ import type {
   LoginRequestDto,
   LoginResponseDto,
   RegisterRequestDto,
-  RegisterResponseDto,
 } from '../dto/auth.dto'
-import type { ApiSuccessResponse } from '@/types/api.type'
 import { useAuthStore } from '@/stores/auth.store'
 import { getErrorMessage } from '@/lib/axios'
 
@@ -15,12 +13,8 @@ export const useLoginMutation = () => {
 
   return useMutation({
     mutationKey: ['auth', 'login'],
-    mutationFn: async (payload: LoginRequestDto) => {
-      const res: ApiSuccessResponse<LoginResponseDto> =
-        await authApi.login(payload)
-      return res.data
-    },
-    onSuccess: (data) => {
+    mutationFn: (payload: LoginRequestDto) => authApi.login(payload),
+    onSuccess: (data: LoginResponseDto) => {
       setAuth(data.accessToken, data.user)
     },
     onError: (error) => {
@@ -33,11 +27,7 @@ export const useLoginMutation = () => {
 export const useRegisterMutation = () => {
   return useMutation({
     mutationKey: ['auth', 'register'],
-    mutationFn: async (payload: RegisterRequestDto) => {
-      const res: ApiSuccessResponse<RegisterResponseDto> =
-        await authApi.register(payload)
-      return res.data
-    },
+    mutationFn: (payload: RegisterRequestDto) => authApi.register(payload),
     onError: (error) => {
       console.error('Register failed:', getErrorMessage(error))
     },

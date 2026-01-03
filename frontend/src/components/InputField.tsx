@@ -64,12 +64,17 @@ export const InputField = ({
 
   return (
     <div className="mb-4">
-      {label ? <Label className="text-gray-600">{label}</Label> : null}
+      {label ? (
+        <Label className="text-gray-600" htmlFor={bindToField.name}>
+          {label}
+        </Label>
+      ) : null}
       <div className="relative mt-1">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           {Icon ? <Icon className="h-5 w-5 text-gray-400" /> : null}
         </div>
         <Input
+          id={bindToField.name}
           type={inputType}
           className={`rounded-xl pl-10 shadow-sm transition-all focus-visible:border-teal-500 focus-visible:ring-1 focus-visible:ring-teal-500 focus-visible:ring-offset-0 ${
             hasError ? 'border-red-500' : 'border-gray-300'

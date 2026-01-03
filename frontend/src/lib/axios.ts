@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import type { ApiErrorResponse } from '@/types/api.type'
 import { useAuthStore } from '@/stores/auth.store'
 
 export const apiClient = axios.create({
@@ -128,20 +129,24 @@ apiClient.interceptors.response.use(
  * Helper để lấy error message từ API response
  */
 export function getErrorMessage(error: unknown): string {
+  // Axios error
   if (axios.isAxiosError(error)) {
-    const responseData = error.response?.data
-    // Ưu tiên lấy error detail (chi tiết lỗi từ BE)
-    if (responseData?.error) {
-      return responseData.error
+    const data = error.response?.data as ApiErrorResponse | undefined
+
+    // Ưu tiên message từ BE
+    if (data?.error.message) {
+      return data.error.message
     }
-    // Sau đó lấy message
-    if (responseData?.message) {
-      return responseData.message
+
+    // Fallback: axios message
+    if (error.message) {
+      return error.message
     }
-    // Cuối cùng lấy error message từ axios
-    return error.message || 'Có lỗi xảy ra'
+
+    return 'Có lỗi xảy ra'
   }
 
+  // JS Error
   if (error instanceof Error) {
     return error.message
   }

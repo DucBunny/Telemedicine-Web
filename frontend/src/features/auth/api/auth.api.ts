@@ -20,7 +20,7 @@ export const authApi = {
       payload,
     )
 
-    return data
+    return data.data
   },
 
   register: async (payload: RegisterRequestDto) => {
@@ -28,7 +28,7 @@ export const authApi = {
       ApiSuccessResponse<RegisterResponseDto>
     >(`${AUTH_BASE}/register`, payload)
 
-    return data
+    return data.data
   },
 
   refreshToken: async () => {
@@ -36,7 +36,7 @@ export const authApi = {
       ApiSuccessResponse<RefreshTokenResponseDto>
     >(`${AUTH_BASE}/refresh-token`, {}, { withCredentials: true })
 
-    return data
+    return data.data
   },
 
   logout: async () => {

@@ -1,16 +1,18 @@
 import { useForm } from '@tanstack/react-form'
 import { Lock, Mail, Phone, ShieldCheck, User } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { registerSchema } from '../schemas'
 import { useRegisterMutation } from '../hooks/useAuthMutations'
-import { Button } from '../../../components/ui/button'
 import type { RegisterFormData } from '../schemas'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { InputField } from '@/components/InputField'
+import { FieldError } from '@/components/FieldError'
 
 export const RegisterForm = () => {
   const registerMutation = useRegisterMutation()
+  const navigate = useNavigate({ from: '/register' })
 
   const form = useForm({
     defaultValues: {
@@ -19,6 +21,7 @@ export const RegisterForm = () => {
       phoneNumber: '',
       password: '',
       confirmPassword: '',
+      terms: false,
     } as RegisterFormData,
     validators: {
       onSubmit: registerSchema,
@@ -27,6 +30,7 @@ export const RegisterForm = () => {
       try {
         await registerMutation.mutateAsync(value)
         toast.success('Đăng ký thành công!')
+        navigate({ to: '/login' })
       } catch (error) {
         toast.error('Đăng ký thất bại')
         console.error(error)
@@ -114,25 +118,38 @@ export const RegisterForm = () => {
           )}
         />
 
-        <div className="mb-6">
-          <label className="mt-2 flex items-center">
-            <Checkbox className="border-gray-300 data-[state=checked]:border-teal-600 data-[state=checked]:bg-teal-600" />
-            <span className="ml-2 text-sm text-gray-600">
-              Tôi đồng ý với{' '}
-              <a
-                href="#"
-                className="text-teal-600 underline hover:text-teal-700">
-                Điều khoản dịch vụ
-              </a>{' '}
-              và{' '}
-              <a
-                href="#"
-                className="text-teal-600 underline hover:text-teal-700">
-                Chính sách bảo mật
-              </a>
-            </span>
-          </label>
-        </div>
+        <form.Field
+          name="terms"
+          children={(field) => (
+            <>
+              <label className="mt-2 flex cursor-pointer items-center">
+                <Checkbox
+                  className="border-gray-300 data-[state=checked]:border-teal-600 data-[state=checked]:bg-teal-600"
+                  checked={field.state.value}
+                  onCheckedChange={(checked) =>
+                    field.handleChange(checked === true)
+                  }
+                />
+                <span className="ml-2 text-sm text-gray-600">
+                  Tôi đồng ý với{' '}
+                  <a
+                    href="#"
+                    className="text-teal-600 underline hover:text-teal-700">
+                    Điều khoản dịch vụ
+                  </a>{' '}
+                  và{' '}
+                  <a
+                    href="#"
+                    className="text-teal-600 underline hover:text-teal-700">
+                    Chính sách bảo mật
+                  </a>
+                </span>
+              </label>
+
+              <FieldError field={field} />
+            </>
+          )}
+        />
 
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
@@ -141,7 +158,7 @@ export const RegisterForm = () => {
               size="lg"
               type="submit"
               disabled={!canSubmit || registerMutation.isPending}
-              className={`w-full rounded-xl bg-teal-600 font-bold shadow-md shadow-teal-200 transition-colors ${
+              className={`mt-6 w-full rounded-xl bg-teal-600 font-bold shadow-md shadow-teal-200 transition-colors ${
                 !canSubmit
                   ? 'cursor-not-allowed opacity-50'
                   : 'hover:bg-teal-700'

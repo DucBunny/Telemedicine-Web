@@ -49,7 +49,6 @@ export const LoginForm = () => {
           e.stopPropagation()
           form.handleSubmit()
         }}>
-        {/* Field: Email */}
         <form.Field
           name="username"
           children={(field) => (
@@ -63,7 +62,6 @@ export const LoginForm = () => {
           )}
         />
 
-        {/* Field: Password */}
         <form.Field
           name="password"
           children={(field) => (
