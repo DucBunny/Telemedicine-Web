@@ -1,46 +1,32 @@
-import React, { useState } from 'react'
-import { Header } from '../components/Header'
-import { Sidebar } from '../components/Sidebar'
+import React from 'react'
+import { DoctorHeader } from '../components/DoctorHeader'
+import { DoctorSidebar } from '../components/DoctorSidebar'
 import { MobileNav } from '../components/MobileNav'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import '../styles/styles.css'
 
 interface DoctorLayoutProps {
   children: React.ReactNode
   activeTab: string
-  setActiveTab: (tab: string) => void
 }
 
-export const DoctorLayout = ({
-  children,
-  activeTab,
-  setActiveTab,
-}: DoctorLayoutProps) => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
-
+export const DoctorLayout = ({ children, activeTab }: DoctorLayoutProps) => {
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 font-sans text-xs text-gray-900 md:text-sm">
+    <SidebarProvider className="overflow-hidden font-sans">
       {/* Sidebar */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        isCollapsed={isSidebarCollapsed}
-      />
+      <DoctorSidebar activeTab={activeTab} />
 
       {/* Main Content */}
-      <div className="relative flex h-screen flex-1 flex-col overflow-hidden transition-all duration-300">
-        {/* Header */}
-        <Header
-          isCollapsed={isSidebarCollapsed}
-          setIsCollapsed={setIsSidebarCollapsed}
-          activeTab={activeTab}
-        />
+      <SidebarInset>
+        <DoctorHeader activeTab={activeTab} />
 
-        <main className="flex-1 overflow-y-auto scroll-smooth bg-gray-50 p-4 pb-20 md:p-6 lg:p-8">
+        <main className="flex-1 scroll-smooth bg-gray-50 p-4 pb-20 md:overflow-y-auto md:p-6 lg:p-8">
           {children}
         </main>
 
         {/* Mobile Navigation */}
-        <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
-      </div>
-    </div>
+        <MobileNav activeTab={activeTab} />
+      </SidebarInset>
+    </SidebarProvider>
   )
 }

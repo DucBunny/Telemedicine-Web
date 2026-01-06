@@ -1,15 +1,10 @@
 import { ChevronRight, Clock } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { MOCK_APPOINTMENTS } from '../../data/mockData'
 import { DoctorStatusBadge } from '../DoctorStatusBadge'
 import { Button } from '@/components/ui/button'
 
-interface UpcomingAppointmentsProps {
-  onNavigate: (tab: string) => void
-}
-
-export const UpcomingAppointments = ({
-  onNavigate,
-}: UpcomingAppointmentsProps) => {
+export const UpcomingAppointments = () => {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 bg-green-50/50 p-3 md:p-5">
@@ -17,12 +12,13 @@ export const UpcomingAppointments = ({
           <Clock className="mr-2 h-4 w-4 text-teal-600 md:h-5 md:w-5" />
           Lịch hẹn sắp tới
         </h2>
-        <Button
-          variant="link"
-          onClick={() => onNavigate('appointments')}
-          className="h-auto p-0 text-xs text-teal-600 md:text-sm">
-          Xem tất cả
-        </Button>
+        <Link to="/doctor/appointments">
+          <Button
+            variant="link"
+            className="h-auto p-0 text-xs text-teal-600 md:text-sm">
+            Xem tất cả
+          </Button>
+        </Link>
       </div>
 
       <div className="divide-y divide-gray-100">

@@ -20,6 +20,10 @@
   ::-webkit-scrollbar {
     display: none;
   }
+  html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
 }
 
 @media (width >= 64rem /* 1024px */) {

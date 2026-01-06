@@ -1,37 +1,16 @@
-import { Bell, PanelLeftClose, PanelLeftOpen, Search } from 'lucide-react'
+import { Bell, Search } from 'lucide-react'
 import { MOCK_USER_DOCTOR } from '../data/mockData'
+import { NAVIGATION_ITEMS } from '../config'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { SidebarTrigger } from '@/components/ui/sidebar'
 
-interface HeaderProps {
-  isCollapsed: boolean
-  setIsCollapsed: (val: boolean) => void
+interface DoctorHeaderProps {
   activeTab: string
 }
 
-export const Header = ({
-  isCollapsed,
-  setIsCollapsed,
-  activeTab,
-}: HeaderProps) => {
-  const getTitle = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return 'Tổng quan'
-      case 'appointments':
-        return 'Lịch hẹn khám'
-      case 'patients':
-        return 'Quản lý bệnh nhân'
-      case 'chat':
-        return 'Tư vấn trực tuyến'
-      case 'settings':
-        return 'Cài đặt hệ thống'
-      default:
-        return 'MedCare Doctor'
-    }
-  }
-
+export const DoctorHeader = ({ activeTab }: DoctorHeaderProps) => {
   return (
     <header className="z-20 flex h-15 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:h-18.25 md:px-6 md:py-4">
       <div className="flex items-center">
@@ -46,18 +25,10 @@ export const Header = ({
 
         {/* Desktop Toggle */}
         <div className="hidden items-center md:flex">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="mr-3 text-gray-500 hover:text-teal-600">
-            {isCollapsed ? (
-              <PanelLeftOpen size={20} />
-            ) : (
-              <PanelLeftClose size={20} />
-            )}
-          </Button>
-          <h2 className="text-xl font-bold text-gray-800">{getTitle()}</h2>
+          <SidebarTrigger className="mr-3 text-gray-500 hover:text-teal-600" />
+          <h2 className="text-xl font-bold text-gray-800">
+            {NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label}
+          </h2>
         </div>
       </div>
 

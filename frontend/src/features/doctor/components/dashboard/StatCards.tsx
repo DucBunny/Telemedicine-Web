@@ -1,4 +1,4 @@
-import { DASHBOARD_STATS } from '../../constant'
+import { DASHBOARD_STATS } from '../../config'
 import { Card, CardContent } from '@/components/ui/card'
 
 export const StatCards = () => {
