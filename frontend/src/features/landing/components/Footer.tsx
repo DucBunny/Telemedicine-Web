@@ -5,7 +5,7 @@ export const Footer = () => (
     <div className="mx-auto mb-16 grid max-w-7xl gap-12 px-6 md:grid-cols-4">
       <div className="col-span-1 md:col-span-2">
         <div className="mb-4 flex items-center gap-2 text-xl font-bold text-teal-700">
-          <img src="/logo.png" alt="Logo" className="h-8 w-8" />
+          <img src="/logo.png" alt="MedCare Logo" className="h-8 w-8" />
           MedCare
         </div>
         <p className="max-w-sm text-sm leading-relaxed text-gray-500">

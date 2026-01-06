@@ -1,13 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { DoctorLayout } from '@/features/doctor/layouts/DoctorLayout'
-import { DoctorDashboardPage } from '@/features/doctor/dashboard/DashboardPage'
+import DoctorPortal from '../../features/doctor/DoctorPortal'
 
-export const Route = createFileRoute('/doctor/')({ component: DoctorDashboard })
-
-function DoctorDashboard() {
-  return (
-    <DoctorLayout>
-      <DoctorDashboardPage />
-    </DoctorLayout>
-  )
-}
+export const Route = createFileRoute('/doctor/')({
+  component: DoctorPortal,
+})

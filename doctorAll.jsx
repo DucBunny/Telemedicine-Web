@@ -28,6 +28,21 @@ import {
   PanelLeftOpen
 } from 'lucide-react'
 
+// --- STYLES FOR CUSTOM SCROLLBAR ---
+const customScrollbarStyle = `
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 3px; /* Chiều cao thanh cuộn ngang rất bé */
+    width: 3px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; /* gray-300 */
+    border-radius: 10px;
+  }
+`
+
 // --- MOCK DATA BASED ON DBML ---
 
 const MOCK_USER_DOCTOR = {
@@ -264,16 +279,44 @@ const StatusBadge = ({ status, type }) => {
 
   return (
     <span
-      className={`px-2.5 py-0.5 rounded-full text-xs font-medium border border-transparent ${className}`}>
+      className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium border border-transparent whitespace-nowrap ${className}`}>
       {labels[status] || status}
     </span>
   )
 }
 
+// 1. Mobile Bottom Navigation (NEW)
+const MobileBottomNav = ({ activeTab, setActiveTab }) => {
+  const navItems = [
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+    { id: 'appointments', icon: Calendar, label: 'Lịch hẹn' },
+    { id: 'patients', icon: Users, label: 'Bệnh nhân' },
+    { id: 'chat', icon: MessageSquare, label: 'Chat' },
+    { id: 'settings', icon: Settings, label: 'Cài đặt' }
+  ]
+
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 pb-safe flex justify-between items-center z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      {navItems.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => setActiveTab(item.id)}
+          className={`flex flex-col items-center justify-center w-full py-1 transition-colors duration-200 ${
+            activeTab === item.id
+              ? 'text-teal-600'
+              : 'text-gray-400 hover:text-gray-600'
+          }`}>
+          <item.icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} />
+          <span className="text-[10px] font-medium mt-1">{item.label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function DoctorPortal() {
   const [activeTab, setActiveTab] = useState('dashboard')
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false) // State for Desktop Sidebar
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   const getPageTitle = () => {
     switch (activeTab) {
@@ -311,10 +354,7 @@ export default function DoctorPortal() {
 
   const NavItem = ({ id, icon: Icon, label }) => (
     <button
-      onClick={() => {
-        setActiveTab(id)
-        setIsMobileMenuOpen(false)
-      }}
+      onClick={() => setActiveTab(id)}
       className={`flex items-center w-full px-4 py-3 mb-1 text-sm font-medium transition-all duration-200 rounded-lg group
         ${
           activeTab === id
@@ -340,7 +380,9 @@ export default function DoctorPortal() {
   )
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden text-xs md:text-sm">
+      <style>{customScrollbarStyle}</style>
+
       {/* Sidebar - Desktop */}
       <aside
         className={`hidden md:flex flex-col bg-white border-r border-gray-200 z-30 transition-all duration-300 ease-in-out
@@ -401,20 +443,17 @@ export default function DoctorPortal() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative transition-all duration-300">
         {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 z-20 h-[73px]">
+        <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-white border-b border-gray-200 z-20 h-[60px] md:h-[73px]">
           <div className="flex items-center">
-            {/* Mobile Menu Toggle */}
-            <div className="md:hidden mr-2">
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="p-2 -ml-2 text-gray-600 rounded-md hover:bg-gray-100">
-                {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
             {/* Logo Mobile */}
-            <span className="text-lg font-bold text-gray-900 md:hidden">
-              MediCare<span className="text-teal-500">Dr</span>
-            </span>
+            <div className="flex items-center md:hidden">
+              <div className="w-7 h-7 bg-teal-600 rounded-lg flex items-center justify-center mr-2">
+                <Activity className="text-white w-4 h-4" />
+              </div>
+              <span className="text-lg font-bold text-gray-900">
+                MediCare<span className="text-teal-500">Dr</span>
+              </span>
+            </div>
 
             {/* Desktop Sidebar Toggle & Title */}
             <div className="hidden md:flex items-center">
@@ -435,13 +474,13 @@ export default function DoctorPortal() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             <div className="relative hidden sm:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Tìm kiếm..."
-                className="pl-9 pr-4 py-2 w-64 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                className="pl-9 pr-4 py-2 w-48 md:w-64 bg-gray-50 border border-gray-200 rounded-lg text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
               />
             </div>
 
@@ -466,26 +505,17 @@ export default function DoctorPortal() {
                   {MOCK_USER_DOCTOR.specialization}
                 </p>
               </div>
-              <ChevronRight className="w-4 h-4 text-gray-400 ml-2 hidden sm:block" />
             </div>
           </div>
         </header>
 
-        {/* Mobile Menu Overlay */}
-        {isMobileMenuOpen && (
-          <div className="absolute inset-0 bg-white z-10 pt-20 px-4 md:hidden animate-fade-in-down">
-            <NavItem id="dashboard" icon={LayoutDashboard} label="Tổng quan" />
-            <NavItem id="appointments" icon={Calendar} label="Lịch hẹn" />
-            <NavItem id="patients" icon={Users} label="Quản lý bệnh nhân" />
-            <NavItem id="chat" icon={MessageSquare} label="Tư vấn trực tuyến" />
-            <NavItem id="settings" icon={Settings} label="Cài đặt" />
-          </div>
-        )}
-
         {/* Content Body */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-8 scroll-smooth">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-3 md:p-8 scroll-smooth pb-20 md:pb-8">
           {renderContent()}
         </main>
+
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
     </div>
   )
@@ -500,22 +530,22 @@ function DashboardView({ onNavigate }) {
   )
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex justify-between items-end mb-2">
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
+      <div className="flex justify-between items-end mb-1">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             Xin chào, {MOCK_USER_DOCTOR.full_name}
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-gray-500 text-xs md:text-sm mt-1">
             Bạn có{' '}
             <span className="font-semibold text-teal-600">
               {MOCK_STATS.appointments_today} lịch hẹn
             </span>{' '}
-            hôm nay và{' '}
+            và{' '}
             <span className="font-semibold text-red-500">
               {MOCK_STATS.pending_alerts} cảnh báo
-            </span>{' '}
-            cần xử lý.
+            </span>
+            .
           </p>
         </div>
         <button
@@ -525,8 +555,8 @@ function DashboardView({ onNavigate }) {
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Cards - Grid 2 cols on mobile */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {[
           {
             label: 'Tổng bệnh nhân',
@@ -535,19 +565,19 @@ function DashboardView({ onNavigate }) {
             color: 'bg-blue-500'
           },
           {
-            label: 'Lịch hẹn hôm nay',
+            label: 'Lịch hẹn',
             value: MOCK_STATS.appointments_today,
             icon: Calendar,
             color: 'bg-teal-500'
           },
           {
-            label: 'Cảnh báo khẩn cấp',
+            label: 'Cảnh báo',
             value: MOCK_STATS.pending_alerts,
             icon: AlertTriangle,
             color: 'bg-red-500'
           },
           {
-            label: 'Tin nhắn mới',
+            label: 'Tin nhắn',
             value: MOCK_STATS.messages_unread,
             icon: MessageSquare,
             color: 'bg-purple-500'
@@ -555,39 +585,45 @@ function DashboardView({ onNavigate }) {
         ].map((stat, idx) => (
           <div
             key={idx}
-            className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between transition hover:shadow-md cursor-default">
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">
+            className="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-start md:items-center justify-between transition hover:shadow-md cursor-default">
+            <div className="order-2 md:order-1 mt-2 md:mt-0">
+              <p className="text-xs md:text-sm font-medium text-gray-500 mb-0.5">
                 {stat.label}
               </p>
-              <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+              <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                {stat.value}
+              </h3>
             </div>
-            <div className={`p-3 rounded-lg ${stat.color} bg-opacity-10`}>
+            <div
+              className={`order-1 md:order-2 p-2 md:p-3 rounded-lg ${stat.color} bg-opacity-10 self-end md:self-center`}>
               <stat.icon
-                className={`w-6 h-6 ${stat.color.replace('bg-', 'text-')}`}
+                className={`w-5 h-5 md:w-6 md:h-6 ${stat.color.replace(
+                  'bg-',
+                  'text-'
+                )}`}
               />
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Main Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Attention Needed Patients Table (NEW) */}
+        <div className="lg:col-span-2 space-y-4 md:space-y-6">
+          {/* Attention Needed Patients Table */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
-              <h2 className="font-semibold text-red-800 flex items-center">
-                <Activity className="w-5 h-5 mr-2" />
+            <div className="p-4 md:p-5 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
+              <h2 className="font-semibold text-red-800 flex items-center text-sm md:text-base">
+                <Activity className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                 Bệnh nhân cần chú ý
               </h2>
               <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded-full">
                 {attentionPatients.length}
               </span>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left whitespace-nowrap">
-                <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
+            <div className="overflow-x-auto custom-scrollbar">
+              <table className="w-full text-xs md:text-sm text-left whitespace-nowrap">
+                <thead className="text-[10px] md:text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
                   <tr>
                     <th className="px-4 py-3">Bệnh nhân</th>
                     <th className="px-4 py-3">Tình trạng</th>
@@ -619,14 +655,14 @@ function DashboardView({ onNavigate }) {
 
           {/* Upcoming Appointments */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="font-semibold text-gray-800 flex items-center">
-                <Clock className="w-5 h-5 mr-2 text-teal-600" />
+            <div className="p-4 md:p-5 border-b border-gray-100 flex justify-between items-center">
+              <h2 className="font-semibold text-gray-800 flex items-center text-sm md:text-base">
+                <Clock className="w-4 h-4 md:w-5 md:h-5 mr-2 text-teal-600" />
                 Lịch hẹn sắp tới
               </h2>
               <button
                 onClick={() => onNavigate('appointments')}
-                className="text-sm text-teal-600 font-medium hover:underline">
+                className="text-xs md:text-sm text-teal-600 font-medium hover:underline">
                 Xem tất cả
               </button>
             </div>
@@ -634,26 +670,26 @@ function DashboardView({ onNavigate }) {
               {MOCK_APPOINTMENTS.slice(0, 3).map((appt) => (
                 <div
                   key={appt.id}
-                  className="p-4 hover:bg-gray-50 transition flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex flex-col items-center justify-center w-14 h-14 bg-teal-50 rounded-lg text-teal-700">
-                      <span className="text-xs font-bold uppercase">
+                  className="p-3 md:p-4 hover:bg-gray-50 transition flex items-center justify-between">
+                  <div className="flex items-center space-x-3 md:space-x-4">
+                    <div className="flex flex-col items-center justify-center w-10 h-10 md:w-14 md:h-14 bg-teal-50 rounded-lg text-teal-700">
+                      <span className="text-[10px] md:text-xs font-bold uppercase">
                         {appt.time}
                       </span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-semibold text-gray-900">
+                      <h4 className="text-xs md:text-sm font-semibold text-gray-900">
                         {appt.patient_name}
                       </h4>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-[10px] md:text-xs text-gray-500 mt-0.5">
                         {appt.type} • {appt.reason}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 md:space-x-3">
                     <StatusBadge status={appt.status} />
                     <button className="text-gray-400 hover:text-teal-600">
-                      <ChevronRight size={18} />
+                      <ChevronRight size={16} />
                     </button>
                   </div>
                 </div>
@@ -665,17 +701,17 @@ function DashboardView({ onNavigate }) {
         {/* Right Column: Alerts */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden h-full">
-            <div className="p-5 border-b border-gray-100 flex justify-between items-center">
-              <h2 className="font-semibold text-gray-800 flex items-center">
-                <AlertOctagon className="w-5 h-5 mr-2 text-red-500" />
-                Cảnh báo (Alerts)
+            <div className="p-4 md:p-5 border-b border-gray-100 flex justify-between items-center">
+              <h2 className="font-semibold text-gray-800 flex items-center text-sm md:text-base">
+                <AlertOctagon className="w-4 h-4 md:w-5 md:h-5 mr-2 text-red-500" />
+                Cảnh báo
               </h2>
             </div>
             <div className="p-0">
               {MOCK_ALERTS.map((alert) => (
                 <div
                   key={alert.id}
-                  className="p-4 border-b border-gray-50 last:border-0 hover:bg-red-50/30 transition">
+                  className="p-3 md:p-4 border-b border-gray-50 last:border-0 hover:bg-red-50/30 transition">
                   <div className="flex justify-between items-start mb-1">
                     <span
                       className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded ${
@@ -685,22 +721,24 @@ function DashboardView({ onNavigate }) {
                       }`}>
                       {alert.severity}
                     </span>
-                    <span className="text-xs text-gray-400">{alert.time}</span>
+                    <span className="text-[10px] text-gray-400">
+                      {alert.time}
+                    </span>
                   </div>
-                  <h4 className="text-sm font-semibold text-gray-800 mt-1">
+                  <h4 className="text-xs md:text-sm font-semibold text-gray-800 mt-1">
                     {alert.patient_name}
                   </h4>
-                  <p className="text-sm text-gray-600 mt-0.5">
+                  <p className="text-xs text-gray-600 mt-0.5">
                     {alert.message}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1 flex items-center">
+                  <p className="text-[10px] md:text-xs text-gray-400 mt-1 flex items-center">
                     <Activity className="w-3 h-3 mr-1" /> Nguồn: {alert.source}
                   </p>
                   <div className="mt-3 flex space-x-2">
-                    <button className="flex-1 text-xs bg-white border border-gray-200 text-gray-600 py-1.5 rounded hover:bg-gray-50">
+                    <button className="flex-1 text-[10px] md:text-xs bg-white border border-gray-200 text-gray-600 py-1.5 rounded hover:bg-gray-50">
                       Chi tiết
                     </button>
-                    <button className="flex-1 text-xs bg-teal-600 text-white py-1.5 rounded hover:bg-teal-700 shadow-sm">
+                    <button className="flex-1 text-[10px] md:text-xs bg-teal-600 text-white py-1.5 rounded hover:bg-teal-700 shadow-sm">
                       Xử lý ngay
                     </button>
                   </div>
@@ -723,16 +761,16 @@ function AppointmentsView() {
       : MOCK_APPOINTMENTS.filter((a) => a.status === filterStatus)
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
       {/* Filters & Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 scrollbar-hide">
+        <div className="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-2 sm:pb-0 scrollbar-hide custom-scrollbar">
           {['all', 'confirmed', 'pending', 'completed', 'cancelled'].map(
             (status) => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
+                className={`px-4 py-2 rounded-lg text-xs md:text-sm font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
                   filterStatus === status
                     ? 'bg-teal-600 text-white shadow-sm'
                     : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
@@ -749,10 +787,10 @@ function AppointmentsView() {
             <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <input
               type="date"
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none w-full"
+              className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-xs md:text-sm focus:ring-2 focus:ring-teal-500 outline-none w-full"
             />
           </div>
-          <button className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 shadow-sm whitespace-nowrap">
+          <button className="px-4 py-2 bg-teal-600 text-white text-xs md:text-sm font-medium rounded-lg hover:bg-teal-700 shadow-sm whitespace-nowrap">
             + Đặt lịch mới
           </button>
         </div>
@@ -760,16 +798,16 @@ function AppointmentsView() {
 
       {/* Appointments List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left whitespace-nowrap">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-xs md:text-sm text-left whitespace-nowrap">
             <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4">Bệnh nhân</th>
-                <th className="px-6 py-4">Thời gian</th>
-                <th className="px-6 py-4">Loại khám</th>
-                <th className="px-6 py-4">Lý do khám</th>
-                <th className="px-6 py-4">Trạng thái</th>
-                <th className="px-6 py-4 text-right">Hành động</th>
+                <th className="px-4 md:px-6 py-4">Bệnh nhân</th>
+                <th className="px-4 md:px-6 py-4">Thời gian</th>
+                <th className="px-4 md:px-6 py-4">Loại khám</th>
+                <th className="px-4 md:px-6 py-4">Lý do khám</th>
+                <th className="px-4 md:px-6 py-4">Trạng thái</th>
+                <th className="px-4 md:px-6 py-4 text-right">Hành động</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -777,7 +815,7 @@ function AppointmentsView() {
                 <tr
                   key={appt.id}
                   className="hover:bg-teal-50/30 transition-colors group">
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center">
                       <img
                         src={appt.avatar}
@@ -788,23 +826,25 @@ function AppointmentsView() {
                         <p className="font-semibold text-gray-900">
                           {appt.patient_name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-[10px] md:text-xs text-gray-400">
                           Hồ sơ #{appt.id + 100}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4">
                     <div className="flex flex-col">
                       <span className="font-medium text-gray-900">
                         {appt.time}
                       </span>
-                      <span className="text-xs text-gray-500">{appt.date}</span>
+                      <span className="text-[10px] md:text-xs text-gray-500">
+                        {appt.date}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] md:text-xs font-medium ${
                         appt.type === 'Telehealth'
                           ? 'bg-purple-100 text-purple-800'
                           : 'bg-blue-100 text-blue-800'
@@ -817,13 +857,13 @@ function AppointmentsView() {
                       {appt.type}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600 max-w-xs truncate">
+                  <td className="px-4 md:px-6 py-4 text-gray-600 max-w-xs truncate">
                     {appt.reason}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4">
                     <StatusBadge status={appt.status} />
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-4 md:px-6 py-4 text-right">
                     <div className="flex items-center justify-end space-x-2">
                       {appt.status === 'pending' && (
                         <>
@@ -862,31 +902,31 @@ function AppointmentsView() {
 
 function PatientsView() {
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         {/* Search Bar - Moved to Header but can keep specific filters here */}
         <div className="flex space-x-2">
-          <button className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 flex items-center shadow-sm">
+          <button className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 flex items-center shadow-sm">
             <Filter className="w-4 h-4 mr-2" /> Bộ lọc
           </button>
         </div>
-        <button className="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 shadow-sm flex items-center">
+        <button className="px-4 py-2 bg-teal-600 text-white text-xs md:text-sm font-medium rounded-lg hover:bg-teal-700 shadow-sm flex items-center">
           <Users className="w-4 h-4 mr-2" />
           Thêm bệnh nhân
         </button>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left whitespace-nowrap">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-xs md:text-sm text-left whitespace-nowrap">
             <thead className="bg-gray-50 text-gray-500 font-medium border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4">Bệnh nhân</th>
-                <th className="px-6 py-4">Giới tính/Tuổi</th>
-                <th className="px-6 py-4">Nhóm máu</th>
-                <th className="px-6 py-4">Lần khám cuối</th>
-                <th className="px-6 py-4">Trạng thái (AI)</th>
-                <th className="px-6 py-4 text-right">Thao tác</th>
+                <th className="px-4 md:px-6 py-4">Bệnh nhân</th>
+                <th className="px-4 md:px-6 py-4">Giới tính/Tuổi</th>
+                <th className="px-4 md:px-6 py-4">Nhóm máu</th>
+                <th className="px-4 md:px-6 py-4">Lần khám cuối</th>
+                <th className="px-4 md:px-6 py-4">Trạng thái (AI)</th>
+                <th className="px-4 md:px-6 py-4 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -894,7 +934,7 @@ function PatientsView() {
                 <tr
                   key={p.id}
                   className="hover:bg-teal-50/30 transition-colors group">
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4">
                     <div className="flex items-center">
                       <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-xs mr-3">
                         {p.full_name.charAt(0)}
@@ -903,30 +943,32 @@ function PatientsView() {
                         <p className="font-semibold text-gray-900">
                           {p.full_name}
                         </p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-[10px] md:text-xs text-gray-400">
                           ID: PAT-{1000 + p.id}
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4">
                     <span className="text-gray-600 capitalize">
                       {p.gender === 'male' ? 'Nam' : 'Nữ'}
                     </span>
                     <span className="text-gray-400 mx-1">•</span>
                     <span className="text-gray-600">{p.age} tuổi</span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-semibold">
+                  <td className="px-4 md:px-6 py-4">
+                    <span className="inline-block px-2 py-1 bg-gray-100 text-gray-600 rounded text-[10px] md:text-xs font-semibold">
                       {p.blood_type}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{p.last_visit}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 md:px-6 py-4 text-gray-600">
+                    {p.last_visit}
+                  </td>
+                  <td className="px-4 md:px-6 py-4">
                     <StatusBadge status={p.health_status} />
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-gray-400 hover:text-teal-600 font-medium text-sm flex items-center justify-end ml-auto group-hover:bg-white p-1 rounded">
+                  <td className="px-4 md:px-6 py-4 text-right">
+                    <button className="text-gray-400 hover:text-teal-600 font-medium text-xs md:text-sm flex items-center justify-end ml-auto group-hover:bg-white p-1 rounded">
                       Chi tiết <ChevronRight className="w-4 h-4 ml-1" />
                     </button>
                   </td>
@@ -935,7 +977,7 @@ function PatientsView() {
             </tbody>
           </table>
         </div>
-        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center text-sm text-gray-500">
+        <div className="px-4 md:px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-between items-center text-xs md:text-sm text-gray-500">
           <span>Hiển thị 5 trên tổng số 124 bệnh nhân</span>
           <div className="flex space-x-2">
             <button className="px-3 py-1 border border-gray-200 rounded bg-white hover:bg-gray-50">
@@ -979,11 +1021,11 @@ function ChatView() {
             <input
               type="text"
               placeholder="Tìm đoạn chat..."
-              className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-500"
+              className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-xs md:text-sm focus:outline-none focus:border-teal-500"
             />
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {MOCK_CHATS.map((chat) => (
             <div
               key={chat.id}
@@ -1004,12 +1046,14 @@ function ChatView() {
               <div className="ml-3 flex-1 overflow-hidden">
                 <div className="flex justify-between items-baseline mb-1">
                   <h4
-                    className={`text-sm font-semibold truncate ${
+                    className={`text-xs md:text-sm font-semibold truncate ${
                       chat.unread > 0 ? 'text-gray-900' : 'text-gray-700'
                     }`}>
                     {chat.user_name}
                   </h4>
-                  <span className="text-xs text-gray-400">{chat.time}</span>
+                  <span className="text-[10px] md:text-xs text-gray-400">
+                    {chat.time}
+                  </span>
                 </div>
                 <p
                   className={`text-xs truncate ${
@@ -1048,10 +1092,10 @@ function ChatView() {
               className="w-9 h-9 rounded-full"
             />
             <div className="ml-3">
-              <h3 className="text-sm font-bold text-gray-900">
+              <h3 className="text-xs md:text-sm font-bold text-gray-900">
                 {selectedChat.user_name}
               </h3>
-              <div className="flex items-center text-xs text-green-500">
+              <div className="flex items-center text-[10px] md:text-xs text-green-500">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></span>
                 Online
               </div>
@@ -1068,9 +1112,9 @@ function ChatView() {
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50 custom-scrollbar">
           <div className="flex justify-center my-4">
-            <span className="px-3 py-1 text-xs text-gray-400 bg-gray-100 rounded-full">
+            <span className="px-3 py-1 text-[10px] md:text-xs text-gray-400 bg-gray-100 rounded-full">
               Hôm nay
             </span>
           </div>
@@ -1082,7 +1126,7 @@ function ChatView() {
               className="w-8 h-8 rounded-full mr-2 mt-1"
             />
             <div className="max-w-[75%] md:max-w-[70%]">
-              <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none text-sm text-gray-800 shadow-sm">
+              <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-tl-none text-xs md:text-sm text-gray-800 shadow-sm">
                 Chào bác sĩ, thuốc này uống sau ăn được không ạ?
               </div>
               <span className="text-[10px] text-gray-400 ml-1 mt-1 block">
@@ -1094,7 +1138,7 @@ function ChatView() {
           {/* Doctor Reply (Mock) */}
           <div className="flex justify-end">
             <div className="max-w-[75%] md:max-w-[70%] text-right">
-              <div className="bg-teal-600 p-3 rounded-2xl rounded-tr-none text-sm text-white shadow-sm text-left">
+              <div className="bg-teal-600 p-3 rounded-2xl rounded-tr-none text-xs md:text-sm text-white shadow-sm text-left">
                 Chào bạn, đúng rồi nhé. Bạn nên uống sau khi ăn khoảng 30 phút
                 để tránh hại dạ dày.
               </div>
@@ -1115,7 +1159,7 @@ function ChatView() {
             <input
               type="text"
               placeholder="Nhập tin nhắn..."
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm text-gray-800 placeholder-gray-400"
+              className="flex-1 bg-transparent border-none focus:ring-0 text-xs md:text-sm text-gray-800 placeholder-gray-400"
             />
             <button className="p-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 shadow-sm transition">
               <Send size={18} />
@@ -1132,10 +1176,10 @@ function SettingsView() {
     <div className="max-w-3xl mx-auto">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-base md:text-lg font-semibold text-gray-800">
             Thông tin cá nhân
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-xs md:text-sm text-gray-500">
             Quản lý thông tin hiển thị với bệnh nhân
           </p>
         </div>
@@ -1144,47 +1188,47 @@ function SettingsView() {
             <img
               src={MOCK_USER_DOCTOR.avatar}
               alt=""
-              className="w-20 h-20 rounded-full border-4 border-gray-50"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-gray-50"
             />
-            <button className="ml-4 px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 text-gray-600">
+            <button className="ml-4 px-4 py-2 border border-gray-200 rounded-lg text-xs md:text-sm font-medium hover:bg-gray-50 text-gray-600">
               Thay đổi ảnh
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                 Họ và tên
               </label>
               <input
                 type="text"
                 defaultValue={MOCK_USER_DOCTOR.full_name}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                 Chuyên khoa
               </label>
               <input
                 type="text"
                 defaultValue={MOCK_USER_DOCTOR.specialization}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
                 Giới thiệu (Bio)
               </label>
               <textarea
                 rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs md:text-sm focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none"
                 placeholder="Viết vài dòng giới thiệu về kinh nghiệm của bạn..."></textarea>
             </div>
           </div>
         </div>
         <div className="px-6 py-4 bg-gray-50 flex justify-end">
-          <button className="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-medium hover:bg-teal-700 shadow-sm">
+          <button className="px-4 py-2 bg-teal-600 text-white rounded-lg text-xs md:text-sm font-medium hover:bg-teal-700 shadow-sm">
             Lưu thay đổi
           </button>
         </div>
@@ -1192,26 +1236,28 @@ function SettingsView() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-gray-800">Tùy chọn khác</h2>
+          <h2 className="text-base md:text-lg font-semibold text-gray-800">
+            Tùy chọn khác
+          </h2>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="text-sm font-medium text-gray-900">
+              <h4 className="text-xs md:text-sm font-medium text-gray-900">
                 Thông báo từ thiết bị IoT
               </h4>
-              <p className="text-xs text-gray-500">
+              <p className="text-[10px] md:text-xs text-gray-500">
                 Nhận cảnh báo khi chỉ số bệnh nhân bất thường
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
               <input type="checkbox" defaultChecked className="sr-only peer" />
-              <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
+              <div className="w-9 h-5 md:w-11 md:h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
             </label>
           </div>
 
           <div className="pt-4 border-t border-gray-100">
-            <button className="flex items-center text-red-600 hover:text-red-700 text-sm font-medium">
+            <button className="flex items-center text-red-600 hover:text-red-700 text-xs md:text-sm font-medium">
               <LogOut className="w-4 h-4 mr-2" /> Đăng xuất khỏi hệ thống
             </button>
           </div>

@@ -1,0 +1,29 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5dc;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+@media (width <= 48rem /* 768px */) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (width >= 64rem /* 1024px */) {
+  ::-webkit-scrollbar:horizontal {
+    display: none;
+  }
+}

@@ -1,39 +1,46 @@
-import React from 'react'
-import {
-  Calendar,
-  LayoutDashboard,
-  MessageSquare,
-  Settings,
-  Users,
-} from 'lucide-react'
-import type { SidebarMenuItem } from '@/components/layouts/Sidebar'
-import { AppLayout } from '@/components/layouts/AppLayout'
+import React, { useState } from 'react'
+import { Header } from '../components/Header'
+import { Sidebar } from '../components/Sidebar'
+import { MobileNav } from '../components/MobileNav'
 
-const menuItems: Array<SidebarMenuItem> = [
-  { href: '/doctor', label: 'Tổng quan', icon: LayoutDashboard },
-  { href: '/doctor/patients', label: 'Bệnh nhân', icon: Users },
-  { href: '/doctor/appointments', label: 'Lịch khám', icon: Calendar },
-  { href: '/doctor/messages', label: 'Tin nhắn', icon: MessageSquare },
-  { href: '/doctor/settings', label: 'Cài đặt', icon: Settings },
-]
+interface DoctorLayoutProps {
+  children: React.ReactNode
+  activeTab: string
+  setActiveTab: (tab: string) => void
+}
 
-export const DoctorLayout = ({ children }: { children: React.ReactNode }) => {
-  const handleLogout = () => {
-    console.log('Logging out...')
-  }
+export const DoctorLayout = ({
+  children,
+  activeTab,
+  setActiveTab,
+}: DoctorLayoutProps) => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
   return (
-    <AppLayout
-      menuItems={menuItems}
-      userInfo={{
-        name: 'BS. Nguyễn Văn Hùng',
-        role: 'Khoa Tim Mạch',
-        avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-        avatarFallback: 'BS',
-      }}
-      searchPlaceholder="Tìm kiếm hồ sơ, bệnh nhân..."
-      onLogout={handleLogout}>
-      {children}
-    </AppLayout>
+    <div className="flex h-screen overflow-hidden bg-gray-50 font-sans text-xs text-gray-900 md:text-sm">
+      {/* Sidebar */}
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isCollapsed={isSidebarCollapsed}
+      />
+
+      {/* Main Content */}
+      <div className="relative flex h-screen flex-1 flex-col overflow-hidden transition-all duration-300">
+        {/* Header */}
+        <Header
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+          activeTab={activeTab}
+        />
+
+        <main className="flex-1 overflow-y-auto scroll-smooth bg-gray-50 p-4 pb-20 md:p-6 lg:p-8">
+          {children}
+        </main>
+
+        {/* Mobile Navigation */}
+        <MobileNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+    </div>
   )
 }
