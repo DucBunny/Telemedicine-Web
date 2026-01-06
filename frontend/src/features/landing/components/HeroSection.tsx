@@ -9,7 +9,7 @@ import {
   User,
   Wifi,
 } from 'lucide-react'
-import { HERO_STATS } from '../constants'
+import { HERO_STATS } from '../config'
 
 export const HeroSection = () => {
   return (

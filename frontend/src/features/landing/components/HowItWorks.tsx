@@ -1,4 +1,4 @@
-import { PROCESS_STEPS } from '../constants'
+import { PROCESS_STEPS } from '../config'
 import { SectionTitle } from './SectionTitle'
 
 export const HowItWorks = () => (

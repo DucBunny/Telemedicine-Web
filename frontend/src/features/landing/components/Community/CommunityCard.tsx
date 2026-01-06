@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Check, ExternalLink, Github } from 'lucide-react'
-import type { CommunityCardType } from './constants'
+import type { CommunityCard as CommunityCardType } from '../../config'
 import { cn } from '@/lib/utils'
 
 const THEME_STYLES = {

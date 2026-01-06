@@ -6,7 +6,7 @@ import { Features } from './components/Features'
 import { AppShowcase } from './components/AppShowcase'
 import { Community } from './components/Community'
 import { Footer } from './components/Footer'
-import './styles/styles.css'
+import './styles.css'
 
 export const LandingPage = () => {
   return (

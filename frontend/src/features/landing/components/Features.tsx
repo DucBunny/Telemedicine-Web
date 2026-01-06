@@ -1,4 +1,4 @@
-import { FEATURES_LIST } from '../constants'
+import { FEATURES_LIST } from '../config'
 import featuresImg from '../assets/features-img.png'
 
 export const Features = () => (

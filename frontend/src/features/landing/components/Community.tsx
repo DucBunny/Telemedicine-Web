@@ -1,6 +1,6 @@
+import { COMMUNITY_CARDS } from '../config'
 import { SectionTitle } from './SectionTitle'
 import { CommunityCard } from './Community/CommunityCard'
-import { COMMUNITY_DATA } from './Community/constants'
 
 export const Community = () => (
   <section id="community" className="scroll-mt-20 bg-white py-24">
@@ -12,7 +12,7 @@ export const Community = () => (
       />
 
       <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
-        {COMMUNITY_DATA.map((card) => (
+        {COMMUNITY_CARDS.map((card) => (
           <CommunityCard key={card.id} data={card} />
         ))}
       </div>

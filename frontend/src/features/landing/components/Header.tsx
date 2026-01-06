@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, easeInOut, motion } from 'framer-motion'
 import { ArrowRight, Menu, X } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { NAV_LINKS } from '../constants'
+import { NAV_LINKS } from '../config'
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
