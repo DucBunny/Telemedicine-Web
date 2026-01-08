@@ -29,46 +29,48 @@ export const PatientsTable = () => {
         </Badge>
       </div>
 
-      <Table>
-        <TableHeader className="bg-gray-50">
-          <TableRow className="border-gray-100 hover:bg-gray-50">
-            <TableHead className="text-gray-500">Bệnh nhân</TableHead>
-            <TableHead className="text-gray-500">Tình trạng</TableHead>
-            <TableHead className="text-center text-gray-500 md:text-left">
-              Trạng thái
-            </TableHead>
-            <TableHead className="text-center text-gray-500 md:text-right">
-              Hành động
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {attentionPatients.map((p) => (
-            <TableRow key={p.id} className="border-gray-50 hover:bg-gray-50">
-              <TableCell className="py-3 font-medium text-gray-900">
-                {p.full_name}
-              </TableCell>
-              <TableCell className="py-3 text-gray-600">
-                {p.condition}
-              </TableCell>
-              <TableCell className="py-3 text-center md:text-left">
-                <DoctorStatusBadge
-                  status={p.health_status}
-                  className="px-1 font-normal md:px-2 md:font-medium"
-                />
-              </TableCell>
-              <TableCell className="py-3 text-right">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-6 border-teal-200 px-2 text-teal-600 hover:bg-teal-50 hover:text-teal-800 md:h-7 md:text-xs">
-                  Kiểm tra
-                </Button>
-              </TableCell>
+      <div className="overflow-hidden rounded-b-xl">
+        <Table>
+          <TableHeader className="bg-gray-50">
+            <TableRow className="border-gray-100 hover:bg-gray-50">
+              <TableHead className="text-gray-500">Bệnh nhân</TableHead>
+              <TableHead className="text-gray-500">Tình trạng</TableHead>
+              <TableHead className="text-center text-gray-500 md:text-left">
+                Trạng thái
+              </TableHead>
+              <TableHead className="text-center text-gray-500 md:text-right">
+                Hành động
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {attentionPatients.map((p) => (
+              <TableRow key={p.id} className="border-gray-50 hover:bg-gray-50">
+                <TableCell className="py-3 font-medium text-gray-900">
+                  {p.full_name}
+                </TableCell>
+                <TableCell className="py-3 text-gray-600">
+                  {p.condition}
+                </TableCell>
+                <TableCell className="py-3 text-center md:text-left">
+                  <DoctorStatusBadge
+                    status={p.health_status}
+                    className="px-1 font-normal md:px-2 md:font-medium"
+                  />
+                </TableCell>
+                <TableCell className="py-3 text-right">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 border-teal-200 px-2 text-teal-600 hover:bg-teal-50 hover:text-teal-800 md:h-7 md:text-xs">
+                    Kiểm tra
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

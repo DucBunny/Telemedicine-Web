@@ -70,7 +70,7 @@ export const DoctorSidebar = ({ activeTab }: SidebarProps) => {
         ['--sidebar-width' as string]: '16rem',
         ['--sidebar-width-icon' as string]: '5rem',
       }}>
-      <SidebarHeader className="flex h-18.25 flex-row items-center justify-center border-b border-gray-100">
+      <SidebarHeader className="flex h-18 flex-row items-center justify-center border-b border-gray-100">
         <img src="/logo.png" alt="MedCare Logo" className="size-8" />
         <span className="text-xl leading-tight font-bold text-teal-700 group-data-[collapsible=icon]:hidden">
           MedCare

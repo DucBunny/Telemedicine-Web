@@ -1,10 +1,12 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { MOCK_USER_DOCTOR } from '../data/mockData'
-import { StatCards } from '../components/dashboard/StatCards'
-import { PatientsTable } from '../components/dashboard/PatientsTable'
-import { UpcomingAppointments } from '../components/dashboard/UpcomingAppointments'
-import { AlertsCard } from '../components/dashboard/AlertsCard'
+import {
+  AlertsCard,
+  PatientsTable,
+  StatCards,
+  UpcomingAppointments,
+} from '../components/dashboard'
 import { Button } from '@/components/ui/button'
 
 export const DashboardPage = () => {

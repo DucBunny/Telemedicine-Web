@@ -12,8 +12,8 @@ interface DoctorHeaderProps {
 
 export const DoctorHeader = ({ activeTab }: DoctorHeaderProps) => {
   return (
-    <header className="z-20 flex h-15 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:h-18.25 md:px-6 md:py-4">
-      <div className="flex items-center">
+    <header className="z-20 flex h-15 min-w-0 items-center justify-between border-b border-gray-200 bg-white px-4 py-3 md:h-18 md:px-6 md:py-4">
+      <div className="flex min-w-0 items-center">
         {/* Mobile Logo */}
         <div className="flex items-center gap-2 md:hidden">
           <img src="/logo.png" alt="MedCare Logo" className="h-8 w-8" />
@@ -24,15 +24,15 @@ export const DoctorHeader = ({ activeTab }: DoctorHeaderProps) => {
         </div>
 
         {/* Desktop Toggle */}
-        <div className="hidden items-center md:flex">
-          <SidebarTrigger className="mr-3 text-gray-500 hover:text-teal-600" />
-          <h2 className="text-xl font-bold text-gray-800">
+        <div className="hidden min-w-0 items-center md:flex">
+          <SidebarTrigger className="mr-3 shrink-0 text-gray-500 hover:text-teal-600" />
+          <h2 className="truncate text-xl font-bold text-gray-800">
             {NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label}
           </h2>
         </div>
       </div>
 
-      <div className="flex items-center space-x-2 md:space-x-4">
+      <div className="flex shrink-0 items-center space-x-2 md:space-x-4">
         <div className="relative hidden lg:block">
           <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
           <Input

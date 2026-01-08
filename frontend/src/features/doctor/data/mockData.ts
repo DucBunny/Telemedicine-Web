@@ -184,7 +184,8 @@ export const MOCK_CHATS: Array<ChatMessage> = [
   {
     id: 1,
     user_name: 'Trần Thị B',
-    last_message: 'Bác sĩ ơi, thuốc này uống sau ăn được không ạ?',
+    last_message:
+      'Bác sĩ ơi, thuốc này uống sau ăn được không ạ?Bác sĩ ơi, thuốc này uống sau ăn được không ạ?Bác sĩ ơi, thuốc này uống sau ăn được không ạ?Bác sĩ ơi, thuốc này uống sau ăn được không ạ?',
     time: '08:45',
     unread: 2,
     avatar: 'https://i.pravatar.cc/150?u=1',
