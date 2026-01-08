@@ -8,7 +8,7 @@ export const Route = createFileRoute('/doctor')({
 const routeToTab = (pathname: string) => {
   if (pathname.startsWith('/doctor/appointments')) return 'appointments'
   if (pathname.startsWith('/doctor/patients')) return 'patients'
-  if (pathname.startsWith('/doctor/messages')) return 'chat'
+  if (pathname.startsWith('/doctor/chat')) return 'chat'
   if (pathname.startsWith('/doctor/settings')) return 'settings'
   return 'dashboard'
 }

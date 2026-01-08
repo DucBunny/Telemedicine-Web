@@ -4,7 +4,7 @@ import { SidebarList } from '../components/chat/SidebarList'
 import { MainChat } from '../components/chat/MainChat'
 import type { ChatMessage } from '../types'
 
-export const MessagesPage = () => {
+export const ChatPage = () => {
   const [selectedChat, setSelectedChat] = useState<ChatMessage>(MOCK_CHATS[0])
   const [isMobileChatDetailOpen, setIsMobileChatDetailOpen] = useState(false)
 

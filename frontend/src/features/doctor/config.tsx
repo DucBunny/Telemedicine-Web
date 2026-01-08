@@ -46,7 +46,7 @@ export const NAVIGATION_ITEMS: Array<NavItem> = [
     id: 'chat',
     label: 'Tư vấn trực tuyến',
     mobileLabel: 'Chat',
-    href: '/doctor/messages',
+    href: '/doctor/chat',
     icon: MessageSquare,
     group: 'main',
   },
