@@ -24,6 +24,15 @@ module.exports = {
         phone_number: '0987654321',
         created_at: new Date(),
         updated_at: new Date()
+      },
+      {
+        full_name: 'Patient User',
+        email: 'patient@gmail.com',
+        password: passwordHash,
+        role: 'patient',
+        phone_number: '0976543210',
+        created_at: new Date(),
+        updated_at: new Date()
       }
     ])
   },

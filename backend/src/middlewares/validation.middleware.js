@@ -11,6 +11,9 @@ const formatZodError = (error) => {
   return details
 }
 
+/**
+ * Middleware to validate request body against a Zod schema.
+ */
 export function validateBody(schema) {
   return (req, res, next) => {
     try {
@@ -30,6 +33,9 @@ export function validateBody(schema) {
   }
 }
 
+/**
+ * Middleware to validate request params against a Zod schema.
+ */
 export function validateParams(schema) {
   return (req, res, next) => {
     try {

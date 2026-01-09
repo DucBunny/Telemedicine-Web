@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { Lock, Mail } from 'lucide-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { loginSchema } from '../schemas'
 import { useLoginMutation } from '../hooks/useAuthMutations'
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button'
 
 export const LoginForm = () => {
   const loginMutation = useLoginMutation()
-  const navigate = useNavigate({ from: '/login' })
 
   const form = useForm({
     defaultValues: {
@@ -24,7 +23,6 @@ export const LoginForm = () => {
       try {
         await loginMutation.mutateAsync(value)
         toast.success('Đăng nhập thành công!')
-        navigate({ to: '/' })
       } catch (error) {
         toast.error('Đăng nhập thất bại')
         console.error(error)

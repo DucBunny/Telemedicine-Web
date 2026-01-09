@@ -1,6 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { Lock, Mail, Phone, ShieldCheck, User } from 'lucide-react'
-import { Link, useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { registerSchema } from '../schemas'
 import { useRegisterMutation } from '../hooks/useAuthMutations'
@@ -12,7 +12,6 @@ import { FieldError } from '@/components/FieldError'
 
 export const RegisterForm = () => {
   const registerMutation = useRegisterMutation()
-  const navigate = useNavigate({ from: '/register' })
 
   const form = useForm({
     defaultValues: {
@@ -30,7 +29,6 @@ export const RegisterForm = () => {
       try {
         await registerMutation.mutateAsync(value)
         toast.success('Đăng ký thành công!')
-        navigate({ to: '/login' })
       } catch (error) {
         toast.error('Đăng ký thất bại')
         console.error(error)

@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '../config'
 import type { LucideIcon } from 'lucide-react'
+import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 import { cn } from '@/lib/utils'
 import {
   Sidebar,
@@ -28,6 +29,7 @@ interface SidebarProps {
 }
 
 export const DoctorSidebar = ({ activeTab }: SidebarProps) => {
+  const logoutMutation = useLogoutMutation()
   const renderNav = (items: Array<NavItem>) => (
     <SidebarMenu>
       {items.map(({ id, icon: Icon, label, href }) => (
@@ -101,13 +103,15 @@ export const DoctorSidebar = ({ activeTab }: SidebarProps) => {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
+              tooltip="Đăng xuất"
+              onClick={() => logoutMutation.mutate()}
               className="h-11 gap-3 rounded-lg bg-gray-50/50 px-3 font-semibold text-gray-500 group-data-[collapsible=icon]:justify-center hover:bg-red-50 hover:text-red-600">
-              <Link to="/">
+              <div>
                 <LogOut className="size-5!" />
                 <span className="truncate group-data-[collapsible=icon]:hidden">
                   Đăng xuất
                 </span>
-              </Link>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

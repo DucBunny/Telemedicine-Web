@@ -67,7 +67,6 @@ apiClient.interceptors.response.use(
     if (originalRequest.url?.includes('/auth/refresh')) {
       // Refresh token đã hết hạn hoặc invalid
       useAuthStore.getState().clearAuth()
-      window.location.href = '/login'
       return Promise.reject(error)
     }
 

@@ -1,7 +1,10 @@
 import { Outlet, createFileRoute, useLocation } from '@tanstack/react-router'
+import { requireAuth } from '@/lib/route-guards'
 import { PatientLayout } from '@/features/patient/layouts/PatientLayout'
 
 export const Route = createFileRoute('/patient')({
+  beforeLoad: (opts) =>
+    requireAuth({ location: opts.location, roles: ['patient'] }),
   component: PatientLayoutRoute,
 })
 

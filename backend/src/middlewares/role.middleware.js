@@ -1,7 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 import ApiError from '@/utils/api-error'
 
-export const authorize = (roles = []) => {
+/**
+ * Middleware to authorize user based on roles.
+ */
+export const authorizeRoles = (roles = []) => {
   if (typeof roles === 'string') {
     roles = [roles]
   }
@@ -10,7 +13,7 @@ export const authorize = (roles = []) => {
     if (!req.user || !roles.includes(req.user.role)) {
       throw new ApiError(
         StatusCodes.FORBIDDEN,
-        'You do not have permission to access this resource',
+        'Permission denied',
         'FORBIDDEN'
       )
     }
