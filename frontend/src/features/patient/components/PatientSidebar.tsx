@@ -63,7 +63,7 @@ export const PatientSidebar = ({
 
   return (
     <aside className="fixed top-0 left-0 z-30 hidden h-screen w-72 flex-col border-r border-gray-200 bg-white md:flex">
-      <div className="flex h-[73px] items-center border-b border-gray-100 p-6">
+      <div className="flex h-18.25 items-center border-b border-gray-100 p-6">
         <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600">
           <Activity className="h-5 w-5 text-white" />
         </div>

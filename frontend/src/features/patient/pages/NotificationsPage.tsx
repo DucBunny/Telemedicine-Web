@@ -7,17 +7,11 @@ import {
 } from 'lucide-react'
 import { MOCK_NOTIFICATIONS } from '../data/mockData'
 
-interface NotificationsPageProps {
-  onBack: () => void
-}
-
 export const NotificationsPage = () => {
   return (
     <div className="space-y-4 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
       <div className="mb-6 flex items-center px-1 pt-2 md:pt-0">
-        <button
-          //   onClick={onBack}
-          className="mr-3 -ml-2 rounded-full p-2 text-gray-500 hover:bg-gray-100 md:hidden">
+        <button className="mr-3 -ml-2 rounded-full p-2 text-gray-500 hover:bg-gray-100 md:hidden">
           <ChevronLeft size={24} />
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Thông báo</h1>

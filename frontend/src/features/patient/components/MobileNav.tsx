@@ -6,7 +6,7 @@ interface MobileNavProps {
 
 export const MobileNav = ({ activeTab }: MobileNavProps) => {
   const navItems = [
-    { id: 'home', icon: Home, label: 'Trang chủ', href: '/patient/home' },
+    { id: 'home', icon: Home, label: 'Trang chủ', href: '/patient' },
     {
       id: 'calendar',
       icon: Calendar,

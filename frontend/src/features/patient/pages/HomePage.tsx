@@ -11,9 +11,6 @@ export const HomePage = () => {
 
   return (
     <div className="space-y-6 pb-24 md:pb-0">
-      {/* Header Chào mừng (Bản Cũ: Có hiển thị Chiều cao/Cân nặng)
-         FIX: Sát lên trên top (-mx-4 -mt-4 trên mobile container có padding)
-      */}
       <div className="relative -mx-4 -mt-4 overflow-hidden rounded-b-4xl bg-linear-to-br from-teal-600 to-teal-500 p-6 pt-10 text-white shadow-xl shadow-teal-100 md:mx-0 md:mt-0 md:rounded-3xl md:pt-6">
         <div className="relative z-10">
           <div className="flex items-start justify-between">
