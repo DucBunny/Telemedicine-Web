@@ -29,8 +29,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       patientId: DataTypes.INTEGER,
       predictionId: DataTypes.INTEGER,
-      type: DataTypes.STRING, // VD: "HIGH_BPM"
-      value: DataTypes.STRING, // VD: "150"
+      type: DataTypes.STRING, // VD: "bpm"
+      value: DataTypes.FLOAT, // VD: "150"
       message: DataTypes.STRING,
       severity: {
         type: DataTypes.ENUM('low', 'medium', 'critical'),

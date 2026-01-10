@@ -10,7 +10,8 @@
     "build": "npm run clean && npm run build-babel",
     "production": "npm run build && node ./build/src/server.js",
     "dev": "nodemon --exec ./node_modules/.bin/babel-node ./src/server.js",
-    "db:reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"
+    "db:reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
+    "seed": "npx sequelize-cli db:seed:all"
   },
   "author": "Duc",
   "license": "ISC",
@@ -35,6 +36,7 @@
     "@babel/node": "^7.28.0",
     "@babel/plugin-transform-runtime": "^7.28.5",
     "@babel/preset-env": "^7.28.5",
+    "@faker-js/faker": "^10.2.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "nodemon": "^3.1.11",
     "sequelize-cli": "^6.6.3"

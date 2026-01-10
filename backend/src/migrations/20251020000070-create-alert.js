@@ -33,7 +33,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       value: {
-        type: Sequelize.STRING
+        type: Sequelize.FLOAT
       },
       message: {
         type: Sequelize.STRING
