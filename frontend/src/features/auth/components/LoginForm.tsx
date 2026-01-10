@@ -1,7 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { Lock, Mail } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { toast } from 'sonner'
 import { loginSchema } from '../schemas'
 import { useLoginMutation } from '../hooks/useAuthMutations'
 import type { LoginFormData } from '../schemas'
@@ -22,9 +21,7 @@ export const LoginForm = () => {
     onSubmit: async ({ value }) => {
       try {
         await loginMutation.mutateAsync(value)
-        toast.success('Đăng nhập thành công!')
       } catch (error) {
-        toast.error('Đăng nhập thất bại')
         console.error(error)
       }
     },
@@ -87,8 +84,9 @@ export const LoginForm = () => {
             <Button
               type="submit"
               size="lg"
+              variant="teal_primary"
               disabled={!canSubmit || loginMutation.isPending}
-              className={`w-full rounded-xl bg-teal-600 font-bold shadow-md shadow-teal-200 transition-colors ${
+              className={`w-full rounded-xl font-bold shadow-md shadow-teal-200 transition-colors ${
                 !canSubmit
                   ? 'cursor-not-allowed opacity-50'
                   : 'hover:bg-teal-700'

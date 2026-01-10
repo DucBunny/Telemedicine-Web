@@ -57,9 +57,7 @@ export const Profile = () => {
         </div>
       </div>
       <div className="flex justify-end">
-        <Button className="bg-teal-600 text-white shadow-sm hover:bg-teal-700">
-          Lưu thay đổi
-        </Button>
+        <Button variant="teal_primary">Lưu thay đổi</Button>
       </div>
     </div>
   )

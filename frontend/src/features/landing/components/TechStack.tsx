@@ -46,7 +46,7 @@ const LOGOS = [
 
 export const TechStack = () => {
   return (
-    <section className="w-full place-content-center border-y border-gray-100 bg-gray-50/50 pt-10">
+    <section className="relative w-full place-content-center border-y border-gray-100 bg-gray-50/50 pt-5 sm:pt-10">
       <div
         aria-hidden="true"
         className={cn(
@@ -56,7 +56,7 @@ export const TechStack = () => {
         )}
       />
       <div className="w-full">
-        <p className="text-center text-sm font-bold tracking-widest text-gray-400 uppercase">
+        <p className="text-center text-[10px] font-bold tracking-widest text-gray-400 uppercase sm:text-sm">
           Được xây dựng trên nền tảng công nghệ
         </p>
 

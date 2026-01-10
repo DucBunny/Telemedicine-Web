@@ -14,14 +14,10 @@ export const UnauthorizedPage = () => {
         </p>
         <div className="flex gap-3">
           <Link to="/">
-            <Button variant="secondary" className="hover:bg-gray-200">
-              Về trang chủ
-            </Button>
+            <Button variant="secondary">Về trang chủ</Button>
           </Link>
           <Link to="/login">
-            <Button className="bg-teal-600 hover:bg-teal-700">
-              Đăng nhập lại
-            </Button>
+            <Button variant="teal_primary">Đăng nhập lại</Button>
           </Link>
         </div>
       </div>

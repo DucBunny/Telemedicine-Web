@@ -6,6 +6,7 @@ import {
   Smartphone,
   Users,
 } from 'lucide-react'
+import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 interface AdminSidebarProps {
   isSidebarCollapsed: boolean
@@ -24,6 +25,7 @@ export const AdminSidebar = ({
   setActiveTab,
   activeTab,
 }: AdminSidebarProps) => {
+  const logoutMutation = useLogoutMutation()
   const NavItem = ({ id, icon: Icon, label }: NavItemProps) => (
     <button
       onClick={() => {
@@ -90,7 +92,7 @@ export const AdminSidebar = ({
 
       <div className="border-t border-gray-100 bg-gray-50/50 p-4">
         <button
-          onClick={() => (window.location.href = '/')}
+          onClick={() => logoutMutation.mutate()}
           className={`flex w-full items-center rounded-lg px-2 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 ${
             isSidebarCollapsed ? 'justify-center' : ''
           }`}

@@ -1,7 +1,10 @@
 import { Activity, ChevronRight, LogOut, Settings } from 'lucide-react'
 import { MOCK_PATIENT } from '../data/mockData'
+import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 export const ProfilePage = () => {
+  const logoutMutation = useLogoutMutation()
+
   return (
     <div className="space-y-6 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
       <div className="mt-2 rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm md:mt-0">
@@ -55,7 +58,9 @@ export const ProfilePage = () => {
           </div>
           <ChevronRight size={18} className="text-gray-400" />
         </button>
-        <button className="flex w-full items-center justify-between p-4 text-red-600 hover:bg-gray-50">
+        <button
+          className="flex w-full items-center justify-between p-4 text-red-600 hover:bg-gray-50"
+          onClick={() => logoutMutation.mutate()}>
           <div className="flex items-center">
             <LogOut size={20} className="mr-3" />
             Đăng xuất

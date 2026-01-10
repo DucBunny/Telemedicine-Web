@@ -28,7 +28,7 @@ export const Preferences = () => {
         <div className="border-t border-gray-100 pt-4">
           <Button
             variant="ghost"
-            className="flex h-auto items-center p-0 text-xs font-medium text-red-600 hover:bg-red-50 hover:text-red-700 md:text-sm">
+            className="text-xs text-red-600 hover:bg-red-50 hover:text-red-700">
             <LogOut className="mr-2 h-4 w-4" /> Đăng xuất khỏi hệ thống
           </Button>
         </div>

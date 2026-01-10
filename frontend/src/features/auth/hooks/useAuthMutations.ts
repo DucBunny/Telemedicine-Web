@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { authApi } from '../api/auth.api'
 import { roleToPath } from '../config'
 import type {
@@ -23,8 +24,10 @@ export const useLoginMutation = () => {
       setAuth(data.accessToken, data.user)
       const nextPath = redirect ?? roleToPath[data.user.role]
       navigate({ to: nextPath })
+      toast.success('Đăng nhập thành công!')
     },
     onError: (error) => {
+      toast.error('Đăng nhập thất bại')
       console.error('Login failed:', getErrorMessage(error))
     },
     retry: false,
@@ -39,8 +42,10 @@ export const useRegisterMutation = () => {
     mutationFn: (payload: RegisterRequestDto) => authApi.register(payload),
     onSuccess: () => {
       navigate({ to: '/login' })
+      toast.success('Đăng ký thành công!')
     },
     onError: (error) => {
+      toast.error('Đăng ký thất bại')
       console.error('Register failed:', getErrorMessage(error))
     },
     retry: false,
@@ -57,6 +62,7 @@ export const useLogoutMutation = () => {
     onSuccess: () => {
       clearAuth()
       navigate({ to: '/' })
+      toast.success('Đăng xuất thành công!')
     },
     onError: (error) => {
       navigate({ to: '/' })

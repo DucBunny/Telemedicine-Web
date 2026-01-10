@@ -1,6 +1,9 @@
 import { LogOut } from 'lucide-react'
+import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 export const SettingsPage = () => {
+  const logoutMutation = useLogoutMutation()
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
@@ -68,7 +71,6 @@ export const SettingsPage = () => {
         </div>
       </div>
 
-      {/* Thêm nút Đăng xuất */}
       <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 p-6">
           <h2 className="text-lg font-semibold text-gray-800">Tài khoản</h2>
@@ -77,7 +79,9 @@ export const SettingsPage = () => {
           </p>
         </div>
         <div className="p-6">
-          <button className="flex w-full items-center justify-center rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none">
+          <button
+            className="flex w-full items-center justify-center rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+            onClick={() => logoutMutation.mutate()}>
             <LogOut className="mr-2 h-4 w-4" /> Đăng xuất khỏi hệ thống
           </button>
         </div>

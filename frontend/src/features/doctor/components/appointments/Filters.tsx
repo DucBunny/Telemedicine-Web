@@ -44,7 +44,7 @@ export const Filters = ({
 }: FiltersProps) => {
   return (
     <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-      {/* Search */}
+      {/* Search And Filter Sheet */}
       <div className="relative w-full min-w-0">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <Search className="size-5 text-gray-400" />
@@ -97,7 +97,7 @@ export const Filters = ({
                         variant="outline"
                         onClick={() => setFilterStatus(f.id)}
                         className={cn(
-                          'h-10 flex-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors md:text-sm',
+                          'h-10 flex-1 text-xs transition-colors',
                           filterStatus === f.id
                             ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm hover:bg-teal-50/70 hover:text-teal-700'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
@@ -109,14 +109,10 @@ export const Filters = ({
                 </div>
               </div>
               <SheetFooter className="flex-row p-0">
-                <Button
-                  variant="secondary"
-                  className="flex-1 text-gray-600 hover:bg-gray-200">
+                <Button variant="secondary" className="flex-1">
                   Đặt lại
                 </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 bg-teal-600 hover:bg-teal-700">
+                <Button type="submit" variant="teal_primary" className="flex-1">
                   Áp dụng
                 </Button>
               </SheetFooter>
@@ -125,6 +121,7 @@ export const Filters = ({
         </div>
       </div>
 
+      {/* Filters & New Appointment */}
       <div className="mt-4 hidden w-full items-center justify-between space-x-3 md:flex">
         <div className="hidden w-full space-x-2 overflow-x-auto pb-2 sm:w-auto sm:pb-0 lg:flex">
           {filters.map((f) => (
@@ -133,7 +130,7 @@ export const Filters = ({
               variant="ghost"
               onClick={() => setFilterStatus(f.id)}
               className={cn(
-                'h-9 shrink-0 rounded-lg text-xs font-medium whitespace-nowrap transition-colors md:text-sm',
+                'h-9 shrink-0 text-xs transition-colors',
                 filterStatus === f.id
                   ? 'bg-teal-600 text-white shadow-sm hover:bg-teal-700 hover:text-white'
                   : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900',
@@ -159,7 +156,7 @@ export const Filters = ({
           </SelectContent>
         </Select>
 
-        <Button className="h-9 bg-teal-600 text-xs whitespace-nowrap text-white shadow-sm hover:bg-teal-700 md:text-sm">
+        <Button variant="teal_primary" className="h-9 text-xs">
           <Plus /> <span className="hidden md:block">Đặt lịch mới</span>
         </Button>
       </div>

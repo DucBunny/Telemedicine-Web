@@ -29,15 +29,13 @@ export const AlertsCard = () => {
             </h4>
             <p className="mt-0.5 text-xs text-gray-600">{alert.message}</p>
             <div className="mt-3 flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 border-gray-200 text-xs">
+              <Button variant="outline" size="sm" className="flex-1 text-xs">
                 Chi tiết
               </Button>
               <Button
                 size="sm"
-                className="flex-1 bg-teal-600 text-xs hover:bg-teal-700">
+                variant="teal_primary"
+                className="flex-1 text-xs">
                 Xử lý ngay
               </Button>
             </div>

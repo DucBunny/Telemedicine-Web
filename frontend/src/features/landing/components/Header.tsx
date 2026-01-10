@@ -3,6 +3,7 @@ import { AnimatePresence, easeInOut, motion } from 'framer-motion'
 import { ArrowRight, Menu, X } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { NAV_LINKS } from '../config'
+import { Button } from '@/components/ui/button'
 
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -97,9 +98,7 @@ export const Header = () => {
                   className="relative"
                   onMouseEnter={() => setHoveredItem(item.label)}
                   onMouseLeave={() => setHoveredItem(null)}>
-                  <Link
-                    to={item.href}
-                    className="text-foreground/80 hover:text-foreground relative rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200">
+                  <Link to={item.href}>
                     {hoveredItem === item.label && (
                       <motion.div
                         className="bg-muted absolute inset-0 rounded-lg"
@@ -114,7 +113,9 @@ export const Header = () => {
                         }}
                       />
                     )}
-                    <span className="relative z-10">{item.label}</span>
+                    <Button variant="ghost" className="rounded-lg">
+                      <span className="relative z-10">{item.label}</span>
+                    </Button>
                   </Link>
                 </motion.div>
               ))}
@@ -123,20 +124,24 @@ export const Header = () => {
             <motion.div
               className="hidden items-center space-x-3 lg:flex"
               variants={itemVariants}>
-              <Link
-                to="/login"
-                className="text-foreground/80 hover:text-foreground hover:bg-muted rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200">
-                Đăng nhập
-              </Link>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}>
+                <Link to="/login">
+                  <Button variant="ghost" className="rounded-lg">
+                    Đăng nhập
+                  </Button>
+                </Link>
+              </motion.div>
 
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.95 }}>
-                <Link
-                  to="/register"
-                  className="bg-foreground text-background hover:bg-foreground/90 inline-flex items-center space-x-2 rounded-lg px-5 py-2.5 text-sm font-medium shadow-sm transition-all duration-200">
-                  <span>Đăng ký</span>
-                  <ArrowRight className="h-4 w-4" />
+                <Link to="/register">
+                  <Button variant="teal_primary" className="rounded-lg">
+                    <span>Đăng ký</span>
+                    <ArrowRight className="size-4" />
+                  </Button>
                 </Link>
               </motion.div>
             </motion.div>

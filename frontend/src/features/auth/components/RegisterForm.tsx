@@ -1,7 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { Lock, Mail, Phone, ShieldCheck, User } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { toast } from 'sonner'
 import { registerSchema } from '../schemas'
 import { useRegisterMutation } from '../hooks/useAuthMutations'
 import type { RegisterFormData } from '../schemas'
@@ -28,9 +27,7 @@ export const RegisterForm = () => {
     onSubmit: async ({ value }) => {
       try {
         await registerMutation.mutateAsync(value)
-        toast.success('Đăng ký thành công!')
       } catch (error) {
-        toast.error('Đăng ký thất bại')
         console.error(error)
       }
     },
@@ -155,8 +152,9 @@ export const RegisterForm = () => {
             <Button
               size="lg"
               type="submit"
+              variant="teal_primary"
               disabled={!canSubmit || registerMutation.isPending}
-              className={`mt-6 w-full rounded-xl bg-teal-600 font-bold shadow-md shadow-teal-200 transition-colors ${
+              className={`mt-6 w-full rounded-xl font-bold shadow-md shadow-teal-200 transition-colors ${
                 !canSubmit
                   ? 'cursor-not-allowed opacity-50'
                   : 'hover:bg-teal-700'

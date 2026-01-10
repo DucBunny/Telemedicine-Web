@@ -20,7 +20,7 @@ export const Filters = () => {
           <Filter className="mr-2 h-4 w-4" /> Bộ lọc
         </Button>
       </div>
-      <Button className="h-9 w-full bg-teal-600 text-white shadow-sm hover:bg-teal-700 sm:w-auto">
+      <Button variant="teal_primary" className="h-9 w-full sm:w-auto">
         <Users className="mr-2 h-4 w-4" /> Thêm bệnh nhân
       </Button>
     </div>

@@ -124,9 +124,7 @@ export const MainChat = ({
             className="flex-1 border-none bg-transparent text-xs text-gray-800 placeholder-gray-400 shadow-none focus-visible:ring-0 md:text-sm"
             placeholder="Nhập tin nhắn..."
           />
-          <Button
-            size="icon"
-            className="bg-teal-600 text-white shadow-sm hover:bg-teal-700">
+          <Button size="icon" variant="teal_primary">
             <Send size={18} />
           </Button>
         </div>
