@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       // Hồ sơ có thể có nhiều tệp đính kèm
       MedicalRecord.hasMany(models.MedicalAttachment, {
         foreignKey: 'medicalRecordId',
-        as: 'attachments'
+        as: 'medicalAttachments'
       })
     }
   }

@@ -18,7 +18,8 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       role: {
-        type: Sequelize.STRING
+        type: Sequelize.ENUM('primary', 'consultant', 'on_call'),
+        allowNull: false
       },
       assigned_at: {
         type: Sequelize.DATE,

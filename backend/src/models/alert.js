@@ -11,16 +11,24 @@ module.exports = (sequelize, DataTypes) => {
         as: 'patient'
       })
 
+      // Cảnh báo có thể liên quan đến 1 thiết bị y tế
+      Alert.belongsTo(models.Device, {
+        foreignKey: 'deviceId',
+        as: 'device'
+      })
+
       // Cảnh báo có thể liên quan đến 1 dự đoán sức khỏe
       Alert.belongsTo(models.HealthPrediction, {
         foreignKey: 'predictionId',
         as: 'healthPrediction'
       })
 
-      // Cảnh báo có thể được xác nhận bởi 1 bác sĩ
-      Alert.belongsTo(models.Doctor, {
-        foreignKey: 'acknowledgedBy',
-        as: 'acknowledgingDoctor'
+      // Cảnh báo có nhiều người nhận (bác sĩ)
+      Alert.belongsToMany(models.Doctor, {
+        through: models.AlertRecipient,
+        foreignKey: 'alertId',
+        otherKey: 'doctorId',
+        as: 'alertRecipients'
       })
     }
   }
@@ -28,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
   Alert.init(
     {
       patientId: DataTypes.INTEGER,
+      deviceId: DataTypes.INTEGER,
       predictionId: DataTypes.INTEGER,
       type: DataTypes.STRING, // VD: "bpm"
       value: DataTypes.FLOAT, // VD: "150"
@@ -41,8 +50,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       },
-      acknowledgedBy: DataTypes.INTEGER,
-      acknowledgedAt: DataTypes.DATE
+      resolvedAt: DataTypes.DATE,
+      resolvedBy: DataTypes.INTEGER
     },
     {
       sequelize,

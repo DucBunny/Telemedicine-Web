@@ -35,6 +35,17 @@ module.exports = {
       address: {
         type: Sequelize.STRING
       },
+      current_health_status: {
+        type: Sequelize.ENUM('stable', 'monitoring', 'critical'),
+        defaultValue: 'stable'
+      },
+      current_issue: {
+        type: Sequelize.TEXT
+      },
+      last_alert_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

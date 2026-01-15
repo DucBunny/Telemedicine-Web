@@ -7,13 +7,13 @@ module.exports = (sequelize, DataTypes) => {
       // User (Bệnh nhân) có 1 hồ sơ chi tiết
       User.hasOne(models.Patient, {
         foreignKey: 'userId',
-        as: 'patientProfile'
+        as: 'patient'
       })
 
       // User (Bác sĩ) có 1 hồ sơ chi tiết
       User.hasOne(models.Doctor, {
         foreignKey: 'userId',
-        as: 'doctorProfile'
+        as: 'doctor'
       })
 
       // User có nhiều RefreshToken

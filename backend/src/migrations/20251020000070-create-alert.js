@@ -19,6 +19,16 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
+      device_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        references: {
+          model: 'devices',
+          key: 'device_id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       prediction_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -49,7 +59,11 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
-      acknowledged_by: {
+      resolved_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
+      resolved_by: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -58,10 +72,6 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
-      },
-      acknowledged_at: {
-        type: Sequelize.DATE,
-        allowNull: true
       },
       created_at: {
         allowNull: false,

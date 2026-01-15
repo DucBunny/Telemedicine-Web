@@ -10,7 +10,7 @@ class ApiError extends Error {
   constructor(
     statusCode,
     message,
-    code = 'INTERNAL_ERROR',
+    code = 'INTERNAL_SERVER_ERROR',
     details = null,
     isOperational = true,
     stack = ''

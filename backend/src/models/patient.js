@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // 1-1 với User (Tài khoản bệnh nhân)
       Patient.belongsTo(models.User, {
         foreignKey: 'userId',
-        as: 'userAccount'
+        as: 'user'
       })
 
       // N-N với Doctor (Bác sĩ phụ trách)
@@ -50,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
       Patient.hasMany(models.Appointment, {
         foreignKey: 'patientId',
         sourceKey: 'userId',
-        as: 'patientAppointments'
+        as: 'appointments'
       })
     }
   }
@@ -68,7 +68,16 @@ module.exports = (sequelize, DataTypes) => {
       height: DataTypes.FLOAT,
       weight: DataTypes.FLOAT,
       medicalHistory: DataTypes.TEXT,
-      address: DataTypes.STRING
+      address: DataTypes.STRING,
+      currentHealthStatus: {
+        type: DataTypes.ENUM('stable', 'monitoring', 'critical'),
+        defaultValue: 'stable'
+      },
+      currentIssue: DataTypes.TEXT,
+      lastAlertAt: {
+        type: DataTypes.DATE,
+        allowNull: true
+      }
     },
     {
       sequelize,

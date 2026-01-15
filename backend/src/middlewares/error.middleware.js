@@ -28,7 +28,7 @@ export const errorConverter = (err, req, res, next) => {
     error = new ApiError(
       statusCode,
       message,
-      'INTERNAL_ERROR',
+      'INTERNAL_SERVER_ERROR',
       null,
       false,
       err.stack

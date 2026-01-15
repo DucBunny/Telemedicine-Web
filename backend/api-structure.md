@@ -116,7 +116,7 @@
 {
   "success": false,
   "error": {
-    "code": "INTERNAL_ERROR",
+    "code": "INTERNAL_SERVER_ERROR",
     "message": "Something went wrong",
     "statusCode": 500,
     "details": null,

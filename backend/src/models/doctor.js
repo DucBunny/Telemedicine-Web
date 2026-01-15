@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // 1-1 với User (Tài khoản bác sĩ)
       Doctor.belongsTo(models.User, {
         foreignKey: 'userId',
-        as: 'userAccount'
+        as: 'user'
       })
 
       // N-N với Patient (Bác sĩ phụ trách nhiều bệnh nhân)
@@ -27,7 +27,15 @@ module.exports = (sequelize, DataTypes) => {
       // 1-N với MedicalRecord (Các hồ sơ bệnh án do bác sĩ này tạo)
       Doctor.hasMany(models.MedicalRecord, {
         foreignKey: 'doctorId',
-        as: 'createdRecords'
+        as: 'medicalRecords'
+      })
+
+      // N-N với Alert (Cảnh báo được gửi đến bác sĩ)
+      Doctor.belongsToMany(models.Alert, {
+        through: models.AlertRecipient,
+        foreignKey: 'doctorId',
+        otherKey: 'alertId',
+        as: 'alertRecipients'
       })
     }
   }

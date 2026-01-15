@@ -16,7 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         primaryKey: true
       },
-      role: DataTypes.STRING,
+      role: {
+        type: DataTypes.ENUM('primary', 'consultant', 'on_call'),
+        allowNull: false
+      },
       assignedAt: DataTypes.DATE
     },
     {

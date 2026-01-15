@@ -19,6 +19,18 @@ Enum gender_type {
   other        // Khác
 }
 
+Enum patient_condition_level {
+  stable          // Ổn định 
+  monitoring      // Cần theo dõi 
+  critical        // Nguy hiểm 
+}
+
+Enum patient_doctor_role {
+  primary        // Bác sĩ chính (chịu trách nhiệm)
+  consultant     // Bác sĩ tư vấn / hỗ trợ
+  on_call        // Bác sĩ trực / xử lý khẩn cấp
+}
+
 Enum device_status {
   active       // Thiết bị đang hoạt động
   inactive     // Thiết bị ngừng sử dụng
@@ -109,6 +121,10 @@ Table patients {
   medical_history text                    // Tiền sử bệnh
   address varchar                         // Địa chỉ
 
+  current_health_status patient_condition_level [default: 'stable']     // Dùng để hiển thị Label màu (Trạng thái)
+  current_issue varchar                                                 // Dùng để hiển thị text "Tình trạng" (VD: "Huyết áp cao", "Nhịp tim nhanh")
+  last_alert_at datetime                                                // Thời điểm có cảnh báo cuối cùng
+
   created_at timestamp [default: `now()`] 
   updated_at timestamp [default: `now()`] 
 }
@@ -117,7 +133,7 @@ Table patient_doctors {
   patient_id int [ref: > patients.user_id]  
   doctor_id int [ref: > doctors.user_id]   
 
-  role varchar                              // Vai trò: bác sĩ chính / tư vấn
+  role patient_doctor_role [not null]
   assigned_at datetime                      // Thời điểm phân công
 
   primary key (patient_id, doctor_id)       // Quan hệ nhiều-nhiều
@@ -147,20 +163,34 @@ Table alerts {
 
   patient_id int [not null, ref: > patients.user_id]        // Bệnh nhân liên quan
   prediction_id int [ref: > health_predictions.id, null]    // Kết quả AI sinh cảnh báo
+  device_id varchar [ref: > devices.device_id, null]        // Thiết bị nào
 
   type varchar                                  // Loại chỉ số (bpm, spo2)
   value float                                   // Giá trị đo được
   message varchar                               // Nội dung cảnh báo
   severity alert_severity [default: 'medium']   // Mức độ nghiêm trọng
 
-  source varchar                           // Nguồn cảnh báo: threshold | ml | manual
-  is_resolved boolean [default: false]     // Đã xử lý hay chưa
-
-  acknowledged_by int [ref: > doctors.user_id, null]    // Bác sĩ xác nhận
-  acknowledged_at datetime                              // Thời điểm xác nhận
+  source varchar                                      // Nguồn cảnh báo: threshold | ml | manual
+  is_resolved boolean [default: false]                // Đã xử lý hay chưa
+  resolved_at datetime                                // Thời điểm xử lý
+  resolved_by int [ref: > doctors.user_id, null]      // Xử lý bởi
 
   created_at timestamp [default: `now()`]  
   updated_at timestamp [default: `now()`]  
+}
+
+Table alert_recipients {                        // Bảng trung gian cảnh báo cho bác sĩ nào
+  alert_id int [ref: > alerts.id]                       // Cảnh báo
+  doctor_id int [ref: > doctors.user_id]                // Bác sĩ nhận cảnh báo từ bệnh nhân
+
+  is_read boolean [default: false]                      // Xem chưa
+  is_acknowledged boolean [default: false]              // Xử lý chưa
+
+  delivered_at datetime [not null]                      // Thời điểm cảnh báo 
+  read_at datetime                                      // Thời điểm xem  
+  acknowledged_at datetime                              // Thời điểm xử lý 
+
+  primary key (alert_id, doctor_id)
 }
 
 Table health_predictions {
