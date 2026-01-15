@@ -44,8 +44,11 @@ export const InputField = ({
         name: field.name,
         value: field.state.value,
         onBlur: field.handleBlur,
-        onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-          field.handleChange(e.target.value),
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+          field.handleChange(e.target.value)
+          // Gọi onChange custom nếu được truyền vào
+          onChange?.(e)
+        },
       }
     : { name, value, onBlur, onChange }
 
@@ -63,7 +66,7 @@ export const InputField = ({
   }
 
   return (
-    <div className="mb-4">
+    <div>
       {label ? (
         <Label className="text-gray-600" htmlFor={bindToField.name}>
           {label}

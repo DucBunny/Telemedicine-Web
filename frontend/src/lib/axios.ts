@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getVietnameseErrorMessage } from './error-messages'
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import type { ApiErrorResponse } from '@/types/api.type'
 import { useAuthStore } from '@/stores/auth.store'
@@ -12,6 +13,13 @@ export const apiClient = axios.create({
   withCredentials: true, // Luôn gửi cookies (cho refresh token)
 })
 
+// Auth endpoints không cần auto-refresh token khi gặp 401
+const AUTH_ENDPOINTS_NO_RETRY = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/refresh',
+]
+
 let isRefreshing = false // Cờ đánh dấu đang trong quá trình lấy token mới
 let failedQueue: Array<{
   resolve: (value?: unknown) => void
@@ -19,18 +27,61 @@ let failedQueue: Array<{
 }> = [] // Hàng đợi chứa các request bị lỗi 401 chờ retry
 
 /**
+ * Kiểm tra xem request có phải endpoint auth không cần retry
+ */
+const isAuthEndpoint = (url?: string): boolean => {
+  if (!url) return false
+  return AUTH_ENDPOINTS_NO_RETRY.some((endpoint) => url.includes(endpoint))
+}
+
+/**
  * Xử lý các requests đang chờ sau khi refresh token thành công/thất bại
  */
 const processQueue = (error: Error | null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error)
-    } else {
-      prom.resolve()
-    }
-  })
-
+  failedQueue.forEach((prom) => (error ? prom.reject(error) : prom.resolve()))
   failedQueue = []
+}
+
+/**
+ * Retry request với access token mới
+ */
+const retryRequestWithNewToken = (
+  request: InternalAxiosRequestConfig,
+  token: string,
+) => {
+  request.headers.Authorization = `Bearer ${token}`
+  return apiClient(request)
+}
+
+/**
+ * Handle refresh token flow
+ */
+const handleRefreshToken = async (
+  originalRequest: InternalAxiosRequestConfig & { _retry?: boolean },
+) => {
+  originalRequest._retry = true
+  isRefreshing = true
+
+  try {
+    const { data } = await apiClient.post(
+      '/auth/refresh-token',
+      {},
+      { withCredentials: true },
+    )
+
+    const { accessToken, user } = data.data
+    useAuthStore.getState().setAuth(accessToken, user)
+    processQueue(null)
+
+    return retryRequestWithNewToken(originalRequest, accessToken)
+  } catch (refreshError) {
+    processQueue(refreshError as Error)
+    useAuthStore.getState().clearAuth()
+    window.location.href = '/login'
+    throw refreshError
+  } finally {
+    isRefreshing = false
+  }
 }
 
 /**
@@ -58,69 +109,33 @@ apiClient.interceptors.response.use(
       _retry?: boolean
     }
 
-    // Nếu lỗi không phải 401 hoặc đã retry rồi mà vẫn lỗi -> Trả lỗi luôn
-    if (error.response?.status !== 401 || originalRequest._retry) {
+    const is401 = error.response?.status === 401
+    const shouldSkipRetry =
+      !is401 || originalRequest._retry || isAuthEndpoint(originalRequest.url)
+
+    // Skip retry nếu không phải 401, đã retry, hoặc là auth endpoint
+    if (shouldSkipRetry) {
+      // Clear auth nếu refresh token endpoint bị 401
+      if (is401 && originalRequest.url?.includes('/auth/refresh')) {
+        useAuthStore.getState().clearAuth()
+      }
       return Promise.reject(error)
     }
 
-    // Nếu request đến endpoint refresh thì không retry nữa
-    if (originalRequest.url?.includes('/auth/refresh')) {
-      // Refresh token đã hết hạn hoặc invalid
-      useAuthStore.getState().clearAuth()
-      return Promise.reject(error)
-    }
-
-    // Nếu đang refresh token thì đưa request vào queue
+    // Nếu đang refresh, đưa vào queue và chờ
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject })
+      }).then(() => {
+        const newToken = useAuthStore.getState().accessToken
+        return newToken
+          ? retryRequestWithNewToken(originalRequest, newToken)
+          : Promise.reject(new Error('No token available'))
       })
-        .then(() => {
-          const newToken = useAuthStore.getState().accessToken
-          // Khi hàng đợi được xả, lấy token mới gắn vào header và gửi lại request
-          if (newToken) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`
-          }
-          return apiClient(originalRequest)
-        })
-        .catch((err) => {
-          return Promise.reject(err)
-        })
     }
 
-    // Nếu chưa có ai đi lấy token -> Mình là người đầu tiên
-    originalRequest._retry = true // Đánh dấu để không lặp vô hạn
-    isRefreshing = true
-
-    try {
-      // Gọi API refresh token (refresh token trong httpOnly cookie tự động gửi)
-      const { data } = await apiClient.post(
-        '/auth/refresh-token',
-        {},
-        {
-          withCredentials: true,
-        },
-      )
-
-      // Lưu access token và user mới vào store
-      useAuthStore.getState().setAuth(data.data.accessToken, data.data.user)
-
-      // Xử lý tất cả requests đang chờ
-      processQueue(null)
-
-      // Retry request gốc với token mới
-      originalRequest.headers.Authorization = `Bearer ${data.data.accessToken}`
-
-      return apiClient(originalRequest)
-    } catch (refreshError) {
-      // Refresh token thất bại thì logout
-      processQueue(refreshError as Error)
-      useAuthStore.getState().clearAuth()
-      window.location.href = '/login'
-      return Promise.reject(refreshError)
-    } finally {
-      isRefreshing = false
-    }
+    // Thực hiện refresh token
+    return handleRefreshToken(originalRequest)
   },
 )
 
@@ -128,24 +143,21 @@ apiClient.interceptors.response.use(
  * Helper để lấy error message từ API response
  */
 export function getErrorMessage(error: unknown): string {
-  // Axios error
   if (axios.isAxiosError(error)) {
-    const data = error.response?.data as ApiErrorResponse | undefined
+    const apiError = error.response?.data as ApiErrorResponse | undefined
 
-    // Ưu tiên message từ BE
-    if (data?.error.message) {
-      return data.error.message
+    // Ưu tiên translate error code sang tiếng Việt
+    if (apiError?.error.code) {
+      return getVietnameseErrorMessage(
+        apiError.error.code,
+        apiError.error.message,
+      )
     }
 
-    // Fallback: axios message
-    if (error.message) {
-      return error.message
-    }
-
-    return 'Có lỗi xảy ra'
+    // Fallback: message gốc từ API hoặc axios
+    return apiError?.error.message || error.message || 'Có lỗi xảy ra'
   }
 
-  // JS Error
   if (error instanceof Error) {
     return error.message
   }

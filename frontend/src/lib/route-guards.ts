@@ -1,10 +1,6 @@
 import { redirect } from '@tanstack/react-router'
 import type { UserRole } from '@/features/auth/types/auth.types'
-import {
-  selectIsAuthenticated,
-  selectIsInitialized,
-  useAuthStore,
-} from '@/stores/auth.store'
+import { selectIsAuthenticated, useAuthStore } from '@/stores/auth.store'
 
 interface RequireAuthOptions {
   location: { href: string }
@@ -24,16 +20,8 @@ export function isAuthenticated(): boolean {
  */
 export function requireAuth({ location, roles }: RequireAuthOptions) {
   const state = useAuthStore.getState()
-  const isInitialized = selectIsInitialized(state)
 
-  // Nếu chưa initialized (trường hợp bất thường), chặn vào và yêu cầu login
-  if (!isInitialized) {
-    throw redirect({
-      to: '/login',
-      search: { redirect: location.href },
-    })
-  }
-
+  // Check authentication
   if (!isAuthenticated()) {
     throw redirect({
       to: '/login',
@@ -41,6 +29,7 @@ export function requireAuth({ location, roles }: RequireAuthOptions) {
     })
   }
 
+  // Check authorization (role-based)
   if (roles && (!state.user || !roles.includes(state.user.role))) {
     throw redirect({ to: '/unauthorized' })
   }
