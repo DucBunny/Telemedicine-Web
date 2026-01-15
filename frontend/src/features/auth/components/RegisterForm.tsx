@@ -1,9 +1,11 @@
 import { useForm } from '@tanstack/react-form'
-import { Lock, Mail, Phone, ShieldCheck, User } from 'lucide-react'
+import { CircleAlert, Lock, Mail, Phone, ShieldCheck, User } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 import { registerSchema } from '../schemas'
 import { useRegisterMutation } from '../hooks/useAuthMutations'
 import type { RegisterFormData } from '../schemas'
+import { getErrorMessage } from '@/lib/axios'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { InputField } from '@/components/InputField'
@@ -11,6 +13,7 @@ import { FieldError } from '@/components/FieldError'
 
 export const RegisterForm = () => {
   const registerMutation = useRegisterMutation()
+  const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -25,10 +28,13 @@ export const RegisterForm = () => {
       onSubmit: registerSchema,
     },
     onSubmit: async ({ value }) => {
+      setFormError(null)
+
       try {
         await registerMutation.mutateAsync(value)
       } catch (error) {
-        console.error(error)
+        const errorMessage = getErrorMessage(error)
+        setFormError(errorMessage)
       }
     },
   })
@@ -47,7 +53,15 @@ export const RegisterForm = () => {
           e.preventDefault()
           e.stopPropagation()
           form.handleSubmit()
-        }}>
+        }}
+        className="space-y-4">
+        {formError && (
+          <div className="flex items-center gap-2 rounded-lg bg-red-50 p-4 text-red-600">
+            <CircleAlert className="inline size-5" />
+            <p className="text-sm">{formError}</p>
+          </div>
+        )}
+
         <form.Field
           name="fullName"
           children={(field) => (
@@ -116,7 +130,7 @@ export const RegisterForm = () => {
         <form.Field
           name="terms"
           children={(field) => (
-            <>
+            <div>
               <label className="mt-2 flex cursor-pointer items-center">
                 <Checkbox
                   className="border-gray-300 data-[state=checked]:border-teal-600 data-[state=checked]:bg-teal-600"
@@ -142,7 +156,7 @@ export const RegisterForm = () => {
               </label>
 
               <FieldError field={field} />
-            </>
+            </div>
           )}
         />
 

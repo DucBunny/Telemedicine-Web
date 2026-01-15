@@ -1,14 +1,17 @@
 import { useForm } from '@tanstack/react-form'
 import { Lock, Mail } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 import { loginSchema } from '../schemas'
 import { useLoginMutation } from '../hooks/useAuthMutations'
 import type { LoginFormData } from '../schemas'
 import { InputField } from '@/components/InputField'
 import { Button } from '@/components/ui/button'
+import { getErrorMessage } from '@/lib/axios'
 
 export const LoginForm = () => {
   const loginMutation = useLoginMutation()
+  const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
@@ -19,10 +22,13 @@ export const LoginForm = () => {
       onSubmit: loginSchema,
     },
     onSubmit: async ({ value }) => {
+      setFormError(null)
+
       try {
         await loginMutation.mutateAsync(value)
       } catch (error) {
-        console.error(error)
+        const errorMessage = getErrorMessage(error)
+        setFormError(errorMessage)
       }
     },
   })
@@ -43,7 +49,8 @@ export const LoginForm = () => {
           e.preventDefault()
           e.stopPropagation()
           form.handleSubmit()
-        }}>
+        }}
+        className="space-y-4">
         <form.Field
           name="username"
           children={(field) => (
@@ -53,22 +60,30 @@ export const LoginForm = () => {
               placeholder="Nhập email hoặc số điện thoại"
               icon={Mail}
               field={field}
+              onChange={() => setFormError(null)}
             />
           )}
         />
 
-        <form.Field
-          name="password"
-          children={(field) => (
-            <InputField
-              label="Mật khẩu"
-              type="password"
-              placeholder="••••••••"
-              icon={Lock}
-              field={field}
-            />
+        <div>
+          <form.Field
+            name="password"
+            children={(field) => (
+              <InputField
+                label="Mật khẩu"
+                type="password"
+                placeholder="••••••••"
+                icon={Lock}
+                field={field}
+                onChange={() => setFormError(null)}
+              />
+            )}
+          />
+
+          {formError && (
+            <p className="mt-1 text-sm text-red-600">{formError}</p>
           )}
-        />
+        </div>
 
         <div className="mb-6 flex items-center justify-end">
           <Link

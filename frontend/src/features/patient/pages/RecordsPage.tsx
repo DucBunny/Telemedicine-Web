@@ -1,6 +1,11 @@
-import { MOCK_RECORDS } from '../data/mockData'
+import { useGetPatientRecords } from '../hooks/useRecordQueries'
 
 export const RecordsPage = () => {
+  const { data } = useGetPatientRecords({
+    page: 1,
+    limit: 5,
+  })
+
   return (
     <div className="space-y-6 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
       <h1 className="px-1 pt-2 text-2xl font-bold text-gray-900 md:pt-0">
@@ -8,7 +13,7 @@ export const RecordsPage = () => {
       </h1>
 
       <div className="relative mt-4 ml-3 space-y-8 border-l-2 border-dashed border-gray-200">
-        {MOCK_RECORDS.map((rec) => (
+        {data?.data.map((rec) => (
           <div key={rec.id} className="relative pl-8">
             <div className="absolute top-0 -left-2.25 h-4 w-4 rounded-full border-4 border-white bg-teal-500 shadow-sm"></div>
 
@@ -18,7 +23,13 @@ export const RecordsPage = () => {
                   {rec.diagnosis}
                 </h3>
                 <span className="rounded-lg bg-gray-50 px-2 py-1 text-xs font-medium text-gray-400">
-                  {rec.date}
+                  {new Date(rec.visitDate).toLocaleDateString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                  })}
                 </span>
               </div>
 
@@ -26,7 +37,7 @@ export const RecordsPage = () => {
                 <div className="flex">
                   <span className="w-24 shrink-0 text-gray-500">Bác sĩ:</span>
                   <span className="font-medium text-gray-800">
-                    {rec.doctor}
+                    {rec.doctor?.user.fullName || 'N/A'}
                   </span>
                 </div>
                 <div className="flex">

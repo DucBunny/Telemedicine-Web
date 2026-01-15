@@ -5,3 +5,5 @@ export const roleToPath: Record<UserRole, string> = {
   doctor: '/doctor',
   patient: '/patient',
 }
+
+export const PUBLIC_ROUTES = ['/login', '/register', '/', '/unauthorized']

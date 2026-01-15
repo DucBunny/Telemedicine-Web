@@ -27,8 +27,9 @@ export const useLoginMutation = () => {
       toast.success('Đăng nhập thành công!')
     },
     onError: (error) => {
-      toast.error('Đăng nhập thất bại')
-      console.error('Login failed:', getErrorMessage(error))
+      const errorMessage = getErrorMessage(error)
+      toast.error(errorMessage || 'Đăng nhập thất bại')
+      console.error('Login failed:', errorMessage)
     },
     retry: false,
   })
@@ -45,8 +46,9 @@ export const useRegisterMutation = () => {
       toast.success('Đăng ký thành công!')
     },
     onError: (error) => {
-      toast.error('Đăng ký thất bại')
-      console.error('Register failed:', getErrorMessage(error))
+      const errorMessage = getErrorMessage(error)
+      toast.error(errorMessage || 'Đăng ký thất bại')
+      console.error('Register failed:', errorMessage)
     },
     retry: false,
   })

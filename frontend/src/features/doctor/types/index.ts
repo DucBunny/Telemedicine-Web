@@ -1,3 +1,5 @@
+import type { User } from '../../admin/api/user.api'
+
 export type StatusType =
   | 'confirmed'
   | 'pending'
@@ -9,14 +11,14 @@ export type StatusType =
   | 'low'
   | 'medium'
 
-export interface DoctorUser {
-  id: number
-  full_name: string
-  specialization: string
-  degree: string
-  avatar: string
-  role: 'doctor'
-}
+// export interface DoctorUser {
+//   id: number
+//   full_name: string
+//   specialization: string
+//   degree: string
+//   avatar: string
+//   role: 'doctor'
+// }
 
 export interface Appointment {
   id: number
@@ -29,18 +31,18 @@ export interface Appointment {
   avatar: string
 }
 
-export interface Patient {
-  id: number
-  full_name: string
-  gender: 'male' | 'female'
-  age: number
-  blood_type: string
-  height: number
-  weight: number
-  last_visit: string
-  health_status: StatusType
-  condition: string
-}
+// export interface Patient {
+//   id: number
+//   full_name: string
+//   gender: 'male' | 'female'
+//   age: number
+//   blood_type: string
+//   height: number
+//   weight: number
+//   last_visit: string
+//   health_status: StatusType
+//   condition: string
+// }
 
 export interface Alert {
   id: number
@@ -65,4 +67,32 @@ export interface DashboardStats {
   appointments_today: number
   pending_alerts: number
   messages_unread: number
+}
+// --------------------------------------------------------------------
+export interface Doctor {
+  userId: number
+  specialization: string
+  degree: string
+  experienceYears: number
+  bio: string
+  createdAt: string
+  updatedAt: string
+  user: User
+}
+
+export interface Patient {
+  userId: number
+  dateOfBirth: string
+  gender: string
+  bloodType: string
+  height: number
+  weight: number
+  medicalHistory: string
+  address: string
+  currentHealthStatus: string
+  currentIssue: string | null
+  lastAlertAt: string | null
+  createdAt: string
+  updatedAt: string
+  user: User
 }

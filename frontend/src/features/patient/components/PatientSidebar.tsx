@@ -1,5 +1,4 @@
 import {
-  Activity,
   Bell,
   Calendar,
   FileText,
@@ -7,7 +6,8 @@ import {
   MessageSquare,
   User,
 } from 'lucide-react'
-import { MOCK_PATIENT } from '../data/mockData'
+import { Link } from '@tanstack/react-router'
+import { useGetPatientProfile } from '../hooks/usePatientQueries'
 
 interface PatientSidebarProps {
   activeTab: string
@@ -29,7 +29,7 @@ export const PatientSidebar = ({
   const navItems: Array<NavItem> = [
     { id: 'home', icon: Home, label: 'Tổng quan', href: '/patient' },
     {
-      id: 'calendar',
+      id: 'appointments',
       icon: Calendar,
       label: 'Lịch hẹn khám',
       href: '/patient/appointments',
@@ -61,22 +61,23 @@ export const PatientSidebar = ({
     },
   ]
 
+  const { data } = useGetPatientProfile()
+
   return (
     <aside className="fixed top-0 left-0 z-30 hidden h-screen w-72 flex-col border-r border-gray-200 bg-white md:flex">
-      <div className="flex h-18.25 items-center border-b border-gray-100 p-6">
-        <div className="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600">
-          <Activity className="h-5 w-5 text-white" />
-        </div>
-        <span className="text-xl font-bold text-gray-900">
-          MediCare<span className="text-teal-500">App</span>
+      <div className="flex h-18.25 items-center justify-center gap-2 border-b border-gray-100 p-6">
+        <img src="/logo.png" alt="MedCare Logo" className="size-8" />
+        <span className="text-xl leading-tight font-bold text-teal-700 group-data-[collapsible=icon]:hidden">
+          MedCare
+          <span className="text-gray-700">App</span>
         </span>
       </div>
 
       <div className="flex-1 space-y-2 px-4 py-6">
         {navItems.map((item) => (
-          <button
+          <Link
             key={item.id}
-            onClick={() => (window.location.href = item.href)}
+            to={item.href}
             className={`flex w-full items-center justify-between rounded-xl px-4 py-3.5 text-sm font-medium transition-all ${
               activeTab === item.id
                 ? 'bg-teal-50 text-teal-700 shadow-sm'
@@ -95,22 +96,22 @@ export const PatientSidebar = ({
                 {item.badge}
               </span>
             )}
-          </button>
+          </Link>
         ))}
       </div>
 
       <div className="border-t border-gray-100 p-4">
         <div className="flex items-center rounded-xl bg-gray-50 p-3">
           <img
-            src={MOCK_PATIENT.avatar}
+            src={data?.user.avatar}
             alt=""
             className="h-10 w-10 rounded-full"
           />
           <div className="ml-3 overflow-hidden">
             <p className="truncate text-sm font-semibold text-gray-900">
-              {MOCK_PATIENT.full_name}
+              {data?.user.fullName}
             </p>
-            <p className="text-xs text-gray-500">Mã: BN-{MOCK_PATIENT.id}</p>
+            <p className="text-xs text-gray-500">Mã: BN-{data?.userId}</p>
           </div>
         </div>
       </div>

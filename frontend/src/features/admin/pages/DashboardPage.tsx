@@ -8,9 +8,27 @@ import {
   Smartphone,
   Users,
 } from 'lucide-react'
-import { SYSTEM_STATS } from '../data/mockData'
+import { useGetSystemStats } from '../hooks/useGetSystemStats'
 
 export const DashboardPage = () => {
+  const { data: stats, isLoading, isError } = useGetSystemStats()
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-gray-500">Đang tải dữ liệu...</div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="text-red-500">Lỗi khi tải dữ liệu hệ thống</div>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       {/* Stats Cards */}
@@ -18,32 +36,35 @@ export const DashboardPage = () => {
         {[
           {
             label: 'Tổng người dùng',
-            value: SYSTEM_STATS.total_users,
-            sub: `+${SYSTEM_STATS.active_doctors} Bác sĩ`,
+            value: stats?.totalUsers || 0,
+            sub: `${stats?.totalDoctors || 0} Bác sĩ`,
             icon: Users,
-            color: 'bg-blue-600',
+            color: 'bg-blue-600/10',
+            textColor: 'text-blue-600',
           },
           {
-            label: 'Thiết bị Online',
-            value: SYSTEM_STATS.devices_online,
-            sub: `Trên tổng số ${SYSTEM_STATS.total_devices}`,
+            label: 'Thiết bị hoạt động',
+            value: stats?.devicesOnline || 0,
+            sub: `Trên tổng số ${stats?.totalDevices || 0}`,
             icon: Server,
-            color: 'bg-green-600',
+            color: 'bg-green-600/10',
+            textColor: 'text-green-600',
           },
           {
             label: 'Thiết bị bảo trì',
-            value: SYSTEM_STATS.devices_maintenance,
+            value: stats?.devicesMaintenance || 0,
             sub: 'Cần kiểm tra ngay',
             icon: Smartphone,
-            color: 'bg-orange-500',
+            color: 'bg-orange-500/10',
+            textColor: 'text-orange-600',
           },
-          // THAY ĐỔI: Sử dụng "Cảnh báo chưa xử lý"
           {
-            label: 'Cảnh báo chưa xử lý',
-            value: SYSTEM_STATS.pending_alerts,
-            sub: 'Cần bác sĩ hỗ trợ ngay',
+            label: 'Tổng bệnh nhân',
+            value: stats?.totalPatients || 0,
+            sub: 'Đang theo dõi',
             icon: AlertTriangle,
-            color: 'bg-red-600',
+            color: 'bg-red-600/10',
+            textColor: 'text-red-600',
           },
         ].map((stat, idx) => (
           <div
@@ -56,10 +77,8 @@ export const DashboardPage = () => {
               <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
               <p className="mt-1 text-xs text-gray-400">{stat.sub}</p>
             </div>
-            <div className={`rounded-lg p-3 ${stat.color} bg-opacity-10`}>
-              <stat.icon
-                className={`h-6 w-6 ${stat.color.replace('bg-', 'text-')}`}
-              />
+            <div className={`rounded-lg p-3 ${stat.color}`}>
+              <stat.icon className={`h-6 w-6 ${stat.textColor} `} />
             </div>
           </div>
         ))}

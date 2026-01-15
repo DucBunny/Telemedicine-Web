@@ -80,7 +80,7 @@ export const SettingsPage = () => {
         </div>
         <div className="p-6">
           <button
-            className="flex w-full items-center justify-center rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+            className="flex w-full items-center justify-center rounded-lg border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none focus-visible:ring-offset-0"
             onClick={() => logoutMutation.mutate()}>
             <LogOut className="mr-2 h-4 w-4" /> Đăng xuất khỏi hệ thống
           </button>

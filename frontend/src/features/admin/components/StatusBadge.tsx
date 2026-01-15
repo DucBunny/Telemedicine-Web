@@ -17,7 +17,7 @@ export const StatusBadge = ({ status, type = 'default' }: StatusBadgeProps) => {
     active: 'Hoạt động',
     locked: 'Đã khóa',
     maintenance: 'Bảo trì',
-    inactive: 'Ngừng hoạt động',
+    inactive: 'Không hoạt động',
   }
 
   const className = styles[status] || styles.active // Default fallback

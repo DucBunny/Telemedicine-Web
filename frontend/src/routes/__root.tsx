@@ -15,7 +15,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
     try {
       const data = await authApi.refreshToken()
       auth.setAuth(data.accessToken, data.user)
-    } catch (err) {
+    } catch {
       auth.clearAuth()
     } finally {
       auth.setInitialized(true)

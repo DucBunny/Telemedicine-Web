@@ -1,6 +1,9 @@
 import { ChevronRight } from 'lucide-react'
+import { useState } from 'react'
 import { DoctorStatusBadge } from '../DoctorStatusBadge'
-import { MOCK_PATIENTS } from '../../data/mockData'
+import { useGetPatients } from '../../hooks/usePatientQueries'
+import { usePagination } from '@/hooks/usePagination'
+import { PaginationControls } from '@/components/PaginationControls'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -13,6 +16,34 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 export const PatientsTable = () => {
+  const [searchTerm, setSearchTerm] = useState('')
+  const p = usePagination({
+    initialPage: 1,
+    initialLimit: 10,
+  })
+
+  const { data, isLoading, isError } = useGetPatients({
+    page: p.page,
+    limit: p.limit,
+    search: searchTerm,
+  })
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-xl border border-gray-100 bg-white">
+        <div className="text-gray-500">Đang tải dữ liệu...</div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-xl border border-gray-100 bg-white">
+        <div className="text-red-500">Lỗi khi tải danh sách bệnh nhân</div>
+      </div>
+    )
+  }
+
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
       <Table>
@@ -21,52 +52,60 @@ export const PatientsTable = () => {
             <TableHead className="py-4 text-gray-500">Bệnh nhân</TableHead>
             <TableHead className="text-gray-500">Giới tính/Tuổi</TableHead>
             <TableHead className="text-gray-500">Nhóm máu</TableHead>
-            <TableHead className="text-gray-500">Lần khám cuối</TableHead>
-            <TableHead className="text-gray-500">Trạng thái (AI)</TableHead>
+            <TableHead className="text-gray-500">Chiều cao/Cân nặng</TableHead>
             <TableHead className="text-right text-gray-500">Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {MOCK_PATIENTS.map((p) => (
+          {data?.data.map((pat) => (
             <TableRow
-              key={p.id}
+              key={pat.userId}
               className="border-gray-100 hover:bg-teal-50/50">
               <TableCell className="py-4">
                 <div className="flex items-center">
                   <Avatar className="mr-3 h-8 w-8 border border-teal-100 bg-teal-100 text-teal-600">
                     <AvatarFallback className="bg-teal-100 text-xs font-bold text-teal-700">
-                      {p.full_name.charAt(0)}
+                      {pat.user.fullName.charAt(0) || 'P'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="text-sm font-semibold text-gray-900">
-                      {p.full_name}
+                      {pat.user.fullName || 'N/A'}
                     </p>
                     <p className="text-[10px] text-gray-400 md:text-xs">
-                      ID: PAT-{1000 + p.id}
+                      ID: PAT-{1000 + pat.userId}
                     </p>
                   </div>
                 </div>
               </TableCell>
               <TableCell className="py-4">
                 <span className="text-xs text-gray-600 capitalize md:text-sm">
-                  {p.gender === 'male' ? 'Nam' : 'Nữ'}
+                  {pat.gender === 'male'
+                    ? 'Nam'
+                    : pat.gender === 'female'
+                      ? 'Nữ'
+                      : 'Khác'}
                 </span>
-                <span className="mx-1 text-gray-400">•</span>
-                <span className="text-xs text-gray-600 md:text-sm">
-                  {p.age} tuổi
-                </span>
+                {pat.dateOfBirth && (
+                  <>
+                    <span className="mx-1 text-gray-400">•</span>
+                    <span className="text-xs text-gray-600 md:text-sm">
+                      {new Date().getFullYear() -
+                        new Date(pat.dateOfBirth).getFullYear()}{' '}
+                      tuổi
+                    </span>
+                  </>
+                )}
               </TableCell>
               <TableCell className="py-4">
                 <span className="inline-block rounded bg-gray-100 px-2 py-1 text-[10px] font-semibold text-gray-600 md:text-xs">
-                  {p.blood_type}
+                  {pat.bloodType || 'N/A'}
                 </span>
               </TableCell>
               <TableCell className="py-4 text-xs text-gray-600 md:text-sm">
-                {p.last_visit}
-              </TableCell>
-              <TableCell className="py-4">
-                <DoctorStatusBadge status={p.health_status} />
+                {pat.height && pat.weight
+                  ? `${pat.height}cm / ${pat.weight}kg`
+                  : 'N/A'}
               </TableCell>
               <TableCell className="py-4 text-right">
                 <Button
@@ -81,23 +120,19 @@ export const PatientsTable = () => {
         </TableBody>
       </Table>
 
-      <div className="flex items-center justify-between rounded-b-xl border-t border-gray-100 bg-gray-50 px-4 py-4 text-xs text-gray-500 md:px-6 md:text-sm">
-        <span>Hiển thị {MOCK_PATIENTS.length} trên tổng số 124 bệnh nhân</span>
-        <div className="flex space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 border-gray-200 bg-white hover:bg-gray-50">
-            Trước
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 border-gray-200 bg-white hover:bg-gray-50">
-            Sau
-          </Button>
+      {/* Pagination */}
+      {data?.meta && (
+        <div className="rounded-b-xl border-t border-gray-100 bg-gray-50 px-4 py-4 md:px-6">
+          <PaginationControls
+            currentPage={p.page}
+            totalPages={data.meta.totalPages}
+            totalItems={data.meta.total}
+            itemsPerPage={p.limit}
+            onPageChange={p.setPage}
+            showItemsInfo
+          />
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ import {
   Smartphone,
   Users,
 } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 interface AdminSidebarProps {
@@ -26,32 +27,33 @@ export const AdminSidebar = ({
   activeTab,
 }: AdminSidebarProps) => {
   const logoutMutation = useLogoutMutation()
-  const NavItem = ({ id, icon: Icon, label }: NavItemProps) => (
-    <button
-      onClick={() => {
-        setActiveTab(id)
-        window.location.href = `/admin/${id === 'dashboard' ? '' : id}`
-      }}
-      className={`group mb-1 flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
-        activeTab === id
-          ? 'rounded-r-none border-r-4 border-teal-600 bg-teal-50 text-teal-700'
-          : 'text-gray-500 hover:bg-gray-50 hover:text-teal-600'
-      } ${isSidebarCollapsed ? 'justify-center px-2' : ''} `}
-      title={isSidebarCollapsed ? label : ''}>
-      <Icon
-        className={`h-5 w-5 shrink-0 ${
+  const NavItem = ({ id, icon: Icon, label }: NavItemProps) => {
+    const href = `/admin/${id === 'dashboard' ? '' : id}`
+    return (
+      <Link
+        to={href}
+        onClick={() => setActiveTab(id)}
+        className={`group mb-1 flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
           activeTab === id
-            ? 'text-teal-600'
-            : 'text-gray-400 group-hover:text-teal-600'
-        } ${isSidebarCollapsed ? 'mr-0' : 'mr-3'}`}
-      />
-      {!isSidebarCollapsed && (
-        <span className="whitespace-nowrap opacity-100 transition-opacity duration-300">
-          {label}
-        </span>
-      )}
-    </button>
-  )
+            ? 'rounded-r-none border-r-4 border-teal-600 bg-teal-50 text-teal-700'
+            : 'text-gray-500 hover:bg-gray-50 hover:text-teal-600'
+        } ${isSidebarCollapsed ? 'justify-center px-2' : ''} `}
+        title={isSidebarCollapsed ? label : ''}>
+        <Icon
+          className={`h-5 w-5 shrink-0 ${
+            activeTab === id
+              ? 'text-teal-600'
+              : 'text-gray-400 group-hover:text-teal-600'
+          } ${isSidebarCollapsed ? 'mr-0' : 'mr-3'}`}
+        />
+        {!isSidebarCollapsed && (
+          <span className="whitespace-nowrap opacity-100 transition-opacity duration-300">
+            {label}
+          </span>
+        )}
+      </Link>
+    )
+  }
 
   return (
     <aside
@@ -79,7 +81,7 @@ export const AdminSidebar = ({
           </p>
         )}
         <NavItem id="dashboard" icon={LayoutDashboard} label="Tổng quan" />
-        <NavItem id="users" icon={Users} label="Người dùng (Users)" />
+        <NavItem id="users" icon={Users} label="Người dùng" />
         <NavItem id="devices" icon={Smartphone} label="Thiết bị IoT" />
 
         {!isSidebarCollapsed && (
