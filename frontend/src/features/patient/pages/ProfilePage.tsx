@@ -76,9 +76,9 @@ export const ProfilePage = () => {
         </Button>
         <Button
           variant="ghost"
-          className="ms-2 h-14 w-full justify-start rounded-none text-xs text-red-600 hover:bg-gray-50 hover:text-red-700"
+          className="h-14 w-full justify-start rounded-none text-xs text-red-600 hover:bg-gray-50 hover:text-red-700"
           onClick={() => logoutMutation.mutate()}>
-          <LogOut />
+          <LogOut className="ms-2" />
           Đăng xuất
         </Button>
       </div>

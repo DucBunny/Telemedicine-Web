@@ -24,6 +24,10 @@ class VirtualESP32(threading.Thread):
         self.client.connect(config.BROKER, config.PORT, 60)
         self.topic_pub = f"health/{device_id}/telemetry"
 
+        self.prev_bpm = random.randint(70, 80)
+        self.prev_spo2 = round(random.uniform(97.5, 98.5), 1)
+        self.prev_hrv = random.randint(55, 65)
+
     def on_connect(self, client, userdata, flags, reason_code, properties):
         if reason_code == 0:
             print(f"+ [{self.device_id}] Connected to Broker!")
@@ -34,22 +38,42 @@ class VirtualESP32(threading.Thread):
         self.mode = new_mode
         print(f"[{self.device_id}] Changed mode -> {new_mode}")
 
+    def clamp(self, value, min_v, max_v):
+        return max(min_v, min(value, max_v))
+
     def generate_vital_signs(self):
         # Generate vital signs based on the current mode
         if self.mode == "DANGER":
-            bpm = random.randint(120, 160)
-            spo2 = round(random.uniform(90, 94), 1)
-            hrv = random.randint(10, 30)
+            bpm_min, bpm_max = 120, 160
+            spo2_min, spo2_max = 90, 94
+            hrv_min, hrv_max = 10, 30
+            bpm_delta = random.randint(-5, 6)
+            spo2_delta = round(random.uniform(-0.5, 0.5), 1)
+            hrv_delta = random.randint(-3, 3)
             source = self.data_sick
         else:
-            bpm = random.randint(60, 90)
-            spo2 = round(random.uniform(97, 99), 1)
-            hrv = random.randint(50, 80)
+            bpm_min, bpm_max = 60, 90
+            spo2_min, spo2_max = 97, 99
+            hrv_min, hrv_max = 50, 80
+            bpm_delta = random.randint(-2, 3)
+            spo2_delta = round(random.uniform(-0.2, 0.2), 1)
+            hrv_delta = random.randint(-2, 2)
             source = self.data_normal
+
+            # Random walk
+            self.prev_bpm = self.clamp(self.prev_bpm + bpm_delta, bpm_min, bpm_max)
+            self.prev_spo2 = self.clamp(self.prev_spo2 + spo2_delta, spo2_min, spo2_max)
+            self.prev_hrv = self.clamp(self.prev_hrv + hrv_delta, hrv_min, hrv_max)
 
         # Select a random row from the source data
         row = source[random.randint(0, len(source) - 1)]
-        return bpm, spo2, hrv, row[:-1]  # Exclude the label column
+
+        return (
+            self.prev_bpm,
+            round(self.prev_spo2, 1),
+            self.prev_hrv,
+            row[:-1],
+        )  # Exclude the label column
 
     def run(self):
         self.client.loop_start()

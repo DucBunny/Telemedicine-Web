@@ -20,7 +20,7 @@ export const apiClient = axios.create({
 const AUTH_ENDPOINTS_NO_RETRY = [
   '/auth/login',
   '/auth/register',
-  '/auth/refresh',
+  '/auth/refresh-token',
 ]
 
 let isRefreshing = false // Cờ đánh dấu đang trong quá trình lấy token mới
@@ -119,7 +119,7 @@ apiClient.interceptors.response.use(
     // Skip retry nếu không phải 401, đã retry, hoặc là auth endpoint
     if (shouldSkipRetry) {
       // Clear auth nếu refresh token endpoint bị 401
-      if (is401 && originalRequest.url?.includes('/auth/refresh')) {
+      if (is401 && originalRequest.url?.includes('/auth/refresh-token')) {
         useAuthStore.getState().clearAuth()
       }
       return Promise.reject(error)

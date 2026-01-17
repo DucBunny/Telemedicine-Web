@@ -3,7 +3,7 @@ export type UserStatus = 'active' | 'locked'
 
 // User info returned by auth endpoints (sanitized)
 export interface AuthUser {
-  id: string
+  id: number
   email: string
   fullName: string
   phoneNumber: string

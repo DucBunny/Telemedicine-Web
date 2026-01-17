@@ -7,6 +7,12 @@ import {
 } from '@/utils/cookie-helper'
 import ApiError from '@/utils/api-error'
 
+/**
+ * Helpers to get device info from request
+ */
+const getDeviceInfo = (req) =>
+  req.headers['user-agent'] || req.body.deviceInfo || null
+
 export const register = async (req, res, next) => {
   try {
     const result = await authService.register(req.body)
@@ -22,7 +28,7 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const deviceInfo = req.headers['user-agent'] || req.body.deviceInfo || null
+    const deviceInfo = getDeviceInfo(req)
     const result = await authService.login({ ...req.body, deviceInfo })
 
     setRefreshTokenCookie(res, result.refreshToken)
@@ -42,7 +48,7 @@ export const login = async (req, res, next) => {
 
 export const refreshToken = async (req, res, next) => {
   try {
-    const deviceInfo = req.headers['user-agent'] || req.body.deviceInfo || null
+    const deviceInfo = getDeviceInfo(req)
     const refreshToken = getRefreshTokenFromCookie(req)
 
     if (!refreshToken)
@@ -69,13 +75,21 @@ export const refreshToken = async (req, res, next) => {
       }
     })
   } catch (error) {
+    // Nếu token bị revoke hoặc invalid, xóa cookie để tránh gửi lại token cũ
+    if (
+      error.code === 'REVOKED_REFRESH_TOKEN' ||
+      error.code === 'INVALID_REFRESH_TOKEN' ||
+      error.code === 'REFRESH_TOKEN_EXPIRED'
+    ) {
+      clearRefreshTokenCookie(res)
+    }
     next(error)
   }
 }
 
 export const logout = async (req, res, next) => {
   try {
-    const deviceInfo = req.headers['user-agent'] || req.body.deviceInfo || null
+    const deviceInfo = getDeviceInfo(req)
     const refreshToken = getRefreshTokenFromCookie(req)
 
     await authService.logout({

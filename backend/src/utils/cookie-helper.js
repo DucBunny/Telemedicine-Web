@@ -14,8 +14,7 @@ export const getRefreshTokenCookieOptions = () => ({
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
   sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax', // 'lax' cho dev, 'none' cho prod (cần secure=true)
-  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  path: '/auth/refresh-token' // Chỉ gửi cookie này khi gọi endpoint refresh token
+  maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
 })
 
 /**
