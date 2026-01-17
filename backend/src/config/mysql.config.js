@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize'
-import { env } from './environment'
+import { env } from './env'
 
 const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
   host: env.DB_HOST,
@@ -17,13 +17,13 @@ const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
   }
 })
 
-const connectDB = async () => {
+const connectMySQL = async () => {
   try {
     await sequelize.authenticate()
-    console.log('Connection has been established successfully.')
+    console.log('MySQL connected successfully.')
   } catch (error) {
-    console.error('Unable to connect to the database:', error)
+    console.error('Unable to connect to MySQL:', error)
   }
 }
 
-export { sequelize, connectDB }
+export { sequelize, connectMySQL }

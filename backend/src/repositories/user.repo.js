@@ -1,4 +1,4 @@
-import { User } from '@/models/index'
+import { User } from '@/models/sql/index'
 import { Op } from 'sequelize'
 
 export const create = async (data) => {

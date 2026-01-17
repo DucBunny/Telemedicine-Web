@@ -1,4 +1,4 @@
-import { User, Doctor, Patient } from '@/models/index'
+import { User, Doctor, Patient } from '@/models/sql/index'
 import { Op } from 'sequelize'
 
 /**
@@ -82,7 +82,7 @@ export const create = async (data) => {
 export const update = async (id, data) => {
   const doctor = await Doctor.findByPk(id)
   if (!doctor) return null
-  
+
   return await doctor.update(data)
 }
 

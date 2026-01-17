@@ -1,4 +1,4 @@
-import { Patient, Doctor, User, Sequelize } from '@/models/index'
+import { Patient, Doctor, User, Sequelize } from '@/models/sql/index'
 
 /**
  * Get patients by doctor ID

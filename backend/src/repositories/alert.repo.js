@@ -1,4 +1,4 @@
-import { Alert, Doctor } from '@/models/index'
+import { Alert, Doctor } from '@/models/sql/index'
 
 /**
  * Find alerts by doctor ID

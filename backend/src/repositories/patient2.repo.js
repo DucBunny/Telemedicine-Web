@@ -1,4 +1,4 @@
-import { User, Patient, Device } from '@/models/index'
+import { User, Patient, Device } from '@/models/sql/index'
 import { Op } from 'sequelize'
 
 /**

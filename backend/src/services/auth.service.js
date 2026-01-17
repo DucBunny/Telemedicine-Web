@@ -5,7 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import ApiError from '@/utils/api-error'
 import jwt from 'jsonwebtoken'
 import ms from 'ms'
-import { env } from '@/config/environment'
+import { env } from '@/config'
 
 /**
  * Helpers to generate access and refresh tokens

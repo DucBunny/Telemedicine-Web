@@ -1,7 +1,7 @@
 import { BaseError as SequelizeBaseError } from 'sequelize'
 import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '@/config/environment'
+import { env } from '@/config'
 
 /**
  * Middleware to convert any error to an instance of ApiError.

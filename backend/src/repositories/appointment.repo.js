@@ -1,4 +1,4 @@
-import { Appointment, Doctor, Patient, User } from '@/models/index'
+import { Appointment, Doctor, Patient, User } from '@/models/sql/index'
 
 /**
  * Generic function to find appointments by owner (doctor or patient)

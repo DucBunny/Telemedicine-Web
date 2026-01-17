@@ -1,4 +1,4 @@
-import { Doctor, Patient, User, MedicalRecord } from '@/models/index'
+import { Doctor, Patient, User, MedicalRecord } from '@/models/sql/index'
 
 /**
  * Generic function to find medical records by owner (doctor or patient)

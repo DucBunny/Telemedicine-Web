@@ -7,7 +7,7 @@ import {
   Appointment,
   Alert,
   Message
-} from '@/models/index'
+} from '@/models/sql/index'
 
 /**
  * Get admin dashboard statistics
