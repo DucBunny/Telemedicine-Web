@@ -101,7 +101,7 @@ export const LoginForm = () => {
               size="lg"
               variant="teal_primary"
               disabled={!canSubmit || loginMutation.isPending}
-              className={`w-full rounded-xl font-bold shadow-md shadow-teal-200 transition-colors ${
+              className={`w-full rounded-xl text-sm font-bold shadow-md shadow-teal-200 transition-colors ${
                 !canSubmit
                   ? 'cursor-not-allowed opacity-50'
                   : 'hover:bg-teal-700'

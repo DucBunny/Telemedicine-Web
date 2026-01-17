@@ -1,5 +1,8 @@
 import axios from 'axios'
-import { getVietnameseErrorMessage } from './error-messages'
+import {
+  getSystemErrorMessage,
+  getVietnameseErrorMessage,
+} from './error-messages'
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
 import type { ApiErrorResponse } from '@/types/api.type'
 import { useAuthStore } from '@/stores/auth.store'
@@ -154,13 +157,14 @@ export function getErrorMessage(error: unknown): string {
       )
     }
 
-    // Fallback: message gốc từ API hoặc axios
-    return apiError?.error.message || error.message || 'Có lỗi xảy ra'
+    if (error.message) {
+      return getSystemErrorMessage(error)
+    }
   }
 
   if (error instanceof Error) {
-    return error.message
+    return getSystemErrorMessage(error)
   }
 
-  return 'Có lỗi xảy ra'
+  return getVietnameseErrorMessage('UNKNOWN_ERROR')
 }

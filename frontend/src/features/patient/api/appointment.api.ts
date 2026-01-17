@@ -1,8 +1,4 @@
-import type {
-  ApiPaginatedResponse,
-  ApiSuccessResponse,
-  PaginationParams,
-} from '@/types/api.type'
+import type { ApiPaginatedResponse, PaginationParams } from '@/types/api.type'
 import type { Appointment } from '../types'
 import { apiClient } from '@/lib/axios'
 

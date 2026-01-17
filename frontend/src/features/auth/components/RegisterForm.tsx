@@ -168,7 +168,7 @@ export const RegisterForm = () => {
               type="submit"
               variant="teal_primary"
               disabled={!canSubmit || registerMutation.isPending}
-              className={`mt-6 w-full rounded-xl font-bold shadow-md shadow-teal-200 transition-colors ${
+              className={`mt-6 w-full rounded-xl text-sm font-bold shadow-md shadow-teal-200 transition-colors ${
                 !canSubmit
                   ? 'cursor-not-allowed opacity-50'
                   : 'hover:bg-teal-700'

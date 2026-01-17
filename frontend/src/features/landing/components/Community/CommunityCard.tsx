@@ -82,13 +82,15 @@ export const CommunityCard = ({ data }: { data: CommunityCardType }) => {
       )}
 
       {/* Icon Header */}
-      <div
-        className={cn(
-          'mb-6 flex h-12 w-12 items-center justify-center rounded-xl',
-          styles.iconBg,
-          styles.iconColor,
-        )}>
-        <Icon />
+      <div className="flex w-full justify-center md:justify-start">
+        <div
+          className={cn(
+            'mb-6 flex h-12 w-12 items-center justify-center rounded-xl',
+            styles.iconBg,
+            styles.iconColor,
+          )}>
+          <Icon />
+        </div>
       </div>
 
       <h3 className={cn('mb-2 text-xl font-bold', styles.titleColor)}>

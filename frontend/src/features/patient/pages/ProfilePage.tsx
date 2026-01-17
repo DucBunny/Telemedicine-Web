@@ -1,5 +1,6 @@
 import { Activity, ChevronRight, LogOut, Settings } from 'lucide-react'
 import { useGetPatientProfile } from '../hooks/usePatientQueries'
+import { Button } from '@/components/ui/button'
 import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 export const ProfilePage = () => {
@@ -7,7 +8,7 @@ export const ProfilePage = () => {
   const { data } = useGetPatientProfile()
 
   return (
-    <div className="space-y-6 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
+    <div className="space-y-6 pt-4 pb-20 md:pt-0 md:pb-0">
       <div className="mt-2 rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm md:mt-0">
         <div className="relative inline-block">
           <img
@@ -54,29 +55,32 @@ export const ProfilePage = () => {
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <button className="flex w-full items-center justify-between border-b border-gray-100 p-4 hover:bg-gray-50">
-          <div className="flex items-center text-gray-700">
-            <Settings size={20} className="mr-3 text-gray-400" />
+      <div className="divide-y divide-gray-100 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <Button
+          variant="ghost"
+          className="h-14 w-full justify-between rounded-none text-xs hover:bg-gray-50">
+          <div className="ms-2 flex items-center text-gray-700">
+            <Settings size={20} className="mr-2 text-gray-400" />
             Cài đặt tài khoản
           </div>
           <ChevronRight size={18} className="text-gray-400" />
-        </button>
-        <button className="flex w-full items-center justify-between border-b border-gray-100 p-4 hover:bg-gray-50">
-          <div className="flex items-center text-gray-700">
-            <Activity size={20} className="mr-3 text-gray-400" />
+        </Button>
+        <Button
+          variant="ghost"
+          className="h-14 w-full justify-between rounded-none text-xs hover:bg-gray-50">
+          <div className="ms-2 flex items-center text-gray-700">
+            <Activity size={20} className="mr-2 text-gray-400" />
             Thiết bị kết nối
           </div>
           <ChevronRight size={18} className="text-gray-400" />
-        </button>
-        <button
-          className="flex w-full items-center justify-between p-4 text-red-600 hover:bg-gray-50"
+        </Button>
+        <Button
+          variant="ghost"
+          className="ms-2 h-14 w-full justify-start rounded-none text-xs text-red-600 hover:bg-gray-50 hover:text-red-700"
           onClick={() => logoutMutation.mutate()}>
-          <div className="flex items-center">
-            <LogOut size={20} className="mr-3" />
-            Đăng xuất
-          </div>
-        </button>
+          <LogOut />
+          Đăng xuất
+        </Button>
       </div>
     </div>
   )

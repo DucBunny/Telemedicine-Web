@@ -1,4 +1,5 @@
 import { useGetPatientRecords } from '../hooks/useRecordQueries'
+import { Button } from '@/components/ui/button'
 
 export const RecordsPage = () => {
   const { data } = useGetPatientRecords({
@@ -7,7 +8,7 @@ export const RecordsPage = () => {
   })
 
   return (
-    <div className="space-y-6 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
+    <div className="space-y-6 pt-4 pb-20 md:pt-0 md:pb-0">
       <h1 className="px-1 pt-2 text-2xl font-bold text-gray-900 md:pt-0">
         Hồ sơ bệnh án
       </h1>
@@ -49,9 +50,11 @@ export const RecordsPage = () => {
               </div>
 
               <div className="mt-4 flex space-x-3 border-t border-gray-100 pt-4">
-                <button className="flex-1 rounded-lg bg-teal-50 py-2 text-sm font-medium text-teal-600 hover:bg-teal-100">
+                <Button
+                  variant="teal_secondary"
+                  className="flex-1 rounded-lg text-xs">
                   Xem chi tiết
-                </button>
+                </Button>
               </div>
             </div>
           </div>

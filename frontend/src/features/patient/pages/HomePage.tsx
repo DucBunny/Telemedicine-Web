@@ -3,6 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { MOCK_NOTIFICATIONS, MOCK_VITALS } from '../data/mockData'
 import { useGetPatientProfile } from '../hooks/usePatientQueries'
 import { useGetPatientAppointments } from '../hooks/useAppointmentQueries'
+import { Button } from '@/components/ui/button'
 
 export const HomePage = () => {
   const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.is_read).length
@@ -10,11 +11,12 @@ export const HomePage = () => {
   const { data: appointmentsData } = useGetPatientAppointments({
     page: 1,
     limit: 5,
+    status: ['confirmed', 'pending'],
   })
 
   return (
     <div className="space-y-6 pb-24 md:pb-0">
-      <div className="relative -mx-4 -mt-4 overflow-hidden rounded-b-4xl bg-linear-to-br from-teal-600 to-teal-500 p-6 pt-10 text-white shadow-xl shadow-teal-100 md:mx-0 md:mt-0 md:rounded-3xl md:pt-6">
+      <div className="relative -mx-4 -mt-4 overflow-hidden rounded-b-4xl bg-linear-to-br from-teal-600 to-teal-500 p-6 pt-10 text-white shadow-lg shadow-teal-100 md:mx-0 md:mt-0 md:rounded-3xl md:pt-6">
         <div className="relative z-10">
           <div className="flex items-start justify-between">
             <div className="flex items-center">
@@ -31,13 +33,16 @@ export const HomePage = () => {
               </div>
             </div>
 
-            <Link
-              to="/patient/notifications"
-              className="relative rounded-full border border-white/10 bg-white/20 p-2.5 backdrop-blur-sm transition hover:bg-white/30">
-              <Bell size={22} />
-              {unreadCount > 0 && (
-                <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 rounded-full border-2 border-teal-600 bg-red-500"></span>
-              )}
+            <Link to="/patient/notifications" className="relative">
+              <Button
+                variant="ghost"
+                size="icon-lg"
+                className="rounded-full border border-white/10 bg-white/20 backdrop-blur-sm transition hover:bg-white/30 hover:text-white">
+                <Bell size={22} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2.5 right-2.5 size-2.5 rounded-full border-2 border-teal-600 bg-red-500"></span>
+                )}
+              </Button>
             </Link>
           </div>
 
@@ -117,10 +122,10 @@ export const HomePage = () => {
       <div className="px-0 md:px-0">
         <div className="mb-4 flex items-center justify-between px-1">
           <h2 className="text-lg font-bold text-gray-800">Lịch hẹn sắp tới</h2>
-          <Link
-            to="/patient/appointments"
-            className="text-sm font-medium text-teal-600 hover:underline">
-            Xem tất cả
+          <Link to="/patient/appointments">
+            <Button variant="link" className="p-0 text-xs text-teal-600">
+              Xem tất cả
+            </Button>
           </Link>
         </div>
 
@@ -162,13 +167,18 @@ export const HomePage = () => {
             </div>
 
             <div className="flex space-x-3">
-              <button className="flex-1 rounded-xl bg-teal-600 py-3 text-sm font-medium text-white shadow-sm shadow-teal-200 hover:bg-teal-700">
+              <Button
+                variant="teal_primary"
+                size="lg"
+                className="flex-1 rounded-xl text-xs">
                 Chi tiết
-              </button>
+              </Button>
               {/* {appt.type === 'Online' && ( */}
-              <button className="flex items-center justify-center rounded-xl bg-blue-50 px-4 py-3 text-sm font-medium text-blue-600 hover:bg-blue-100">
+              <Button
+                size="icon-lg"
+                className="rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100">
                 <Video size={20} />
-              </button>
+              </Button>
               {/* )} */}
             </div>
           </div>

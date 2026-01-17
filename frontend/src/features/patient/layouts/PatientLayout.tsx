@@ -17,13 +17,11 @@ export const PatientLayout = ({ children, activeTab }: DoctorLayoutProps) => {
 
       {/* Main Content */}
       <main className="h-full flex-1 overflow-y-auto scroll-smooth md:ml-72">
-        <div className="mx-auto max-w-4xl px-4 pt-4 md:px-8 md:pt-8">
-          {children}
-        </div>
+        <div className="mx-auto max-w-4xl px-4 md:px-8 md:pt-8">{children}</div>
       </main>
 
       {/* Mobile Navigation */}
-      {activeTab !== 'notifications' && <MobileNav activeTab={activeTab} />}
+      <MobileNav activeTab={activeTab} />
     </div>
   )
 }

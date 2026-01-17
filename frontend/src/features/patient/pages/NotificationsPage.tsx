@@ -5,15 +5,23 @@ import {
   Info,
   MessageSquare,
 } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 import { MOCK_NOTIFICATIONS } from '../data/mockData'
+import { Button } from '@/components/ui/button'
 
 export const NotificationsPage = () => {
   return (
-    <div className="space-y-4 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
-      <div className="mb-6 flex items-center px-1 pt-2 md:pt-0">
-        <button className="mr-3 -ml-2 rounded-full p-2 text-gray-500 hover:bg-gray-100 md:hidden">
-          <ChevronLeft size={24} />
-        </button>
+    <div className="space-y-4 pt-4 pb-20 md:pt-0 md:pb-0">
+      <div className="mb-6 flex items-center gap-2 px-1 pt-2 md:pt-0">
+        <Link to="/patient">
+          <Button
+            variant="icon"
+            size="icon"
+            className="text-gray-500 hover:bg-gray-100 md:hidden">
+            <ChevronLeft size={24} />
+          </Button>
+        </Link>
+
         <h1 className="text-2xl font-bold text-gray-900">Thông báo</h1>
         <div className="ml-auto">
           <button className="rounded-full bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-600">

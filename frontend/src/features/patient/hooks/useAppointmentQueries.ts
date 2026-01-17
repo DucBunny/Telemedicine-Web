@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { appointmentApi } from '../api/appointment.api'
 import type { PaginationParams } from '@/types/api.type'
 
@@ -9,7 +9,6 @@ const APPOINTMENT_KEYS = {
     [...APPOINTMENT_KEYS.lists(), params] as const,
   details: () => [...APPOINTMENT_KEYS.all, 'detail'] as const,
   detail: (id: number) => [...APPOINTMENT_KEYS.details(), id] as const,
-  myProfile: () => [...APPOINTMENT_KEYS.all, 'my-profile'] as const,
 }
 
 /**

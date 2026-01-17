@@ -4,7 +4,7 @@ import { Activity, Apple, Calendar, Smartphone } from 'lucide-react'
 export const AppShowcase = () => (
   <section
     id="app-showcase"
-    className="relative scroll-mt-20 overflow-hidden bg-gray-900 pt-16 text-white sm:pb-16 lg:py-24">
+    className="relative scroll-mt-20 overflow-hidden bg-gray-900 py-16 text-white lg:py-24">
     <div className="absolute top-0 right-0 h-150 w-150 rounded-full bg-teal-500 opacity-20 blur-[120px]" />
     <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16">
       <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
@@ -42,7 +42,7 @@ export const AppShowcase = () => (
       </div>
 
       {/* Phone Mockup Area */}
-      <div className="relative flex max-w-full scale-[0.6] justify-center gap-6 overflow-x-visible sm:mt-8 sm:scale-90 md:scale-100 lg:justify-end">
+      <div className="relative hidden max-w-full scale-[0.6] justify-center gap-6 overflow-x-visible sm:mt-8 sm:flex sm:scale-90 md:scale-100 lg:justify-end">
         {/* Phone 1: Background/Dark Phone */}
         <div className="relative h-125 w-64 max-w-[40vw] shrink-0 translate-y-8 -rotate-6 overflow-hidden rounded-[3rem] border-8 border-gray-900 bg-gray-800 shadow-2xl sm:max-w-none">
           <div className="absolute top-0 left-1/2 z-20 h-6 w-32 -translate-x-1/2 rounded-b-xl bg-gray-900" />

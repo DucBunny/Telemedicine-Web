@@ -22,6 +22,8 @@ const buttonVariants = cva(
         icon: 'bg-transparent p-0',
         teal_primary:
           'bg-teal-600 text-white hover:bg-teal-700 focus-visible:ring-teal-300',
+        teal_secondary:
+          'bg-teal-50 text-teal-600 hover:bg-teal-100/70 focus-visible:ring-teal-300',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

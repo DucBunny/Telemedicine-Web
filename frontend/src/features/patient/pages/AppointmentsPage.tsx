@@ -1,6 +1,7 @@
 import { MapPin, Plus, User, Video } from 'lucide-react'
 import { useState } from 'react'
 import { useGetPatientAppointments } from '../hooks/useAppointmentQueries'
+import { Button } from '@/components/ui/button'
 
 const statusFilterOptions = [
   {
@@ -39,26 +40,27 @@ export const AppointmentsPage = () => {
   })
 
   return (
-    <div className="space-y-6 px-0 pt-6 pb-20 md:px-0 md:pt-0 md:pb-0">
+    <div className="space-y-6 pt-4 pb-20 md:pt-0 md:pb-0">
       <div className="flex items-center justify-between px-1 pt-2 md:pt-0">
         <h1 className="text-2xl font-bold text-gray-900">Lịch khám</h1>
-        <button className="flex h-10 w-10 items-center justify-center rounded-full bg-teal-600 text-white shadow-lg shadow-teal-200 hover:bg-teal-700">
+        <Button variant="teal_primary" size="icon-lg" className="rounded-full">
           <Plus size={24} />
-        </button>
+        </Button>
       </div>
 
       <div className="flex space-x-1 rounded-xl bg-gray-100 p-1">
         {statusFilterOptions.slice(2, 5).map((status) => (
-          <button
+          <Button
             key={status.value}
+            variant="ghost"
             onClick={() => setStatusFilter(status.value)}
-            className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition ${
+            className={`flex-1 rounded-lg px-4 py-2 text-xs font-medium transition ${
               statusFilter === status.value
-                ? 'bg-white text-gray-900 shadow-sm'
+                ? 'bg-white text-gray-900 shadow-sm hover:bg-white'
                 : 'text-gray-500 hover:bg-white hover:text-gray-900'
             }`}>
             {status.label}
-          </button>
+          </Button>
         ))}
       </div>
 

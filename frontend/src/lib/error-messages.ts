@@ -55,18 +55,20 @@ export const ERROR_MESSAGES: Record<string, string> = {
   //   DATABASE_ERROR: 'Lỗi cơ sở dữ liệu',
   //   SERVICE_UNAVAILABLE: 'Dịch vụ tạm thời không khả dụng',
 
-  //   // Network errors
-  //   NETWORK_ERROR: 'Lỗi kết nối mạng',
-  //   TIMEOUT_ERROR: 'Yêu cầu hết thời gian chờ',
+  // Network errors
+  NETWORK_ERROR: 'Lỗi kết nối mạng',
+  TIMEOUT_ERROR: 'Yêu cầu hết thời gian chờ',
 
   //   // Business logic errors
   //   INSUFFICIENT_PERMISSIONS: 'Bạn không có quyền thực hiện thao tác này',
   //   OPERATION_FAILED: 'Thao tác thất bại',
   //   CONFLICT: 'Xung đột dữ liệu',
+
+  UNKNOWN_ERROR: 'Đã xảy ra lỗi không xác định',
 }
 
 /**
- * Lấy message tiếng Việt từ error code
+ * Lấy message tiếng Việt từ error code của API
  */
 export function getVietnameseErrorMessage(
   code?: string,
@@ -75,4 +77,25 @@ export function getVietnameseErrorMessage(
   if (!code) return defaultMessage || 'Có lỗi xảy ra'
 
   return ERROR_MESSAGES[code] || defaultMessage || 'Có lỗi xảy ra'
+}
+
+/**
+ * Lấy message cho các lỗi hệ thống phổ biến (mạng, timeout, v.v.)
+ */
+export function getSystemErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    const msg = error.message
+
+    if (msg === 'Network Error' || msg.includes('Failed to fetch')) {
+      return ERROR_MESSAGES.NETWORK_ERROR
+    }
+
+    if (msg.includes('timeout') || msg.includes('timed out')) {
+      return ERROR_MESSAGES.TIMEOUT_ERROR
+    }
+
+    return msg
+  }
+
+  return ERROR_MESSAGES.UNKNOWN_ERROR
 }
