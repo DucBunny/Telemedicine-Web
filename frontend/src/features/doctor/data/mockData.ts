@@ -3,18 +3,8 @@ import type {
   Appointment,
   ChatMessage,
   DashboardStats,
-  DoctorUser,
   Patient,
 } from '../types'
-
-export const MOCK_USER_DOCTOR: DoctorUser = {
-  id: 101,
-  full_name: 'BS. Nguyễn Văn A',
-  specialization: 'Tim mạch',
-  degree: 'Tiến sĩ',
-  avatar: 'https://i.pravatar.cc/150?u=doctor',
-  role: 'doctor',
-}
 
 export const MOCK_STATS: DashboardStats = {
   total_patients: 124,

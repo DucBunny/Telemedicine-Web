@@ -1,20 +1,22 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { MOCK_USER_DOCTOR } from '../data/mockData'
 import {
   AlertsCard,
   PatientsTable,
   StatCards,
   UpcomingAppointments,
 } from '../components/dashboard'
+import { useGetDoctorProfile } from '../hooks/useDoctorQueries'
 import { Button } from '@/components/ui/button'
 
 export const DashboardPage = () => {
+  const { data } = useGetDoctorProfile()
+
   return (
     <div className="mx-auto space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-gray-900 md:text-2xl">
-          Xin chào, {MOCK_USER_DOCTOR.full_name}
+          Xin chào, BS.{data?.user.fullName}
         </h1>
         <Link to="/doctor/appointments">
           <Button

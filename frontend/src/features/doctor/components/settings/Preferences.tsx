@@ -1,7 +1,10 @@
 import { LogOut } from 'lucide-react'
+import { useLogoutMutation } from '../../../auth/hooks/useAuthMutations'
 import { Button } from '@/components/ui/button'
 
 export const Preferences = () => {
+  const logoutMutation = useLogoutMutation()
+
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="text-base font-semibold text-gray-800 md:text-lg">
@@ -28,6 +31,7 @@ export const Preferences = () => {
         <div className="border-t border-gray-100 pt-4">
           <Button
             variant="ghost"
+            onClick={() => logoutMutation.mutate()}
             className="text-xs text-red-600 hover:bg-red-50 hover:text-red-700">
             <LogOut className="mr-2 h-4 w-4" /> Đăng xuất khỏi hệ thống
           </Button>

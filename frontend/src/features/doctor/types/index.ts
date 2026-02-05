@@ -20,16 +20,16 @@ export type StatusType =
 //   role: 'doctor'
 // }
 
-export interface Appointment {
-  id: number
-  patient_name: string
-  time: string
-  date: string
-  reason: string
-  status: StatusType
-  type: 'Khám trực tiếp' | 'Khám từ xa'
-  avatar: string
-}
+// export interface Appointment {
+//   id: number
+//   patient_name: string
+//   time: string
+//   date: string
+//   reason: string
+//   status: StatusType
+//   type: 'Khám trực tiếp' | 'Khám từ xa'
+//   avatar: string
+// }
 
 // export interface Patient {
 //   id: number
@@ -95,4 +95,20 @@ export interface Patient {
   createdAt: string
   updatedAt: string
   user: User
+}
+
+export interface Appointment {
+  id: number
+  patientId: number
+  doctorId: number
+  scheduledAt: string
+  endedAt: string | null
+  status: string
+  meetingLink: string
+  reason: string
+  cancelReason: string | null
+  createdAt: string
+  updatedAt: string
+  doctor?: Doctor
+  patient?: Patient
 }

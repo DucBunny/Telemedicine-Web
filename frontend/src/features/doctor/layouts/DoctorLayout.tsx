@@ -12,7 +12,7 @@ interface DoctorLayoutProps {
 
 export const DoctorLayout = ({ children, activeTab }: DoctorLayoutProps) => {
   return (
-    <SidebarProvider className="overflow-hidden font-sans">
+    <SidebarProvider className="fixed h-screen overflow-hidden font-sans">
       {/* Sidebar */}
       <DoctorSidebar activeTab={activeTab} />
 
@@ -20,7 +20,7 @@ export const DoctorLayout = ({ children, activeTab }: DoctorLayoutProps) => {
       <SidebarInset>
         <DoctorHeader activeTab={activeTab} />
 
-        <main className="h-screen w-full flex-1 scroll-smooth bg-gray-50 p-4 pb-20 md:overflow-y-auto md:p-6 lg:p-8">
+        <main className="h-screen w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 p-4 pb-20 md:p-6 lg:p-8">
           {children}
         </main>
 

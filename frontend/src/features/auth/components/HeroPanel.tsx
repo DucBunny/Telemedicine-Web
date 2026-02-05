@@ -1,4 +1,4 @@
-import { Activity, Heart, ShieldCheck, Stethoscope } from 'lucide-react'
+import { Heart, ShieldCheck, Stethoscope } from 'lucide-react'
 
 interface HeroPanelProps {
   title: string
@@ -14,8 +14,8 @@ export const HeroPanel = ({ title, subtitle }: HeroPanelProps) => {
       <div className="absolute top-[40%] left-[20%] h-40 w-40 rounded-full bg-teal-300/10 blur-2xl"></div>
 
       <div className="relative z-10 max-w-md text-center">
-        <div className="mb-6 inline-flex rounded-2xl border border-white/10 bg-white/20 p-4 shadow-lg backdrop-blur-md">
-          <Activity size={48} className="text-white" />
+        <div className="mb-6 flex justify-center">
+          <img src="/logo.png" alt="MedCare Logo" className="size-20" />
         </div>
         <h2 className="mb-4 text-3xl font-bold">{title}</h2>
         <p className="text-lg leading-relaxed text-teal-50 opacity-90">

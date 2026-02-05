@@ -85,7 +85,7 @@ export function PaginationControls({
     return { startItem, endItem, totalItems }
   }, [currentPage, itemsPerPage, totalItems])
 
-  if (totalPages <= 1) return null
+  if (totalPages < 1) return null
 
   return (
     <div

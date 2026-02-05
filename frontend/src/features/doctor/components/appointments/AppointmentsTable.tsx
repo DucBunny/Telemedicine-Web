@@ -8,6 +8,9 @@ import {
 } from 'lucide-react'
 import { DoctorStatusBadge } from '../DoctorStatusBadge'
 import type { Appointment } from '../../types'
+import type { ApiPaginatedResponse } from '@/types/api.type'
+import type { usePagination } from '@/hooks/usePagination'
+import { PaginationControls } from '@/components/PaginationControls'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -21,12 +24,34 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { cn } from '@/lib/utils'
 
 interface AppointmentsTableProps {
-  filteredAppointments: Array<Appointment>
+  data: ApiPaginatedResponse<Appointment> | undefined
+  isLoading: boolean
+  isError: boolean
+  pagination: ReturnType<typeof usePagination>
 }
 
 export const AppointmentsTable = ({
-  filteredAppointments,
+  data,
+  isLoading,
+  isError,
+  pagination,
 }: AppointmentsTableProps) => {
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-xl border border-gray-100 bg-white">
+        <div className="text-gray-500">Đang tải dữ liệu...</div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-64 items-center justify-center rounded-xl border border-gray-100 bg-white">
+        <div className="text-red-500">Lỗi khi tải danh sách bệnh nhân</div>
+      </div>
+    )
+  }
+
   return (
     <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-sm">
       <Table>
@@ -43,25 +68,25 @@ export const AppointmentsTable = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredAppointments.length > 0 ? (
-            filteredAppointments.map((appt) => (
+          {data && data.data.length > 0 ? (
+            data.data.map((appt) => (
               <TableRow
                 key={appt.id}
                 className="border-gray-100 hover:bg-teal-50/50">
                 <TableCell className="py-4">
                   <div className="flex items-center">
                     <Avatar className="mr-3 h-8 w-8 border border-gray-100">
-                      <AvatarImage src={appt.avatar} />
+                      <AvatarImage src={appt.patient?.user.avatar} />
                       <AvatarFallback>
-                        {appt.patient_name.charAt(0)}
+                        {appt.patient?.user.fullName.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-sm font-semibold text-gray-900">
-                        {appt.patient_name}
+                        {appt.patient?.user.fullName}
                       </p>
                       <p className="text-[10px] text-gray-400 md:text-xs">
-                        Hồ sơ #{appt.id + 100}
+                        Hồ sơ #{appt.id}
                       </p>
                     </div>
                   </div>
@@ -69,27 +94,35 @@ export const AppointmentsTable = ({
                 <TableCell className="py-4">
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-gray-900 md:text-sm">
-                      {appt.time}
+                      {new Date(
+                        `1970-01-01T${appt.scheduledAt.split(' ')[1]}`,
+                      ).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </span>
                     <span className="text-[10px] text-gray-500 md:text-xs">
-                      {appt.date}
+                      {new Date(
+                        appt.scheduledAt.split(' ')[0],
+                      ).toLocaleDateString('vi-VN')}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell className="py-4">
                   <span
                     className={cn(
-                      'inline-flex items-center rounded border border-transparent px-2.5 py-0.5 text-[10px] font-medium md:text-xs',
-                      appt.type === 'Khám từ xa'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-blue-100 text-blue-800',
+                      'inline-flex items-center rounded border border-transparent bg-purple-100 px-2.5 py-0.5 text-[10px] font-medium text-purple-800 md:text-xs',
+                      // appt.type === 'Khám từ xa'
+                      //   ? 'bg-purple-100 text-purple-800'
+                      //   : 'bg-blue-100 text-blue-800',
                     )}>
-                    {appt.type === 'Khám từ xa' ? (
-                      <Video className="mr-1 h-3 w-3" />
-                    ) : (
+                    {/* {appt.type === 'Khám từ xa' ? ( */}
+                    <Video className="mr-1 h-3 w-3" />
+                    {/* ) : (
                       <Users className="mr-1 h-3 w-3" />
                     )}
-                    {appt.type}
+                    {appt.type} */}
+                    Khám từ xa
                   </span>
                 </TableCell>
                 <TableCell className="max-w-xs truncate py-4 text-xs text-gray-600 md:text-sm">
@@ -138,6 +171,20 @@ export const AppointmentsTable = ({
           )}
         </TableBody>
       </Table>
+
+      {/* Pagination */}
+      {data?.meta && (
+        <div className="rounded-b-xl border-t border-gray-100 bg-gray-50 px-4 py-4 md:px-6">
+          <PaginationControls
+            currentPage={pagination.page}
+            totalPages={data.meta.totalPages}
+            totalItems={data.meta.total}
+            itemsPerPage={pagination.limit}
+            onPageChange={pagination.setPage}
+            showItemsInfo
+          />
+        </div>
+      )}
     </div>
   )
 }

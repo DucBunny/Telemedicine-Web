@@ -1,8 +1,8 @@
 import { ChevronRight } from 'lucide-react'
-import { useState } from 'react'
 import { DoctorStatusBadge } from '../DoctorStatusBadge'
-import { useGetPatients } from '../../hooks/usePatientQueries'
-import { usePagination } from '@/hooks/usePagination'
+import type { usePagination } from '@/hooks/usePagination'
+import type { Patient } from '../../types'
+import type { ApiPaginatedResponse } from '@/types/api.type'
 import { PaginationControls } from '@/components/PaginationControls'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,19 +15,19 @@ import {
 } from '@/components/ui/table'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-export const PatientsTable = () => {
-  const [searchTerm, setSearchTerm] = useState('')
-  const p = usePagination({
-    initialPage: 1,
-    initialLimit: 10,
-  })
+interface PatientsTableProps {
+  data: ApiPaginatedResponse<Patient> | undefined
+  isLoading: boolean
+  isError: boolean
+  pagination: ReturnType<typeof usePagination>
+}
 
-  const { data, isLoading, isError } = useGetPatients({
-    page: p.page,
-    limit: p.limit,
-    search: searchTerm,
-  })
-
+export const PatientsTable = ({
+  data,
+  isLoading,
+  isError,
+  pagination,
+}: PatientsTableProps) => {
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center rounded-xl border border-gray-100 bg-white">
@@ -124,11 +124,11 @@ export const PatientsTable = () => {
       {data?.meta && (
         <div className="rounded-b-xl border-t border-gray-100 bg-gray-50 px-4 py-4 md:px-6">
           <PaginationControls
-            currentPage={p.page}
+            currentPage={pagination.page}
             totalPages={data.meta.totalPages}
             totalItems={data.meta.total}
-            itemsPerPage={p.limit}
-            onPageChange={p.setPage}
+            itemsPerPage={pagination.limit}
+            onPageChange={pagination.setPage}
             showItemsInfo
           />
         </div>

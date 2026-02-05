@@ -5,6 +5,7 @@ import nodejsLogo from '../assets/Nodejs.svg'
 import pythonLogo from '../assets/Python.svg'
 import dockerLogo from '../assets/Docker.svg'
 import rabbitmqLogo from '../assets/RabbitMQ.svg'
+import redisLogo from '../assets/Redis.svg'
 import espLogo from '../assets/Espressif.svg'
 import { LogoCloud } from '@/components/ui/logo-cloud-4'
 import { cn } from '@/lib/utils'
@@ -37,6 +38,10 @@ const LOGOS = [
   {
     src: rabbitmqLogo,
     alt: 'RabbitMQ Logo',
+  },
+  {
+    src: redisLogo,
+    alt: 'Redis Logo',
   },
   {
     src: espLogo,

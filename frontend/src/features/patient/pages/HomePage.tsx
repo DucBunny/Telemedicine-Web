@@ -1,8 +1,13 @@
-import { Bell, Calendar, Clock, Video } from 'lucide-react'
+import { Bell, Calendar, Clock, Droplets, Heart, Video } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { MOCK_NOTIFICATIONS, MOCK_VITALS } from '../data/mockData'
+import { useEffect } from 'react'
+import { MOCK_NOTIFICATIONS } from '../data/mockData'
 import { useGetPatientProfile } from '../hooks/usePatientQueries'
 import { useGetPatientAppointments } from '../hooks/useAppointmentQueries'
+import { useHealthData } from '../hooks/useHealthData'
+import { useHealthAlerts } from '../hooks/useHealthAlerts'
+import { disconnectSocket, initSocket } from '@/lib/socket'
+import { useAuthStore } from '@/stores/auth.store'
 import { Button } from '@/components/ui/button'
 
 export const HomePage = () => {
@@ -14,6 +19,40 @@ export const HomePage = () => {
     status: ['confirmed', 'pending'],
   })
 
+  const user = useAuthStore((s) => s.user)
+  const { healthData, latestData } = useHealthData(user!.id)
+  const { alerts } = useHealthAlerts()
+  useEffect(() => {
+    // Khởi tạo socket khi component mount
+    initSocket(user!.id)
+
+    return () => {
+      // Disconnect khi unmount
+      disconnectSocket()
+    }
+  }, [user!.id])
+
+  const vitalSign = [
+    {
+      id: 1,
+      label: 'Nhịp tim',
+      value: latestData?.bpm || '--',
+      unit: 'bpm',
+      icon: Heart,
+      color: 'text-red-500',
+      bg: 'bg-red-50',
+    },
+    {
+      id: 2,
+      label: 'SpO2',
+      value: latestData?.spo2 || '--',
+      unit: '%',
+      icon: Droplets,
+      color: 'text-teal-500',
+      bg: 'bg-teal-50',
+    },
+  ]
+
   return (
     <div className="space-y-6 pb-24 md:pb-0">
       <div className="relative -mx-4 -mt-4 overflow-hidden rounded-b-4xl bg-linear-to-br from-teal-600 to-teal-500 p-6 pt-10 text-white shadow-lg shadow-teal-100 md:mx-0 md:mt-0 md:rounded-3xl md:pt-6">
@@ -21,7 +60,7 @@ export const HomePage = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-center">
               <img
-                src="https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait/male/512/87.jpg"
+                src={profileData?.user.avatar}
                 className="mr-3 h-12 w-12 rounded-full border-2 border-white/40 md:hidden"
                 alt="Avatar Mobile"
               />
@@ -84,12 +123,14 @@ export const HomePage = () => {
         <div className="mb-4 flex items-center justify-between px-1">
           <h2 className="text-lg font-bold text-gray-800">Chỉ số sức khỏe</h2>
           <span className="flex items-center rounded-full bg-gray-100 px-2 py-1 text-[10px] text-gray-500">
-            <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>
-            Vừa xong
+            <span
+              className={`mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full ${latestData ? 'bg-green-500' : 'bg-gray-400'}`}
+            />
+            {latestData ? 'Đang theo dõi' : 'Chưa có dữ liệu'}
           </span>
         </div>
         <div className="grid grid-cols-2 gap-4">
-          {MOCK_VITALS.map((item) => (
+          {vitalSign.map((item) => (
             <div
               key={item.id}
               className="flex flex-col items-center rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm transition hover:shadow-md">
@@ -105,14 +146,6 @@ export const HomePage = () => {
                   {item.unit}
                 </span>
               </p>
-              <span
-                className={`mt-2 rounded-full px-2 py-0.5 text-[10px] ${
-                  item.status === 'warning'
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'bg-green-50 text-green-700'
-                }`}>
-                {item.description}
-              </span>
             </div>
           ))}
         </div>

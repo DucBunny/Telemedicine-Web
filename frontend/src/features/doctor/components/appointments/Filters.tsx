@@ -22,14 +22,14 @@ import {
 } from '@/components/ui/sheet'
 
 interface FiltersProps {
-  filterStatus: string
-  setFilterStatus: (status: string) => void
+  statusFilter: string
+  setStatusFilter: (status: string) => void
   searchTerm: string
   setSearchTerm: (term: string) => void
 }
 
 const filters = [
-  { id: 'all', label: 'Tất cả' },
+  { id: ' ', label: 'Tất cả' },
   { id: 'confirmed', label: 'Đã xác nhận' },
   { id: 'pending', label: 'Chờ duyệt' },
   { id: 'completed', label: 'Hoàn thành' },
@@ -37,8 +37,8 @@ const filters = [
 ]
 
 export const Filters = ({
-  filterStatus,
-  setFilterStatus,
+  statusFilter,
+  setStatusFilter,
   searchTerm,
   setSearchTerm,
 }: FiltersProps) => {
@@ -95,10 +95,10 @@ export const Filters = ({
                       <Button
                         key={f.id}
                         variant="outline"
-                        onClick={() => setFilterStatus(f.id)}
+                        onClick={() => setStatusFilter(f.id)}
                         className={cn(
                           'h-10 flex-1 text-xs transition-colors',
-                          filterStatus === f.id
+                          statusFilter === f.id
                             ? 'border-teal-500 bg-teal-50 text-teal-700 shadow-sm hover:bg-teal-50/70 hover:text-teal-700'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                         )}>
@@ -128,10 +128,10 @@ export const Filters = ({
             <Button
               key={f.id}
               variant="ghost"
-              onClick={() => setFilterStatus(f.id)}
+              onClick={() => setStatusFilter(f.id)}
               className={cn(
                 'h-9 shrink-0 text-xs transition-colors',
-                filterStatus === f.id
+                statusFilter === f.id
                   ? 'bg-teal-600 text-white shadow-sm hover:bg-teal-700 hover:text-white'
                   : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900',
               )}>
@@ -140,7 +140,7 @@ export const Filters = ({
           ))}
         </div>
 
-        <Select onValueChange={setFilterStatus} value={filterStatus}>
+        <Select onValueChange={setStatusFilter} value={statusFilter}>
           <SelectTrigger className="rounded-lg border-0 bg-teal-600 text-xs font-medium text-white shadow-sm transition-colors hover:bg-teal-700 md:text-sm lg:hidden [&_svg]:hidden">
             <SelectValue />
           </SelectTrigger>

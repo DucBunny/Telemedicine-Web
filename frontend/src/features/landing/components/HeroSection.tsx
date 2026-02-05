@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import {
   Activity,
+  ArrowRight,
   Github,
   Heart,
   LayoutDashboard,
@@ -43,17 +44,10 @@ export const HeroSection = () => {
 
           <div className="flex flex-col gap-4 pt-2 sm:flex-row">
             <Link
-              to="/"
+              to="/login"
               className="flex items-center justify-center gap-2 rounded-full bg-teal-600 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-teal-200 transition hover:bg-teal-700">
-              <LayoutDashboard size={20} /> Vào Dashboard Demo
+              Bắt đầu ngay <ArrowRight size={20} />
             </Link>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full border border-gray-200 bg-white px-8 py-4 text-lg font-bold text-gray-700 transition hover:bg-gray-50">
-              <Github size={20} /> Xem Source Code
-            </a>
           </div>
 
           {/* Stats from Constant */}
