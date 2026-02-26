@@ -17,6 +17,8 @@ export const env = {
   MONGODB_USER: process.env.MONGODB_USER || '',
   MONGODB_PASSWORD: process.env.MONGODB_PASSWORD || '',
   MONGODB_CLUSTER: process.env.MONGODB_CLUSTER || '',
+  MONGODB_HOST: process.env.MONGODB_HOST || 'localhost',
+  MONGODB_PORT: process.env.MONGODB_PORT || 27017,
 
   // Cloudinary configuration
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
@@ -30,7 +32,9 @@ export const env = {
   JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE || '30d',
 
   // RabbitMQ configuration
-  RABBITMQ_URL: process.env.RABBITMQ_URL || 'amqp://localhost',
+  RABBITMQ_URL: process.env.RABBITMQ_URL, // AMQP Cloud or other managed RabbitMQ URL
+  RABBITMQ_HOST: process.env.RABBITMQ_HOST || 'localhost',
+  RABBITMQ_PORT: process.env.RABBITMQ_PORT || 5672,
 
   // MQTT configuration
   MQTT_BROKER: process.env.MQTT_BROKER || 'mqtt://broker.emqx.io',
@@ -38,7 +42,7 @@ export const env = {
   MQTT_TOPIC: process.env.MQTT_TOPIC || 'health/+/telemetry',
 
   // Redis configuration
-  REDIS_URL: process.env.REDIS_URL,
+  REDIS_URL: process.env.REDIS_URL, // Upstash or other managed Redis URL
   REDIS_HOST: process.env.REDIS_HOST || 'localhost',
   REDIS_PORT: process.env.REDIS_PORT || 6379,
 

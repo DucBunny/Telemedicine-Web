@@ -1,4 +1,10 @@
-import { Appointment, Doctor, Patient, User } from '@/models/sql/index'
+import {
+  Appointment,
+  Doctor,
+  Patient,
+  User,
+  Sequelize
+} from '@/models/sql/index'
 
 /**
  * Generic function to find appointments by owner (doctor or patient)
@@ -11,6 +17,15 @@ const findByOwner = async ({
   status = []
 }) => {
   const offset = (page - 1) * limit
+  const statusOrder = `
+    CASE
+      WHEN status = 'pending' THEN 1
+      WHEN status = 'confirmed' THEN 2
+      WHEN status = 'completed' THEN 3
+      WHEN status = 'cancelled' THEN 4
+      ELSE 5
+    END
+  `
 
   const whereClause = { ...where }
 
@@ -23,7 +38,11 @@ const findByOwner = async ({
     include,
     limit: parseInt(limit),
     offset: parseInt(offset),
-    order: [['scheduled_at', 'DESC']]
+    order: [
+      [Sequelize.literal(statusOrder), 'ASC'],
+      ['scheduled_at', 'ASC'],
+      ['id', 'ASC']
+    ]
   })
 
   return {
@@ -38,7 +57,7 @@ const findByOwner = async ({
 }
 
 /**
- * Find appointments by doctor ID
+ * Find doctor's appointments by doctor ID
  */
 export const findByDoctorId = async (
   doctorId,
@@ -54,7 +73,7 @@ export const findByDoctorId = async (
           {
             model: User,
             as: 'user',
-            attributes: ['fullName']
+            attributes: ['fullName', 'avatar']
           }
         ]
       }
@@ -66,7 +85,7 @@ export const findByDoctorId = async (
 }
 
 /**
- * Find appointments by patient ID
+ * Find patient's appointments by patient ID
  */
 export const findByPatientId = async (
   patientId,

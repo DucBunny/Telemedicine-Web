@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { LogOut } from 'lucide-react'
 import { NAVIGATION_ITEMS } from '../config'
-import type { LucideIcon } from 'lucide-react'
+import type { NavItem } from '../config'
 import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 import { cn } from '@/lib/utils'
 import {
@@ -16,13 +16,6 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-
-interface NavItem {
-  id: string
-  icon: LucideIcon
-  label: string
-  href: string
-}
 
 interface SidebarProps {
   activeTab: string
@@ -67,11 +60,7 @@ export const DoctorSidebar = ({ activeTab }: SidebarProps) => {
   return (
     <Sidebar
       collapsible="icon"
-      className="group/sidebar border-r border-gray-200 bg-white **:data-[sidebar=sidebar]:bg-white"
-      style={{
-        ['--sidebar-width' as string]: '16rem',
-        ['--sidebar-width-icon' as string]: '5rem',
-      }}>
+      className="group/sidebar border-r border-gray-200 bg-white **:data-[sidebar=sidebar]:bg-white">
       <SidebarHeader className="flex h-18 flex-row items-center justify-center border-b border-gray-100">
         <img src="/logo.png" alt="MedCare Logo" className="size-8" />
         <span className="text-xl leading-tight font-bold text-teal-700 group-data-[collapsible=icon]:hidden">

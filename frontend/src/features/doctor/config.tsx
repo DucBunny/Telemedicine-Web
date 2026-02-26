@@ -7,14 +7,15 @@ import {
   Users,
 } from 'lucide-react'
 import { MOCK_STATS } from './data/mockData'
+import type { LucideIcon } from 'lucide-react'
 
 // Types
-interface NavItem {
+export interface NavItem {
   id: string
   label: string
   mobileLabel?: string
   href: string
-  icon: typeof LayoutDashboard
+  icon: LucideIcon
   group: 'main' | 'system'
 }
 

@@ -4,6 +4,7 @@ import authRouter from './auth.route'
 import userRouter from './user.route'
 import statsRouter from './stats.route'
 import deviceRouter from './device.route'
+import doctorRouter from './doctor.route'
 import patientRouter from './patient.route'
 import appointmentRouter from './appointment.route'
 import medicalRecordRouter from './medicalRecord.route'
@@ -24,6 +25,7 @@ router.use(authMiddleware)
 router.use('/stats', statsRouter)
 router.use('/users', userRouter)
 router.use('/devices', deviceRouter)
+router.use('/doctors', doctorRouter)
 router.use('/patients', patientRouter)
 router.use('/appointments', appointmentRouter)
 router.use('/records', medicalRecordRouter)

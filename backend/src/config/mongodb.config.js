@@ -1,7 +1,9 @@
 import mongoose from 'mongoose'
 import { env } from './env'
 
-const mongo_uri = `mongodb+srv://${env.MONGODB_USER}:${env.MONGODB_PASSWORD}@${env.MONGODB_CLUSTER}/${env.MONGODB_DB_NAME}`
+const mongo_uri = env.MONGODB_CLUSTER
+  ? `mongodb+srv://${env.MONGODB_USER}:${env.MONGODB_PASSWORD}@${env.MONGODB_CLUSTER}/${env.MONGODB_DB_NAME}`
+  : `mongodb://${env.MONGODB_USER}:${env.MONGODB_PASSWORD}@${env.MONGODB_HOST}:${env.MONGODB_PORT}/${env.MONGODB_DB_NAME}?authSource=admin`
 
 const connectMongoDB = async () => {
   try {

@@ -1,7 +1,7 @@
 import { Patient, Doctor, User, Sequelize } from '@/models/sql/index'
 
 /**
- * Get patients by doctor ID
+ * Get doctor's patients by doctor ID
  */
 export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
   const offset = (page - 1) * limit
@@ -36,7 +36,8 @@ export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
     col: 'user_id', // To ensure correct counting
     order: [
       [Sequelize.literal(statusOrder), 'ASC'],
-      ['last_alert_at', 'DESC']
+      ['last_alert_at', 'DESC'],
+      ['user_id', 'ASC']
     ]
   })
 

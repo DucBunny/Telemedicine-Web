@@ -2,6 +2,10 @@ import amqp from 'amqplib'
 import { env } from '@/config'
 import { QUEUES, EXCHANGES } from './queues'
 
+// Build RabbitMQ URL: prefer full URL from env, else compose from host/port
+const getRabbitUrl = () =>
+  env.RABBITMQ_URL || `amqp://${env.RABBITMQ_HOST}:${env.RABBITMQ_PORT}`
+
 let connection
 let channel
 
@@ -15,7 +19,8 @@ export const connectRabbitMQ = async () => {
       timeout: 30000 // 30s connection timeout
     }
 
-    connection = await amqp.connect(env.RABBITMQ_URL, connectionOptions)
+    const url = getRabbitUrl()
+    connection = await amqp.connect(url, connectionOptions)
     channel = await connection.createChannel()
 
     // Assert exchange
