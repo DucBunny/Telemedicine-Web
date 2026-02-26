@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getSocket } from '@/lib/socket'
 
-interface HealthData {
+export interface HealthData {
   deviceId: string
   bpm: number
   spo2: number

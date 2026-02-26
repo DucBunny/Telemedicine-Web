@@ -1,6 +1,8 @@
+import React from 'react'
 import { MOCK_NOTIFICATIONS } from '../data/mockData'
 import { PatientSidebar } from '../components/PatientSidebar'
 import { MobileNav } from '../components/MobileNav'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 
 interface DoctorLayoutProps {
   children: React.ReactNode
@@ -11,17 +13,19 @@ export const PatientLayout = ({ children, activeTab }: DoctorLayoutProps) => {
   const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.is_read).length
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900">
-      {/* Desktop Sidebar */}
+    <SidebarProvider className="fixed h-screen overflow-hidden font-sans">
+      {/* Sidebar */}
       <PatientSidebar activeTab={activeTab} unreadCount={unreadCount} />
 
       {/* Main Content */}
-      <main className="h-full flex-1 overflow-y-auto scroll-smooth md:ml-72">
-        <div className="mx-auto max-w-4xl px-4 md:px-8 md:pt-8">{children}</div>
-      </main>
+      <SidebarInset>
+        <main className="h-screen w-full flex-1 overflow-y-auto scroll-smooth px-4 pb-20 md:p-6 lg:p-8">
+          {children}
+        </main>
 
-      {/* Mobile Navigation */}
-      <MobileNav activeTab={activeTab} />
-    </div>
+        {/* Mobile Navigation */}
+        <MobileNav activeTab={activeTab} />
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
