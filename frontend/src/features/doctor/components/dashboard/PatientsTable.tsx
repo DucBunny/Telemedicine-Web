@@ -62,7 +62,7 @@ export const PatientsTable = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-6 border-teal-200 px-2 text-teal-600 hover:bg-teal-50 hover:text-teal-800 md:h-7 md:text-xs">
+                    className="text-teal-primary h-6 border-teal-200 px-2 hover:bg-teal-50 hover:text-teal-800 md:h-7 md:text-xs">
                     Kiểm tra
                   </Button>
                 </TableCell>

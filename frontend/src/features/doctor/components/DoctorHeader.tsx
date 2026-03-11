@@ -28,7 +28,7 @@ export const DoctorHeader = ({ activeTab }: DoctorHeaderProps) => {
 
         {/* Desktop Toggle */}
         <div className="hidden min-w-0 items-center md:flex">
-          <SidebarTrigger className="mr-3 shrink-0 text-gray-500 hover:text-teal-600" />
+          <SidebarTrigger className="hover:text-teal-primary mr-3 shrink-0 text-gray-500" />
           <h2 className="truncate text-xl font-bold text-gray-800">
             {NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label}
           </h2>
@@ -65,7 +65,7 @@ export const DoctorHeader = ({ activeTab }: DoctorHeaderProps) => {
               <p className="text-sm leading-none font-medium text-gray-900">
                 BS.{data?.user.fullName}
               </p>
-              <p className="mt-1 text-xs leading-none text-teal-600">
+              <p className="text-teal-primary mt-1 text-xs leading-none">
                 {data?.specialization}
               </p>
             </div>

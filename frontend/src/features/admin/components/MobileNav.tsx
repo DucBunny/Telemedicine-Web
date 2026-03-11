@@ -26,7 +26,7 @@ export const MobileNav = ({ activeTab, setActiveTab }: MobileNavProps) => {
             onClick={() => setActiveTab(item.id)}
             className={`flex w-full flex-col items-center justify-center py-1 transition-colors duration-200 ${
               activeTab === item.id
-                ? 'text-teal-600'
+                ? 'text-teal-primary'
                 : 'text-gray-400 hover:text-gray-600'
             }`}>
             <Icon size={20} strokeWidth={activeTab === item.id ? 2.5 : 2} />

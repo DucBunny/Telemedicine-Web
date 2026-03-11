@@ -32,15 +32,15 @@ export const DoctorSidebar = ({ activeTab }: SidebarProps) => {
             isActive={activeTab === id}
             tooltip={label}
             className={cn(
-              'h-11 gap-3 rounded-lg px-3 font-semibold text-gray-500 hover:bg-gray-50 hover:text-teal-600',
-              'data-[active=true]:rounded-r-none data-[active=true]:border-r-4 data-[active=true]:border-teal-600 data-[active=true]:bg-teal-50 data-[active=true]:text-teal-700',
+              'hover:text-teal-primary h-11 gap-3 rounded-lg px-3 font-semibold text-gray-500 hover:bg-gray-50',
+              'data-[active=true]:border-teal-primary data-[active=true]:rounded-r-none data-[active=true]:border-r-4 data-[active=true]:bg-teal-50 data-[active=true]:text-teal-700',
               'group-data-[collapsible=icon]:justify-center',
             )}>
             <Link to={href}>
               <Icon
                 className={cn(
-                  'size-5! shrink-0 text-gray-400 group-hover/menu-item:text-teal-600',
-                  activeTab === id && 'text-teal-600',
+                  'group-hover/menu-item:text-teal-primary size-5! shrink-0 text-gray-400',
+                  activeTab === id && 'text-teal-primary',
                 )}
               />
               <span

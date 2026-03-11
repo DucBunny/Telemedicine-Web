@@ -9,13 +9,13 @@ export const UpcomingAppointments = () => {
     <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 bg-green-50/50 p-3 md:p-5">
         <h2 className="flex items-center text-sm font-semibold text-gray-800 md:text-base">
-          <Clock className="mr-2 h-4 w-4 text-teal-600 md:h-5 md:w-5" />
+          <Clock className="text-teal-primary mr-2 h-4 w-4 md:h-5 md:w-5" />
           Lịch hẹn sắp tới
         </h2>
         <Link to="/doctor/appointments">
           <Button
             variant="link"
-            className="h-auto p-0 text-xs text-teal-600 md:text-sm">
+            className="text-teal-primary h-auto p-0 text-xs md:text-sm">
             Xem tất cả
           </Button>
         </Link>
@@ -48,7 +48,7 @@ export const UpcomingAppointments = () => {
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="text-gray-400 hover:bg-teal-50 hover:text-teal-600">
+                className="hover:text-teal-primary text-gray-400 hover:bg-teal-50">
                 <ChevronRight size={16} />
               </Button>
             </div>

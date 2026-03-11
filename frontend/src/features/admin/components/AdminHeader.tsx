@@ -16,13 +16,13 @@ export const AdminHeader = ({
     <header className="z-20 flex h-18.25 items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
       <div className="flex items-center">
         <span className="text-lg font-bold text-gray-900 md:hidden">
-          Admin<span className="text-teal-600">Portal</span>
+          Admin<span className="text-teal-primary">Portal</span>
         </span>
 
         <div className="hidden items-center md:flex">
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-            className="mr-3 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-teal-600">
+            className="hover:text-teal-primary mr-3 rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100">
             {isSidebarCollapsed ? (
               <PanelLeftOpen size={20} />
             ) : (
@@ -52,7 +52,7 @@ export const AdminHeader = ({
             <p className="text-sm leading-none font-medium text-gray-900">
               {ADMIN_USER.full_name}
             </p>
-            <p className="mt-1 text-xs leading-none text-teal-600">
+            <p className="text-teal-primary mt-1 text-xs leading-none">
               Super Admin
             </p>
           </div>

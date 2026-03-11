@@ -18,7 +18,7 @@ export const MobileNav = ({ activeTab }: MobileNavProps) => {
           className={cn(
             'flex h-12 flex-1 flex-col gap-0 duration-200',
             activeTab === item.id
-              ? 'text-teal-600 hover:text-teal-600'
+              ? 'text-teal-primary hover:text-teal-primary'
               : 'text-gray-400 hover:text-gray-600',
           )}>
           <Link to={item.href}>

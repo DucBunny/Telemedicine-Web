@@ -10,6 +10,7 @@ import { DoctorStatusBadge } from '../DoctorStatusBadge'
 import type { Appointment } from '../../types'
 import type { ApiPaginatedResponse } from '@/types/api.type'
 import type { usePagination } from '@/hooks/usePagination'
+import { formatShortDate, formatTime } from '@/lib/format-date'
 import { PaginationControls } from '@/components/PaginationControls'
 import { Button } from '@/components/ui/button'
 import {
@@ -94,17 +95,10 @@ export const AppointmentsTable = ({
                 <TableCell className="py-4">
                   <div className="flex flex-col">
                     <span className="text-xs font-medium text-gray-900 md:text-sm">
-                      {new Date(
-                        `1970-01-01T${appt.scheduledAt.split(' ')[1]}`,
-                      ).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                      {formatTime(appt.scheduledAt)}
                     </span>
                     <span className="text-[10px] text-gray-500 md:text-xs">
-                      {new Date(
-                        appt.scheduledAt.split(' ')[0],
-                      ).toLocaleDateString('vi-VN')}
+                      {formatShortDate(appt.scheduledAt)}
                     </span>
                   </div>
                 </TableCell>
@@ -152,7 +146,7 @@ export const AppointmentsTable = ({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-gray-400 hover:bg-gray-100 hover:text-teal-600">
+                      className="hover:text-teal-primary h-8 w-8 text-gray-400 hover:bg-gray-100">
                       <MoreVertical size={18} />
                     </Button>
                   </div>

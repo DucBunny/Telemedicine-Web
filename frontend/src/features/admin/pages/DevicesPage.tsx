@@ -109,7 +109,7 @@ export const DevicesPage = () => {
                     {d.lastPing}
                   </td> */}
                   <td className="px-6 py-4 text-right">
-                    <button className="text-xs font-medium text-teal-600 hover:text-teal-800">
+                    <button className="text-teal-primary text-xs font-medium hover:text-teal-800">
                       Cấu hình
                     </button>
                   </td>

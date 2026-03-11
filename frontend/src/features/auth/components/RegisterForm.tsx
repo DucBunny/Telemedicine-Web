@@ -133,7 +133,7 @@ export const RegisterForm = () => {
             <div>
               <label className="mt-2 flex cursor-pointer items-center">
                 <Checkbox
-                  className="border-gray-300 data-[state=checked]:border-teal-600 data-[state=checked]:bg-teal-600"
+                  className="data-[state=checked]:border-teal-primary data-[state=checked]:bg-teal-primary border-gray-300"
                   checked={field.state.value}
                   onCheckedChange={(checked) =>
                     field.handleChange(checked === true)
@@ -143,13 +143,13 @@ export const RegisterForm = () => {
                   Tôi đồng ý với{' '}
                   <a
                     href="#"
-                    className="text-teal-600 underline hover:text-teal-700">
+                    className="text-teal-primary underline hover:text-teal-700">
                     Điều khoản dịch vụ
                   </a>{' '}
                   và{' '}
                   <a
                     href="#"
-                    className="text-teal-600 underline hover:text-teal-700">
+                    className="text-teal-primary underline hover:text-teal-700">
                     Chính sách bảo mật
                   </a>
                 </span>
@@ -186,7 +186,7 @@ export const RegisterForm = () => {
           Đã có tài khoản?{' '}
           <Link
             to="/login"
-            className="font-bold text-teal-600 transition-colors hover:text-teal-700">
+            className="text-teal-primary font-bold transition-colors hover:text-teal-700">
             Đăng nhập
           </Link>
         </p>

@@ -35,15 +35,15 @@ export const AdminSidebar = ({
         onClick={() => setActiveTab(id)}
         className={`group mb-1 flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
           activeTab === id
-            ? 'rounded-r-none border-r-4 border-teal-600 bg-teal-50 text-teal-700'
-            : 'text-gray-500 hover:bg-gray-50 hover:text-teal-600'
+            ? 'border-teal-primary rounded-r-none border-r-4 bg-teal-50 text-teal-700'
+            : 'hover:text-teal-primary text-gray-500 hover:bg-gray-50'
         } ${isSidebarCollapsed ? 'justify-center px-2' : ''} `}
         title={isSidebarCollapsed ? label : ''}>
         <Icon
           className={`h-5 w-5 shrink-0 ${
             activeTab === id
-              ? 'text-teal-600'
-              : 'text-gray-400 group-hover:text-teal-600'
+              ? 'text-teal-primary'
+              : 'group-hover:text-teal-primary text-gray-400'
           } ${isSidebarCollapsed ? 'mr-0' : 'mr-3'}`}
         />
         {!isSidebarCollapsed && (
@@ -69,7 +69,7 @@ export const AdminSidebar = ({
         </div>
         {!isSidebarCollapsed && (
           <span className="ml-2 overflow-hidden text-xl font-bold tracking-tight whitespace-nowrap text-gray-900">
-            Admin<span className="text-teal-600">Portal</span>
+            Admin<span className="text-teal-primary">Portal</span>
           </span>
         )}
       </div>

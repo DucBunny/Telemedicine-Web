@@ -88,7 +88,7 @@ export const LoginForm = () => {
         <div className="mb-6 flex items-center justify-end">
           <Link
             to="/"
-            className="text-sm font-medium text-teal-600 transition-colors hover:text-teal-700">
+            className="text-teal-primary text-sm font-medium transition-colors hover:text-teal-700">
             Quên mật khẩu?
           </Link>
         </div>
@@ -119,7 +119,7 @@ export const LoginForm = () => {
           Chưa có tài khoản?{' '}
           <Link
             to="/register"
-            className="font-bold text-teal-600 transition-colors hover:text-teal-700">
+            className="text-teal-primary font-bold transition-colors hover:text-teal-700">
             Đăng ký ngay
           </Link>
         </p>

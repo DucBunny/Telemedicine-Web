@@ -1,10 +1,9 @@
 import { HeroPanel } from '../components/HeroPanel'
 import { LoginForm } from '../components/LoginForm'
-import '../styles/styles.css'
 
 export const LoginPage = () => {
   return (
-    <div className="grid min-h-screen w-full grid-cols-1 bg-white md:grid-cols-2">
+    <div className="scrollbar-hide grid min-h-screen w-full grid-cols-1 bg-white md:grid-cols-2">
       <div className="flex h-full flex-col justify-center p-8 md:p-16 lg:p-24">
         <LoginForm />
       </div>

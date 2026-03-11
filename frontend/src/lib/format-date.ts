@@ -33,3 +33,19 @@ export function formatTime(dateStr: string) {
     minute: '2-digit',
   })
 }
+
+/**
+ * Calculate age from a birth date string.
+ * @param birthDateStr
+ * @returns Age in years (e.g., 30)
+ */
+export function calculateAge(birthDateStr: string) {
+  const birthDate = new Date(birthDateStr)
+  const today = new Date()
+  let age = today.getFullYear() - birthDate.getFullYear()
+  const m = today.getMonth() - birthDate.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--
+  }
+  return age
+}

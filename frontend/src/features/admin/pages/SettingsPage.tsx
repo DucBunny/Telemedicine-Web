@@ -27,7 +27,7 @@ export const SettingsPage = () => {
             </div>
             <label className="relative inline-flex cursor-pointer items-center">
               <input type="checkbox" className="peer sr-only" />
-              <div className="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-teal-600 peer-focus:outline-none after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+              <div className="peer peer-checked:bg-teal-primary h-6 w-11 rounded-full bg-gray-200 peer-focus:outline-none after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
             </label>
           </div>
 
@@ -42,7 +42,7 @@ export const SettingsPage = () => {
             </div>
             <label className="relative inline-flex cursor-pointer items-center">
               <input type="checkbox" defaultChecked className="peer sr-only" />
-              <div className="peer h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-teal-600 peer-focus:outline-none after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
+              <div className="peer peer-checked:bg-teal-primary h-6 w-11 rounded-full bg-gray-200 peer-focus:outline-none after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
             </label>
           </div>
 
@@ -65,7 +65,7 @@ export const SettingsPage = () => {
           </div>
         </div>
         <div className="flex justify-end bg-gray-50 px-6 py-4">
-          <button className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700">
+          <button className="bg-teal-primary rounded-lg px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700">
             Lưu cấu hình
           </button>
         </div>

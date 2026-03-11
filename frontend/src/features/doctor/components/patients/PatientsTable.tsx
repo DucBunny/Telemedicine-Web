@@ -3,6 +3,7 @@ import { DoctorStatusBadge } from '../DoctorStatusBadge'
 import type { usePagination } from '@/hooks/usePagination'
 import type { Patient } from '../../types'
 import type { ApiPaginatedResponse } from '@/types/api.type'
+import { calculateAge } from '@/lib/format-date'
 import { PaginationControls } from '@/components/PaginationControls'
 import { Button } from '@/components/ui/button'
 import {
@@ -63,7 +64,7 @@ export const PatientsTable = ({
               className="border-gray-100 hover:bg-teal-50/50">
               <TableCell className="py-4">
                 <div className="flex items-center">
-                  <Avatar className="mr-3 h-8 w-8 border border-teal-100 bg-teal-100 text-teal-600">
+                  <Avatar className="text-teal-primary mr-3 h-8 w-8 border border-teal-100 bg-teal-100">
                     <AvatarFallback className="bg-teal-100 text-xs font-bold text-teal-700">
                       {pat.user.fullName.charAt(0) || 'P'}
                     </AvatarFallback>
@@ -90,9 +91,7 @@ export const PatientsTable = ({
                   <>
                     <span className="mx-1 text-gray-400">•</span>
                     <span className="text-xs text-gray-600 md:text-sm">
-                      {new Date().getFullYear() -
-                        new Date(pat.dateOfBirth).getFullYear()}{' '}
-                      tuổi
+                      {calculateAge(pat.dateOfBirth)} tuổi
                     </span>
                   </>
                 )}
@@ -111,7 +110,7 @@ export const PatientsTable = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 text-gray-400 hover:bg-white hover:text-teal-600">
+                  className="hover:text-teal-primary h-8 text-gray-400 hover:bg-white">
                   Chi tiết <ChevronRight className="ml-1 h-4 w-4" />
                 </Button>
               </TableCell>

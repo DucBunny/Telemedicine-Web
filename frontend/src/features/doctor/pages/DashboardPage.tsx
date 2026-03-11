@@ -21,7 +21,7 @@ export const DashboardPage = () => {
         <Link to="/doctor/appointments">
           <Button
             variant="ghost"
-            className="hidden bg-teal-50 text-teal-600 hover:bg-teal-100 hover:text-teal-700 lg:flex">
+            className="text-teal-primary hidden bg-teal-50 hover:bg-teal-100 hover:text-teal-700 lg:flex">
             Xem lịch làm việc <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         </Link>

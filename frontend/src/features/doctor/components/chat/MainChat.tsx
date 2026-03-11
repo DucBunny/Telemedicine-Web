@@ -98,13 +98,13 @@ export const MainChat = ({
           {/* Outgoing Message */}
           <div className="flex justify-end">
             <div className="max-w-[75%] text-right md:max-w-[70%]">
-              <div className="rounded-2xl rounded-tr-none bg-teal-600 p-3 text-left text-xs text-white shadow-sm md:text-sm">
+              <div className="bg-teal-primary rounded-2xl rounded-tr-none p-3 text-left text-xs text-white shadow-sm md:text-sm">
                 Chào bạn, đúng rồi nhé. Bạn nên uống sau khi ăn khoảng 30 phút
                 để tránh hại dạ dày.
               </div>
               <div className="mt-1 flex items-center justify-end space-x-1">
                 <span className="text-[10px] text-gray-400">08:48</span>
-                <CheckCircle size={10} className="text-teal-600" />
+                <CheckCircle size={10} className="text-teal-primary" />
               </div>
             </div>
           </div>
@@ -117,7 +117,7 @@ export const MainChat = ({
           <Button
             variant="ghost"
             size="icon"
-            className="text-gray-400 hover:text-teal-600">
+            className="hover:text-teal-primary text-gray-400">
             <Paperclip size={20} />
           </Button>
           <Input

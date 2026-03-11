@@ -132,7 +132,7 @@ export const Filters = ({
               className={cn(
                 'h-9 shrink-0 text-xs transition-colors',
                 statusFilter === f.id
-                  ? 'bg-teal-600 text-white shadow-sm hover:bg-teal-700 hover:text-white'
+                  ? 'bg-teal-primary text-white shadow-sm hover:bg-teal-700 hover:text-white'
                   : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900',
               )}>
               {f.label}
@@ -141,7 +141,7 @@ export const Filters = ({
         </div>
 
         <Select onValueChange={setStatusFilter} value={statusFilter}>
-          <SelectTrigger className="rounded-lg border-0 bg-teal-600 text-xs font-medium text-white shadow-sm transition-colors hover:bg-teal-700 md:text-sm lg:hidden [&_svg]:hidden">
+          <SelectTrigger className="bg-teal-primary rounded-lg border-0 text-xs font-medium text-white shadow-sm transition-colors hover:bg-teal-700 md:text-sm lg:hidden [&_svg]:hidden">
             <SelectValue />
           </SelectTrigger>
           <SelectContent position="popper">
