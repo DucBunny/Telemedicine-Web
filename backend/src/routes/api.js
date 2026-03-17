@@ -8,6 +8,8 @@ import doctorRouter from './doctor.route'
 import patientRouter from './patient.route'
 import appointmentRouter from './appointment.route'
 import medicalRecordRouter from './medicalRecord.route'
+import specialtyRouter from './specialty.route'
+import uploadRouter from './upload.route'
 
 const router = express.Router()
 
@@ -29,5 +31,7 @@ router.use('/doctors', doctorRouter)
 router.use('/patients', patientRouter)
 router.use('/appointments', appointmentRouter)
 router.use('/records', medicalRecordRouter)
+router.use('/specialties', specialtyRouter)
+router.use('/uploads', uploadRouter)
 
 export default router

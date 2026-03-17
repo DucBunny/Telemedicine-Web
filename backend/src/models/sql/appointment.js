@@ -28,10 +28,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false
       },
-      endedAt: DataTypes.DATE,
+      actualEndedAt: DataTypes.DATE,
+      durationMinutes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 30
+      },
       status: {
         type: DataTypes.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
         defaultValue: 'pending'
+      },
+      type: {
+        type: DataTypes.ENUM('online', 'offline'),
+        defaultValue: 'online'
       },
       meetingLink: DataTypes.STRING,
       reason: DataTypes.TEXT,

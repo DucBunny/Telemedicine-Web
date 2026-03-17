@@ -13,6 +13,11 @@ export const initSocket = (socketInstance) => {
 }
 
 /**
+ * Get Socket.IO instance
+ */
+export const getIo = () => io
+
+/**
  * Emit health data realtime to frontend
  */
 export const emitHealthData = (data) => {
@@ -101,8 +106,3 @@ export const emitDeviceStatus = (deviceId, status) => {
 
   console.log(`Emitted device status: ${deviceId} - ${status}`)
 }
-
-/**
- * Get Socket.IO instance
- */
-export const getIO = () => io

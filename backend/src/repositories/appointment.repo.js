@@ -3,7 +3,11 @@ import {
   Doctor,
   Patient,
   User,
-  Sequelize
+  Specialty,
+  Sequelize,
+  DoctorWorkingHours,
+  DoctorOffSchedule,
+  PatientDoctor
 } from '@/models/sql/index'
 
 /**
@@ -101,7 +105,12 @@ export const findByPatientId = async (
           {
             model: User,
             as: 'user',
-            attributes: ['fullName']
+            attributes: ['fullName', 'avatar']
+          },
+          {
+            model: Specialty,
+            as: 'specialty',
+            attributes: ['name']
           }
         ]
       }
@@ -110,4 +119,95 @@ export const findByPatientId = async (
     limit,
     status
   })
+}
+
+/**
+ * Get doctor's working hours for a specific day of week
+ */
+export const getWorkingHours = async (doctorId, dayOfWeek) => {
+  return await DoctorWorkingHours.findAll({
+    where: { doctorId, dayOfWeek }
+  })
+}
+
+/**
+ * Get doctor's off schedules for a specific date
+ */
+export const getOffSchedules = async (doctorId, date) => {
+  return await DoctorOffSchedule.findAll({
+    where: { doctorId, offDate: date }
+  })
+}
+
+/**
+ * Get booked appointments (pending/confirmed) for a doctor on a specific date
+ */
+export const getBookedAppointments = async (doctorId, date) => {
+  const startOfDay = new Date(`${date}T00:00:00.000Z`)
+  const endOfDay = new Date(`${date}T23:59:59.999Z`)
+
+  return await Appointment.findAll({
+    where: {
+      doctorId,
+      scheduledAt: {
+        [Sequelize.Op.between]: [startOfDay, endOfDay]
+      },
+      status: ['pending', 'confirmed']
+    },
+    attributes: ['scheduledAt', 'duration']
+  })
+}
+
+/**
+ * Book a new appointment
+ */
+export const bookAppointment = async ({
+  patientId,
+  doctorId,
+  scheduledAt,
+  reason,
+  duration = 30
+}) => {
+  return await Appointment.create({
+    patientId,
+    doctorId,
+    scheduledAt,
+    reason,
+    duration,
+    status: 'pending'
+  })
+}
+
+/**
+ * Find appointment by ID
+ */
+export const findById = async (id) => {
+  return await Appointment.findByPk(id)
+}
+
+/**
+ * Update appointment status
+ */
+export const updateStatus = async (id, status) => {
+  const [, [updated]] = await Appointment.update(
+    { status },
+    { where: { id }, returning: true }
+  )
+  return updated ?? (await Appointment.findByPk(id))
+}
+
+/**
+ * Ensure patient-doctor relationship exists
+ */
+export const ensurePatientDoctor = async (patientId, doctorId) => {
+  const [record] = await PatientDoctor.findOrCreate({
+    where: { patientId, doctorId },
+    defaults: {
+      patientId,
+      doctorId,
+      role: 'primary',
+      assignedAt: new Date()
+    }
+  })
+  return record
 }

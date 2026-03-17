@@ -31,6 +31,7 @@ module.exports = {
       created_at: now,
       updated_at: now
     }))
+
     await queryInterface.bulkInsert('patients', patientsData, {})
   },
 

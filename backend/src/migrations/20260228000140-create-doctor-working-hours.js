@@ -2,39 +2,35 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('doctors', {
-      user_id: {
-        type: Sequelize.INTEGER,
+    await queryInterface.createTable('doctor_working_hours', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      doctor_id: {
+        type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'users',
-          key: 'id'
+          model: 'doctors',
+          key: 'user_id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      specialty_id: {
+      day_of_week: {
         type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'specialties',
-          key: 'id'
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        allowNull: false,
+        comment: '0: Chủ nhật, 1: Thứ 2, ..., 6: Thứ 7'
       },
-      degree: {
-        type: Sequelize.STRING
+      start_time: {
+        type: Sequelize.TIME,
+        allowNull: false
       },
-      experience_years: {
-        type: Sequelize.INTEGER
-      },
-      bio: {
-        type: Sequelize.TEXT
-      },
-      address: {
-        type: Sequelize.STRING
+      end_time: {
+        type: Sequelize.TIME,
+        allowNull: false
       },
       created_at: {
         allowNull: false,
@@ -48,7 +44,7 @@ module.exports = {
       }
     })
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('doctors')
+  async down(queryInterface) {
+    await queryInterface.dropTable('doctor_working_hours')
   }
 }

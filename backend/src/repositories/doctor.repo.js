@@ -1,4 +1,4 @@
-import { User, Doctor } from '@/models/sql/index'
+import { User, Doctor, Specialty } from '@/models/sql/index'
 
 /**
  * Get doctor by user ID
@@ -11,6 +11,11 @@ export const findByUserId = async (userId) => {
         model: User,
         as: 'user',
         attributes: ['fullName', 'email', 'phoneNumber', 'role', 'avatar']
+      },
+      {
+        model: Specialty,
+        as: 'specialty',
+        attributes: ['name']
       }
     ]
   })

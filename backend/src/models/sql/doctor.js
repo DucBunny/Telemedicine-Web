@@ -10,6 +10,26 @@ module.exports = (sequelize, DataTypes) => {
         as: 'user'
       })
 
+      // N-1 với Specialty
+      Doctor.belongsTo(models.Specialty, {
+        foreignKey: 'specialtyId',
+        as: 'specialty'
+      })
+
+      // 1-N giờ làm việc
+      Doctor.hasMany(models.DoctorWorkingHours, {
+        foreignKey: 'doctorId',
+        sourceKey: 'userId',
+        as: 'workingHours'
+      })
+
+      // 1-N lịch nghỉ
+      Doctor.hasMany(models.DoctorOffSchedule, {
+        foreignKey: 'doctorId',
+        sourceKey: 'userId',
+        as: 'offSchedules'
+      })
+
       // N-N với Patient (Bác sĩ phụ trách nhiều bệnh nhân)
       Doctor.belongsToMany(models.Patient, {
         through: models.PatientDoctor,
@@ -47,10 +67,14 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false
       },
-      specialization: DataTypes.STRING,
+      specialtyId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
       degree: DataTypes.STRING,
       experienceYears: DataTypes.INTEGER,
-      bio: DataTypes.TEXT
+      bio: DataTypes.TEXT,
+      address: DataTypes.STRING
     },
     {
       sequelize,

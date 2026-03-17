@@ -1,3 +1,5 @@
+// ----------------------------- MySQL -----------------------------
+
 // ======================
 // ENUM DEFINITIONS
 // ======================
@@ -50,6 +52,11 @@ Enum appointment_status {
   cancelled    // Lịch hẹn bị hủy
 }
 
+Enum appointment_type {
+  online       // Lịch hẹn trực tuyến
+  offline      // Lịch hẹn trực tiếp
+}
+
 Enum call_status {
   missed       // Cuộc gọi nhỡ
   rejected     // Cuộc gọi bị từ chối
@@ -98,16 +105,56 @@ Table refresh_tokens {
 // MEDICAL ROLES
 // ======================
 
+// Chuyên khoa
+Table specialties {
+  id int [pk, increment]
+  name varchar [not null]                  // Tên chuyên khoa (VD: Tim mạch, Nội tiết)
+  description text                         // Mô tả chuyên khoa
+  image_url varchar                        // Đường dẫn file
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
 Table doctors {
   user_id int [pk, ref: - users.id]
 
-  specialization varchar                      // Chuyên khoa
+  specialty_id int [ref: > specialties.id]    // Chuyên khoa
+
   degree varchar                              // Bằng cấp
   experience_years int                        // Số năm kinh nghiệm
   bio text                                    // Giới thiệu ngắn về bác sĩ
+  address varchar                             // Địa chỉ bệnh viện
 
   created_at timestamp [default: `now()`]     
   updated_at timestamp [default: `now()`]      
+}
+
+// Giờ bác sĩ làm việc 
+Table doctor_working_hours {
+  id int [pk, increment]
+  doctor_id int [ref: > doctors.user_id] 
+  
+  day_of_week int [not null, note: '0: Chủ nhật, 1: Thứ 2, ..., 6: Thứ 7']
+  start_time time [not null]               // Giờ bắt đầu ca (VD: '08:00:00')
+  end_time time [not null]                 // Giờ kết thúc ca (VD: '12:00:00')
+  
+  created_at timestamp [default: `now()`] 
+  updated_at timestamp [default: `now()`]
+}
+
+// Ngày nghỉ/bận của bác sĩ
+Table doctor_off_schedules {
+  id int [pk, increment]
+  doctor_id int [ref: > doctors.user_id]
+  
+  off_date date [not null]                 // Ngày nghỉ/bận (VD: '2026-03-15')
+  start_time time                          // Từ mấy giờ (Để null nếu nghỉ cả ngày)
+  end_time time                            // Đến mấy giờ (Để null nếu nghỉ cả ngày)
+  reason varchar                           // Lý do (Họp, nghỉ phép...)
+  
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
 }
 
 Table patients {
@@ -179,7 +226,8 @@ Table alerts {
   updated_at timestamp [default: `now()`]  
 }
 
-Table alert_recipients {                        // Bảng trung gian cảnh báo cho bác sĩ nào
+// Bảng trung gian cảnh báo cho bác sĩ nào
+Table alert_recipients {                        
   alert_id int [ref: > alerts.id]                       // Cảnh báo
   doctor_id int [ref: > doctors.user_id]                // Bác sĩ nhận cảnh báo từ bệnh nhân
 
@@ -211,7 +259,8 @@ Table health_predictions {
 // MEDICAL DATA
 // ======================
 
-Table medical_records {                     // Hồ sơ khám bệnh 
+// Hồ sơ khám bệnh 
+Table medical_records {                     
   id int [pk, increment]                 
 
   patient_id int [ref: > patients.user_id]  // Bệnh nhân
@@ -226,7 +275,8 @@ Table medical_records {                     // Hồ sơ khám bệnh
   updated_at timestamp [default: `now()`] 
 }
 
-Table medical_attachments {             // File đính kèm
+// File đính kèm
+Table medical_attachments {             
   id int [pk, increment]                  
 
   medical_record_id int [ref: > medical_records.id]   // Hồ sơ liên quan
@@ -240,16 +290,19 @@ Table medical_attachments {             // File đính kèm
 // TELEMEDICINE
 // ======================
 
-Table appointments {                        // Lịch hẹn
+// Lịch hẹn
+Table appointments {                        
   id int [pk, increment]                  
 
   patient_id int [ref: > patients.user_id]  // Bệnh nhân
   doctor_id int [ref: > doctors.user_id]    // Bác sĩ
 
   scheduled_at datetime [not null]          // Thời gian hẹn
-  ended_at datetime                         // Thời gian kết thúc
+  actual_ended_at datetime [null]           // Hệ thống tự update khi bác sĩ bấm "Kết thúc ca"
+  duration_minutes int [default: 30, note: '30 hoặc 60 phút']   // Dùng duration + scheduled_at để tính toán khoảng thời gian bị chiếm, hỗ trợ bệnh nhân khác đặt ca khám
 
   status appointment_status [default: 'pending']  // Trạng thái lịch hẹn
+  type appointment_type [default: 'online']       // Loại lịch hẹn (online, trực tiếp)
   meeting_link varchar                   // Link khám online
   reason text                            // Lý do khám
   cancel_reason text                     // Lý do hủy
@@ -287,3 +340,45 @@ Table call_logs {
   created_at timestamp [default: `now()`] 
   updated_at timestamp [default: `now()`]
 }
+
+// ----------------------------- MongoDB -----------------------------
+// const ECGRawSchema = new mongoose.Schema(
+//   {
+//     device_id: { type: String, required: true, index: true },
+//     patient_id: { type: Number, required: true, index: true },
+//     bucket_start_time: { type: Date, required: true, index: true },
+//     count: { type: Number, default: 0 },
+//     samples: [
+//       {
+//         ts: { type: Date }, // Timestamp của mẫu ECG
+//         val: [Number], // Mảng 187 điểm ECG
+//         status: String // 'NORMAL', 'DANGER'
+//       }
+//     ]
+//   },
+//   {
+//     timestamps: true
+//   }
+// )
+//
+// const HealthMetricSchema = new mongoose.Schema(
+//   {
+//     timestamp: { type: Date, required: true },
+//     metadata: {
+//       patient_id: Number,
+//       device_id: String
+//     },
+//     bpm: Number,
+//     spo2: Number,
+//     hrv: Number,
+//     status: String // 'NORMAL', 'DANGER'
+//   },
+//   {
+//     timeseries: {
+//       timeField: 'timestamp',
+//       metaField: 'metadata',
+//       granularity: 'seconds'
+//     },
+//     expireAfterSeconds: 2592000 // Tự động xóa sau 30 ngày (TTL Index)
+//   }
+// )

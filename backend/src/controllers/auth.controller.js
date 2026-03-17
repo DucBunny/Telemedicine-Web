@@ -13,6 +13,9 @@ import ApiError from '@/utils/api-error'
 const getDeviceInfo = (req) =>
   req.headers['user-agent'] || req.body.deviceInfo || null
 
+/**
+ * User registration
+ */
 export const register = async (req, res, next) => {
   try {
     const result = await authService.register(req.body)
@@ -26,6 +29,9 @@ export const register = async (req, res, next) => {
   }
 }
 
+/**
+ * User login
+ */
 export const login = async (req, res, next) => {
   try {
     const deviceInfo = getDeviceInfo(req)
@@ -46,6 +52,9 @@ export const login = async (req, res, next) => {
   }
 }
 
+/**
+ * Refresh access token using refresh token in httpOnly cookie
+ */
 export const refreshToken = async (req, res, next) => {
   try {
     const deviceInfo = getDeviceInfo(req)
@@ -87,6 +96,11 @@ export const refreshToken = async (req, res, next) => {
   }
 }
 
+/**
+ * User logout
+ * - Revoke refresh token
+ * - Clear refresh token cookie
+ */
 export const logout = async (req, res, next) => {
   try {
     const deviceInfo = getDeviceInfo(req)

@@ -56,11 +56,11 @@ module.exports = {
       })
     }
 
-    return queryInterface.bulkInsert('users', usersData, {})
+    await queryInterface.bulkInsert('users', usersData, {})
   },
 
   async down(queryInterface, Sequelize) {
-    return queryInterface.bulkDelete('users', null, {})
+    await queryInterface.bulkDelete('users', null, {})
   }
 }
 
@@ -81,7 +81,7 @@ const generateVNName = () => {
   // Lấy ngẫu nhiên giới tính để tên và đệm khớp nhau (Văn/Thị)
   const sex = faker.person.sexType()
   const lastName = faker.person.lastName(sex)
-  const firstName = faker.person.firstName(sex)
+  const firstName = faker.person.firstName(sex).split(' ')[0]
 
   const middleName =
     sex === 'male'

@@ -15,6 +15,7 @@ module.exports = {
     const now = new Date()
     const appointments = []
 
+    const types = ['online', 'offline']
     const reasons = [
       'Đau đầu chóng mặt',
       'Khám định kỳ tháng',
@@ -26,33 +27,55 @@ module.exports = {
       const randomDoc =
         doctors[Math.floor(Math.random() * doctors.length)].user_id
 
-      const startDate = faker.date.recent({ days: 30 })
+      const randomDay = faker.date.recent({ days: 30 })
+      const startDate = generateTime(randomDay)
       const endDate = new Date(startDate.getTime() + 30 * 60 * 1000) // Meet 30 phút
 
-      // 1 Lịch sử khám (Đã xong)
-      appointments.push({
-        patient_id: pat.user_id,
-        doctor_id: randomDoc,
-        scheduled_at: startDate,
-        ended_at: endDate,
-        status: 'completed',
-        meeting_link: null,
-        reason: faker.helpers.arrayElement(reasons),
-        created_at: now,
-        updated_at: now
-      })
+      for (let i = 0; i < 3; i++) {
+        // 3 Lịch sử khám (Đã xong)
+        appointments.push({
+          patient_id: pat.user_id,
+          doctor_id: randomDoc,
+          scheduled_at: startDate,
+          actual_ended_at: endDate,
+          duration_minutes: 30,
+          status: 'completed',
+          type: faker.helpers.arrayElement(types),
+          meeting_link: null,
+          reason: faker.helpers.arrayElement(reasons),
+          created_at: now,
+          updated_at: now
+        })
 
-      // 1 Lịch hẹn sắp tới (Chờ xác nhận)
-      appointments.push({
-        patient_id: pat.user_id,
-        doctor_id: randomDoc,
-        scheduled_at: faker.date.soon({ days: 14 }),
-        status: 'pending',
-        reason: faker.helpers.arrayElement(reasons),
-        meeting_link: 'https://meet.google.com/xxx-yyyy-zzz',
-        created_at: now,
-        updated_at: now
-      })
+        // 3 Lịch hẹn sắp tới (Đã xác nhận, Chờ duyệt)
+        appointments.push({
+          patient_id: pat.user_id,
+          doctor_id: randomDoc,
+          scheduled_at: generateTime(faker.date.soon({ days: 7 })),
+          actual_ended_at: null,
+          duration_minutes: 30,
+          status: faker.helpers.arrayElement(['pending', 'confirmed']),
+          type: faker.helpers.arrayElement(types),
+          meeting_link: 'https://meet.google.com/xxx-yyyy-zzz',
+          reason: faker.helpers.arrayElement(reasons),
+          created_at: now,
+          updated_at: now
+        })
+
+        // 3 Lịch hẹn đã hủy
+        appointments.push({
+          patient_id: pat.user_id,
+          doctor_id: randomDoc,
+          scheduled_at: generateTime(faker.date.soon({ days: 14 })),
+          actual_ended_at: null,
+          duration_minutes: 30,
+          status: 'cancelled',
+          type: faker.helpers.arrayElement(types),
+          cancel_reason: 'Bệnh nhân có việc đột xuất, xin hủy lịch hẹn.',
+          created_at: now,
+          updated_at: now
+        })
+      }
     })
 
     await queryInterface.bulkInsert('appointments', appointments, {})
@@ -61,4 +84,20 @@ module.exports = {
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('appointments', null, {})
   }
+}
+
+/**
+ * Hàm tạo thời gian tròn 30 phút (eg: 8:00, 8:30, 9:00, ...)
+ */
+function generateTime(date) {
+  const hours = [8, 9, 10, 11, 14, 15, 16]
+  const minutes = [0, 30]
+
+  const hour = faker.helpers.arrayElement(hours)
+  const minute = faker.helpers.arrayElement(minutes)
+
+  const d = new Date(date)
+  d.setHours(hour, minute, 0, 0)
+
+  return d
 }

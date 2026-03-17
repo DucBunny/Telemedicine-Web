@@ -31,12 +31,21 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false
       },
-      ended_at: {
+      actual_ended_at: {
         type: Sequelize.DATE
+      },
+      duration_minutes: {
+        type: Sequelize.INTEGER,
+        defaultValue: 30,
+        comment: '30 or 60 minutes'
       },
       status: {
         type: Sequelize.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
         defaultValue: 'pending'
+      },
+      type: {
+        type: Sequelize.ENUM('online', 'offline'),
+        defaultValue: 'online'
       },
       meeting_link: {
         type: Sequelize.STRING
