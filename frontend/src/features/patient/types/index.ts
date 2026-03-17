@@ -1,16 +1,4 @@
-import type { User } from '../../admin/api/user.api'
-
-export interface VitalSign {
-  id: number
-  label: string
-  value: string
-  unit: string
-  status: 'normal' | 'warning' | 'critical'
-  icon: React.ComponentType<any>
-  color: string
-  bg: string
-  description: string
-}
+import type { User } from '@/features/admin/api/user.api'
 
 export interface Notification {
   id: number
@@ -30,33 +18,32 @@ export interface Device {
   lastSync: string
 }
 
-export interface Appointment {
+// --------------------------------------------------------------------
+// Chuyên khoa
+export interface Specialty {
   id: number
-  patientId: number
-  doctorId: number
-  scheduledAt: string
-  endedAt: string | null
-  status: string
-  meetingLink: string
-  reason: string
-  cancelReason: string | null
+  name: string
+  description: string
+  imageUrl: string
   createdAt: string
   updatedAt: string
-  doctor?: Doctor
-  patient?: Patient
 }
 
+// Bác sĩ
 export interface Doctor {
   userId: number
-  specialization: string
+  specialtyId: number
   degree: string
   experienceYears: number
   bio: string
+  address: string
   createdAt: string
   updatedAt: string
   user: User
+  specialty: Specialty
 }
 
+// Bệnh nhân
 export interface Patient {
   userId: number
   dateOfBirth: string
@@ -72,6 +59,25 @@ export interface Patient {
   createdAt: string
   updatedAt: string
   user: User
+}
+
+// Lịch hẹn khám bệnh
+export interface Appointment {
+  id: number
+  patientId: number
+  doctorId: number
+  scheduledAt: string
+  actualEndedAt: string | null
+  durationMinutes: number
+  status: string
+  type: 'offline' | 'online'
+  meetingLink: string
+  reason: string
+  cancelReason: string | null
+  createdAt: string
+  updatedAt: string
+  doctor?: Doctor
+  patient?: Patient
 }
 
 export interface MedicalRecord {

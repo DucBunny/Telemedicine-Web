@@ -66,11 +66,13 @@ export const STATUS_FILTER_OPTIONS = [
     value: 'confirmed',
     label: 'Đã xác nhận',
     color: 'text-green-700 bg-green-100',
+    variant: 'teal_outline',
   },
   {
     value: 'pending',
     label: 'Chờ duyệt',
     color: 'text-yellow-700 bg-yellow-100',
+    variant: 'orange_outline',
   },
   {
     value: 'upcoming',
@@ -81,6 +83,12 @@ export const STATUS_FILTER_OPTIONS = [
     value: 'completed',
     label: 'Đã hoàn thành',
     color: 'text-blue-700 bg-blue-100',
+    variant: 'purple_outline',
   },
-  { value: 'cancelled', label: 'Đã hủy', color: 'text-red-700 bg-red-100' },
+  {
+    value: 'cancelled',
+    label: 'Đã hủy',
+    color: 'text-red-700 bg-red-100',
+    variant: 'red_outline',
+  },
 ]

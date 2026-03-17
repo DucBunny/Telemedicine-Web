@@ -1,14 +1,20 @@
 import { useEffect } from 'react'
-import { MOCK_NOTIFICATIONS } from '../data/mockData'
-import { useGetPatientProfile } from '../hooks/usePatientQueries'
-import { useGetPatientAppointments } from '../hooks/useAppointmentQueries'
-import { useHealthData } from '../hooks/useHealthData'
-import { useHealthAlerts } from '../hooks/useHealthAlerts'
-import { ProfileCard } from '../components/home/ProfileCard'
-import { VitalsGrid } from '../components/home/VitalsGrid'
-import { UpcomingAppointment } from '../components/home/UpcomingAppointment'
-import { disconnectSocket, initSocket } from '@/lib/socket'
+import { Link } from '@tanstack/react-router'
+import { CalendarPlus } from 'lucide-react'
+import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
+import {
+  AppointmentCard,
+  ProfileCard,
+  StatCards,
+  VitalCards,
+} from '@/features/patient/components/home'
+import { MOCK_NOTIFICATIONS } from '@/features/patient/data/mockData'
+import { useGetPatientAppointments } from '@/features/patient/hooks/useAppointmentQueries'
 import { useAuthStore } from '@/stores/auth.store'
+import { useHealthData } from '@/features/patient/hooks/useHealthData'
+import { useHealthAlerts } from '@/features/patient/hooks/useHealthAlerts'
+import { disconnectSocket, initSocket } from '@/lib/socket'
+import { Button } from '@/components/ui/button'
 
 export const HomePage = () => {
   const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.is_read).length
@@ -33,15 +39,47 @@ export const HomePage = () => {
   }, [user!.id])
 
   return (
-    <div className="space-y-6 pb-24 md:pb-0">
-      {/* Profile Card */}
+    <div className="px-4">
       <ProfileCard profileData={profileData} unreadCount={unreadCount} />
 
-      {/* Vitals Grid */}
-      <VitalsGrid latestData={latestData} />
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-12 md:gap-6">
+        {/* Cột trái */}
+        <div className="flex flex-col gap-3 md:col-span-7 md:gap-6 lg:col-span-8">
+          {/* Các thẻ chỉ số cơ bản */}
+          <StatCards profileData={profileData} />
 
-      {/* Upcoming Appointment */}
-      <UpcomingAppointment appointmentsData={appointmentsData?.data} />
+          {/* Các thẻ chỉ số sức khỏe */}
+          <VitalCards latestData={latestData} />
+        </div>
+
+        {/* Cột phải */}
+        <div className="flex flex-col gap-3 md:col-span-5 md:gap-6 lg:col-span-4">
+          <Link to="/patient/appointments">
+            <Button
+              variant="teal_primary"
+              className="flex h-14 w-full rounded-3xl transition-transform active:scale-[0.98]">
+              <CalendarPlus strokeWidth="2.5" className="size-5" />
+              <span className="text-base font-semibold">Đặt lịch khám</span>
+            </Button>
+          </Link>
+
+          <h3 className="text-lg font-bold text-slate-900">Lịch hẹn sắp tới</h3>
+
+          <div className="flex flex-col">
+            {appointmentsData?.data && appointmentsData.data.length > 0 ? (
+              appointmentsData.data
+                .slice(0, 1)
+                .map((appt) => (
+                  <AppointmentCard key={appt.id} appointment={appt} />
+                ))
+            ) : (
+              <p className="text-center text-gray-500">
+                Không có lịch hẹn nào sắp tới.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

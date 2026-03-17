@@ -12,7 +12,6 @@ const routeToTab = (pathname: string) => {
   if (pathname.startsWith('/patient/appointments')) return 'appointments'
   if (pathname.startsWith('/patient/records')) return 'records'
   if (pathname.startsWith('/patient/notifications')) return 'notifications'
-  if (pathname.startsWith('/patient/patients')) return 'patients'
   if (pathname.startsWith('/patient/chat')) return 'chat'
   if (pathname.startsWith('/patient/profile')) return 'profile'
   return 'home'

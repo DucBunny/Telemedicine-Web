@@ -23,7 +23,7 @@ export const PatientSidebar = ({
   activeTab,
   unreadCount,
 }: PatientSidebarProps) => {
-  const { data } = useGetPatientProfile()
+  const { data: patientProfile } = useGetPatientProfile()
   const renderNav = (items: Array<NavItem>) => (
     <SidebarMenu>
       {items.map(({ id, icon: Icon, label, href }) => (
@@ -33,15 +33,15 @@ export const PatientSidebar = ({
             isActive={activeTab === id}
             tooltip={label}
             className={cn(
-              'h-12 gap-3 rounded-lg px-4 py-3.5 font-medium text-gray-500 hover:bg-gray-50 hover:text-teal-600',
+              'hover:text-teal-primary h-12 gap-3 rounded-lg px-4 py-3.5 font-medium text-gray-500 hover:bg-gray-50',
               'data-[active=true]:bg-teal-50 data-[active=true]:text-teal-700 data-[active=true]:shadow-sm',
               'group-data-[collapsible=icon]:justify-center',
             )}>
             <Link to={href}>
               <Icon
                 className={cn(
-                  'size-5! shrink-0 text-gray-400 group-hover/menu-item:text-teal-600',
-                  activeTab === id && 'text-teal-600',
+                  'group-hover/menu-item:text-teal-primary size-5! shrink-0 text-gray-400',
+                  activeTab === id && 'text-teal-primary',
                 )}
               />
               <span
@@ -78,15 +78,17 @@ export const PatientSidebar = ({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center rounded-xl py-3 group-data-[collapsible=icon]:justify-center group-data-[state=expanded]:bg-gray-50 group-data-[state=expanded]:px-3">
             <img
-              src={data?.user.avatar}
+              src={patientProfile?.user.avatar}
               alt="Avatar"
               className="h-10 w-10 rounded-full"
             />
             <div className="ml-3 overflow-hidden group-data-[collapsible=icon]:hidden">
               <p className="truncate text-sm font-semibold text-gray-900">
-                {data?.user.fullName}
+                {patientProfile?.user.fullName}
               </p>
-              <p className="text-xs text-gray-500">Mã: BN-{data?.userId}</p>
+              <p className="text-xs text-gray-500">
+                Mã: BN-{patientProfile?.userId}
+              </p>
             </div>
           </SidebarMenuItem>
         </SidebarMenu>

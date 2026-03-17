@@ -31,7 +31,7 @@ export const ProfileCard = ({ profileData, unreadCount }: ProfileCardProps) => {
         <Button
           variant="outline"
           size="icon-lg"
-          className="hover:text-teal-primary rounded-full border border-slate-200 bg-white backdrop-blur-sm transition hover:bg-white/30">
+          className="hover:text-teal-primary rounded-full border-slate-200 bg-white hover:bg-white/30">
           <Bell size={22} />
           {unreadCount && unreadCount > 0 && (
             <span className="absolute top-2.5 right-2.5 size-2 rounded-full bg-red-500"></span>
