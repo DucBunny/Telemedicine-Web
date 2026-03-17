@@ -14,7 +14,7 @@ import reportWebVitals from './reportWebVitals.ts'
 // Create a new router instance
 
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
-const router = createRouter({
+export const router = createRouter({
   routeTree,
   context: {
     ...TanStackQueryProviderContext,

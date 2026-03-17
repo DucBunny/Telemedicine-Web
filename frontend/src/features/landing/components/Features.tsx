@@ -1,5 +1,5 @@
-import { FEATURES_LIST } from '../config'
-import featuresImg from '../assets/features-img.png'
+import { FEATURES_LIST } from '@/features/landing/config'
+import featuresImg from '@/features/landing/assets/features-img.png'
 
 export const Features = () => (
   <section id="features" className="scroll-mt-20 bg-gray-50 py-24">

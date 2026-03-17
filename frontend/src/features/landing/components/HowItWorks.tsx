@@ -1,5 +1,5 @@
-import { PROCESS_STEPS } from '../config'
-import { SectionTitle } from './SectionTitle'
+import { SectionTitle } from '@/features/landing/components/SectionTitle'
+import { PROCESS_STEPS } from '@/features/landing/config'
 
 export const HowItWorks = () => (
   <section

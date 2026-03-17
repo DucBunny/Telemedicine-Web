@@ -1,13 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { authApi } from '../api/auth.api'
-import { roleToPath } from '../config'
 import type {
   LoginRequestDto,
   LoginResponseDto,
   RegisterRequestDto,
-} from '../dto/auth.dto'
+} from '@/features/auth/dto/auth.dto'
+import { authApi } from '@/features/auth/api/auth.api'
+import { roleToPath } from '@/features/auth/config'
 import { useAuthStore } from '@/stores/auth.store'
 import { getErrorMessage } from '@/lib/axios'
 import { Route as LoginRoute } from '@/routes/(public)/login'
@@ -23,7 +23,7 @@ export const useLoginMutation = () => {
     onSuccess: (data: LoginResponseDto) => {
       setAuth(data.accessToken, data.user)
       const nextPath = redirect ?? roleToPath[data.user.role]
-      navigate({ to: nextPath })
+      navigate({ to: nextPath, replace: true })
       toast.success('Đăng nhập thành công!')
     },
     onError: (error) => {

@@ -1,15 +1,16 @@
 import { useForm } from '@tanstack/react-form'
-import { Lock, Mail } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { LockKeyhole, SquarePlus, User } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { loginSchema } from '../schemas'
-import { useLoginMutation } from '../hooks/useAuthMutations'
-import type { LoginFormData } from '../schemas'
-import { InputField } from '@/components/InputField'
+import type { LoginFormData } from '@/features/auth/schemas'
+import { loginSchema } from '@/features/auth/schemas'
+import { useLoginMutation } from '@/features/auth/hooks/useAuthMutations'
+import { InputField } from '@/components/form/InputField'
 import { Button } from '@/components/ui/button'
 import { getErrorMessage } from '@/lib/axios'
 
 export const LoginForm = () => {
+  const navigate = useNavigate()
   const loginMutation = useLoginMutation()
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -34,13 +35,16 @@ export const LoginForm = () => {
   })
 
   return (
-    <div className="mx-auto w-full max-w-md">
-      <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">
-          Chào mừng trở lại!
-        </h1>
-        <p className="text-gray-500">
-          Vui lòng đăng nhập để tiếp tục theo dõi sức khỏe.
+    <div className="mx-auto w-full max-w-md lg:my-auto">
+      <div className="mt-2 mb-6 text-center">
+        <div className="text-teal-primary mb-4 inline-flex size-16 items-center justify-center rounded-full bg-teal-100/50 lg:hidden">
+          <SquarePlus strokeWidth="2.5" />
+        </div>
+        <h2 className="mb-2 text-2xl font-bold text-slate-800 md:text-3xl dark:text-slate-100">
+          Chào mừng trở lại
+        </h2>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Vui lòng đăng nhập để quản lý hồ sơ sức khỏe
         </p>
       </div>
 
@@ -50,17 +54,17 @@ export const LoginForm = () => {
           e.stopPropagation()
           form.handleSubmit()
         }}
-        className="space-y-4">
+        className="flex-1 space-y-4">
         <form.Field
           name="username"
           children={(field) => (
             <InputField
-              label="Email hoặc Số điện thoại"
-              type="text"
+              label="Tài khoản"
+              leftIcon={User}
               placeholder="Nhập email hoặc số điện thoại"
-              icon={Mail}
               field={field}
               onChange={() => setFormError(null)}
+              className="h-12"
             />
           )}
         />
@@ -71,11 +75,12 @@ export const LoginForm = () => {
             children={(field) => (
               <InputField
                 label="Mật khẩu"
-                type="password"
+                leftIcon={LockKeyhole}
                 placeholder="••••••••"
-                icon={Lock}
+                type="password"
                 field={field}
                 onChange={() => setFormError(null)}
+                className="h-12"
               />
             )}
           />
@@ -85,43 +90,44 @@ export const LoginForm = () => {
           )}
         </div>
 
-        <div className="mb-6 flex items-center justify-end">
+        <div className="flex justify-end">
           <Link
             to="/"
-            className="text-teal-primary text-sm font-medium transition-colors hover:text-teal-700">
+            className="text-teal-primary text-sm font-medium transition-colors hover:text-teal-700 hover:underline">
             Quên mật khẩu?
           </Link>
         </div>
 
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
-            <Button
-              type="submit"
-              size="lg"
-              variant="teal_primary"
-              disabled={!canSubmit || loginMutation.isPending}
-              className={`w-full rounded-xl text-sm font-bold shadow-md shadow-teal-200 transition-colors ${
-                !canSubmit
-                  ? 'cursor-not-allowed opacity-50'
-                  : 'hover:bg-teal-700'
-              }`}>
-              {isSubmitting || loginMutation.isPending
-                ? 'Đang xử lý...'
-                : 'Đăng nhập'}
-            </Button>
-          )}
-        />
+        <div className="pt-4">
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                variant="teal_primary"
+                disabled={!canSubmit || loginMutation.isPending}
+                className={`h-14 w-full rounded-xl text-lg! font-bold hover:-translate-y-0.5 ${
+                  !canSubmit ? 'cursor-not-allowed opacity-50' : ''
+                }`}>
+                {isSubmitting || loginMutation.isPending
+                  ? 'Đang xử lý...'
+                  : 'Đăng nhập'}
+              </Button>
+            )}
+          />
+        </div>
       </form>
 
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-500">
+      <div className="mt-8 border-t border-slate-200 pt-6 text-center">
+        <p className="text-base text-slate-500">
           Chưa có tài khoản?{' '}
-          <Link
-            to="/register"
-            className="text-teal-primary font-bold transition-colors hover:text-teal-700">
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() => navigate({ to: '/register' })}
+            className="text-teal-primary p-0 text-base! font-bold">
             Đăng ký ngay
-          </Link>
+          </Button>
         </p>
       </div>
     </div>

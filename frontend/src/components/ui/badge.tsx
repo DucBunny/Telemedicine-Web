@@ -6,7 +6,7 @@ import type { VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] md:text-xs [&>svg]:pointer-events-none [&>svg]:size-3',
+  'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] md:text-xs [&>svg]:pointer-events-none [&>svg]:size-3',
   {
     variants: {
       variant: {
@@ -18,6 +18,20 @@ const badgeVariants = cva(
           'bg-destructive [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 border-transparent text-white',
         outline:
           'text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground',
+        teal_outline: 'border-teal-500/50 bg-teal-50 text-teal-600',
+        purple_outline: 'border-purple-500/50 bg-purple-50 text-purple-600',
+        orange_outline: 'border-orange-500/50 bg-orange-50 text-orange-600',
+        red_outline: 'border-red-500/50 bg-red-50 text-red-600',
+        green_outline: 'border-green-500/50 bg-green-50 text-green-600',
+
+        blue_blur:
+          'border-transparent bg-blue-100/50 text-blue-700 backdrop-blur-sm',
+        red_blur:
+          'border-transparent bg-red-100/50 text-red-700 backdrop-blur-sm',
+        teal_blur:
+          'border-transparent bg-teal-100/50 text-teal-700 backdrop-blur-sm',
+        purple_blur:
+          'border-transparent bg-purple-100/50 text-purple-700 backdrop-blur-sm',
       },
     },
     defaultVariants: {

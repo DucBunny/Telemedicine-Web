@@ -1,4 +1,4 @@
-import type { UserRole } from './types/auth.types'
+import type { UserRole } from '@/features/auth/types/auth.types'
 
 export const roleToPath: Record<UserRole, string> = {
   admin: '/admin',

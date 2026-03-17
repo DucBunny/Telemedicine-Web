@@ -4,7 +4,7 @@ import type {
   RefreshTokenResponseDto,
   RegisterRequestDto,
   RegisterResponseDto,
-} from '../dto/auth.dto'
+} from '@/features/auth/dto/auth.dto'
 import type {
   ApiSuccessOnlyResponse,
   ApiSuccessResponse,

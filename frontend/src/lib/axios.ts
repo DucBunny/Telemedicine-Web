@@ -1,10 +1,10 @@
 import axios from 'axios'
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import type { ApiErrorResponse } from '@/types/api.type'
 import {
   getSystemErrorMessage,
   getVietnameseErrorMessage,
-} from './error-messages'
-import type { AxiosError, InternalAxiosRequestConfig } from 'axios'
-import type { ApiErrorResponse } from '@/types/api.type'
+} from '@/lib/error-messages'
 import { useAuthStore } from '@/stores/auth.store'
 
 export const apiClient = axios.create({
@@ -17,11 +17,7 @@ export const apiClient = axios.create({
 })
 
 // Auth endpoints không cần auto-refresh token khi gặp 401
-const AUTH_ENDPOINTS_NO_RETRY = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/refresh-token',
-]
+const AUTH_ENDPOINTS_NO_RETRY = ['/login', '/register', '/refresh-token']
 
 let isRefreshing = false // Cờ đánh dấu đang trong quá trình lấy token mới
 let failedQueue: Array<{
@@ -35,6 +31,14 @@ let failedQueue: Array<{
 const isAuthEndpoint = (url?: string): boolean => {
   if (!url) return false
   return AUTH_ENDPOINTS_NO_RETRY.some((endpoint) => url.includes(endpoint))
+}
+
+/**
+ * Kiểm tra xem route hiện tại có phải public route không
+ */
+const isPublicRoute = (pathname: string): boolean => {
+  const publicRoutes = ['/login', '/register', '/', '/unauthorized']
+  return publicRoutes.includes(pathname)
 }
 
 /**
@@ -80,7 +84,17 @@ const handleRefreshToken = async (
   } catch (refreshError) {
     processQueue(refreshError as Error)
     useAuthStore.getState().clearAuth()
-    window.location.href = '/login'
+    const { router } = await import('@/main')
+
+    // Chỉ redirect về login nếu không phải đang ở public route
+    if (!isPublicRoute(router.state.location.pathname)) {
+      router.navigate({
+        to: '/login',
+        search: { redirect: router.state.location.href },
+        replace: true,
+      })
+    }
+
     throw refreshError
   } finally {
     isRefreshing = false
@@ -121,6 +135,16 @@ apiClient.interceptors.response.use(
       // Clear auth nếu refresh token endpoint bị 401
       if (is401 && originalRequest.url?.includes('/auth/refresh-token')) {
         useAuthStore.getState().clearAuth()
+        const { router } = await import('@/main')
+
+        // Chỉ redirect về login nếu không phải đang ở public route
+        if (!isPublicRoute(router.state.location.pathname)) {
+          router.navigate({
+            to: '/login',
+            search: { redirect: router.state.location.href },
+            replace: true,
+          })
+        }
       }
       return Promise.reject(error)
     }

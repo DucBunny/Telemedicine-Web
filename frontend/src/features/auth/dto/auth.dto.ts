@@ -1,4 +1,4 @@
-import type { AuthUser } from '../types/auth.types'
+import type { AuthUser } from '@/features/auth/types/auth.types'
 
 export interface LoginRequestDto {
   username: string

@@ -6,7 +6,7 @@ import type { VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md text-[10px] font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 md:text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-md text-xs font-medium whitespace-nowrap transition-all outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 md:text-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -15,15 +15,19 @@ const buttonVariants = cva(
           'bg-destructive hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 text-white',
         outline:
           'bg-background hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 border shadow-xs',
-        secondary: 'bg-secondary text-secondary-foreground hover:bg-gray-200',
+        secondary: 'bg-secondary text-gray-600 hover:bg-gray-200',
         ghost:
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
         icon: 'bg-transparent p-0',
         teal_primary:
-          'bg-teal-600 text-white hover:bg-teal-700 focus-visible:ring-teal-300',
+          'bg-teal-primary hover:bg-teal-primary-foreground focus-visible:ring-teal-primary/50 text-white',
         teal_secondary:
-          'bg-teal-50 text-teal-600 hover:bg-teal-100/70 focus-visible:ring-teal-300',
+          'text-teal-primary bg-teal-50 hover:bg-teal-100/70 focus-visible:ring-teal-300',
+        teal_outline:
+          'border-teal-primary text-teal-primary border bg-transparent hover:bg-teal-100/50 focus-visible:ring-teal-300',
+        red_blur:
+          'border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

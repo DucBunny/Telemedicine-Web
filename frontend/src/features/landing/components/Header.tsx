@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, easeInOut, motion } from 'framer-motion'
 import { ArrowRight, Menu, X } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
-import { NAV_LINKS } from '../config'
+import { NAV_LINKS } from '@/features/landing/config'
 import { Button } from '@/components/ui/button'
 
 export const Header = () => {
@@ -202,7 +202,7 @@ export const Header = () => {
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-foreground text-background hover:bg-foreground/90 block w-full rounded-lg py-3 text-center font-medium transition-all duration-200"
+                    className="bg-teal-primary text-background hover:bg-teal-primary-foreground block w-full rounded-lg py-3 text-center font-medium transition-all duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}>
                     Đăng ký
                   </Link>

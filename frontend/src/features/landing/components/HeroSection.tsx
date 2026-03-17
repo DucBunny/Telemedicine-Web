@@ -2,15 +2,13 @@ import { Link } from '@tanstack/react-router'
 import {
   Activity,
   ArrowRight,
-  Github,
   Heart,
-  LayoutDashboard,
   MessageCircle,
   Sparkles,
   User,
   Wifi,
 } from 'lucide-react'
-import { HERO_STATS } from '../config'
+import { HERO_STATS } from '@/features/landing/config'
 
 export const HeroSection = () => {
   return (
@@ -46,7 +44,7 @@ export const HeroSection = () => {
             <Link
               to="/login"
               className="flex items-center justify-center gap-2 rounded-full bg-teal-600 px-8 py-4 text-lg font-bold text-white shadow-xl shadow-teal-200 transition hover:bg-teal-700">
-              Bắt đầu ngay <ArrowRight size={20} />
+              Bắt đầu ngay <ArrowRight className="size-6" strokeWidth="2.5" />
             </Link>
           </div>
 

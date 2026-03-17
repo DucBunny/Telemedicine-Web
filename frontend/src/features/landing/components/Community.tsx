@@ -1,6 +1,6 @@
-import { COMMUNITY_CARDS } from '../config'
-import { SectionTitle } from './SectionTitle'
-import { CommunityCard } from './Community/CommunityCard'
+import { SectionTitle } from '@/features/landing/components/SectionTitle'
+import { CommunityCard } from '@/features/landing/components/CommunityCard'
+import { COMMUNITY_CARDS } from '@/features/landing/config'
 
 export const Community = () => (
   <section id="community" className="scroll-mt-20 bg-white py-24">

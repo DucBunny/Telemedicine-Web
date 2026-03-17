@@ -26,6 +26,7 @@ export function requireAuth({ location, roles }: RequireAuthOptions) {
     throw redirect({
       to: '/login',
       search: { redirect: location.href },
+      replace: true,
     })
   }
 
