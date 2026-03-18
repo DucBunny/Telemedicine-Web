@@ -5,7 +5,7 @@ import { requireAuth } from '@/lib/route-guards'
 export const Route = createFileRoute('/admin')({
   beforeLoad: (opts) =>
     requireAuth({ location: opts.location, roles: ['admin'] }),
-  component: DoctorLayoutRoute,
+  component: AdminLayoutRoute,
 })
 
 const routeToTab = (pathname: string) => {
@@ -15,7 +15,7 @@ const routeToTab = (pathname: string) => {
   return 'dashboard'
 }
 
-function DoctorLayoutRoute() {
+function AdminLayoutRoute() {
   const { pathname } = useLocation()
   const activeTab = routeToTab(pathname)
 

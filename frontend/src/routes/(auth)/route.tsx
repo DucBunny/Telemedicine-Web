@@ -1,7 +1,7 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 import { AuthLayout } from '@/features/auth/pages/AuthPage'
 
-export const Route = createFileRoute('/(public)')({
+export const Route = createFileRoute('/(auth)')({
   component: AuthLayoutRoute,
 })
 

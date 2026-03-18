@@ -10,7 +10,7 @@ import { authApi } from '@/features/auth/api/auth.api'
 import { roleToPath } from '@/features/auth/config'
 import { useAuthStore } from '@/stores/auth.store'
 import { getErrorMessage } from '@/lib/axios'
-import { Route as LoginRoute } from '@/routes/(public)/login'
+import { Route as LoginRoute } from '@/routes/(auth)/login'
 
 export const useLoginMutation = () => {
   const setAuth = useAuthStore((s) => s.setAuth)

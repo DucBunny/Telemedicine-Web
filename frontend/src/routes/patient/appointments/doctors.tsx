@@ -1,17 +1,13 @@
 ﻿import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
 import { DoctorSelectionPage } from '@/features/patient/pages/appointments/DoctorSelectionPage'
 
-interface DoctorsSearchParams {
-  specialtyId?: number
-  specialtyName?: string
-}
+const doctorsSearchSchema = z.object({
+  specialtyId: z.number(),
+  specialtyName: z.string(),
+})
 
 export const Route = createFileRoute('/patient/appointments/doctors')({
-  validateSearch: (search: Record<string, unknown>): DoctorsSearchParams => {
-    return {
-      specialtyId: Number(search.specialtyId) || undefined,
-      specialtyName: (search.specialtyName as string) || undefined,
-    }
-  },
+  validateSearch: doctorsSearchSchema.partial(), // Partial: all fields are optional, allowing for more flexible navigation
   component: DoctorSelectionPage,
 })

@@ -1,17 +1,13 @@
 ﻿import { createFileRoute } from '@tanstack/react-router'
+import z from 'zod'
 import { TimeSelectionPage } from '@/features/patient/pages/appointments/TimeSelectionPage'
 
-interface TimePickerSearchParams {
-  doctorId?: number
-  specialtyId?: number
-}
+const timeSearchSchema = z.object({
+  doctorId: z.number(),
+  specialtyId: z.number(),
+})
 
 export const Route = createFileRoute('/patient/appointments/time')({
-  validateSearch: (search: Record<string, unknown>): TimePickerSearchParams => {
-    return {
-      doctorId: Number(search.doctorId) || undefined,
-      specialtyId: Number(search.specialtyId) || undefined,
-    }
-  },
+  validateSearch: timeSearchSchema.partial(),
   component: TimeSelectionPage,
 })
