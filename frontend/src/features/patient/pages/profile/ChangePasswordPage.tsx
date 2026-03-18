@@ -1,0 +1,137 @@
+import { useNavigate } from '@tanstack/react-router'
+import { useForm } from '@tanstack/react-form'
+import { CircleCheck, LockKeyhole, LockKeyholeOpen, Save } from 'lucide-react'
+import { z } from 'zod'
+import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
+import { Button } from '@/components/ui/button'
+import { InputField } from '@/components/form/InputField'
+import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
+
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
+    newPassword: z.string(),
+    // .min(8, 'Mật khẩu mới phải có ít nhất 8 ký tự')
+    // .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ in hoa')
+    // .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
+    // .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 chữ số'),
+    confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword'],
+  })
+
+type ChangePasswordForm = z.infer<typeof changePasswordSchema>
+
+export const ChangePasswordPage = () => {
+  useHideMobileNav()
+  const navigate = useNavigate()
+
+  const form = useForm({
+    defaultValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    } as ChangePasswordForm,
+    validators: {
+      onChange: changePasswordSchema,
+    },
+    onSubmit: ({ value }) => {
+      console.log('Submit thay đổi mật khẩu:', {
+        currentPassword: value.currentPassword,
+        newPassword: value.newPassword,
+      })
+      // Sau khi đổi mật khẩu thành công, quay lại profile
+      navigate({ to: '/patient/profile' })
+    },
+  })
+
+  return (
+    <div className="h-dvh bg-white px-4">
+      <ChildPageHeader
+        title="Đổi mật khẩu"
+        onBack={() => navigate({ to: '/patient/profile' })}
+      />
+
+      <main className="space-y-3">
+        <div className="flex justify-center py-3">
+          <div className="flex size-22 items-center justify-center rounded-full bg-teal-100/50">
+            <span className="material-symbols-outlined text-teal-primary text-5xl!">
+              lock_reset
+            </span>
+          </div>
+        </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            form.handleSubmit()
+          }}
+          className="space-y-3 pb-23">
+          <form.Field
+            name="currentPassword"
+            children={(field) => (
+              <InputField
+                label="Mật khẩu hiện tại"
+                leftIcon={LockKeyhole}
+                placeholder="Nhập mật khẩu hiện tại"
+                field={field}
+                type="password"
+                className="h-12"
+              />
+            )}
+          />
+
+          <form.Field
+            name="newPassword"
+            children={(field) => (
+              <InputField
+                label="Mật khẩu mới"
+                leftIcon={LockKeyholeOpen}
+                placeholder="Nhập mật khẩu mới"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                type="password"
+                className="h-12"
+              />
+            )}
+          />
+
+          <form.Field
+            name="confirmPassword"
+            children={(field) => (
+              <InputField
+                label="Xác nhận mật khẩu"
+                leftIcon={CircleCheck}
+                placeholder="Nhập lại mật khẩu mới"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                type="password"
+                className="h-12"
+              />
+            )}
+          />
+
+          {/* Fixed Bottom Button */}
+          <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:hidden">
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  variant="teal_primary"
+                  disabled={!canSubmit || isSubmitting}
+                  className="h-12 w-full rounded-full text-base font-bold active:scale-[0.98]">
+                  <Save className="size-5.5" strokeWidth="2.5" />
+                  {isSubmitting ? 'Đang lưu...' : ' Lưu thay đổi'}
+                </Button>
+              )}
+            />
+          </div>
+        </form>
+      </main>
+    </div>
+  )
+}

@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 
-interface NotificationDetailModalProps {
+interface NotificationDetailDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   notification: NotificationItemData | null
@@ -19,7 +19,7 @@ export const NotificationDetailDialog = ({
   isOpen,
   onOpenChange,
   notification,
-}: NotificationDetailModalProps) => {
+}: NotificationDetailDialogProps) => {
   if (!notification) return null
 
   const getCategoryStyles = (category: NotificationCategory) => {

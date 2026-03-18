@@ -71,6 +71,7 @@ export const EditProfilePage = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault()
+          e.stopPropagation()
           form.handleSubmit()
         }}
         className="space-y-3 pb-23">
@@ -168,19 +169,24 @@ export const EditProfilePage = () => {
             />
           )}
         />
-      </form>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:hidden">
-        <Button
-          type="submit"
-          variant="teal_primary"
-          onClick={() => form.handleSubmit()}
-          className="h-12 w-full rounded-full text-base font-bold active:scale-[0.98]">
-          <Check className="size-5.5" strokeWidth="2.5" />
-          Lưu thay đổi
-        </Button>
-      </div>
+        {/* Fixed Bottom Button */}
+        <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:hidden">
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                variant="teal_primary"
+                disabled={!canSubmit || isSubmitting}
+                className="h-12 w-full rounded-full text-base font-bold active:scale-[0.98]">
+                <Check className="size-5.5" strokeWidth="2.5" />
+                Lưu thay đổi
+              </Button>
+            )}
+          />
+        </div>
+      </form>
     </div>
   )
 }

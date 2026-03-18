@@ -1,6 +1,7 @@
 import { Cake, MapPin, Phone } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Patient } from '@/features/patient/types'
+import { formatShortDate } from '@/lib/format-date'
 import { genderOptions } from '@/components/form/GenderSelect'
 import { cn } from '@/lib/utils'
 
@@ -19,7 +20,11 @@ export const ProfileInfoGrid = ({ patient }: ProfileInfoGridProps) => {
   return (
     <div className="grid grid-cols-2 gap-3">
       {/* Ngày sinh */}
-      <InfoCard icon={Cake} label="Ngày sinh" data={patient?.dateOfBirth} />
+      <InfoCard
+        icon={Cake}
+        label="Ngày sinh"
+        data={formatShortDate(patient?.dateOfBirth || '')}
+      />
 
       {/* Giới tính */}
       <InfoCard

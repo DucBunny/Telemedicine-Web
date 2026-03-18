@@ -26,7 +26,7 @@ export const FilterChips = ({
           onClick={() => onSelect(filter.id)}
           variant={isActive ? 'teal_primary' : 'outline'}
           size="sm"
-          className="rounded-full font-semibold whitespace-nowrap">
+          className="rounded-full font-semibold whitespace-nowrap first:ms-4 last:me-4">
           {filter.label}
         </Button>
       )

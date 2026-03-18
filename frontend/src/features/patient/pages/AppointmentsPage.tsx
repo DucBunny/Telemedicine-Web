@@ -58,7 +58,6 @@ export const AppointmentsPage = () => {
       <SpecialtyPickerDialog
         isOpen={bookingOpen}
         onOpenChange={setBookingOpen}
-        useNavigation={true}
       />
     </div>
   )

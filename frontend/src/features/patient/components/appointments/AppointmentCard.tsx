@@ -1,9 +1,9 @@
 import { CalendarDays, Clock, MapPin, Video } from 'lucide-react'
 import { useState } from 'react'
-import { STATUS_FILTER_OPTIONS } from '../../config'
-import { AppointmentDetailDialog } from './AppointmentDetailDialog'
-import { CancelAppointmentModal } from './CancelAppointmentDialog'
-import type { Appointment } from '../../types'
+import type { Appointment } from '@/features/patient/types'
+import { AppointmentDetailDialog } from '@/features/patient/components/appointments/AppointmentDetailDialog'
+import { CancelAppointmentDialog } from '@/features/patient/components/appointments/CancelAppointmentDialog'
+import { STATUS_FILTER_OPTIONS } from '@/features/patient/config'
 import { formatLongDate, formatTime } from '@/lib/format-date'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -20,7 +20,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const isShowCancelButton =
     appointment.status === 'cancelled' || appointment.status === 'completed'
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
@@ -96,19 +96,19 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
           className="flex-1 rounded-xl text-sm"
           onClick={() => {
             setSelectedAppointment(appointment)
-            setIsModalOpen(true)
+            setIsDetailDialogOpen(true)
           }}>
           {isShowCancelButton ? 'Xem chi tiết' : 'Chi tiết'}
         </Button>
       </div>
 
       <AppointmentDetailDialog
-        isOpen={isModalOpen}
-        onOpenChange={() => setIsModalOpen(false)}
+        isOpen={isDetailDialogOpen}
+        onOpenChange={() => setIsDetailDialogOpen(false)}
         appointment={selectedAppointment}
       />
 
-      <CancelAppointmentModal
+      <CancelAppointmentDialog
         isOpen={isCancelDialogOpen}
         onOpenChange={() => setIsCancelDialogOpen(false)}
       />

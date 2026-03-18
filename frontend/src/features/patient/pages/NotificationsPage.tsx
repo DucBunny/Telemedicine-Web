@@ -23,7 +23,7 @@ export const NotificationsPage = () => {
     useState<Array<NotificationItemData>>(MOCK_NOTIFICATIONS)
   const [selectedNotification, setSelectedNotification] =
     useState<NotificationItemData | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
 
   const handleBack = () => {
     router.history.back()
@@ -66,7 +66,7 @@ export const NotificationsPage = () => {
               data={noti}
               onClick={(id) => {
                 handleNotificationClick(id)
-                setIsModalOpen(true)
+                setIsDetailDialogOpen(true)
               }}
             />
           ))
@@ -84,8 +84,8 @@ export const NotificationsPage = () => {
       </main>
 
       <NotificationDetailDialog
-        isOpen={isModalOpen}
-        onOpenChange={() => setIsModalOpen(false)}
+        isOpen={isDetailDialogOpen}
+        onOpenChange={() => setIsDetailDialogOpen(false)}
         notification={selectedNotification}
       />
     </div>

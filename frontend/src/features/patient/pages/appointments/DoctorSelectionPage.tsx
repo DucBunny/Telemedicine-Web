@@ -68,26 +68,28 @@ export const DoctorSelectionPage = () => {
   })
 
   return (
-    <div className="px-4">
-      <ChildPageHeader
-        title={specialtyName ? `Bác sĩ ${specialtyName}` : `Chọn bác sĩ`}
-        onBack={handleBack}
-      />
+    <>
+      <div className="px-4">
+        <ChildPageHeader
+          title={specialtyName ? `Bác sĩ ${specialtyName}` : `Chọn bác sĩ`}
+          onBack={handleBack}
+        />
 
-      <div className="space-y-3">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder="Tìm tên bác sĩ..."
         />
+      </div>
 
+      <div className="my-3 space-y-3">
         <FilterChips
           filters={FILTERS}
           activeFilter={activeFilter}
           onSelect={setActiveFilter}
         />
 
-        <div className="space-y-3">
+        <div className="space-y-3 px-4">
           {!USE_MOCK_DATA && isLoading ? (
             <div className="mt-6 text-center text-base text-gray-400">
               Đang tải...
@@ -107,6 +109,6 @@ export const DoctorSelectionPage = () => {
           )}
         </div>
       </div>
-    </div>
+    </>
   )
 }

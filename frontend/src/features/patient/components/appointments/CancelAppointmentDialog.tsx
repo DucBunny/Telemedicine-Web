@@ -16,7 +16,7 @@ export interface CancelReasonData {
   note: string
 }
 
-interface CancelAppointmentModalProps {
+interface CancelAppointmentDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -47,10 +47,10 @@ const cancelFormSchema = z
     },
   )
 
-export const CancelAppointmentModal = ({
+export const CancelAppointmentDialog = ({
   isOpen,
   onOpenChange,
-}: CancelAppointmentModalProps) => {
+}: CancelAppointmentDialogProps) => {
   const form = useForm({
     defaultValues: {
       reason: '',

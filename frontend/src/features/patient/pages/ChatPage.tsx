@@ -196,7 +196,7 @@ export const ChatPage = () => {
   )
 
   return (
-    <div className="flex h-full flex-col">
+    <>
       <div className="px-4">
         {/* Header */}
         <MainPageHeader
@@ -219,7 +219,7 @@ export const ChatPage = () => {
         />
       </div>
 
-      <div className="mt-3 flex-1 space-y-3">
+      <div className="mt-3 space-y-3">
         {MOCK_CHATS.length > 0 ? (
           <>
             {/* Chỉ hiển thị Recent Doctors nếu không đang tìm kiếm */}
@@ -250,6 +250,6 @@ export const ChatPage = () => {
           />
         )}
       </div>
-    </div>
+    </>
   )
 }

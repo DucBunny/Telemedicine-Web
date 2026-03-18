@@ -13,30 +13,21 @@ import { Button } from '@/components/ui/button'
 interface SpecialtyPickerDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  onSelect?: (specialty: Specialty) => void
-  useNavigation?: boolean
 }
 
 export const SpecialtyPickerDialog = ({
   isOpen,
   onOpenChange,
-  onSelect,
-  useNavigation = false,
 }: SpecialtyPickerDialogProps) => {
   const { data: specialtiesData } = useGetSpecialties()
   const navigate = useNavigate()
 
   const handleSelect = (specialty: Specialty) => {
-    if (useNavigation) {
-      navigate({
-        to: '/patient/appointments/doctors',
-        search: { specialtyId: specialty.id, specialtyName: specialty.name },
-      })
-      onOpenChange(false)
-    } else if (onSelect) {
-      onSelect(specialty)
-      onOpenChange(false)
-    }
+    navigate({
+      to: '/patient/appointments/doctors',
+      search: { specialtyId: specialty.id, specialtyName: specialty.name },
+    })
+    onOpenChange(false)
   }
 
   return (
