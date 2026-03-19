@@ -27,17 +27,20 @@ export const TimeSlotGrid = ({
 
   return (
     <div>
-      <div className="mb-3 flex items-center gap-2">
-        <Icon className={`size-5.5 ${iconColor}`} strokeWidth="2.5" />
-        <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
-          {title}
-        </h3>
-        <span className="ml-auto text-xs font-medium text-slate-500">
+      <div className="mb-3 flex items-center justify-between lg:flex-col lg:items-start xl:flex-row xl:items-center">
+        <div className="flex items-center gap-2">
+          <Icon className={`size-5.5 ${iconColor}`} strokeWidth="2.5" />
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">
+            {title}
+          </h3>
+        </div>
+
+        <span className="text-xs font-medium text-slate-500">
           ({availableSlots} slots trống)
         </span>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-3 lg:grid-cols-2">
         {slots.map((slot) => {
           const isSelected = selectedTime === slot.time
           return (

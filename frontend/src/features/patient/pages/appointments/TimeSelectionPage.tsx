@@ -1,6 +1,16 @@
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowRight, CloudSun, Sun } from 'lucide-react'
+import { ArrowRight, Clock, CloudSun, Sun } from 'lucide-react'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '../../../../components/ui/breadcrumb'
+import { useSidebar } from '../../../../components/ui/sidebar'
+import { cn } from '../../../../lib/utils'
 import type { TimeSlot } from '@/features/patient/components/appointments/TimeSlotGrid'
 import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
 import { Route } from '@/routes/patient/appointments/time'
@@ -35,6 +45,7 @@ export const TimeSelectionPage = () => {
 
   const navigate = useNavigate()
   const router = useRouter()
+  const { open } = useSidebar()
 
   const [visitType, setVisitType] = useState<'offline' | 'online'>('offline')
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -78,37 +89,74 @@ export const TimeSelectionPage = () => {
 
   return (
     <div className="px-4">
-      <ChildPageHeader title="Chọn ngày & giờ khám" onBack={handleBack} />
+      <ChildPageHeader
+        title="Chọn ngày & giờ khám"
+        onBack={handleBack}
+        breadcrumb={
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="font-semibold">
+                Chọn bác sĩ
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-teal-primary font-bold">
+                  Chọn ngày & giờ
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem className="font-semibold">
+                Xác nhận
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        }
+      />
 
-      <div className="space-y-3 pb-42 md:space-y-6">
-        <VisitTypeToggle value={visitType} onChange={setVisitType} />
+      <div className="space-y-3 pb-42 md:space-y-6 md:pb-36 lg:grid lg:grid-cols-3 lg:gap-4 lg:space-y-0 xl:gap-6">
+        <div className="space-y-3 md:space-y-6 lg:col-span-2">
+          <VisitTypeToggle value={visitType} onChange={setVisitType} />
 
-        <CalendarWidget
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-        />
+          <CalendarWidget
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+          />
+        </div>
 
-        <TimeSlotGrid
-          title="Buổi sáng"
-          icon={Sun}
-          iconColor="text-yellow-500"
-          slots={MORNING_SLOTS}
-          selectedTime={selectedTime}
-          onSelectTime={setSelectedTime}
-        />
+        <div className="space-y-3 md:space-y-6 lg:col-span-1 lg:rounded-2xl lg:border lg:border-gray-100 lg:bg-white lg:p-4 lg:shadow-sm xl:p-6">
+          <div className="mb-3 hidden items-center justify-center gap-2 xl:flex">
+            <Clock className="text-teal-primary size-6" />
+            <h2 className="text-lg font-bold text-slate-800 lg:text-base">
+              Chọn thời gian
+            </h2>
+          </div>
 
-        <TimeSlotGrid
-          title="Buổi chiều"
-          icon={CloudSun}
-          iconColor="text-orange-500"
-          slots={AFTERNOON_SLOTS}
-          selectedTime={selectedTime}
-          onSelectTime={setSelectedTime}
-        />
+          <TimeSlotGrid
+            title="Buổi sáng"
+            icon={Sun}
+            iconColor="text-yellow-500"
+            slots={MORNING_SLOTS}
+            selectedTime={selectedTime}
+            onSelectTime={setSelectedTime}
+          />
+
+          <TimeSlotGrid
+            title="Buổi chiều"
+            icon={CloudSun}
+            iconColor="text-orange-500"
+            slots={AFTERNOON_SLOTS}
+            selectedTime={selectedTime}
+            onSelectTime={setSelectedTime}
+          />
+        </div>
       </div>
 
       {/* Bottom Bar */}
-      <div className="fixed right-0 bottom-0 left-0 z-60 border-t border-slate-200 bg-white p-4 md:left-20 lg:hidden">
+      <div
+        className={cn(
+          'fixed right-0 bottom-0 left-0 z-60 border-t border-slate-200 bg-white p-4',
+          open ? 'lg:left-64' : 'md:left-20',
+        )}>
         <div className="mb-4 flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-xs font-medium text-slate-500 md:text-sm dark:text-slate-400">
@@ -127,13 +175,15 @@ export const TimeSelectionPage = () => {
             </span>
           </div>
         </div>
-        <Button
-          onClick={handleContinue}
-          variant="teal_primary"
-          className="flex h-12 w-full rounded-full text-base! font-bold transition-all active:scale-[0.98]">
-          Tiếp tục
-          <ArrowRight className="size-6" strokeWidth="2.5" />
-        </Button>
+        <div className="flex justify-center">
+          <Button
+            onClick={handleContinue}
+            variant="teal_primary"
+            className="flex h-12 w-full rounded-full text-base! font-bold transition-all active:scale-[0.98] sm:max-w-lg">
+            Tiếp tục
+            <ArrowRight className="size-6" strokeWidth="2.5" />
+          </Button>
+        </div>
       </div>
     </div>
   )

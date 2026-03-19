@@ -1,18 +1,12 @@
 import {
   ChevronRight,
   LockKeyhole,
-  LogOut,
   MonitorSmartphone,
   UserPen,
 } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 import type { LucideIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-
-interface ProfileSettingsSectionProps {
-  onLogout?: () => void
-  onSettingClick?: (settingId: string) => void
-}
 
 interface SettingOption {
   id: string
@@ -24,7 +18,7 @@ interface SettingOption {
 
 const SETTINGS_OPTIONS: Array<SettingOption> = [
   {
-    id: 'edit-info',
+    id: 'edit',
     icon: UserPen,
     label: 'Chỉnh sửa thông tin',
     iconBgClass: 'bg-blue-100',
@@ -46,21 +40,25 @@ const SETTINGS_OPTIONS: Array<SettingOption> = [
   },
 ]
 
-export const ProfileSettingsSection = ({
-  onLogout,
-  onSettingClick,
-}: ProfileSettingsSectionProps) => {
+export const SettingCard = () => {
+  const navigate = useNavigate()
+
   return (
-    <div className="space-y-3">
-      <h4 className="text-teal-primary text-base font-semibold tracking-tight uppercase">
-        Cài đặt chung
-      </h4>
-      <div className="divide-y divide-gray-200 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="border-b border-gray-200 bg-gray-50/50 p-4">
+        <h4 className="text-base font-semibold tracking-tight text-gray-500 uppercase">
+          Cài đặt tài khoản
+        </h4>
+      </div>
+
+      <div className="divide-y divide-gray-200">
         {SETTINGS_OPTIONS.map((option) => (
           <button
             key={option.id}
-            onClick={() => onSettingClick?.(option.id)}
-            className="flex w-full items-center justify-between p-4 text-left transition-colors hover:bg-gray-100">
+            onClick={() => {
+              navigate({ to: `/patient/profile/${option.id}` })
+            }}
+            className="flex w-full cursor-pointer items-center justify-between p-4 text-left transition-colors hover:bg-gray-100">
             <div className="flex items-center gap-3">
               <div
                 className={cn(
@@ -68,25 +66,14 @@ export const ProfileSettingsSection = ({
                   option.iconBgClass,
                   option.iconTextClass,
                 )}>
-                <option.icon className="text-xl" />
+                <option.icon className="size-6" />
               </div>
-              <span className="text-sm font-medium">{option.label}</span>
+              <span className="text-base font-medium">{option.label}</span>
             </div>
             <ChevronRight className="text-teal-primary" />
           </button>
         ))}
       </div>
-
-      {onLogout && (
-        <Button
-          onClick={onLogout}
-          size="lg"
-          variant="red_blur"
-          className="mt-3 h-12 w-full rounded-xl text-base font-bold transition-colors hover:bg-red-100">
-          <LogOut className="size-5" strokeWidth="2.5" />
-          Đăng xuất
-        </Button>
-      )}
     </div>
   )
 }

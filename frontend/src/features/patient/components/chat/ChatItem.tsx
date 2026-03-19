@@ -1,16 +1,22 @@
-import type { ChatMessage } from '@/features/patient/pages/ChatPage'
+import type { ChatMessage } from '@/features/patient/components/chat/ChatList'
 import { cn } from '@/lib/utils'
 
 interface ChatItemProps {
   chat: ChatMessage
   onClick: (id: string) => void
+  isActive?: boolean
 }
 
-export const ChatItem = ({ chat, onClick }: ChatItemProps) => {
+export const ChatItem = ({ chat, onClick, isActive }: ChatItemProps) => {
   return (
     <div
       onClick={() => onClick(chat.id)}
-      className="flex cursor-pointer items-center gap-3 rounded-xl py-3">
+      className={cn(
+        'flex cursor-pointer items-center gap-3 rounded-xl px-3 py-3 transition-colors',
+        isActive
+          ? 'bg-teal-100/30 hover:bg-teal-100/60'
+          : 'hover:bg-gray-100 active:bg-gray-200',
+      )}>
       {/* Avatar */}
       <div className="relative shrink-0">
         <img

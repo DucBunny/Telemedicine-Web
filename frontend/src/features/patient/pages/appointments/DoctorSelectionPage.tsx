@@ -1,5 +1,12 @@
-import { useNavigate, useRouter } from '@tanstack/react-router'
+import { Link, useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '../../../../components/ui/breadcrumb'
 import type { FilterOption } from '@/features/patient/components/appointments/FilterChips'
 import { Route } from '@/routes/patient/appointments/doctors'
 import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
@@ -73,6 +80,25 @@ export const DoctorSelectionPage = () => {
         <ChildPageHeader
           title={specialtyName ? `Bác sĩ ${specialtyName}` : `Chọn bác sĩ`}
           onBack={handleBack}
+          breadcrumb={
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="text-teal-primary font-bold">
+                    Chọn bác sĩ
+                  </BreadcrumbPage>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="font-semibold">
+                  Chọn ngày & giờ
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="font-semibold">
+                  Xác nhận
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          }
         />
 
         <SearchBar

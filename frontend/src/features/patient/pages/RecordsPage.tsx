@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { MedicalRecord } from '@/features/patient/components/medicalRecords/RecordCard'
+import { RecordTable } from '@/features/patient/components/medicalRecords/RecordTable'
 import { MainPageHeader } from '@/features/patient/components/common/PageHeader'
 import { SearchBar } from '@/features/patient/components/common/SearchBar'
 import {
@@ -72,6 +73,107 @@ const HISTORY_DATA: Array<MedicalRecord> = [
   },
 ]
 
+export const MOCK_RECORDS: Array<MedicalRecord> = [
+  {
+    id: '1',
+    date: '24/10/2023',
+    time: '09:30 AM',
+    doctor: {
+      name: 'BS. Trần Minh Nguyễn Nguyễn',
+      role: 'Trưởng khoa',
+      initials: 'TM',
+      avatarTheme: 'indigo',
+    },
+    specialty: 'Nội tổng quát',
+    specialtyTheme: 'blue',
+    diagnosis: 'Viêm họng cấp, sốt siêu vi. Kê đơn thuốc kháng sinh 5 ngày.',
+  },
+  {
+    id: '2',
+    date: '15/09/2023',
+    time: '14:00 PM',
+    doctor: {
+      name: 'BS. Lê Anh',
+      role: 'Phó khoa',
+      initials: 'LA',
+      avatarTheme: 'rose',
+    },
+    specialty: 'Tim mạch',
+    specialtyTheme: 'rose',
+    diagnosis: 'Kiểm tra định kỳ huyết áp. Huyết áp ổn định 120/80.',
+  },
+  {
+    id: '3',
+    date: '02/08/2023',
+    time: '10:15 AM',
+    doctor: {
+      name: 'BS. Nguyễn Hùng',
+      role: 'Bác sĩ chuyên khoa',
+      initials: 'NH',
+      avatarTheme: 'emerald',
+    },
+    specialty: 'Da liễu',
+    specialtyTheme: 'emerald',
+    diagnosis: 'Dị ứng thời tiết, mẩn đỏ vùng cánh tay.',
+  },
+  {
+    id: '4',
+    date: '20/05/2023',
+    time: '08:00 AM',
+    doctor: {
+      name: 'BS. Phạm Văn',
+      role: 'Bác sĩ tư vấn',
+      initials: 'PV',
+      avatarTheme: 'amber',
+    },
+    specialty: 'Tiêu hóa',
+    specialtyTheme: 'amber',
+    diagnosis: 'Rối loạn tiêu hóa nhẹ. Đề nghị chế độ ăn uống lành mạnh.',
+  },
+  {
+    id: '5',
+    date: '10/01/2023',
+    time: '11:30 AM',
+    doctor: {
+      name: 'BS. Trần Hoa',
+      role: 'Bác sĩ chuyên khoa',
+      initials: 'TH',
+      avatarTheme: 'purple',
+    },
+    specialty: 'Mắt',
+    specialtyTheme: 'purple',
+    diagnosis: 'Đo thị lực, cận thị 2 độ mắt trái.',
+  },
+  {
+    id: '6',
+    date: '05/12/2022',
+    time: '09:00 AM',
+    doctor: {
+      name: 'BS. Đặng Văn',
+      role: 'Chuyên gia',
+      initials: 'DV',
+      avatarTheme: 'cyan',
+    },
+    specialty: 'Răng hàm mặt',
+    specialtyTheme: 'cyan',
+    diagnosis: 'Nhổ răng khôn số 8, kê đơn giảm đau và kháng viêm.',
+  },
+  {
+    id: '7',
+    date: '28/11/2022',
+    time: '15:30 PM',
+    doctor: {
+      name: 'BS. Hoàng Thị',
+      role: 'Bác sĩ chuyên khoa',
+      initials: 'HT',
+      avatarTheme: 'pink',
+    },
+    specialty: 'Sản phụ khoa',
+    specialtyTheme: 'pink',
+    diagnosis: 'Khám phụ khoa định kỳ, kết quả bình thường.',
+  },
+] // Điều chỉnh đường dẫn import của bạn
+
 export const RecordsPage = () => {
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
@@ -90,7 +192,7 @@ export const RecordsPage = () => {
         placeholder="Tìm kiếm bệnh án, bác sĩ..."
       />
 
-      <div className="space-y-3 py-3 md:space-y-6 md:py-6">
+      <div className="space-y-3 py-3 md:space-y-6 md:py-6 lg:hidden">
         {/* Khối thống kê đầu trang */}
         <div className="grid grid-cols-2 gap-3 md:gap-6">
           {STATS_DATA.map((stat) => (
@@ -118,6 +220,10 @@ export const RecordsPage = () => {
             />
           ))}
         </section>
+      </div>
+
+      <div className="mt-6 hidden lg:block">
+        <RecordTable records={MOCK_RECORDS} onViewDetail={handleRecordClick} />
       </div>
     </div>
   )

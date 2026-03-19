@@ -1,66 +1,41 @@
-import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell } from 'lucide-react'
+import { LogOut } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
+import { MainPageHeader } from '@/features/patient/components/common'
 import {
   ProfileAvatarCard,
-  ProfileInfoGrid,
-  ProfileSettingsSection,
-} from '@/features/patient/components/profile/'
-import { MainPageHeader } from '@/features/patient/components/common'
-import { Button } from '@/components/ui/button'
+  ProfileDetailCard,
+  SettingCard,
+} from '@/features/patient/components/profile'
 import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 export const ProfilePage = () => {
-  const navigate = useNavigate()
   const logoutMutation = useLogoutMutation()
   const { data: patientProfile } = useGetPatientProfile()
 
-  const handleEditAvatar = () => {
-    navigate({ to: '/patient/profile/edit' })
-  }
-
-  const handleSettingClick = (settingId: string) => {
-    switch (settingId) {
-      case 'edit-info':
-        navigate({ to: '/patient/profile/edit' })
-        break
-      case 'change-password':
-        navigate({ to: '/patient/profile/change-password' })
-        break
-      case 'devices':
-        console.log('Trang quản lý thiết bị chưa được tạo')
-        break
-      default:
-        console.log('Mở cài đặt:', settingId)
-    }
-  }
-
   return (
     <div className="px-4">
-      <MainPageHeader
-        title="Thông tin cá nhân"
-        rightAction={
-          <Link to="/patient/notifications" className="relative z-10">
-            <Button
-              variant="outline"
-              size="icon-lg"
-              className="hover:text-teal-primary rounded-full border-slate-200 bg-white hover:bg-white/30">
-              <Bell size={22} />
-            </Button>
-          </Link>
-        }
-      />
+      <MainPageHeader title="Thông tin cá nhân" />
 
-      <div className="mb-3 space-y-3 md:space-y-6">
+      <div className="flex flex-col gap-3 md:gap-6 lg:flex-row">
         <ProfileAvatarCard
           patient={patientProfile}
-          onEditAvatar={handleEditAvatar}
-        />
-        <ProfileInfoGrid patient={patientProfile} />
-        <ProfileSettingsSection
           onLogout={() => logoutMutation.mutate()}
-          onSettingClick={handleSettingClick}
         />
+
+        <div className="w-full space-y-3 md:space-y-6 lg:mb-0 lg:w-2/3 xl:w-3/4">
+          <ProfileDetailCard patient={patientProfile} />
+          <SettingCard />
+        </div>
+
+        <Button
+          onClick={() => logoutMutation.mutate()}
+          size="lg"
+          variant="red_blur"
+          className="my-3 h-12 w-full rounded-xl text-base font-bold transition-colors hover:bg-red-100 lg:hidden">
+          <LogOut className="size-5" strokeWidth="2.5" />
+          Đăng xuất
+        </Button>
       </div>
     </div>
   )

@@ -53,7 +53,7 @@ export const ChatInput = ({ value, onChange, onSend }: ChatInputProps) => {
   // }
 
   return (
-    <div className="z-60 border-t border-gray-300 bg-white px-3 py-3.5 pb-[max(env(safe-area-inset-bottom),16px)] md:ml-20 lg:hidden">
+    <div className="z-60 border-t border-gray-300 bg-white px-3 py-3.5 pb-[max(env(safe-area-inset-bottom),16px)] md:ml-20 lg:ml-0">
       <div className="flex w-full items-end gap-2">
         <Button variant="ghost" size="icon-lg" className="rounded-full">
           <CirclePlus className="fill-teal-primary size-9 text-white" />

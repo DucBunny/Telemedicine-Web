@@ -13,7 +13,7 @@ import {
   MOCK_DOCTOR,
 } from '@/features/patient/data/chatMockData'
 
-export const ChatRoomPage = () => {
+export const ChatRoom = () => {
   useHideMobileNav()
 
   const navigate = useNavigate()
@@ -50,12 +50,14 @@ export const ChatRoomPage = () => {
   }, [messages])
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden">
+    <div className="fixed inset-0 flex flex-col md:inset-x-0 lg:static lg:h-full">
+      {/* Header - Neo trên */}
       <div className="z-10 shrink-0 bg-white">
         <ChatHeader doctor={MOCK_DOCTOR} onBack={handleBack} />
       </div>
 
-      <div className="scrollbar-hide flex flex-1 flex-col gap-2 overflow-y-auto p-4 pb-0 md:ml-20">
+      {/* Messages Area - Scrollable */}
+      <div className="scrollbar-hide flex flex-1 flex-col gap-2 overflow-y-auto p-4 pb-0 md:ml-20 lg:ml-0 lg:bg-gray-50">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
@@ -64,6 +66,7 @@ export const ChatRoomPage = () => {
         {/* Thẻ ẩn để làm mốc cuộn */}
       </div>
 
+      {/* Input - Neo dưới */}
       <div className="z-10 shrink-0 bg-white">
         <ChatInput
           value={inputValue}

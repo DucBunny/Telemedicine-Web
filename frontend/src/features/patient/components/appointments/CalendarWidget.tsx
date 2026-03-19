@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 interface CalendarWidgetProps {
@@ -74,7 +75,7 @@ export const CalendarWidget = ({
           variant="ghost"
           size="icon-sm"
           className="rounded-full">
-          <ChevronLeft className="size-5" strokeWidth="2.5" />
+          <ChevronLeft className="text-teal-primary size-5" strokeWidth="2.5" />
         </Button>
         <h2 className="text-base font-bold text-slate-900 capitalize">
           {monthName}
@@ -84,7 +85,10 @@ export const CalendarWidget = ({
           variant="ghost"
           size="icon-sm"
           className="rounded-full">
-          <ChevronRight className="size-5" strokeWidth="2.5" />
+          <ChevronRight
+            className="text-teal-primary size-5"
+            strokeWidth="2.5"
+          />
         </Button>
       </div>
 
@@ -107,19 +111,17 @@ export const CalendarWidget = ({
         {daysArray.map((day) => {
           const isSelected = isSelectedDay(day)
           return (
-            <button
+            <Button
               key={day}
+              variant={isSelected ? 'teal_primary' : 'ghost'}
+              size="icon-lg"
               onClick={() => handleSelectDay(day)}
-              className="flex h-10 w-full items-center justify-center">
-              <span
-                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm font-medium transition-colors ${
-                  isSelected
-                    ? 'bg-teal-primary font-bold text-white shadow-md shadow-teal-500/30'
-                    : 'text-slate-700 hover:bg-slate-100'
-                }`}>
-                {day}
-              </span>
-            </button>
+              className={cn(
+                'mx-auto rounded-full',
+                isSelected && 'scale-105 shadow-md shadow-teal-500/25',
+              )}>
+              {day}
+            </Button>
           )
         })}
       </div>

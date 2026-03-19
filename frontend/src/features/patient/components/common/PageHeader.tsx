@@ -6,6 +6,7 @@ interface PageHeaderProps {
   title: string
   onBack?: () => void
   rightAction?: React.ReactNode
+  breadcrumb?: React.ReactNode
 }
 
 // Used for sub-pages that require a back button
@@ -13,22 +14,29 @@ export const ChildPageHeader = ({
   title,
   onBack,
   rightAction,
+  breadcrumb,
 }: PageHeaderProps) => (
   <header className="flex items-center justify-between pt-6 pb-4 md:pt-0">
     {/* Back Button */}
     {onBack ? (
-      <Button onClick={onBack} variant="ghost" size="icon-lg">
+      <Button
+        onClick={onBack}
+        variant="ghost"
+        size="icon-lg"
+        className="lg:hidden">
         <ArrowLeft className="size-5" />
       </Button>
     ) : (
       <div className="w-10" />
     )}
 
-    <h1 className="flex-1 text-center text-xl font-bold tracking-tight text-slate-900">
+    <h1 className="flex-1 text-center text-xl font-bold tracking-tight text-slate-900 lg:text-start lg:text-2xl">
       {title}
     </h1>
 
-    {rightAction ?? <div className="w-10" />}
+    {rightAction ?? <div className="w-10 lg:h-10" />}
+
+    <div className="hidden lg:block">{breadcrumb}</div>
   </header>
 )
 

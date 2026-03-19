@@ -54,9 +54,9 @@ export const ChangePasswordPage = () => {
         onBack={() => navigate({ to: '/patient/profile' })}
       />
 
-      <main className="space-y-3">
+      <main className="space-y-3 lg:mx-auto lg:max-w-3/4 lg:rounded-2xl lg:border lg:border-gray-200 lg:bg-white lg:p-6 lg:shadow xl:max-w-2/3">
         <div className="flex justify-center py-3">
-          <div className="flex size-22 items-center justify-center rounded-full bg-teal-100/50">
+          <div className="flex size-22 shrink-0 items-center justify-center rounded-full bg-teal-100/50">
             <span className="material-symbols-outlined text-teal-primary text-5xl!">
               lock_reset
             </span>
@@ -69,7 +69,7 @@ export const ChangePasswordPage = () => {
             e.stopPropagation()
             form.handleSubmit()
           }}
-          className="space-y-3 pb-23 md:pb-11">
+          className="space-y-3 pb-23 md:pb-11 lg:pb-0">
           <form.Field
             name="currentPassword"
             children={(field) => (
@@ -113,6 +113,30 @@ export const ChangePasswordPage = () => {
               />
             )}
           />
+
+          <div className="mt-6 mb-0 hidden items-center justify-end gap-3 lg:flex">
+            <Button
+              onClick={() => navigate({ to: '/patient/profile' })}
+              variant="outline"
+              size="lg"
+              className="rounded-lg text-base font-bold active:scale-[0.98]">
+              Hủy
+            </Button>
+
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  variant="teal_primary"
+                  size="lg"
+                  disabled={!canSubmit || isSubmitting}
+                  className="rounded-lg text-base font-bold active:scale-[0.98]">
+                  {isSubmitting ? 'Đang lưu...' : ' Lưu thay đổi'}
+                </Button>
+              )}
+            />
+          </div>
 
           {/* Fixed Bottom Button */}
           <div className="fixed right-0 bottom-0 left-0 p-4 md:left-20 lg:hidden">

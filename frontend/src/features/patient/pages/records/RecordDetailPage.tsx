@@ -31,12 +31,31 @@ export const RecordDetailPage = () => {
     <div className="px-4">
       <ChildPageHeader title="Chi tiết hồ sơ" onBack={handleBack} />
 
-      <div className="space-y-3 pb-25 md:space-y-6">
-        <RecordTitleHeader record={MOCK_RECORD} />
-        <RecordDoctorCard doctor={MOCK_DOCTOR} record={MOCK_RECORD} />
-        <DiagnosisSection diagnosis={MOCK_DIAGNOSIS} />
-        <PrescriptionSection medications={MOCK_MEDICATIONS} />
-        <AdviceSection advices={MOCK_ADVICES} />
+      <div className="space-y-3 pb-25 md:space-y-6 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0">
+        <div className="flex items-center justify-between lg:col-span-12">
+          <RecordTitleHeader record={MOCK_RECORD} />
+
+          <Button
+            variant="teal_primary"
+            className="hidden h-12 rounded-full text-base font-bold active:scale-[0.98] lg:inline-flex">
+            <>
+              <Download className="size-5" strokeWidth="2.5" />
+              <span>Tải xuống đơn thuốc</span>
+            </>
+          </Button>
+        </div>
+        <div className="lg:col-span-5">
+          <RecordDoctorCard doctor={MOCK_DOCTOR} record={MOCK_RECORD} />
+        </div>
+        <div className="lg:col-span-7">
+          <DiagnosisSection diagnosis={MOCK_DIAGNOSIS} />
+        </div>
+        <div className="lg:col-span-6">
+          <PrescriptionSection medications={MOCK_MEDICATIONS} />
+        </div>
+        <div className="lg:col-span-6">
+          <AdviceSection advices={MOCK_ADVICES} />
+        </div>
       </div>
 
       {/* Floating Bottom Action Bar */}

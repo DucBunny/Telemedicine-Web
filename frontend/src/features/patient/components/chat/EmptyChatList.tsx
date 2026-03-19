@@ -1,11 +1,11 @@
 import { BriefcaseMedical, CalendarDays, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-interface EmptyChatProps {
+interface EmptyChatListProps {
   onBookAction: () => void
 }
 
-export const EmptyChat = ({ onBookAction }: EmptyChatProps) => {
+export const EmptyChatList = ({ onBookAction }: EmptyChatListProps) => {
   return (
     <div className="mx-auto flex h-full w-full flex-1 flex-col items-center justify-center px-4 text-center">
       {/* Vòng tròn Background và Icon */}

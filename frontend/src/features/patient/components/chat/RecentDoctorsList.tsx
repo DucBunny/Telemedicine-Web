@@ -1,12 +1,12 @@
 import { Plus } from 'lucide-react'
-import type { DoctorContact } from '@/features/patient/pages/ChatPage'
+import type { DoctorContact } from '@/features/patient/components/chat/ChatList'
 
 interface RecentDoctorsListProps {
   doctors: Array<DoctorContact>
 }
 
 export const RecentDoctorsList = ({ doctors }: RecentDoctorsListProps) => (
-  <div className="scrollbar-hide flex gap-3 overflow-x-auto">
+  <div className="scrollbar-hide flex gap-3 overflow-x-auto lg:hidden">
     {/* Nút Tạo mới */}
     <div className="ms-4 flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity hover:opacity-80">
       <div className="relative">
@@ -23,7 +23,7 @@ export const RecentDoctorsList = ({ doctors }: RecentDoctorsListProps) => (
     {doctors.map((doctor) => (
       <div
         key={doctor.id}
-        className="flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity last:me-4 hover:opacity-80 md:last:me-20">
+        className="flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity last:me-4 hover:opacity-80 md:last:me-20 lg:last:me-4">
         <div className="relative">
           <img
             src={doctor.avatarUrl}

@@ -74,7 +74,7 @@ export const EditProfilePage = () => {
           e.stopPropagation()
           form.handleSubmit()
         }}
-        className="space-y-3 pb-23 md:pb-11">
+        className="space-y-3 pb-23 md:pb-11 lg:mx-auto lg:max-w-3/4 lg:rounded-2xl lg:border lg:border-gray-200 lg:bg-white lg:p-6 lg:shadow xl:max-w-2/3">
         {/* Avatar Section */}
         <form.Field
           name="user.avatar"
@@ -169,6 +169,30 @@ export const EditProfilePage = () => {
             />
           )}
         />
+
+        <div className="mt-6 mb-0 hidden items-center justify-end gap-3 lg:flex">
+          <Button
+            onClick={() => navigate({ to: '/patient/profile' })}
+            variant="outline"
+            size="lg"
+            className="rounded-lg text-base font-bold active:scale-[0.98]">
+            Hủy
+          </Button>
+
+          <form.Subscribe
+            selector={(state) => [state.canSubmit, state.isSubmitting]}
+            children={([canSubmit, isSubmitting]) => (
+              <Button
+                type="submit"
+                variant="teal_primary"
+                size="lg"
+                disabled={!canSubmit || isSubmitting}
+                className="rounded-lg text-base font-bold active:scale-[0.98]">
+                {isSubmitting ? 'Đang lưu...' : ' Lưu thay đổi'}
+              </Button>
+            )}
+          />
+        </div>
 
         {/* Fixed Bottom Button */}
         <div className="fixed right-0 bottom-0 left-0 p-4 md:left-20 lg:hidden">

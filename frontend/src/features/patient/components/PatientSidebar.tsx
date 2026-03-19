@@ -53,7 +53,7 @@ export const PatientSidebar = ({
             isActive={activeTab === id}
             tooltip={label}
             className={cn(
-              'hover:text-teal-primary h-12 gap-3 rounded-lg px-4 py-3.5 font-medium text-gray-500 hover:bg-gray-50',
+              'hover:text-teal-primary h-12 gap-3 rounded-lg px-4 py-3.5 text-base font-medium text-gray-500 hover:bg-gray-50',
               'data-[active=true]:text-teal-primary data-[active=true]:bg-teal-100/40',
               'group-data-[collapsible=icon]:relative group-data-[collapsible=icon]:justify-center',
             )}>
@@ -114,8 +114,8 @@ export const PatientSidebar = ({
               <p className="truncate text-sm font-semibold text-gray-900">
                 {patientProfile?.user.fullName}
               </p>
-              <p className="text-xs text-gray-500">
-                Mã: BN-{patientProfile?.userId}
+              <p className="text-xs font-medium text-gray-500">
+                ID: {patientProfile?.userId}
               </p>
             </div>
           </SidebarMenuItem>
