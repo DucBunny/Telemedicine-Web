@@ -32,7 +32,7 @@ export const ProfilePage = () => {
           onClick={() => logoutMutation.mutate()}
           size="lg"
           variant="red_blur"
-          className="my-3 h-12 w-full rounded-xl text-base font-bold transition-colors hover:bg-red-100 lg:hidden">
+          className="my-3 h-12 w-full rounded-xl text-base! font-bold transition-colors hover:bg-red-100 lg:hidden">
           <LogOut className="size-5" strokeWidth="2.5" />
           Đăng xuất
         </Button>

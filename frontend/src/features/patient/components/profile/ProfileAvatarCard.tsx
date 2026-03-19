@@ -33,7 +33,7 @@ export const ProfileAvatarCard = ({
           onClick={onLogout}
           size="lg"
           variant="red_blur"
-          className="h-11 w-full rounded-xl text-base font-bold transition-colors hover:bg-red-100">
+          className="h-11 w-full rounded-xl text-base! font-bold transition-colors hover:bg-red-100">
           Đăng xuất
         </Button>
       </div>

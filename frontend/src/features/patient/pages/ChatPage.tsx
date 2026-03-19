@@ -16,12 +16,12 @@ export const ChatPage = () => {
       <div className="hidden lg:block">
         <div className="grid h-[calc(100vh-4rem)] grid-cols-12 divide-x overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
           {/* Left: Chat List */}
-          <div className="scrollbar-hide col-span-4 overflow-y-auto pt-4">
+          <div className="scrollbar-hide col-span-5 overflow-y-auto pt-4 xl:col-span-4">
             <ChatList />
           </div>
 
           {/* Right: Chat Room or Empty State */}
-          <div className="col-span-8 overflow-hidden">
+          <div className="col-span-7 overflow-hidden xl:col-span-8">
             {doctorId ? <ChatRoom /> : <EmptyState />}
           </div>
         </div>

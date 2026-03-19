@@ -147,7 +147,7 @@ export const ChangePasswordPage = () => {
                   type="submit"
                   variant="teal_primary"
                   disabled={!canSubmit || isSubmitting}
-                  className="h-12 w-full rounded-full text-base font-bold active:scale-[0.98]">
+                  className="h-12 w-full rounded-full text-base! font-bold active:scale-[0.98]">
                   <Save className="size-5.5" strokeWidth="2.5" />
                   {isSubmitting ? 'Đang lưu...' : ' Lưu thay đổi'}
                 </Button>

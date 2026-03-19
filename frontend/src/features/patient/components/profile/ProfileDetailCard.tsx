@@ -15,7 +15,7 @@ interface InfoItemProps {
 
 export const ProfileDetailCard = ({ patient }: ProfileAvatarCardProps) => {
   return (
-    <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+    <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm md:p-8 lg:space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-teal-primary flex items-center gap-2 text-lg font-bold">
           <User />

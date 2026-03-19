@@ -46,7 +46,7 @@ export const SettingCard = () => {
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div className="border-b border-gray-200 bg-gray-50/50 p-4">
-        <h4 className="text-base font-semibold tracking-tight text-gray-500 uppercase">
+        <h4 className="text-base font-semibold tracking-wide text-gray-500 uppercase">
           Cài đặt tài khoản
         </h4>
       </div>
