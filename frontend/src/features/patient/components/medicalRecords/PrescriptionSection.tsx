@@ -30,13 +30,13 @@ export const PrescriptionSection = ({
             <div className={`mt-2 size-2 rounded-full ${med.dotColorClass}`} />
             <div className="flex-1">
               <div className="flex items-center justify-between gap-2">
-                <h4 className="text-sm font-bold">{med.name}</h4>
+                <h4 className="text-sm font-bold md:text-base">{med.name}</h4>
                 <Badge variant="teal_outline" className="text-xs">
                   {med.quantity}
                 </Badge>
               </div>
 
-              <p className="text-xs font-semibold text-slate-500">
+              <p className="text-xs font-semibold text-slate-500 md:text-sm">
                 {med.dosage}
               </p>
             </div>

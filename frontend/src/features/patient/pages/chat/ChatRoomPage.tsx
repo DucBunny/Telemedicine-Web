@@ -55,7 +55,7 @@ export const ChatRoomPage = () => {
         <ChatHeader doctor={MOCK_DOCTOR} onBack={handleBack} />
       </div>
 
-      <div className="scrollbar-hide flex flex-1 flex-col gap-2 overflow-y-auto p-4 pb-0">
+      <div className="scrollbar-hide flex flex-1 flex-col gap-2 overflow-y-auto p-4 pb-0 md:ml-20">
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}

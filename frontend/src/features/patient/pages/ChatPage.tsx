@@ -83,6 +83,34 @@ const MOCK_RECENT_DOCTORS: Array<DoctorContact> = [
       'https://lh3.googleusercontent.com/aida-public/AB6AXuDD3t3H3L7hVIs6gtd_S-RxHx_npQS5r1a3jonviQ5xukRaDvWC5-TyK7EEc54SOSM-a1C39_VRm88TzvGGDKcxXiiQBVyfK0UvNmT2ZlAg9pbyl7ULknLpTXMQhu6gfJwax3Suj4CjSQb0cRqKVQLSoN_6jcKd3OIs_XRrfCx1N84_N9pLN22mhiSLRqKHd1TvnLhtTC5U2CghyVnU_uWy7w_X1HJDEBJQPYRjn2x2TVzGOLF1I4KpDM-oAyTWbgwuDPdjQohO0oxV',
     isOnline: true,
   },
+  {
+    id: '3',
+    name: 'BS. Emily',
+    avatarUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDD3t3H3L7hVIs6gtd_S-RxHx_npQS5r1a3jonviQ5xukRaDvWC5-TyK7EEc54SOSM-a1C39_VRm88TzvGGDKcxXiiQBVyfK0UvNmT2ZlAg9pbyl7ULknLpTXMQhu6gfJwax3Suj4CjSQb0cRqKVQLSoN_6jcKd3OIs_XRrfCx1N84_N9pLN22mhiSLRqKHd1TvnLhtTC5U2CghyVnU_uWy7w_X1HJDEBJQPYRjn2x2TVzGOLF1I4KpDM-oAyTWbgwuDPdjQohO0oxV',
+    isOnline: true,
+  },
+  {
+    id: '3',
+    name: 'BS. Emily',
+    avatarUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDD3t3H3L7hVIs6gtd_S-RxHx_npQS5r1a3jonviQ5xukRaDvWC5-TyK7EEc54SOSM-a1C39_VRm88TzvGGDKcxXiiQBVyfK0UvNmT2ZlAg9pbyl7ULknLpTXMQhu6gfJwax3Suj4CjSQb0cRqKVQLSoN_6jcKd3OIs_XRrfCx1N84_N9pLN22mhiSLRqKHd1TvnLhtTC5U2CghyVnU_uWy7w_X1HJDEBJQPYRjn2x2TVzGOLF1I4KpDM-oAyTWbgwuDPdjQohO0oxV',
+    isOnline: true,
+  },
+  {
+    id: '3',
+    name: 'BS. Emily',
+    avatarUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDD3t3H3L7hVIs6gtd_S-RxHx_npQS5r1a3jonviQ5xukRaDvWC5-TyK7EEc54SOSM-a1C39_VRm88TzvGGDKcxXiiQBVyfK0UvNmT2ZlAg9pbyl7ULknLpTXMQhu6gfJwax3Suj4CjSQb0cRqKVQLSoN_6jcKd3OIs_XRrfCx1N84_N9pLN22mhiSLRqKHd1TvnLhtTC5U2CghyVnU_uWy7w_X1HJDEBJQPYRjn2x2TVzGOLF1I4KpDM-oAyTWbgwuDPdjQohO0oxV',
+    isOnline: true,
+  },
+  {
+    id: '3',
+    name: 'BS. Emily',
+    avatarUrl:
+      'https://lh3.googleusercontent.com/aida-public/AB6AXuDD3t3H3L7hVIs6gtd_S-RxHx_npQS5r1a3jonviQ5xukRaDvWC5-TyK7EEc54SOSM-a1C39_VRm88TzvGGDKcxXiiQBVyfK0UvNmT2ZlAg9pbyl7ULknLpTXMQhu6gfJwax3Suj4CjSQb0cRqKVQLSoN_6jcKd3OIs_XRrfCx1N84_N9pLN22mhiSLRqKHd1TvnLhtTC5U2CghyVnU_uWy7w_X1HJDEBJQPYRjn2x2TVzGOLF1I4KpDM-oAyTWbgwuDPdjQohO0oxV',
+    isOnline: true,
+  },
 ]
 
 const MOCK_CHATS: Array<ChatMessage> = [
@@ -197,7 +225,7 @@ export const ChatPage = () => {
 
   return (
     <>
-      <div className="px-4">
+      <div className="px-4 md:mr-20">
         {/* Header */}
         <MainPageHeader
           title="Trò chuyện"
@@ -219,7 +247,7 @@ export const ChatPage = () => {
         />
       </div>
 
-      <div className="mt-3 space-y-3">
+      <div className="mt-3 space-y-3 md:mt-6 md:space-y-6">
         {MOCK_CHATS.length > 0 ? (
           <>
             {/* Chỉ hiển thị Recent Doctors nếu không đang tìm kiếm */}
@@ -228,7 +256,7 @@ export const ChatPage = () => {
             )}
 
             {/* Danh sách tin nhắn */}
-            <div className="flex flex-col gap-1 px-4 pb-2">
+            <div className="space-y-1 px-4 pb-2 md:mr-20">
               {filteredChats.length > 0 ? (
                 filteredChats.map((chat) => (
                   <ChatItem

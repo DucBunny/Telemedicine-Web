@@ -51,7 +51,7 @@ export const ProfilePage = () => {
         }
       />
 
-      <div className="mb-3 space-y-3">
+      <div className="mb-3 space-y-3 md:space-y-6">
         <ProfileAvatarCard
           patient={patientProfile}
           onEditAvatar={handleEditAvatar}

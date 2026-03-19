@@ -91,7 +91,7 @@ export const AppointmentConfirmPage = () => {
     <div className="px-4">
       <ChildPageHeader title="Xác nhận thông tin" onBack={handleBack} />
 
-      <div className="space-y-3 pb-25">
+      <div className="space-y-3 pb-25 md:space-y-6">
         <AppointmentConfirmInfoCard
           doctor={doctor}
           appointment={{
@@ -129,12 +129,12 @@ export const AppointmentConfirmPage = () => {
       </div>
 
       {/* Floating Bottom Action Bar */}
-      <div className="fixed right-0 bottom-0 left-0 z-60 border-t border-gray-100 bg-white p-4 md:hidden">
+      <div className="fixed right-0 bottom-0 left-0 z-60 border-t border-gray-100 bg-white p-4 md:left-20 lg:hidden">
         <Button
           onClick={handleConfirm}
           disabled={bookMutation.isPending}
           variant="teal_primary"
-          className="flex h-12 w-full rounded-full text-base font-bold active:scale-[0.98]">
+          className="flex h-12 w-full rounded-full text-base! font-bold active:scale-[0.98]">
           {bookMutation.isPending ? (
             'Đang xử lý...'
           ) : (

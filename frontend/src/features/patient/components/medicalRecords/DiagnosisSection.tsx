@@ -16,7 +16,9 @@ export const DiagnosisSection = ({ diagnosis }: DiagnosisSectionProps) => {
       </div>
 
       <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-        <p className="mb-3 text-sm leading-relaxed">{diagnosis.description}</p>
+        <p className="mb-3 text-sm leading-relaxed md:text-base">
+          {diagnosis.description}
+        </p>
         <div className="flex flex-wrap gap-2">
           {diagnosis.tags.map((tag, index) => (
             <span

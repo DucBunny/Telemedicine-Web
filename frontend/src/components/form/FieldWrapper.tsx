@@ -66,7 +66,7 @@ export const FieldWrapper = ({
         {leftIcon && (
           <div
             className={cn(
-              'pointer-events-none absolute left-0 z-10 flex pl-3',
+              'pointer-events-none absolute left-0 flex pl-3',
               iconAlign === 'top' ? 'top-3.5' : 'inset-y-0 items-center',
             )}>
             <IconDisplay icon={leftIcon} />
@@ -80,7 +80,7 @@ export const FieldWrapper = ({
         {rightNode && (
           <div
             className={cn(
-              'absolute right-0 z-10 flex pr-3',
+              'absolute right-0 flex pr-3',
               iconAlign === 'top' ? 'top-3.5' : 'inset-y-0 items-center',
             )}>
             {rightNode}

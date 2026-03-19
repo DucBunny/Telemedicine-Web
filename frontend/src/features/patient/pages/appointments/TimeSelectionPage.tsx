@@ -80,7 +80,7 @@ export const TimeSelectionPage = () => {
     <div className="px-4">
       <ChildPageHeader title="Chọn ngày & giờ khám" onBack={handleBack} />
 
-      <div className="space-y-3 pb-42">
+      <div className="space-y-3 pb-42 md:space-y-6">
         <VisitTypeToggle value={visitType} onChange={setVisitType} />
 
         <CalendarWidget
@@ -108,10 +108,10 @@ export const TimeSelectionPage = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="fixed right-0 bottom-0 left-0 z-60 border-t border-slate-200 bg-white p-4 md:hidden">
+      <div className="fixed right-0 bottom-0 left-0 z-60 border-t border-slate-200 bg-white p-4 md:left-20 lg:hidden">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-medium text-slate-500 md:text-sm dark:text-slate-400">
               Thời gian đã chọn
             </span>
             <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
@@ -119,7 +119,7 @@ export const TimeSelectionPage = () => {
             </span>
           </div>
           <div className="text-right">
-            <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+            <span className="text-xs font-medium text-slate-500 md:text-sm dark:text-slate-400">
               Phí tư vấn
             </span>
             <span className="text-teal-primary block text-lg font-bold dark:text-teal-400">
@@ -130,7 +130,7 @@ export const TimeSelectionPage = () => {
         <Button
           onClick={handleContinue}
           variant="teal_primary"
-          className="flex h-12 w-full rounded-full text-base font-bold transition-all active:scale-[0.98]">
+          className="flex h-12 w-full rounded-full text-base! font-bold transition-all active:scale-[0.98]">
           Tiếp tục
           <ArrowRight className="size-6" strokeWidth="2.5" />
         </Button>

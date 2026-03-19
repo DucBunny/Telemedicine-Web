@@ -44,7 +44,7 @@ export const NotificationsPage = () => {
     <div className="px-4">
       <ChildPageHeader title="Thông báo" onBack={handleBack} />
 
-      <main className="space-y-3">
+      <main className="space-y-3 md:space-y-4">
         {/* Tabs */}
         <div className="scrollbar-hide flex gap-3 overflow-x-auto">
           {filterOptions.map((option) => (

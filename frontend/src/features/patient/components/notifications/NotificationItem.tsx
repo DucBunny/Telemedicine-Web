@@ -29,7 +29,7 @@ export const NotificationItem = ({ data, onClick }: NotificationItemProps) => {
       onClick={() => onClick(data.id)}
       className="relative cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       {data.isUnread && (
-        <div className="bg-teal-primary absolute top-0 left-0 h-full w-1"></div>
+        <div className="bg-teal-primary absolute top-0 left-0 h-full w-1" />
       )}
 
       <div className="flex items-center justify-between gap-2">
@@ -38,16 +38,16 @@ export const NotificationItem = ({ data, onClick }: NotificationItemProps) => {
           className="rounded-full text-xs">
           {data.category}
         </Badge>
-        <span className="flex items-center gap-1 text-xs text-slate-500">
+        <span className="flex items-center gap-1 text-xs text-slate-500 md:text-sm">
           <Clock className="size-4" />
           {data.time}
         </span>
       </div>
 
-      <h3 className="mt-2 mb-1 text-sm font-bold text-slate-900">
+      <h3 className="mt-2 mb-1 text-sm font-bold text-slate-900 md:text-base">
         {data.title}
       </h3>
-      <p className="line-clamp-2 text-xs leading-relaxed text-slate-600">
+      <p className="line-clamp-2 text-xs leading-relaxed text-slate-600 md:text-sm">
         {data.content}
       </p>
     </div>

@@ -48,7 +48,7 @@ export const ChangePasswordPage = () => {
   })
 
   return (
-    <div className="h-dvh bg-white px-4">
+    <div className="px-4">
       <ChildPageHeader
         title="Đổi mật khẩu"
         onBack={() => navigate({ to: '/patient/profile' })}
@@ -69,7 +69,7 @@ export const ChangePasswordPage = () => {
             e.stopPropagation()
             form.handleSubmit()
           }}
-          className="space-y-3 pb-23">
+          className="space-y-3 pb-23 md:pb-11">
           <form.Field
             name="currentPassword"
             children={(field) => (
@@ -115,7 +115,7 @@ export const ChangePasswordPage = () => {
           />
 
           {/* Fixed Bottom Button */}
-          <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:hidden">
+          <div className="fixed right-0 bottom-0 left-0 p-4 md:left-20 lg:hidden">
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
               children={([canSubmit, isSubmitting]) => (

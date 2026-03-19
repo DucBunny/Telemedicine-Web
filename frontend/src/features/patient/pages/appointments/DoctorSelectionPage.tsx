@@ -82,14 +82,14 @@ export const DoctorSelectionPage = () => {
         />
       </div>
 
-      <div className="my-3 space-y-3">
+      <div className="my-3 space-y-3 md:my-6">
         <FilterChips
           filters={FILTERS}
           activeFilter={activeFilter}
           onSelect={setActiveFilter}
         />
 
-        <div className="space-y-3 px-4">
+        <div className="space-y-3 px-4 md:space-y-4">
           {!USE_MOCK_DATA && isLoading ? (
             <div className="mt-6 text-center text-base text-gray-400">
               Đang tải...

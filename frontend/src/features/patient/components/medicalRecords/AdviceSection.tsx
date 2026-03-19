@@ -21,10 +21,10 @@ export const AdviceSection: React.FC<AdviceSectionProps> = ({ advices }) => {
       <div className="space-y-2 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
         {advices.map((advice, index) => (
           <div key={index} className="flex items-start gap-2">
-            <span className="text-white">
+            <span className="text-white md:mt-0.5">
               <CircleCheck className="size-5 fill-teal-500" />
             </span>
-            <span className="text-sm">{advice}</span>
+            <span className="text-sm md:text-base">{advice}</span>
           </div>
         ))}
       </div>

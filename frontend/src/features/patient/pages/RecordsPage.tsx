@@ -90,9 +90,9 @@ export const RecordsPage = () => {
         placeholder="Tìm kiếm bệnh án, bác sĩ..."
       />
 
-      <div className="space-y-3 py-3">
+      <div className="space-y-3 py-3 md:space-y-6 md:py-6">
         {/* Khối thống kê đầu trang */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 md:gap-6">
           {STATS_DATA.map((stat) => (
             <StatCard
               key={stat.id}
@@ -105,7 +105,7 @@ export const RecordsPage = () => {
         </div>
 
         {/* Danh sách lịch sử khám bệnh */}
-        <section className="space-y-3">
+        <section className="space-y-3 md:space-y-4">
           <h2 className="mb-3 text-sm font-bold tracking-wider text-gray-500 uppercase">
             Lịch sử khám bệnh
           </h2>

@@ -21,10 +21,12 @@ export const StatCard = ({
           {icon}
         </span>
       </div>
-      <span className="text-xs font-medium text-slate-500">{label}</span>
+      <span className="text-xs font-medium text-slate-500 md:text-sm">
+        {label}
+      </span>
     </div>
     <p
-      className={`font-bold text-slate-900 ${value.length > 5 ? 'pt-1 text-lg' : 'text-2xl'}`}>
+      className={`font-bold text-slate-900 ${value.length > 5 ? 'pt-1 text-lg md:text-xl' : 'text-2xl md:text-3xl'}`}>
       {value}
     </p>
   </div>

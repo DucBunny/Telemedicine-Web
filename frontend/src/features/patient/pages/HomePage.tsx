@@ -22,7 +22,7 @@ export const HomePage = () => {
   const { data: appointmentsData } = useGetPatientAppointments({
     page: 1,
     limit: 5,
-    status: ['confirmed', 'pending'],
+    status: ['confirmed'],
   })
 
   const user = useAuthStore((s) => s.user)
@@ -42,9 +42,9 @@ export const HomePage = () => {
     <div className="px-4">
       <ProfileCard profileData={profileData} unreadCount={unreadCount} />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-12 md:gap-6">
+      <div className="grid grid-cols-1 gap-3 md:gap-6 lg:grid-cols-12">
         {/* Cột trái */}
-        <div className="flex flex-col gap-3 md:col-span-7 md:gap-6 lg:col-span-8">
+        <div className="flex flex-col gap-3 md:gap-6 lg:col-span-8">
           {/* Các thẻ chỉ số cơ bản */}
           <StatCards profileData={profileData} />
 
@@ -53,7 +53,7 @@ export const HomePage = () => {
         </div>
 
         {/* Cột phải */}
-        <div className="flex flex-col gap-3 md:col-span-5 md:gap-6 lg:col-span-4">
+        <div className="mb-3 flex flex-col gap-3 md:gap-6 lg:col-span-4">
           <Link to="/patient/appointments">
             <Button
               variant="teal_primary"
@@ -65,10 +65,10 @@ export const HomePage = () => {
 
           <h3 className="text-lg font-bold text-slate-900">Lịch hẹn sắp tới</h3>
 
-          <div className="flex flex-col">
+          <div className="space-y-3 md:space-y-4">
             {appointmentsData?.data && appointmentsData.data.length > 0 ? (
               appointmentsData.data
-                .slice(0, 1)
+                .slice(0, 3)
                 .map((appt) => (
                   <AppointmentCard key={appt.id} appointment={appt} />
                 ))

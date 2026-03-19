@@ -22,8 +22,8 @@ export const RecordDoctorCard = ({ doctor, record }: RecordDoctorCardProps) => {
         </div>
 
         <div className="flex-1">
-          <h4 className="text-base font-bold">{doctor.name}</h4>
-          <p className="text-sm">{doctor.specialty}</p>
+          <h4 className="text-base font-bold md:text-lg">{doctor.name}</h4>
+          <p className="text-sm md:text-base">{doctor.specialty}</p>
         </div>
 
         <Button
@@ -36,12 +36,12 @@ export const RecordDoctorCard = ({ doctor, record }: RecordDoctorCardProps) => {
 
       <div className="mt-4 flex gap-3 border-t border-gray-100 pt-4">
         <div className="flex-1">
-          <p className="text-xs">Ngày khám</p>
-          <p className="text-sm font-semibold">{record.date}</p>
+          <p className="text-xs md:text-sm">Ngày khám</p>
+          <p className="text-sm font-semibold md:text-base">{record.date}</p>
         </div>
         <div className="flex-1 text-end">
-          <p className="text-xs">Giờ khám</p>
-          <p className="text-sm font-semibold">{record.time}</p>
+          <p className="text-xs md:text-sm">Giờ khám</p>
+          <p className="text-sm font-semibold md:text-base">{record.time}</p>
         </div>
       </div>
     </div>

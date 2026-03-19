@@ -43,13 +43,13 @@ export const AppointmentsPage = () => {
       />
 
       {/* Danh sách lịch khám */}
-      <div className="grid gap-3 overflow-y-auto px-1 py-3 md:grid-cols-2 md:gap-6 md:py-6">
+      <div className="grid gap-3 overflow-y-auto px-1 py-3 md:gap-4 md:py-6 lg:grid-cols-2">
         {appointmentsData?.data && appointmentsData.data.length > 0 ? (
           appointmentsData.data.map((appt) => (
             <AppointmentCard key={appt.id} appointment={appt} />
           ))
         ) : (
-          <p className="py-6 text-center text-gray-500 md:col-span-2">
+          <p className="py-6 text-center text-gray-500 lg:col-span-2">
             Không có lịch hẹn nào.
           </p>
         )}

@@ -1,7 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { NAVIGATION_ITEMS } from '../config'
-import { useGetPatientProfile } from '../hooks/usePatientQueries'
-import type { NavItem } from '../config'
+import { useEffect } from 'react'
+import { Bell } from 'lucide-react'
+import type { NavItem } from '@/features/patient/config'
+import { NAVIGATION_ITEMS } from '@/features/patient/config'
+import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
 import { cn } from '@/lib/utils'
 import {
   Sidebar,
@@ -12,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from '@/components/ui/sidebar'
 
 interface PatientSidebarProps {
@@ -24,6 +27,23 @@ export const PatientSidebar = ({
   unreadCount,
 }: PatientSidebarProps) => {
   const { data: patientProfile } = useGetPatientProfile()
+  const { setOpen } = useSidebar()
+  useEffect(() => {
+    // Hàm kiểm tra kích thước màn hình và tự động đóng sidebar nếu ở kích thước tablet (768px - 1023px)
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+      if (width >= 768 && width < 1024) setOpen(false)
+    }
+
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize)
+    }
+  }, [setOpen])
+
+  // Render navigation items with active state and tooltips
   const renderNav = (items: Array<NavItem>) => (
     <SidebarMenu>
       {items.map(({ id, icon: Icon, label, href }) => (
@@ -34,8 +54,8 @@ export const PatientSidebar = ({
             tooltip={label}
             className={cn(
               'hover:text-teal-primary h-12 gap-3 rounded-lg px-4 py-3.5 font-medium text-gray-500 hover:bg-gray-50',
-              'data-[active=true]:bg-teal-50 data-[active=true]:text-teal-700 data-[active=true]:shadow-sm',
-              'group-data-[collapsible=icon]:justify-center',
+              'data-[active=true]:text-teal-primary data-[active=true]:bg-teal-100/40',
+              'group-data-[collapsible=icon]:relative group-data-[collapsible=icon]:justify-center',
             )}>
             <Link to={href}>
               <Icon
@@ -51,6 +71,14 @@ export const PatientSidebar = ({
                 )}>
                 {label}
               </span>
+              {Icon === Bell && unreadCount > 0 && (
+                <span
+                  className={cn(
+                    'size-3 rounded-full border border-white bg-red-600',
+                    'group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-3 group-data-[collapsible=icon]:right-3',
+                  )}
+                />
+              )}
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -93,7 +121,7 @@ export const PatientSidebar = ({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
+      <SidebarRail className="sm:hidden lg:flex" />
     </Sidebar>
   )
 }

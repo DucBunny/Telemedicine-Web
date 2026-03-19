@@ -44,13 +44,13 @@ export const RecordCard = ({ record, onClick }: RecordCardProps) => {
             {record.providerInitials}
           </div>
         )}
-        <span className="text-sm">{record.providerName}</span>
+        <span className="text-sm md:text-base">{record.providerName}</span>
       </div>
 
       {/* Lời chẩn đoán (nếu có) */}
       {record.diagnosis && (
         <div className="mb-3 rounded-lg bg-gray-500/5 p-3">
-          <p className="line-clamp-2 text-xs">
+          <p className="line-clamp-2 text-xs md:text-sm">
             <span className="font-semibold">Chẩn đoán: </span>
             {record.diagnosis}
           </p>

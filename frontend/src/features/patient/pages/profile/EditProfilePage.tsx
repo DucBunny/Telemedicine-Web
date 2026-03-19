@@ -62,7 +62,7 @@ export const EditProfilePage = () => {
   }
 
   return (
-    <div className="h-dvh bg-white px-4">
+    <div className="px-4">
       <ChildPageHeader
         title="Chỉnh sửa thông tin"
         onBack={() => navigate({ to: '/patient/profile' })}
@@ -74,7 +74,7 @@ export const EditProfilePage = () => {
           e.stopPropagation()
           form.handleSubmit()
         }}
-        className="space-y-3 pb-23">
+        className="space-y-3 pb-23 md:pb-11">
         {/* Avatar Section */}
         <form.Field
           name="user.avatar"
@@ -171,7 +171,7 @@ export const EditProfilePage = () => {
         />
 
         {/* Fixed Bottom Button */}
-        <div className="fixed right-0 bottom-0 left-0 bg-white p-4 md:hidden">
+        <div className="fixed right-0 bottom-0 left-0 p-4 md:left-20 lg:hidden">
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, isSubmitting]) => (
@@ -179,7 +179,7 @@ export const EditProfilePage = () => {
                 type="submit"
                 variant="teal_primary"
                 disabled={!canSubmit || isSubmitting}
-                className="h-12 w-full rounded-full text-base font-bold active:scale-[0.98]">
+                className="h-12 w-full rounded-full text-base! font-bold active:scale-[0.98]">
                 <Check className="size-5.5" strokeWidth="2.5" />
                 Lưu thay đổi
               </Button>

@@ -9,7 +9,7 @@ interface ChatHeaderProps {
 
 export const ChatHeader = ({ doctor, onBack }: ChatHeaderProps) => {
   return (
-    <div className="z-50 border-b border-gray-100 bg-white px-2 py-2 md:hidden">
+    <div className="z-50 border-b border-gray-100 bg-white px-2 py-2 md:ml-20 lg:hidden">
       <div className="flex w-full items-center justify-between gap-1">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <Button

@@ -23,7 +23,7 @@ export const RecentDoctorsList = ({ doctors }: RecentDoctorsListProps) => (
     {doctors.map((doctor) => (
       <div
         key={doctor.id}
-        className="flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity last:me-4 hover:opacity-80">
+        className="flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity last:me-4 hover:opacity-80 md:last:me-20">
         <div className="relative">
           <img
             src={doctor.avatarUrl}

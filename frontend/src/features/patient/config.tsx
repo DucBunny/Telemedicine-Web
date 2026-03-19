@@ -1,6 +1,6 @@
 import {
   Bell,
-  Calendar,
+  CalendarDays,
   FileText,
   Home,
   MessageSquare,
@@ -30,7 +30,7 @@ export const NAVIGATION_ITEMS: Array<NavItem> = [
     label: 'Lịch hẹn khám',
     mobileLabel: 'Lịch hẹn',
     href: '/patient/appointments',
-    icon: Calendar,
+    icon: CalendarDays,
   },
   {
     id: 'records',
