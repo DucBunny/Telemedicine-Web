@@ -4,7 +4,6 @@ import { NotificationDetailDialog } from '../components/notifications'
 import type { NotificationItemData } from '@/features/patient/data/notificationsMockData'
 import { Button } from '@/components/ui/button'
 import { ChildPageHeader } from '@/features/patient/components/common'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
 import { NotificationItem } from '@/features/patient/components/notifications/NotificationItem'
 import { MOCK_NOTIFICATIONS } from '@/features/patient/data/notificationsMockData'
 
@@ -14,8 +13,6 @@ const filterOptions = [
 ]
 
 export const NotificationsPage = () => {
-  useHideMobileNav()
-
   const router = useRouter()
 
   const [filter, setFilter] = useState<'all' | 'unread'>('all')

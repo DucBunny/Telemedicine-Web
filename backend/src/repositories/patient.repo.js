@@ -67,3 +67,10 @@ export const findByUserId = async (userId) => {
     ]
   })
 }
+
+/**
+ * Create new patient
+ */
+export const create = async (data, options = {}) => {
+  return await Patient.create(data, options)
+}

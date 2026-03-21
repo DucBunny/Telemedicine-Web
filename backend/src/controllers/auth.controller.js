@@ -44,7 +44,8 @@ export const login = async (req, res, next) => {
       success: true,
       data: {
         accessToken: result.accessToken,
-        user: result.user
+        user: result.user,
+        isProfileComplete: result.isProfileComplete
       }
     })
   } catch (error) {
@@ -80,7 +81,8 @@ export const refreshToken = async (req, res, next) => {
       success: true,
       data: {
         accessToken: result.accessToken,
-        user: result.user
+        user: result.user,
+        isProfileComplete: result.isProfileComplete
       }
     })
   } catch (error) {

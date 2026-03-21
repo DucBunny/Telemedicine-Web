@@ -1,7 +1,7 @@
 import { FileUser, User } from 'lucide-react'
 import type { Patient } from '@/features/patient/types'
+import { GENDER_OPTIONS } from '@/features/patient/constants'
 import { formatShortDate } from '@/lib/format-date'
-import { genderOptions } from '@/components/form/GenderSelect'
 
 interface ProfileAvatarCardProps {
   patient?: Patient
@@ -34,7 +34,7 @@ export const ProfileDetailCard = ({ patient }: ProfileAvatarCardProps) => {
         />
         <InfoItem
           label="Giới tính"
-          value={genderOptions.find((g) => g.value === patient?.gender)?.label}
+          value={GENDER_OPTIONS.find((g) => g.value === patient?.gender)?.label}
         />
       </div>
 

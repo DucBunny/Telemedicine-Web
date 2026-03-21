@@ -3,4 +3,7 @@ import { EditProfilePage } from '@/features/patient/pages/profile/EditProfilePag
 
 export const Route = createFileRoute('/patient/profile/edit')({
   component: EditProfilePage,
+  staticData: {
+    hideMobileNav: true,
+  },
 })

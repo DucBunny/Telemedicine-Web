@@ -1,8 +1,8 @@
 import { User } from '@/models/sql/index'
 import { Op } from 'sequelize'
 
-export const create = async (data) => {
-  return await User.create(data)
+export const create = async (data, options = {}) => {
+  return await User.create(data, options)
 }
 
 export const findById = async (id) => {

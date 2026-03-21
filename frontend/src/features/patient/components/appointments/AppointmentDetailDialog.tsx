@@ -10,7 +10,7 @@ import {
 import { useState } from 'react'
 import { SpecialtyPickerDialog } from './SpecialtyPickerDialog'
 import type { Appointment } from '@/features/patient/types'
-import { STATUS_FILTER_OPTIONS } from '@/features/patient/config'
+import { STATUS_FILTER_OPTIONS } from '@/features/patient/constants'
 import { formatLongDate, formatTime } from '@/lib/format-date'
 import {
   Dialog,
@@ -36,9 +36,7 @@ export const AppointmentDetailDialog = ({
   if (!appointment) return null
 
   const isOnline = appointment.type === 'online'
-  const statusOption = STATUS_FILTER_OPTIONS.find(
-    (s) => s.value === appointment.status,
-  )
+  const statusOption = STATUS_FILTER_OPTIONS[appointment.status]
   const isCancelled = appointment.status === 'cancelled'
 
   const [bookingOpen, setBookingOpen] = useState(false)
@@ -99,9 +97,9 @@ export const AppointmentDetailDialog = ({
             {/* Trạng thái - Chỉ hiển thị khi không phải cancelled */}
             {!isCancelled && (
               <Badge
-                variant={(statusOption?.variant as any) || 'default'}
+                variant={(statusOption.variant as any) || 'default'}
                 className="rounded-full text-xs">
-                {statusOption ? statusOption.label : 'Chờ duyệt'}
+                {statusOption.label}
               </Badge>
             )}
 

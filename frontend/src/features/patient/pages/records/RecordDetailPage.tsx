@@ -16,11 +16,8 @@ import {
   MOCK_MEDICATIONS,
   MOCK_RECORD,
 } from '@/features/patient/data/recordsMockData'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
 
 export const RecordDetailPage = () => {
-  useHideMobileNav()
-
   const navigate = useNavigate()
 
   const handleBack = () => {

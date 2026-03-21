@@ -1,5 +1,5 @@
 export type UserRole = 'admin' | 'doctor' | 'patient'
-export type UserStatus = 'active' | 'locked'
+export type UserStatus = 'active' | 'locked' | 'pending'
 
 // User info returned by auth endpoints (sanitized)
 export interface AuthUser {

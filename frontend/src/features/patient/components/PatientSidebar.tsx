@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Bell } from 'lucide-react'
-import type { NavItem } from '@/features/patient/config'
-import { NAVIGATION_ITEMS } from '@/features/patient/config'
+import type { NavItem } from '@/features/patient/navigation'
+import { NAVIGATION_ITEMS } from '@/features/patient/navigation'
 import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
 import { cn } from '@/lib/utils'
 import {

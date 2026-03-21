@@ -16,11 +16,13 @@ export interface RegisterRequestDto {
 export interface LoginResponseDto {
   accessToken: string
   user: AuthUser
+  isProfileComplete: boolean
 }
 
 export interface RefreshTokenResponseDto {
   accessToken: string
   user: AuthUser
+  isProfileComplete: boolean
 }
 
 export interface RegisterResponseDto {

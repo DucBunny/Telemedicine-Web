@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import type { ChatMessage } from '@/features/patient/data/chatMockData'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
 import {
   ChatHeader,
   ChatInput,
@@ -14,8 +13,6 @@ import {
 } from '@/features/patient/data/chatMockData'
 
 export const ChatRoom = () => {
-  useHideMobileNav()
-
   const navigate = useNavigate()
   const [messages, setMessages] =
     useState<Array<ChatMessage>>(MOCK_CHAT_MESSAGES)

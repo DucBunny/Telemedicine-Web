@@ -10,31 +10,30 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
-type GenderOption = 'male' | 'female' | 'other'
+export interface SelectOption<TValue extends string> {
+  value: TValue
+  label?: string
+}
 
-interface GenderComboboxProps {
+interface SelectFieldProps<TValue extends string> {
+  options: ReadonlyArray<SelectOption<TValue>> | Array<SelectOption<TValue>> // Nhận mảng options từ ngoài vào
   label?: string
   placeholder?: string
   className?: string
   error?: Array<string>
   field?: AnyFieldApi
-  value?: GenderOption
-  onChange?: (value: GenderOption) => void
+  value?: TValue
+  onChange?: (value: TValue) => void
   onBlur?: () => void
   name?: string
   leftIcon?: LucideIcon | string
   rightIcon?: LucideIcon | string
 }
 
-export const genderOptions = [
-  { value: 'male', label: 'Nam' },
-  { value: 'female', label: 'Nữ' },
-  { value: 'other', label: 'Khác' },
-] as const
-
-export const GenderSelect = ({
+export const SelectField = <TValue extends string>({
+  options,
   label,
-  placeholder = 'Chọn giới tính',
+  placeholder,
   className,
   error,
   field,
@@ -44,18 +43,23 @@ export const GenderSelect = ({
   name,
   leftIcon,
   rightIcon,
-}: GenderComboboxProps) => {
+}: SelectFieldProps<TValue>) => {
   const binding = field
     ? {
         name: field.name,
-        value: field.state.value,
+        value: field.state.value as TValue,
         onBlur: field.handleBlur,
-        onChange: (val: any) => {
+        onChange: (val: string) => {
           field.handleChange(val)
-          onChange?.(val)
+          onChange?.(val as TValue)
         },
       }
-    : { name, value, onBlur, onChange }
+    : {
+        name,
+        value,
+        onBlur,
+        onChange: (val: string) => onChange?.(val as TValue),
+      }
 
   return (
     <FieldWrapper
@@ -76,7 +80,7 @@ export const GenderSelect = ({
             onBlur={binding.onBlur}
             aria-invalid={hasError}
             className={cn(
-              'w-full rounded-xl transition-all focus-visible:border-teal-500 focus-visible:ring-1 focus-visible:ring-teal-500 focus-visible:ring-offset-0',
+              'w-full rounded-xl',
               leftIcon && 'pl-10',
               hasError ? 'border-red-500' : 'border-gray-300',
               className,
@@ -84,9 +88,9 @@ export const GenderSelect = ({
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
           <SelectContent position="popper">
-            {genderOptions.map((option) => (
+            {options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {option.label ?? option.value}
               </SelectItem>
             ))}
           </SelectContent>

@@ -33,12 +33,12 @@ module.exports = {
         type: Sequelize.STRING
       },
       status: {
-        type: Sequelize.ENUM('active', 'locked'),
-        defaultValue: 'active'
+        type: Sequelize.ENUM('active', 'locked', 'pending'),
+        defaultValue: 'pending'
       },
       last_login_at: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: null
       },
       created_at: {
         allowNull: false,

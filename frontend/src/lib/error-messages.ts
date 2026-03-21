@@ -20,6 +20,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // Login errors
   INVALID_CREDENTIALS: 'Tài khoản hoặc mật khẩu không đúng',
+  ACCOUNT_LOCKED: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ hỗ trợ.',
 
   // Registration errors
   EMAIL_EXISTS: 'Email đã được sử dụng',

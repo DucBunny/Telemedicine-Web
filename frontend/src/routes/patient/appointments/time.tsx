@@ -10,4 +10,7 @@ const timeSearchSchema = z.object({
 export const Route = createFileRoute('/patient/appointments/time')({
   validateSearch: timeSearchSchema.partial(),
   component: TimeSelectionPage,
+  staticData: {
+    hideMobileNav: true,
+  },
 })

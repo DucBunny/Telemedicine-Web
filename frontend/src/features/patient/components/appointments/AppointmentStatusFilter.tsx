@@ -1,8 +1,11 @@
 import { motion } from 'motion/react'
-import { STATUS_FILTER_OPTIONS } from '@/features/patient/config'
 import { Button } from '@/components/ui/button'
 
-const DISPLAY_OPTIONS = STATUS_FILTER_OPTIONS.slice(2, 5) // upcoming, completed, cancelled
+const DISPLAY_OPTIONS = [
+  { value: 'upcoming', label: 'Sắp tới' },
+  { value: 'completed', label: 'Đã hoàn thành' },
+  { value: 'cancelled', label: 'Đã hủy' },
+]
 
 interface AppointmentStatusFilterProps {
   value: string

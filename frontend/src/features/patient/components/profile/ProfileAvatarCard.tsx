@@ -13,7 +13,7 @@ export const ProfileAvatarCard = ({
 }: ProfileAvatarCardProps) => (
   <div className="w-full bg-white lg:w-1/3 xl:w-1/4">
     <div className="flex h-full flex-col items-center rounded-2xl border border-gray-200 p-6 text-center shadow-sm">
-      <div className="relative mb-4 cursor-pointer">
+      <div className="relative mb-4">
         <div
           className="size-32 rounded-full border-3 bg-cover bg-center bg-no-repeat shadow-md"
           style={{ backgroundImage: `url("${patient?.user.avatar}")` }}

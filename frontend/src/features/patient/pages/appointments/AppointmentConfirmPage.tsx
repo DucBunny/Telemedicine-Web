@@ -5,12 +5,10 @@ import { CircleCheckBig } from 'lucide-react'
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '../../../../components/ui/breadcrumb'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
+} from '@/components/ui/breadcrumb'
 import { Route } from '@/routes/patient/appointments/confirm'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -27,7 +25,6 @@ import { getMockDoctorById } from '@/features/patient/data/appointmentMockData'
 const USE_MOCK_DATA = true
 
 export const AppointmentConfirmPage = () => {
-  useHideMobileNav()
   const { doctorId, specialtyId, date, time, type } = Route.useSearch()
 
   const navigate = useNavigate()

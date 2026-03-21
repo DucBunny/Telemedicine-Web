@@ -1,4 +1,5 @@
 import * as userRepo from '@/repositories/user.repo'
+import * as patientRepo from '@/repositories/patient.repo'
 import * as refreshTokenRepo from '@/repositories/refreshToken.repo'
 import { hashPassword, comparePassword } from '@/utils/hash-password'
 import { StatusCodes } from 'http-status-codes'
@@ -6,6 +7,7 @@ import ApiError from '@/utils/api-error'
 import jwt from 'jsonwebtoken'
 import ms from 'ms'
 import { env } from '@/config'
+import { sequelize } from '@/models/sql'
 
 /**
  * Helpers to generate access and refresh tokens
@@ -50,7 +52,11 @@ const publicUser = (user) => {
   return safeUser
 }
 
+/**
+ * Register new patient (chỉ patient mới được đăng ký, doctor và admin sẽ do admin tạo thủ công)
+ */
 export const register = async ({ email, password, fullName, phoneNumber }) => {
+  // Kiểm tra email tồn tại
   const existingEmail = await userRepo.findByEmail(email)
   if (existingEmail)
     throw new ApiError(
@@ -59,6 +65,7 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
       'EMAIL_EXISTS'
     )
 
+  // Kiểm tra số điện thoại tồn tại
   const existingPhone = await userRepo.findByPhoneNumber(phoneNumber)
   if (existingPhone)
     throw new ApiError(
@@ -69,15 +76,29 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
 
   const hashedPassword = await hashPassword(password)
 
-  const newUser = await userRepo.create({
-    email,
-    password: hashedPassword,
-    fullName,
-    phoneNumber,
-    role: 'patient'
-  })
+  return await sequelize.transaction(async (t) => {
+    // Tạo user mới
+    const newUser = await userRepo.create(
+      {
+        email,
+        password: hashedPassword,
+        fullName,
+        phoneNumber,
+        role: 'patient'
+      },
+      { transaction: t }
+    )
 
-  return publicUser(newUser)
+    // Tạo patient profile liên quan
+    await patientRepo.create(
+      {
+        userId: newUser.id
+      },
+      { transaction: t }
+    )
+
+    return publicUser(newUser)
+  })
 }
 
 export const login = async ({ username, password, deviceInfo }) => {
@@ -99,10 +120,18 @@ export const login = async ({ username, password, deviceInfo }) => {
       'INVALID_CREDENTIALS'
     )
 
+  // Check profile completion for patient role
+  let isProfileComplete = true
+  if (user.role === 'patient') {
+    const patient = await patientRepo.findByUserId(user.id)
+    isProfileComplete = patient && patient.gender !== null
+  }
+
   const tokens = await generateTokens(user, deviceInfo)
 
   return {
     user: publicUser(user),
+    isProfileComplete,
     ...tokens
   }
 }
@@ -146,10 +175,18 @@ export const refreshToken = async ({ requestToken, deviceInfo = null }) => {
     // (Cơ chế Rotation) Hủy token cũ, cấp token mới
     await refreshTokenRepo.revoke(requestToken)
 
+    // Check profile completion for patient role
+    let isProfileComplete = true
+    if (user.role === 'patient') {
+      const patient = await patientRepo.findByUserId(user.id)
+      isProfileComplete = patient && patient.gender !== null
+    }
+
     const newTokens = await generateTokens(user, deviceInfo)
     return {
       ...newTokens,
-      user: publicUser(user)
+      user: publicUser(user),
+      isProfileComplete
     }
   } catch (error) {
     if (error.name === 'TokenExpiredError') {

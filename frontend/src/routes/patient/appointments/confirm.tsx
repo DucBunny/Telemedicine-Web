@@ -13,4 +13,7 @@ const confirmSearchSchema = z.object({
 export const Route = createFileRoute('/patient/appointments/confirm')({
   validateSearch: confirmSearchSchema.partial(),
   component: AppointmentConfirmPage,
+  staticData: {
+    hideMobileNav: true,
+  },
 })

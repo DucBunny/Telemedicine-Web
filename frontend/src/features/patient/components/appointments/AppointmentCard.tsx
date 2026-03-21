@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { Appointment } from '@/features/patient/types'
 import { AppointmentDetailDialog } from '@/features/patient/components/appointments/AppointmentDetailDialog'
 import { CancelAppointmentDialog } from '@/features/patient/components/appointments/CancelAppointmentDialog'
-import { STATUS_FILTER_OPTIONS } from '@/features/patient/config'
+import { STATUS_FILTER_OPTIONS } from '@/features/patient/constants'
 import { formatLongDate, formatTime } from '@/lib/format-date'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,9 +14,7 @@ interface AppointmentCardProps {
 
 export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const isOnline = appointment.type === 'online'
-  const statusOption = STATUS_FILTER_OPTIONS.find(
-    (s) => s.value === appointment.status,
-  )
+  const statusOption = STATUS_FILTER_OPTIONS[appointment.status]
   const isShowCancelButton =
     appointment.status === 'cancelled' || appointment.status === 'completed'
 
@@ -26,7 +24,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
 
   return (
-    <div className="teal700 relative flex cursor-pointer flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-800">
+    <div className="teal700 relative flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-800">
       {/* Doctor Info & Status */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -44,8 +42,8 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
             </p>
           </div>
         </div>
-        <Badge variant={(statusOption?.variant as any) || 'default'}>
-          {statusOption ? statusOption.label : 'Chờ duyệt'}
+        <Badge variant={(statusOption.variant as any) || 'default'}>
+          {statusOption.label}
         </Badge>
       </div>
 

@@ -1,5 +1,24 @@
 import type { User } from '@/features/admin/api/user.api'
 
+// Types
+export type GenderOption = 'male' | 'female' | 'other'
+export type BloodTypeOption =
+  | 'A+'
+  | 'B+'
+  | 'AB+'
+  | 'O+'
+  | 'A-'
+  | 'B-'
+  | 'AB-'
+  | 'O-'
+  | 'unknown'
+export type AppointmentStatus =
+  | 'confirmed'
+  | 'pending'
+  | 'upcoming'
+  | 'completed'
+  | 'cancelled'
+
 export interface Notification {
   id: number
   title: string
@@ -18,7 +37,7 @@ export interface Device {
   lastSync: string
 }
 
-// --------------------------------------------------------------------
+// Entity Interfaces --------------------------------------------------
 // Chuyên khoa
 export interface Specialty {
   id: number
@@ -47,8 +66,8 @@ export interface Doctor {
 export interface Patient {
   userId: number
   dateOfBirth: string
-  gender: string
-  bloodType: string
+  gender: GenderOption
+  bloodType: BloodTypeOption
   height: number
   weight: number
   medicalHistory: string

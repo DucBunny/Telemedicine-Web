@@ -13,6 +13,7 @@ Enum user_role {
 Enum user_status {
   active       // Tài khoản đang hoạt động
   locked       // Tài khoản bị khóa
+  pending      // Tài khoản mới tạo (là patient chưa điền thông tin: isProfileComplete)
 }
 
 Enum gender_type {
@@ -82,7 +83,7 @@ Table users {
   avatar varchar                              // Ảnh đại diện
   phone_number varchar                        // Số điện thoại
 
-  status user_status [default: 'active']      // Trạng thái tài khoản
+  status user_status [default: 'pending']      // Trạng thái tài khoản
   last_login_at datetime                      // Thời điểm đăng nhập gần nhất
 
   created_at timestamp [default: `now()`]

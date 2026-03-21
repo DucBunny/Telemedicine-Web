@@ -6,17 +6,16 @@ import {
   MessageSquare,
   User,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
-// Types
 export interface NavItem {
   id: string
   label: string
   mobileLabel?: string
   href: string
-  icon: typeof Home
+  icon: LucideIcon
 }
 
-// Data
 export const NAVIGATION_ITEMS: Array<NavItem> = [
   {
     id: 'home',
@@ -58,37 +57,5 @@ export const NAVIGATION_ITEMS: Array<NavItem> = [
     mobileLabel: 'Cá nhân',
     href: '/patient/profile',
     icon: User,
-  },
-]
-
-export const STATUS_FILTER_OPTIONS = [
-  {
-    value: 'confirmed',
-    label: 'Đã xác nhận',
-    color: 'text-green-700 bg-green-100',
-    variant: 'teal_outline',
-  },
-  {
-    value: 'pending',
-    label: 'Chờ duyệt',
-    color: 'text-yellow-700 bg-yellow-100',
-    variant: 'orange_outline',
-  },
-  {
-    value: 'upcoming',
-    label: 'Sắp tới',
-    color: 'text-green-700 bg-green-100',
-  },
-  {
-    value: 'completed',
-    label: 'Đã hoàn thành',
-    color: 'text-blue-700 bg-blue-100',
-    variant: 'purple_outline',
-  },
-  {
-    value: 'cancelled',
-    label: 'Đã hủy',
-    color: 'text-red-700 bg-red-100',
-    variant: 'red_outline',
   },
 ]

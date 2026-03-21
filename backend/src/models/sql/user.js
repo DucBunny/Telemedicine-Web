@@ -67,8 +67,8 @@ module.exports = (sequelize, DataTypes) => {
       avatar: DataTypes.STRING,
       phoneNumber: DataTypes.STRING,
       status: {
-        type: DataTypes.ENUM('active', 'locked'),
-        defaultValue: 'active'
+        type: DataTypes.ENUM('active', 'locked', 'pending'),
+        defaultValue: 'pending'
       },
       lastLoginAt: {
         type: DataTypes.DATE,

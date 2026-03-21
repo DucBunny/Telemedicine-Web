@@ -21,7 +21,15 @@ export const useLoginMutation = () => {
     mutationKey: ['auth', 'login'],
     mutationFn: (payload: LoginRequestDto) => authApi.login(payload),
     onSuccess: (data: LoginResponseDto) => {
-      setAuth(data.accessToken, data.user)
+      setAuth(data.accessToken, data.user, data.isProfileComplete)
+
+      // Check if profile is incomplete for patient
+      if (data.user.role === 'patient' && !data.isProfileComplete) {
+        navigate({ to: '/patient/complete-profile', replace: true })
+        toast.info('Vui lòng hoàn thiện hồ sơ để tiếp tục')
+        return
+      }
+
       const nextPath = redirect ?? roleToPath[data.user.role]
       navigate({ to: nextPath, replace: true })
       toast.success('Đăng nhập thành công!')

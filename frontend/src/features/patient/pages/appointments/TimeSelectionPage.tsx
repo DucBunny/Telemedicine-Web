@@ -1,18 +1,16 @@
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ArrowRight, Clock, CloudSun, Sun } from 'lucide-react'
+import type { TimeSlot } from '@/features/patient/components/appointments/TimeSlotGrid'
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '../../../../components/ui/breadcrumb'
-import { useSidebar } from '../../../../components/ui/sidebar'
-import { cn } from '../../../../lib/utils'
-import type { TimeSlot } from '@/features/patient/components/appointments/TimeSlotGrid'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
+} from '@/components/ui/breadcrumb'
+import { useSidebar } from '@/components/ui/sidebar'
+import { cn } from '@/lib/utils'
 import { Route } from '@/routes/patient/appointments/time'
 import { Button } from '@/components/ui/button'
 import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
@@ -40,7 +38,6 @@ const AFTERNOON_SLOTS: Array<TimeSlot> = [
 ]
 
 export const TimeSelectionPage = () => {
-  useHideMobileNav()
   const { doctorId, specialtyId } = Route.useSearch()
 
   const navigate = useNavigate()

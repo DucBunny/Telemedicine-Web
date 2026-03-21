@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { NAVIGATION_ITEMS } from '../config'
+import { NAVIGATION_ITEMS } from '@/features/patient/navigation'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 

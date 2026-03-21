@@ -28,7 +28,7 @@ interface DatePickerProps {
 export const DatePicker = ({
   label,
   className,
-  placeholder = 'Chọn ngày',
+  placeholder,
   error,
   field,
   leftIcon,

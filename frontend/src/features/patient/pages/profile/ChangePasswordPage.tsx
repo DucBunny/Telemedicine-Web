@@ -2,7 +2,6 @@ import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { CircleCheck, LockKeyhole, LockKeyholeOpen, Save } from 'lucide-react'
 import { z } from 'zod'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
 import { Button } from '@/components/ui/button'
 import { InputField } from '@/components/form/InputField'
 import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
@@ -25,7 +24,6 @@ const changePasswordSchema = z
 type ChangePasswordForm = z.infer<typeof changePasswordSchema>
 
 export const ChangePasswordPage = () => {
-  useHideMobileNav()
   const navigate = useNavigate()
 
   const form = useForm({

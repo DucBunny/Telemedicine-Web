@@ -35,5 +35,18 @@ export function requireAuth({ location, roles }: RequireAuthOptions) {
     throw redirect({ to: '/unauthorized' })
   }
 
+  // Check profile completion for patient role (except for complete-profile route)
+  // Nếu user là patient nhưng chưa hoàn thiện profile, redirect về trang complete-profile, chỉ cho phép truy cập các trang liên quan đến profile
+  if (
+    state.user?.role === 'patient' &&
+    !state.isProfileComplete &&
+    !location.href.includes('profile')
+  ) {
+    throw redirect({
+      to: '/patient/complete-profile',
+      replace: true,
+    })
+  }
+
   return { user: state.user }
 }

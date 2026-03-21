@@ -3,4 +3,7 @@ import { ChangePasswordPage } from '@/features/patient/pages/profile/ChangePassw
 
 export const Route = createFileRoute('/patient/profile/change-password')({
   component: ChangePasswordPage,
+  staticData: {
+    hideMobileNav: true,
+  },
 })

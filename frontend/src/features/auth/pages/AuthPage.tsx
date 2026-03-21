@@ -13,7 +13,7 @@ interface AuthLayoutProps {
 export const AuthLayout = ({ children }: AuthLayoutProps) => {
   const location = useLocation()
   const navigate = useNavigate()
-  const isLoginTab = location.pathname.includes('login')
+  const isLoginTab = !location.pathname.includes('register')
 
   // > 1024px sẽ hiển thị layout desktop
   const isDesktop = useMediaQuery('(min-width: 1024px)')

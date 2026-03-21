@@ -2,9 +2,9 @@ import { useNavigate } from '@tanstack/react-router'
 import { Cake, Check, MapPin, Phone, User } from 'lucide-react'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
-import { GenderSelect } from '@/components/form/GenderSelect'
+import { GENDER_OPTIONS } from '@/features/patient/constants'
+import { SelectField } from '@/components/form/SelectField'
 import { DatePicker } from '@/components/form/DatePicker'
-import { useHideMobileNav } from '@/features/patient/hooks/useHideMobileNav'
 import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
 import { InputField } from '@/components/form/InputField'
 import { TextAreaField } from '@/components/form/TextAreaField'
@@ -28,7 +28,6 @@ const patientSchema = z.object({
 type PatientProfileFormData = z.infer<typeof patientSchema>
 
 export const EditProfilePage = () => {
-  useHideMobileNav()
   const navigate = useNavigate()
   const { data: patientProfile } = useGetPatientProfile()
 
@@ -133,7 +132,8 @@ export const EditProfilePage = () => {
           <form.Field
             name="gender"
             children={(field) => (
-              <GenderSelect
+              <SelectField
+                options={GENDER_OPTIONS}
                 label="Giới tính"
                 placeholder="Chọn giới tính"
                 field={field}

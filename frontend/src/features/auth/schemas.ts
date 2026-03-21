@@ -13,7 +13,6 @@ const phoneNumber = z
   .string()
   .min(1, 'Vui lòng nhập số điện thoại')
   .regex(/^(0|\+84)(3|5|7|8|9)[0-9]{8}$/, 'Số điện thoại không hợp lệ')
-
 const username = z
   .string()
   .min(1, 'Vui lòng nhập email hoặc số điện thoại')

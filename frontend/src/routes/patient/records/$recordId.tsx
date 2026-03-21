@@ -3,4 +3,7 @@ import { RecordDetailPage } from '@/features/patient/pages/records/RecordDetailP
 
 export const Route = createFileRoute('/patient/records/$recordId')({
   component: RecordDetailPage,
+  staticData: {
+    hideMobileNav: true,
+  },
 })

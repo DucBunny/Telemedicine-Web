@@ -7,6 +7,13 @@ interface MyRouterContext {
   queryClient: QueryClient
 }
 
+// Extend the StaticDataRouteOption to include our custom static data
+declare module '@tanstack/react-router' {
+  interface StaticDataRouteOption {
+    hideMobileNav?: boolean
+  }
+}
+
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async () => {
     const auth = useAuthStore.getState()
@@ -14,7 +21,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
     try {
       const data = await authApi.refreshToken()
-      auth.setAuth(data.accessToken, data.user)
+      auth.setAuth(data.accessToken, data.user, data.isProfileComplete)
     } catch {
       auth.clearAuth()
     } finally {
