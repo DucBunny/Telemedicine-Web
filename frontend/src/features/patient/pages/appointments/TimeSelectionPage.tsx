@@ -1,7 +1,9 @@
-import { useNavigate, useRouter } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { ArrowRight, Clock, CloudSun, Sun } from 'lucide-react'
 import type { TimeSlot } from '@/features/patient/components/appointments/TimeSlotGrid'
+import type { AppointmentType } from '@/features/patient/types'
+import { useGetAvailableSlots } from '@/features/patient/hooks/useAppointmentQueries'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,52 +19,77 @@ import { ChildPageHeader } from '@/features/patient/components/common/PageHeader
 import { VisitTypeToggle } from '@/features/patient/components/appointments/VisitTypeToggle'
 import { CalendarWidget } from '@/features/patient/components/appointments/CalendarWidget'
 import { TimeSlotGrid } from '@/features/patient/components/appointments/TimeSlotGrid'
+import { formatDateForApi, formatLongDate } from '@/lib/format-date'
 
-// Mock time slots - In production, fetch from API based on doctor and date
-const MORNING_SLOTS: Array<TimeSlot> = [
-  { time: '08:00', isAvailable: true },
-  { time: '08:30', isAvailable: true },
-  { time: '09:00', isAvailable: true },
-  { time: '09:30', isAvailable: true },
-  { time: '10:00', isAvailable: true },
-  { time: '10:30', isAvailable: true },
+const BASE_MORNING_SLOTS: Array<TimeSlot> = [
+  { time: '08:00', isAvailable: false },
+  { time: '08:30', isAvailable: false },
+  { time: '09:00', isAvailable: false },
+  { time: '09:30', isAvailable: false },
+  { time: '10:00', isAvailable: false },
+  { time: '10:30', isAvailable: false },
+  { time: '11:00', isAvailable: false },
+  { time: '11:30', isAvailable: false },
 ]
 
-const AFTERNOON_SLOTS: Array<TimeSlot> = [
-  { time: '14:00', isAvailable: true },
-  { time: '14:30', isAvailable: true },
-  { time: '15:00', isAvailable: true },
-  { time: '15:30', isAvailable: true },
+const BASE_AFTERNOON_SLOTS: Array<TimeSlot> = [
+  { time: '13:30', isAvailable: false },
+  { time: '14:00', isAvailable: false },
+  { time: '14:30', isAvailable: false },
+  { time: '15:00', isAvailable: false },
+  { time: '15:30', isAvailable: false },
   { time: '16:00', isAvailable: false },
   { time: '16:30', isAvailable: false },
 ]
 
 export const TimeSelectionPage = () => {
+  // Get doctorId and specialtyId from search params
   const { doctorId, specialtyId } = Route.useSearch()
 
   const navigate = useNavigate()
-  const router = useRouter()
   const { open } = useSidebar()
 
-  const [visitType, setVisitType] = useState<'offline' | 'online'>('offline')
+  const [visitType, setVisitType] = useState<AppointmentType>('offline')
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [selectedTime, setSelectedTime] = useState<string>('09:00')
+  const [morningSlots, setMorningSlots] =
+    useState<Array<TimeSlot>>(BASE_MORNING_SLOTS)
+  const [afternoonSlots, setAfternoonSlots] =
+    useState<Array<TimeSlot>>(BASE_AFTERNOON_SLOTS)
 
+  // Format date for API
+  const formattedDate = formatDateForApi(selectedDate)
+  const { data: availableSlots } = useGetAvailableSlots({
+    doctorId: doctorId!,
+    date: formattedDate,
+  })
+
+  // Update available slots based on API response
+  useEffect(() => {
+    setMorningSlots(
+      BASE_MORNING_SLOTS.map((slot) => ({
+        ...slot,
+        isAvailable: availableSlots?.includes(slot.time) ?? false,
+      })),
+    )
+    setAfternoonSlots(
+      BASE_AFTERNOON_SLOTS.map((slot) => ({
+        ...slot,
+        isAvailable: availableSlots?.includes(slot.time) ?? false,
+      })),
+    )
+  }, [availableSlots])
+
+  // Handle back navigation
   const handleBack = () => {
-    router.history.back()
+    navigate({
+      to: '/patient/appointments/doctors',
+      search: { specialtyId },
+    })
   }
 
+  // Handle continue navigation
   const handleContinue = () => {
-    // Serialize to local YYYY-MM-DD to avoid timezone shifts from toISOString()
-    const toLocalYMD = (d: Date) => {
-      const y = d.getFullYear()
-      const m = String(d.getMonth() + 1).padStart(2, '0')
-      const day = String(d.getDate()).padStart(2, '0')
-      return `${y}-${m}-${day}`
-    }
-
-    const formattedDate = toLocalYMD(selectedDate)
-    // const formattedDate = selectedDate.toISOString().split('T')[0]
     navigate({
       to: '/patient/appointments/confirm',
       search: {
@@ -74,13 +101,6 @@ export const TimeSelectionPage = () => {
       },
     })
   }
-
-  // Format date for display
-  const formattedDate = selectedDate.toLocaleDateString('vi-VN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
 
   const estimatedCost = visitType === 'online' ? '150.000đ' : '200.000đ'
 
@@ -132,7 +152,7 @@ export const TimeSelectionPage = () => {
             title="Buổi sáng"
             icon={Sun}
             iconColor="text-yellow-500"
-            slots={MORNING_SLOTS}
+            slots={morningSlots}
             selectedTime={selectedTime}
             onSelectTime={setSelectedTime}
           />
@@ -141,7 +161,7 @@ export const TimeSelectionPage = () => {
             title="Buổi chiều"
             icon={CloudSun}
             iconColor="text-orange-500"
-            slots={AFTERNOON_SLOTS}
+            slots={afternoonSlots}
             selectedTime={selectedTime}
             onSelectTime={setSelectedTime}
           />
@@ -160,7 +180,7 @@ export const TimeSelectionPage = () => {
               Thời gian đã chọn
             </span>
             <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              {selectedTime}, {formattedDate}
+              {selectedTime}, {formatLongDate(formattedDate)}
             </span>
           </div>
           <div className="text-right">

@@ -1,23 +1,21 @@
-import { Link, useNavigate, useRouter } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useDebounceValue } from 'usehooks-ts'
+import type { FilterOption } from '@/features/patient/components/appointments/FilterChips'
+import { useGetDoctors } from '@/features/patient/hooks/useDoctorQueries'
+import { useGetSpecialtyDetail } from '@/features/patient/hooks/useSpecialtyQueries'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '../../../../components/ui/breadcrumb'
-import type { FilterOption } from '@/features/patient/components/appointments/FilterChips'
+} from '@/components/ui/breadcrumb'
 import { Route } from '@/routes/patient/appointments/doctors'
 import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
 import { SearchBar } from '@/features/patient/components/common/SearchBar'
 import { FilterChips } from '@/features/patient/components/appointments/FilterChips'
 import { DoctorCard } from '@/features/patient/components/appointments/DoctorCard'
-import { useGetDoctors } from '@/features/patient/hooks/useAppointmentQueries'
-import { getMockDoctorsBySpecialty } from '@/features/patient/data/appointmentMockData'
-
-// Set to true to use mock data for UI testing
-const USE_MOCK_DATA = true
 
 const FILTERS: Array<FilterOption> = [
   { id: 'all', label: 'Tất cả' },
@@ -26,29 +24,26 @@ const FILTERS: Array<FilterOption> = [
 ]
 
 export const DoctorSelectionPage = () => {
-  const { specialtyId, specialtyName } = Route.useSearch()
+  // Get specialtyId from search params & fetch specialty name
+  const { specialtyId } = Route.useSearch()
+  const { data: specialty } = useGetSpecialtyDetail(specialtyId)
 
   const navigate = useNavigate()
-  const router = useRouter()
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeFilter, setActiveFilter] = useState('all')
+  // Filter state
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebounceValue(search, 500) // 500ms delay before fetching
+  const [expFilter, setExpFilter] = useState('all')
 
   // Fetch doctors from API
-  const { data: apiDoctorsData, isLoading } = useGetDoctors({
-    specialty_id: specialtyId,
-    search: searchQuery,
+  const { data: doctorsData, isLoading } = useGetDoctors({
+    page: 1,
+    limit: 10,
+    specialtyId: specialtyId,
+    search: debouncedSearch,
   })
 
-  // Use mock data if enabled, otherwise use API data
-  const doctorsData = USE_MOCK_DATA
-    ? { data: getMockDoctorsBySpecialty(specialtyId) }
-    : apiDoctorsData
-
-  const handleBack = () => {
-    router.history.back()
-  }
-
+  // Handle book appointment to time selection page
   const handleBookAppointment = (doctorId: number) => {
     navigate({
       to: '/patient/appointments/time',
@@ -56,21 +51,10 @@ export const DoctorSelectionPage = () => {
     })
   }
 
-  // Filter by search query
-  let filteredDoctors = doctorsData?.data.filter((doctor) => {
-    if (searchQuery) {
-      return doctor.user.fullName
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-    }
-    return true
-  })
-
   // Filter by experience
-  filteredDoctors = filteredDoctors?.filter((doctor) => {
-    if (activeFilter === 'all') return true
-    if (activeFilter === 'exp_5') return doctor.experienceYears > 5
-    if (activeFilter === 'exp_10') return doctor.experienceYears > 10
+  const filteredDoctors = doctorsData?.data.filter((doctor) => {
+    if (expFilter === 'exp_5') return doctor.experienceYears > 5
+    if (expFilter === 'exp_10') return doctor.experienceYears > 10
     return true
   })
 
@@ -78,8 +62,8 @@ export const DoctorSelectionPage = () => {
     <>
       <div className="px-4">
         <ChildPageHeader
-          title={specialtyName ? `Bác sĩ ${specialtyName}` : `Chọn bác sĩ`}
-          onBack={handleBack}
+          title={specialty?.name ? `Bác sĩ ${specialty.name}` : `Chọn bác sĩ`}
+          onBack={() => navigate({ to: '/patient/appointments' })}
           breadcrumb={
             <Breadcrumb>
               <BreadcrumbList>
@@ -102,21 +86,21 @@ export const DoctorSelectionPage = () => {
         />
 
         <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          placeholder="Tìm tên bác sĩ..."
+          value={search}
+          onChange={setSearch}
+          placeholder="Tìm tên bác sĩ, bệnh viện..."
         />
       </div>
 
       <div className="my-3 space-y-3 md:my-6">
         <FilterChips
           filters={FILTERS}
-          activeFilter={activeFilter}
-          onSelect={setActiveFilter}
+          activeFilter={expFilter}
+          onSelect={setExpFilter}
         />
 
         <div className="space-y-3 px-4 md:space-y-4">
-          {!USE_MOCK_DATA && isLoading ? (
+          {isLoading ? (
             <div className="mt-6 text-center text-base text-gray-400">
               Đang tải...
             </div>

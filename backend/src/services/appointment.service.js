@@ -1,34 +1,66 @@
 import * as appointmentRepo from '@/repositories/appointment.repo'
+import * as doctorRepo from '@/repositories/doctor.repo'
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 import * as socketService from '@/services/socket.service'
 import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
 
-export const getAppointmentsByDoctorId = async (
-  doctorId,
-  { page = 1, limit = 10, status = [] }
+/**
+ * Get appointments for logged in user (doctor or patient) with filter
+ */
+export const getMyAppointments = async (
+  userId,
+  role,
+  { page, limit, status }
 ) => {
-  return await appointmentRepo.findByDoctorId(doctorId, {
-    page,
-    limit,
-    status
-  })
+  if (role === 'doctor') {
+    return await appointmentRepo.findByDoctorId(userId, {
+      page,
+      limit,
+      status
+    })
+  } else if (role === 'patient') {
+    return await appointmentRepo.findByPatientId(userId, {
+      page,
+      limit,
+      status
+    })
+  }
 }
 
-export const getAppointmentsByPatientId = async (
-  patientId,
-  { page = 1, limit = 10, status = [] }
+/**
+ * Cancel appointment by ID (by doctor or patient)
+ */
+export const cancelAppointment = async (
+  appointmentId,
+  { cancelReason },
+  role
 ) => {
-  return await appointmentRepo.findByPatientId(patientId, {
-    page,
-    limit,
-    status
+  const appointment = await appointmentRepo.findById(appointmentId)
+  if (!appointment)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Appointment not found',
+      'APPOINTMENT_NOT_FOUND'
+    )
+
+  if (appointment.status === 'cancelled')
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Appointment is already cancelled',
+      'ALREADY_CANCELLED'
+    )
+
+  return await appointmentRepo.update(appointmentId, {
+    cancelReason:
+      (role === 'patient' ? 'Bệnh nhân: ' : 'Bác sĩ: ') + cancelReason,
+    status: 'cancelled'
   })
 }
 
 /**
- * Tạo các slot 30 phút trong khoảng [startTime, endTime)
+ * Helper: Tạo các slot 30 phút trong khoảng [startTime, endTime)
  */
 const generateSlots = (startTime, endTime, durationMin = 30) => {
   const slots = []
@@ -45,13 +77,16 @@ const generateSlots = (startTime, endTime, durationMin = 30) => {
   return slots
 }
 
+/**
+ * Helper: Chuyển đổi thời gian thành phút
+ */
 const timeToMinutes = (timeStr) => {
   const [h, m] = timeStr.split(':').map(Number)
   return h * 60 + m
 }
 
 /**
- * Kiểm tra slot bị block bởi off schedule hoặc appointment đã đặt
+ * Helper: Kiểm tra slot có bị block bởi off schedule hoặc appointment đã đặt không
  */
 const isSlotAvailable = (slot, durationMin, offSchedules, bookedAppts) => {
   const slotStart = timeToMinutes(slot)
@@ -60,6 +95,7 @@ const isSlotAvailable = (slot, durationMin, offSchedules, bookedAppts) => {
   // Kiểm tra overlap với off schedules
   for (const off of offSchedules) {
     if (!off.startTime) return false // Nghỉ cả ngày
+
     const offStart = timeToMinutes(off.startTime)
     const offEnd = timeToMinutes(off.endTime)
     if (slotStart < offEnd && slotEnd > offStart) return false
@@ -68,7 +104,8 @@ const isSlotAvailable = (slot, durationMin, offSchedules, bookedAppts) => {
   // Kiểm tra overlap với appointments đã đặt
   for (const appt of bookedAppts) {
     const apptDate = new Date(appt.scheduledAt)
-    const apptStart = apptDate.getUTCHours() * 60 + apptDate.getUTCMinutes()
+    const apptStart = apptDate.getHours() * 60 + apptDate.getMinutes()
+    // const apptStart = apptDate.getUTCHours() * 60 + apptDate.getUTCMinutes()
     const apptEnd = apptStart + (appt.duration ?? 30)
     if (slotStart < apptEnd && slotEnd > apptStart) return false
   }
@@ -80,6 +117,14 @@ const isSlotAvailable = (slot, durationMin, offSchedules, bookedAppts) => {
  * Lấy danh sách slot trống của bác sĩ theo ngày
  */
 export const getAvailableSlots = async (doctorId, date) => {
+  const doctor = await doctorRepo.findByUserId(doctorId)
+  if (!doctor)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Doctor not found',
+      'DOCTOR_NOT_FOUND'
+    )
+
   const dateObj = new Date(date)
   const dayOfWeek = dateObj.getDay() // 0=Sun, 1=Mon...
 
@@ -101,59 +146,61 @@ export const getAvailableSlots = async (doctorId, date) => {
 }
 
 /**
- * Đặt lịch hẹn mới
+ * Create new appointment
  */
-export const bookAppointment = async ({
+export const createAppointment = async ({
   patientId,
   doctorId,
   scheduledAt,
-  reason,
-  duration = 30
+  durationMinutes = 30,
+  type,
+  reason
 }) => {
   // Kiểm tra slot có còn trống không
-  const dateStr = new Date(scheduledAt).toISOString().split('T')[0]
-  const slotTime = new Date(scheduledAt).toISOString().split('T')[1].slice(0, 5)
+  const dateStr = scheduledAt.split('T')[0] // Lấy date từ string gốc
+  const slotTime = scheduledAt.split('T')[1].slice(0, 5) // Lấy time từ string gốc
 
   const available = await getAvailableSlots(doctorId, dateStr)
-  if (!available.includes(slotTime)) {
+  if (!available.includes(slotTime))
     throw new ApiError(
       StatusCodes.CONFLICT,
-      'Khung giờ này đã bị đặt hoặc không nằm trong giờ làm việc của bác sĩ.',
-      'SLOT_NOT_AVAILABLE'
+      'Selected time slot is no longer available',
+      'SLOT_UNAVAILABLE'
     )
-  }
 
-  return await appointmentRepo.bookAppointment({
+  return await appointmentRepo.create({
     patientId,
     doctorId,
     scheduledAt,
+    durationMinutes,
+    type,
     reason,
-    duration
+    status: 'pending'
   })
 }
 
+//-------------------------------------------------------
 /**
  * Bác sĩ duyệt lịch hẹn + khởi tạo chat
  */
 export const confirmAppointment = async (appointmentId, io) => {
   const appointment = await appointmentRepo.findById(appointmentId)
-  if (!appointment) {
+  if (!appointment)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
-      'Không tìm thấy lịch hẹn.',
+      'Selected appointment not found',
       'APPOINTMENT_NOT_FOUND'
     )
-  }
-  if (appointment.status !== 'pending') {
+
+  if (appointment.status !== 'pending')
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Lịch hẹn không ở trạng thái chờ duyệt.',
+      'Selected appointment is not in pending status',
       'INVALID_STATUS'
     )
-  }
 
   // 1. Cập nhật status
-  await appointmentRepo.updateStatus(appointmentId, 'confirmed')
+  await appointmentRepo.update(appointmentId, { status: 'confirmed' })
 
   // 2. Đảm bảo quan hệ patient-doctor tồn tại
   await appointmentRepo.ensurePatientDoctor(

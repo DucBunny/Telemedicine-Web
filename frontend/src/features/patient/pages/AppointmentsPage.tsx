@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { AppointmentStatusFilter } from '../components/appointments/AppointmentStatusFilter'
-import { useGetPatientAppointments } from '../hooks/useAppointmentQueries'
-import { AppointmentCard } from '../components/appointments/AppointmentCard'
-import { SpecialtyPickerDialog } from '../components/appointments/SpecialtyPickerDialog'
-import { MainPageHeader } from '../components/common/PageHeader'
+import { AppointmentStatusFilter } from '@/features/patient/components/appointments/AppointmentStatusFilter'
+import { useGetMyAppointments } from '@/features/patient/hooks/useAppointmentQueries'
+import { AppointmentCard } from '@/features/patient/components/appointments/AppointmentCard'
+import { SpecialtyPickerDialog } from '@/features/patient/components/appointments/SpecialtyPickerDialog'
+import { MainPageHeader } from '@/features/patient/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
 
 export const AppointmentsPage = () => {
@@ -14,7 +14,7 @@ export const AppointmentsPage = () => {
   const statusParam =
     statusFilter === 'upcoming' ? ['confirmed', 'pending'] : [statusFilter]
 
-  const { data: appointmentsData } = useGetPatientAppointments({
+  const { data: appointmentsData } = useGetMyAppointments({
     page: 1,
     limit: 5,
     status: statusParam,

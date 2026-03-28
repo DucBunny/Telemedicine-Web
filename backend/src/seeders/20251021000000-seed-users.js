@@ -22,7 +22,7 @@ module.exports = {
     })
 
     // 2. Doctors
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 50; i++) {
       usersData.push({
         full_name: generateVNName(),
         email: `doctor${i + 1}@gmail.com`,

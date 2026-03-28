@@ -10,6 +10,9 @@ import appointmentRouter from './appointment.route'
 import medicalRecordRouter from './medicalRecord.route'
 import specialtyRouter from './specialty.route'
 import uploadRouter from './upload.route'
+import meRouter from './me.route'
+import chatRouter from './chat.route'
+import notificationRouter from './notification.route'
 
 const router = express.Router()
 
@@ -24,6 +27,11 @@ router.use('/auth', authRouter)
 
 // Apply authentication middleware for all routes below
 router.use(authMiddleware)
+
+// Current user
+router.use('/me', meRouter)
+
+// Main API routes
 router.use('/stats', statsRouter)
 router.use('/users', userRouter)
 router.use('/devices', deviceRouter)
@@ -33,5 +41,7 @@ router.use('/appointments', appointmentRouter)
 router.use('/records', medicalRecordRouter)
 router.use('/specialties', specialtyRouter)
 router.use('/uploads', uploadRouter)
+router.use('/chat', chatRouter)
+router.use('/notifications', notificationRouter)
 
 export default router

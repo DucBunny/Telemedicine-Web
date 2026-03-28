@@ -9,7 +9,7 @@ import {
   VitalCards,
 } from '@/features/patient/components/home'
 import { MOCK_NOTIFICATIONS } from '@/features/patient/data/mockData'
-import { useGetPatientAppointments } from '@/features/patient/hooks/useAppointmentQueries'
+import { useGetMyAppointments } from '@/features/patient/hooks/useAppointmentQueries'
 import { useAuthStore } from '@/stores/auth.store'
 import { useHealthData } from '@/features/patient/hooks/useHealthData'
 import { useHealthAlerts } from '@/features/patient/hooks/useHealthAlerts'
@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 export const HomePage = () => {
   const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.is_read).length
   const { data: profileData } = useGetPatientProfile()
-  const { data: appointmentsData } = useGetPatientAppointments({
+  const { data: appointmentsData } = useGetMyAppointments({
     page: 1,
     limit: 5,
     status: ['confirmed'],

@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { Heart, ShieldCheck, Stethoscope } from 'lucide-react'
 import { useLocation, useNavigate } from '@tanstack/react-router'
+import { useMediaQuery } from 'usehooks-ts'
 import { Header } from '@/features/auth/components/Header'
 import { cn } from '@/lib/utils'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 import '../styles.css'
 
 interface AuthLayoutProps {

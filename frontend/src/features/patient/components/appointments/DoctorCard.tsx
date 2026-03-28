@@ -1,21 +1,6 @@
 import { Hospital } from 'lucide-react'
+import type { Doctor } from '@/features/patient/types'
 import { Button } from '@/components/ui/button'
-
-export interface Doctor {
-  userId: number
-  specialtyId: number
-  degree: string
-  experienceYears: number
-  bio: string
-  address: string
-  user: {
-    id: number
-    fullName: string
-    email: string
-    phone?: string
-    avatar?: string
-  }
-}
 
 interface DoctorCardProps {
   doctor: Doctor
@@ -37,7 +22,7 @@ export const DoctorCard = ({ doctor, onBook }: DoctorCardProps) => {
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-gray-100">
           {doctor.user.avatar ? (
             <img
-              alt={`Chân dung ${doctor.user.fullName}`}
+              alt={doctor.user.fullName}
               className="h-full w-full object-cover"
               src={doctor.user.avatar}
             />
@@ -49,12 +34,9 @@ export const DoctorCard = ({ doctor, onBook }: DoctorCardProps) => {
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-base leading-tight font-bold text-slate-900">
+          <h3 className="text-teal-primary truncate text-base leading-tight font-bold">
             {doctor.degree}. {doctor.user.fullName}
           </h3>
-          <p className="text-teal-primary mt-1 text-xs font-medium md:text-sm">
-            {doctor.degree}
-          </p>
           <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-600 md:text-sm">
             {doctor.bio}
           </p>

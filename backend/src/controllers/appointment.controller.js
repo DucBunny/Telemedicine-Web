@@ -2,36 +2,18 @@ import * as appointmentService from '@/services/appointment.service'
 import { StatusCodes } from 'http-status-codes'
 import { normalizeQueryArray } from '@/utils/normalize-query-array'
 
-export const getAppointmentsByDoctorId = async (req, res, next) => {
+/**
+ * Get appointments for logged in user (doctor or patient) with filter
+ */
+export const getMyAppointments = async (req, res, next) => {
   try {
-    const userId = req.user.id // from JWT token
-    const { page = 1, limit = 10 } = req.query
-    const rawStatus = req.query.status ?? req.query['status[]'] ?? []
+    const { id: userId, role } = req.user
+    const { page = 1, limit = 10 } = req.validatedQuery
+    const rawStatus =
+      req.validatedQuery.status ?? req.validatedQuery['status[]'] ?? []
     const normalizedStatus = normalizeQueryArray(rawStatus)
 
-    const result = await appointmentService.getAppointmentsByDoctorId(userId, {
-      page,
-      limit,
-      status: normalizedStatus
-    })
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: result.data,
-      meta: result.meta
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const getAppointmentsByPatientId = async (req, res, next) => {
-  try {
-    const userId = req.user.id // from JWT token
-    const { page = 1, limit = 10 } = req.query
-    const rawStatus = req.query.status ?? req.query['status[]'] ?? []
-    const normalizedStatus = normalizeQueryArray(rawStatus)
-
-    const result = await appointmentService.getAppointmentsByPatientId(userId, {
+    const result = await appointmentService.getMyAppointments(userId, role, {
       page,
       limit,
       status: normalizedStatus
@@ -47,50 +29,60 @@ export const getAppointmentsByPatientId = async (req, res, next) => {
 }
 
 /**
- * GET /appointments/available-slots?doctor_id=&date=YYYY-MM-DD
+ * Cancel appointment (by doctor or patient)
+ */
+export const cancelAppointment = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const { role } = req.user
+    const { cancelReason } = req.body
+    const result = await appointmentService.cancelAppointment(
+      id,
+      { cancelReason },
+      role
+    )
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Get available slots for a doctor on a specific date
+ * GET /appointments/available-slots?doctorId=&date=YYYY-MM-DD
  */
 export const getAvailableSlots = async (req, res, next) => {
   try {
-    const { doctor_id, date } = req.query
-    if (!doctor_id || !date) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Thiếu tham số doctor_id hoặc date.'
-      })
-    }
-
-    const slots = await appointmentService.getAvailableSlots(
-      parseInt(doctor_id),
-      date
-    )
-    res.status(StatusCodes.OK).json({ success: true, data: slots })
+    const { doctorId, date } = req.validatedQuery
+    const slots = await appointmentService.getAvailableSlots(doctorId, date)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: slots
+    })
   } catch (error) {
     next(error)
   }
 }
 
 /**
- * POST /appointments/book
- * Body: { doctor_id, scheduled_at, reason, duration? }
+ * POST /appointments
+ * Body: { doctorId, scheduledAt, durationMinutes?, type, reason }
  */
-export const bookAppointment = async (req, res, next) => {
+export const createAppointment = async (req, res, next) => {
   try {
-    const patientId = req.user.id
-    const { doctor_id, scheduled_at, reason, duration } = req.body
+    const { id: patientId } = req.user
+    const { doctorId, scheduledAt, durationMinutes, type, reason } = req.body
 
-    if (!doctor_id || !scheduled_at) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: 'Thiếu tham số doctor_id hoặc scheduled_at.'
-      })
-    }
-
-    const appointment = await appointmentService.bookAppointment({
+    const appointment = await appointmentService.createAppointment({
       patientId,
-      doctorId: parseInt(doctor_id),
-      scheduledAt: scheduled_at,
-      reason,
-      duration
+      doctorId,
+      scheduledAt,
+      durationMinutes,
+      type,
+      reason
     })
 
     res.status(StatusCodes.CREATED).json({
@@ -102,6 +94,7 @@ export const bookAppointment = async (req, res, next) => {
   }
 }
 
+//-------------------------------------------------------
 /**
  * POST /appointments/:id/confirm  (Doctor/Admin)
  */

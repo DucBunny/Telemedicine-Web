@@ -1,5 +1,5 @@
 import { CalendarDays, Clock, Stethoscope } from 'lucide-react'
-import type { Doctor } from './DoctorCard'
+import type { Doctor } from '@/features/patient/types'
 import { Badge } from '@/components/ui/badge'
 
 interface AppointmentConfirmInfoCardProps {
@@ -50,7 +50,7 @@ export const AppointmentConfirmInfoCard = ({
             <h3 className="text-lg leading-tight font-bold text-slate-900">
               {doctor.degree}. {doctor.user.fullName}
             </h3>
-            <p className="text-sm text-slate-500">{doctor.degree}</p>
+            <p className="text-sm text-slate-500">{doctor.specialty.name}</p>
           </div>
         </div>
 

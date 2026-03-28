@@ -8,22 +8,16 @@ module.exports = {
       `SELECT user_id FROM patients;`,
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     )
-    const doctors = await queryInterface.sequelize.query(
-      `SELECT user_id FROM doctors;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
-    )
+
     const now = new Date()
     const records = []
 
     patients.forEach((pat) => {
-      const randomDoc =
-        doctors[Math.floor(Math.random() * doctors.length)].user_id
-
       const scenario = faker.helpers.arrayElement(medicalScenarios)
 
       records.push({
         patient_id: pat.user_id,
-        doctor_id: randomDoc,
+        doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
         diagnosis: faker.helpers.arrayElement(scenario.diagnoses),
         prescription: faker.helpers.arrayElement(scenario.prescriptions),
         notes: scenario.getNotes(),

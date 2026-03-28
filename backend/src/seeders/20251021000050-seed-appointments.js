@@ -8,10 +8,7 @@ module.exports = {
       `SELECT user_id FROM patients;`,
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     )
-    const doctors = await queryInterface.sequelize.query(
-      `SELECT user_id FROM doctors;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
-    )
+
     const now = new Date()
     const appointments = []
 
@@ -24,9 +21,6 @@ module.exports = {
     ]
 
     patients.forEach((pat) => {
-      const randomDoc =
-        doctors[Math.floor(Math.random() * doctors.length)].user_id
-
       const randomDay = faker.date.recent({ days: 30 })
       const startDate = generateTime(randomDay)
       const endDate = new Date(startDate.getTime() + 30 * 60 * 1000) // Meet 30 phút
@@ -35,7 +29,7 @@ module.exports = {
         // 3 Lịch sử khám (Đã xong)
         appointments.push({
           patient_id: pat.user_id,
-          doctor_id: randomDoc,
+          doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
           scheduled_at: startDate,
           actual_ended_at: endDate,
           duration_minutes: 30,
@@ -50,7 +44,7 @@ module.exports = {
         // 3 Lịch hẹn sắp tới (Đã xác nhận, Chờ duyệt)
         appointments.push({
           patient_id: pat.user_id,
-          doctor_id: randomDoc,
+          doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
           scheduled_at: generateTime(faker.date.soon({ days: 7 })),
           actual_ended_at: null,
           duration_minutes: 30,
@@ -65,7 +59,7 @@ module.exports = {
         // 3 Lịch hẹn đã hủy
         appointments.push({
           patient_id: pat.user_id,
-          doctor_id: randomDoc,
+          doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
           scheduled_at: generateTime(faker.date.soon({ days: 14 })),
           actual_ended_at: null,
           duration_minutes: 30,

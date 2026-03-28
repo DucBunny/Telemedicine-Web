@@ -13,7 +13,7 @@ const phoneNumber = z
   .string()
   .regex(
     /^(0|\+84)(3|5|7|8|9)[0-9]{8}$/,
-    'Phone number is not valid (10-11 digits)'
+    'Phone number is invalid (Vietnamese format)'
   )
   .min(1, 'Phone number is required')
 
@@ -22,7 +22,7 @@ const username = z
   .min(1, 'Username is required')
   .refine(
     (val) => email.safeParse(val).success || phoneNumber.safeParse(val).success,
-    'Email or phone number is not valid'
+    'Email or phone number is invalid'
   )
 
 export const loginSchema = z.object({

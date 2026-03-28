@@ -1,71 +1,96 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { appointmentApi } from '../api/appointment.api'
-import { doctorApi } from '../api/doctor.api'
+import { useNavigate } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import type { PaginationParams } from '@/types/api.type'
+import type {
+  CancelAppointmentBody,
+  CreateAppointmentBody,
+  GetAvailableSlotsParams,
+  GetMyAppointmentsParams,
+} from '@/features/patient/dto/appointment.dto'
+import { appointmentApi } from '@/features/patient/api/appointment.api'
+import { getErrorMessage } from '@/lib/axios'
 
-const APPOINTMENT_KEYS = {
+export const APPOINTMENT_KEYS = {
   all: ['appointments'] as const,
+
   lists: () => [...APPOINTMENT_KEYS.all, 'list'] as const,
   list: (params: PaginationParams & { status?: Array<string> }) =>
     [...APPOINTMENT_KEYS.lists(), params] as const,
+
   details: () => [...APPOINTMENT_KEYS.all, 'detail'] as const,
   detail: (id: number) => [...APPOINTMENT_KEYS.details(), id] as const,
+
   slots: (doctorId: number, date: string) =>
     [...APPOINTMENT_KEYS.all, 'slots', doctorId, date] as const,
 }
 
-const DOCTOR_KEYS = {
-  all: ['doctors'] as const,
-  list: (params?: object) => [...DOCTOR_KEYS.all, 'list', params] as const,
-}
-
 /**
- * Hook to get patient's appointments
+ * Hook to get my appointments
  */
-export const useGetPatientAppointments = (
-  params: PaginationParams & { status?: Array<string> },
-) => {
+export const useGetMyAppointments = (params: GetMyAppointmentsParams) => {
   return useQuery({
     queryKey: APPOINTMENT_KEYS.list(params),
-    queryFn: () => appointmentApi.getPatientAppointments(params),
+    queryFn: () => appointmentApi.getMyAppointments(params),
   })
 }
 
 /**
  * Hook to get available slots for a doctor on a date
  */
-export const useGetAvailableSlots = (doctorId: number | null, date: string) => {
+export const useGetAvailableSlots = (params: GetAvailableSlotsParams) => {
   return useQuery({
-    queryKey: APPOINTMENT_KEYS.slots(doctorId ?? 0, date),
-    queryFn: () => appointmentApi.getAvailableSlots(doctorId!, date),
-    enabled: !!doctorId && !!date,
+    queryKey: APPOINTMENT_KEYS.slots(params.doctorId, params.date),
+    queryFn: () => appointmentApi.getAvailableSlots(params),
+    enabled: !!params.doctorId && !!params.date,
   })
 }
 
 /**
- * Hook to get all doctors list
+ * Hook to create an appointment
  */
-export const useGetDoctors = (params?: {
-  page?: number
-  limit?: number
-  search?: string
-  specialty_id?: number | null
-}) => {
-  return useQuery({
-    queryKey: DOCTOR_KEYS.list(params),
-    queryFn: () => doctorApi.getAllDoctors(params),
-  })
-}
-
-/**
- * Hook to book an appointment
- */
-export const useBookAppointment = () => {
+export const useCreateAppointment = () => {
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
+
   return useMutation({
-    mutationFn: appointmentApi.bookAppointment,
+    mutationFn: (payload: CreateAppointmentBody) =>
+      appointmentApi.createAppointment(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPOINTMENT_KEYS.lists() })
+      navigate({ to: '/patient/appointments' })
+      toast.success('Đặt lịch thành công!')
     },
+    onError: (error) => {
+      const errorMessage = getErrorMessage(error)
+      toast.error(errorMessage || 'Đặt lịch thất bại')
+    },
+    retry: false,
+  })
+}
+
+/**
+ * Hook to cancel an appointment
+ */
+export const useCancelAppointment = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: number
+      payload: CancelAppointmentBody
+    }) => appointmentApi.cancelAppointment(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: APPOINTMENT_KEYS.lists() })
+      toast.success('Hủy lịch thành công!')
+    },
+    onError: (error) => {
+      const errorMessage = getErrorMessage(error)
+      toast.error(errorMessage || 'Hủy lịch thất bại')
+    },
+    retry: false,
   })
 }

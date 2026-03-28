@@ -1,5 +1,6 @@
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
+import { useCancelAppointment } from '@/features/patient/hooks/useAppointmentQueries'
 import {
   Dialog,
   DialogContent,
@@ -11,12 +12,8 @@ import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 
-export interface CancelReasonData {
-  reason: string
-  note: string
-}
-
 interface CancelAppointmentDialogProps {
+  appointmentId: number
   isOpen: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -47,26 +44,34 @@ const cancelFormSchema = z
     },
   )
 
+type CancelFormData = z.infer<typeof cancelFormSchema>
+
 export const CancelAppointmentDialog = ({
   isOpen,
   onOpenChange,
+  appointmentId,
 }: CancelAppointmentDialogProps) => {
+  const cancelAppointmentMutation = useCancelAppointment()
+
   const form = useForm({
     defaultValues: {
       reason: '',
       note: '',
-    } as CancelReasonData,
+    } as CancelFormData,
     validators: {
       onChange: cancelFormSchema,
     },
-    onSubmit: ({ value }) => {
-      // Nếu chọn "Khác", dùng note làm reason
-      const finalData =
-        value.reason === 'OTHER'
-          ? { reason: value.note, note: '' }
-          : { reason: value.reason, note: value.note }
-      // TODO: Gọi API để hủy lịch hẹn với finalData
-      // onConfirmCancel(finalData)
+    onSubmit: async ({ value }) => {
+      // Nếu chọn "Khác", dùng note làm cancelReason
+      const cancelReason = value.reason === 'OTHER' ? value.note : value.reason
+      try {
+        await cancelAppointmentMutation.mutateAsync({
+          id: appointmentId,
+          payload: { cancelReason },
+        })
+      } catch (error) {
+        console.error('Cancel failed:', error)
+      }
       form.reset()
       onOpenChange(false)
     },

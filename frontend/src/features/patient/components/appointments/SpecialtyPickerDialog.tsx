@@ -1,6 +1,6 @@
 import { useNavigate } from '@tanstack/react-router'
-import { useGetSpecialties } from '../../hooks/useSpecialtyQueries'
-import type { Specialty } from '../../types'
+import type { Specialty } from '@/features/patient/types'
+import { useGetSpecialties } from '@/features/patient/hooks/useSpecialtyQueries'
 import {
   Dialog,
   DialogContent,
@@ -25,7 +25,7 @@ export const SpecialtyPickerDialog = ({
   const handleSelect = (specialty: Specialty) => {
     navigate({
       to: '/patient/appointments/doctors',
-      search: { specialtyId: specialty.id, specialtyName: specialty.name },
+      search: { specialtyId: specialty.id },
     })
     onOpenChange(false)
   }

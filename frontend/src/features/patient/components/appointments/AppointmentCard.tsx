@@ -18,6 +18,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const isShowCancelButton =
     appointment.status === 'cancelled' || appointment.status === 'completed'
 
+  // Dialog states
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null)
@@ -109,6 +110,7 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
       <CancelAppointmentDialog
         isOpen={isCancelDialogOpen}
         onOpenChange={() => setIsCancelDialogOpen(false)}
+        appointmentId={appointment.id}
       />
     </div>
   )

@@ -49,3 +49,15 @@ export function calculateAge(birthDateStr: string) {
   }
   return age
 }
+
+/**
+ * Format a date to YYYY-MM-DD format for API
+ * @param date
+ * @returns Formatted date string in YYYY-MM-DD format (e.g., "2024-01-01")
+ */
+export function formatDateForApi(date: Date) {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
