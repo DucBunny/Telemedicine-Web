@@ -15,3 +15,19 @@ export const getAllSpecialties = async (req, res, next) => {
     next(error)
   }
 }
+
+/**
+ * Get specialty detail by ID
+ */
+export const getSpecialtyDetail = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const specialty = await specialtyService.getSpecialtyById(id)
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: specialty
+    })
+  } catch (error) {
+    next(error)
+  }
+}
