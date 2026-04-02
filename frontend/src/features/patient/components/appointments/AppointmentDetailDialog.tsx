@@ -10,7 +10,7 @@ import {
 import { useState } from 'react'
 import { SpecialtyPickerDialog } from './SpecialtyPickerDialog'
 import type { Appointment } from '@/features/patient/types'
-import { STATUS_FILTER_OPTIONS } from '@/features/patient/constants'
+import { APPOINTMENT_STATUS_FILTERS } from '@/features/patient/constants'
 import { formatLongDate, formatTime } from '@/lib/format-date'
 import {
   Dialog,
@@ -36,7 +36,7 @@ export const AppointmentDetailDialog = ({
   if (!appointment) return null
 
   const isOnline = appointment.type === 'online'
-  const statusOption = STATUS_FILTER_OPTIONS[appointment.status]
+  const statusOption = APPOINTMENT_STATUS_FILTERS[appointment.status]
   const isCancelled = appointment.status === 'cancelled'
 
   const [bookingOpen, setBookingOpen] = useState(false)

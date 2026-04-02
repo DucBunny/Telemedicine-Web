@@ -1,3 +1,6 @@
+import { formatDistanceToNow } from 'date-fns'
+import { vi } from 'date-fns/locale'
+
 /**
  * Format a date string to a more readable format in Vietnamese locale.
  * @param dateStr
@@ -64,4 +67,17 @@ export function formatDateForApi(date: Date) {
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
+}
+
+/**
+ * Format distance to now in Vietnamese locale.
+ * @param date
+ * @returns Formatted distance to now in Vietnamese locale (e.g., "2 phút trước")
+ */
+export function formatDistanceToNowVN(date: Date | string) {
+  return formatDistanceToNow(date, {
+    includeSeconds: true,
+    addSuffix: true,
+    locale: vi,
+  })
 }

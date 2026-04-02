@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CalendarPlus } from 'lucide-react'
+import { useGetUnreadNotificationCount } from '@/features/patient/hooks/useNotificationQueries'
 import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
 import {
   AppointmentCard,
@@ -8,7 +9,6 @@ import {
   StatCards,
   VitalCards,
 } from '@/features/patient/components/home'
-import { MOCK_NOTIFICATIONS } from '@/features/patient/data/mockData'
 import { useGetMyAppointments } from '@/features/patient/hooks/useAppointmentQueries'
 import { useAuthStore } from '@/stores/auth.store'
 import { useHealthData } from '@/features/patient/hooks/useHealthData'
@@ -17,13 +17,13 @@ import { disconnectSocket, initSocket } from '@/lib/socket'
 import { Button } from '@/components/ui/button'
 
 export const HomePage = () => {
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.is_read).length
   const { data: profileData } = useGetPatientProfile()
   const { data: appointmentsData } = useGetMyAppointments({
     page: 1,
     limit: 5,
     status: ['confirmed'],
   })
+  const { data: unreadCount } = useGetUnreadNotificationCount()
 
   const user = useAuthStore((s) => s.user)
   const { healthData, latestData } = useHealthData(user!.id)

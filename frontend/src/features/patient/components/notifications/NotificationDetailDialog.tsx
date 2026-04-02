@@ -1,5 +1,6 @@
 import { Clock } from 'lucide-react'
-import type { NotificationCategory, NotificationItemData } from '../../data'
+import type { Notification } from '@/features/patient/types'
+import { NOTIFICATION_TYPE_FILTERS } from '@/features/patient/constants'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -8,11 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { formatShortDate, formatTime } from '@/lib/format-date'
 
 interface NotificationDetailDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  notification: NotificationItemData | null
+  notification: Notification | null
 }
 
 export const NotificationDetailDialog = ({
@@ -22,23 +24,10 @@ export const NotificationDetailDialog = ({
 }: NotificationDetailDialogProps) => {
   if (!notification) return null
 
-  const getCategoryStyles = (category: NotificationCategory) => {
-    switch (category) {
-      case 'Lịch hẹn':
-        return 'blue_blur'
-      case 'Cảnh báo':
-        return 'red_blur'
-      case 'Tin nhắn':
-        return 'teal_blur'
-      case 'Hệ thống':
-        return 'purple_blur'
-    }
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-sm overflow-hidden rounded-4xl bg-white p-0 shadow-2xl md:max-w-lg"
+        className="overflow-hidden rounded-4xl bg-white p-0 shadow-2xl md:max-w-lg"
         showCloseButton={false}>
         <DialogHeader className="border-b border-gray-100 p-3 md:p-5 md:pb-4">
           <DialogTitle className="text-lg font-bold">
@@ -49,13 +38,17 @@ export const NotificationDetailDialog = ({
         <div className="space-y-3 p-5 pt-0 md:space-y-5">
           <div className="flex items-center justify-between gap-3">
             <Badge
-              variant={getCategoryStyles(notification.category)}
+              variant={
+                NOTIFICATION_TYPE_FILTERS[notification.type].variant as any
+              }
               className="rounded-full text-xs">
-              {notification.category}
+              {NOTIFICATION_TYPE_FILTERS[notification.type].label}
             </Badge>
             <span className="flex items-center gap-1 text-xs text-slate-500">
               <Clock className="size-4" />
-              {notification.time}
+              {formatTime(notification.createdAt) +
+                ' - ' +
+                formatShortDate(notification.createdAt)}
             </span>
           </div>
 

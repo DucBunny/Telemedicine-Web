@@ -44,7 +44,7 @@ export interface ApiPaginatedResponse<T> {
 }
 
 /**
- * Types for pagination metadata
+ * Types for offset pagination metadata
  */
 export interface PaginationMeta {
   page: number
@@ -54,9 +54,29 @@ export interface PaginationMeta {
 }
 
 /**
+ * Types for cursor paginated API responses
+ */
+export interface ApiCursorPaginatedResponse<T> {
+  success: true
+  data: Array<T>
+  meta: CursorPaginationMeta
+}
+
+/**
+ * Types for cursor pagination metadata
+ */
+export interface CursorPaginationMeta {
+  nextCursor?: string
+  hasMore: boolean
+  count: number
+  total: number
+}
+
+/**
  * Types for pagination parameters
  */
 export interface PaginationParams {
   page?: number
+  nextCursor?: string
   limit?: number
 }

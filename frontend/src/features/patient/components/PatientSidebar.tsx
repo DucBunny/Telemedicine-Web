@@ -16,6 +16,7 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { Badge } from '@/components/ui/badge'
 
 interface PatientSidebarProps {
   activeTab: string
@@ -72,12 +73,14 @@ export const PatientSidebar = ({
                 {label}
               </span>
               {Icon === Bell && unreadCount > 0 && (
-                <span
+                <Badge
+                  variant="destructive"
                   className={cn(
-                    'size-3 rounded-full border border-white bg-red-600',
-                    'group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-3 group-data-[collapsible=icon]:right-3',
-                  )}
-                />
+                    'rounded-full bg-red-600',
+                    'group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:text-[10px]!',
+                  )}>
+                  {unreadCount}
+                </Badge>
               )}
             </Link>
           </SidebarMenuButton>

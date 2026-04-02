@@ -1,6 +1,10 @@
-import type { BloodTypeOption } from '@/features/patient/types'
+import type {
+  BloodTypeOption,
+  GenderOption,
+  NotificationType,
+} from '@/features/patient/types'
 
-export const STATUS_FILTER_OPTIONS: Record<
+export const APPOINTMENT_STATUS_FILTERS: Record<
   string,
   { label: string; color: string; variant?: string }
 > = {
@@ -45,8 +49,29 @@ export const BLOOD_TYPE_OPTIONS: Array<{
   { value: 'unknown', label: 'Không rõ' },
 ] as const
 
-export const GENDER_OPTIONS = [
+export const GENDER_OPTIONS: Array<{
+  value: GenderOption
+  label: string
+}> = [
   { value: 'male', label: 'Nam' },
   { value: 'female', label: 'Nữ' },
   { value: 'other', label: 'Khác' },
 ] as const
+
+export const NOTIFICATION_TYPE_FILTERS: Record<
+  NotificationType,
+  { label: string; variant?: string }
+> = {
+  alert: {
+    label: 'Cảnh báo',
+    variant: 'red_blur',
+  },
+  appointment: {
+    label: 'Lịch hẹn',
+    variant: 'blue_blur',
+  },
+  message: {
+    label: 'Tin nhắn',
+    variant: 'teal_blur',
+  },
+} as const

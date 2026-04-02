@@ -1,5 +1,4 @@
 import { useNavigate } from '@tanstack/react-router'
-import type { Specialty } from '@/features/patient/types'
 import { useGetSpecialties } from '@/features/patient/hooks/useSpecialtyQueries'
 import {
   Dialog,
@@ -22,10 +21,10 @@ export const SpecialtyPickerDialog = ({
   const { data: specialtiesData } = useGetSpecialties()
   const navigate = useNavigate()
 
-  const handleSelect = (specialty: Specialty) => {
+  const handleSelect = (specialtyId: number) => {
     navigate({
       to: '/patient/appointments/doctors',
-      search: { specialtyId: specialty.id },
+      search: { specialtyId },
     })
     onOpenChange(false)
   }
@@ -49,7 +48,7 @@ export const SpecialtyPickerDialog = ({
             <Button
               key={specialty.id}
               variant="ghost"
-              onClick={() => handleSelect(specialty)}
+              onClick={() => handleSelect(specialty.id)}
               className={`h-auto flex-col rounded-2xl border border-gray-200 p-3 transition-all hover:scale-105`}>
               <img
                 src={specialty.imageUrl}

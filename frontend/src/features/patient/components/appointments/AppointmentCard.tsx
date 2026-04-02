@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { Appointment } from '@/features/patient/types'
 import { AppointmentDetailDialog } from '@/features/patient/components/appointments/AppointmentDetailDialog'
 import { CancelAppointmentDialog } from '@/features/patient/components/appointments/CancelAppointmentDialog'
-import { STATUS_FILTER_OPTIONS } from '@/features/patient/constants'
+import { APPOINTMENT_STATUS_FILTERS } from '@/features/patient/constants'
 import { formatLongDate, formatTime } from '@/lib/format-date'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,7 +14,7 @@ interface AppointmentCardProps {
 
 export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const isOnline = appointment.type === 'online'
-  const statusOption = STATUS_FILTER_OPTIONS[appointment.status]
+  const statusOption = APPOINTMENT_STATUS_FILTERS[appointment.status]
   const isShowCancelButton =
     appointment.status === 'cancelled' || appointment.status === 'completed'
 

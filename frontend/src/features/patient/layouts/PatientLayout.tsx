@@ -1,9 +1,12 @@
 import React from 'react'
 import { useMatches } from '@tanstack/react-router'
-import { MOCK_NOTIFICATIONS } from '@/features/patient/data/mockData'
 import { PatientSidebar } from '@/features/patient/components/PatientSidebar'
 import { MobileNav } from '@/features/patient/components/MobileNav'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import {
+  useGetUnreadNotificationCount,
+  useRealtimeNotifications,
+} from '@/features/patient/hooks/useNotificationQueries'
 
 interface PatientLayoutProps {
   children: React.ReactNode
@@ -16,7 +19,11 @@ export const PatientLayout = ({ children, activeTab }: PatientLayoutProps) => {
     (match) => match.staticData.hideMobileNav,
   )
 
-  const unreadCount = MOCK_NOTIFICATIONS.filter((n) => !n.is_read).length
+  // Listen for realtime notifications (sockets)
+  useRealtimeNotifications()
+
+  // Lấy số lượng thông báo chưa đọc từ API
+  const { data: unreadCount = 0 } = useGetUnreadNotificationCount()
 
   return (
     <SidebarProvider className="fixed h-dvh overflow-hidden font-sans">

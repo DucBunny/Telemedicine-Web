@@ -12,24 +12,51 @@ export type BloodTypeOption =
   | 'AB-'
   | 'O-'
   | 'unknown'
+
 export type AppointmentStatus =
   | 'confirmed'
   | 'pending'
   | 'upcoming'
   | 'completed'
   | 'cancelled'
+export type AppointmentType = 'offline' | 'online'
 
-export interface Notification {
+export type NotificationType = 'alert' | 'appointment' | 'message'
+
+// Chat Types
+export interface ChatUser {
   id: number
-  title: string
-  content: string
-  time: string
-  is_read: boolean
-  type: 'appointment' | 'alert' | 'chat' | 'general'
+  fullName: string
+  avatar?: string
+  email?: string
+}
+
+export interface ChatMessage {
+  id: number
+  senderId: number
+  receiverId: number
+  message: string
+  attachmentUrl?: string
+  isRead: boolean
+  createdAt: string
+  updatedAt: string
+  sender?: ChatUser
+  receiver?: ChatUser
+}
+
+export interface ChatConversation {
+  user: ChatUser
+  lastMessage: {
+    message: string
+    createdAt: string
+    isRead: boolean
+  } | null
+  unreadCount: number
 }
 
 // --------------------------------------------------------------------
 export interface Device {
+  id?: number
   deviceId: number
   deviceName: string
   deviceType: string
@@ -103,12 +130,47 @@ export interface MedicalRecord {
   id: number
   patientId: number
   doctorId: number
+  appointmentId: number
+  symptoms: string
   diagnosis: string
-  prescription: string
-  notes: string
-  visitDate: string
+  treatmentPlan?: string
+  prescription?: Array<PrescriptionItem>
+  notes?: string
+  followUpDate?: string
   createdAt: string
   updatedAt: string
   doctor?: Doctor
   patient?: Patient
+  appointment?: Appointment
+  medicalAttachments?: Array<MedicalAttachment>
+}
+
+export interface MedicalAttachment {
+  id: number
+  medicalRecordId: number
+  fileName: string
+  fileUrl: string
+  fileType: 'image' | 'pdf'
+  uploadedAt: string
+}
+
+export interface PrescriptionItem {
+  name: string
+  dosage: string
+  duration: string
+}
+
+export interface Notification {
+  id: number
+  userId: number
+  type: NotificationType
+  title: string
+  content: string
+  referenceId?: number
+  senderId?: number
+  isRead: boolean
+  readAt?: string
+  createdAt: string
+  updatedAt: string
+  sender?: User
 }

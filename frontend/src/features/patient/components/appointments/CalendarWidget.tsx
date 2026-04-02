@@ -97,7 +97,7 @@ export const CalendarWidget = ({
         {WEEKDAYS.map((day, idx) => (
           <div
             key={`header-${idx}`}
-            className="py-2 text-xs font-semibold text-slate-400 uppercase">
+            className="py-2 text-sm font-semibold text-slate-400 uppercase">
             {day}
           </div>
         ))}
@@ -117,7 +117,7 @@ export const CalendarWidget = ({
               size="icon-lg"
               onClick={() => handleSelectDay(day)}
               className={cn(
-                'mx-auto rounded-full',
+                'mx-auto rounded-full text-sm',
                 isSelected && 'scale-105 shadow-md shadow-teal-500/25',
               )}>
               {day}
