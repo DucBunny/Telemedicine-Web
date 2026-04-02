@@ -1,7 +1,8 @@
-export { AdviceSection } from './AdviceSection'
-export { DiagnosisSection } from './DiagnosisSection'
-export { PrescriptionSection } from './PrescriptionSection'
-export { RecordCard } from './RecordCard'
+export { AttachmentsSection } from './AttachmentsSection'
+export { ClinicalInfoSection } from './ClinicalInfoSection'
+export { PrescriptionTableSection } from './PrescriptionTableSection'
 export { RecordDoctorCard } from './RecordDoctorCard'
-export { RecordTitleHeader } from './RecordTitleHeader'
+
+export { RecordCard } from './RecordCard'
+export { RecordTable } from './RecordTable'
 export { StatCard } from './StatCard'

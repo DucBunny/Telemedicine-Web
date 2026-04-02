@@ -31,10 +31,7 @@ module.exports = {
       }
     }
 
-    if (alertRecipients.length > 0) {
-      await queryInterface.bulkInsert('alert_recipients', alertRecipients, {})
-    }
-    return
+    await queryInterface.bulkInsert('alert_recipients', alertRecipients, {})
   },
 
   async down(queryInterface, Sequelize) {

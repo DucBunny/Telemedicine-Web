@@ -14,10 +14,20 @@ module.exports = (sequelize, DataTypes) => {
 
   MedicalAttachment.init(
     {
-      medicalRecordId: DataTypes.INTEGER,
-      fileUrl: DataTypes.STRING,
+      medicalRecordId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      fileName: DataTypes.STRING,
+      fileUrl: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
       fileType: DataTypes.STRING,
-      uploadedAt: DataTypes.DATE
+      uploadedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+      }
     },
     {
       sequelize,
@@ -25,5 +35,6 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false
     }
   )
+
   return MedicalAttachment
 }

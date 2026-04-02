@@ -1,18 +1,18 @@
 import express from 'express'
 import cors from 'cors'
-import router from './routes/api'
+import router from '@/routes/api'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
-import { errorConverter, errorHandler } from './middlewares/error.middleware'
-import { connectMySQL, connectMongoDB, env } from './config'
-import { connectMQTT } from './infrastructure/mqtt/mqtt.client'
-import { connectRabbitMQ } from './infrastructure/message/rabbitmq.client'
+import { errorConverter, errorHandler } from '@/middlewares/error.middleware'
+import { connectMySQL, connectMongoDB, env } from '@/config'
+import { connectMQTT } from '@/infrastructure/mqtt/mqtt.client'
+import { connectRabbitMQ } from '@/infrastructure/message/rabbitmq.client'
 import {
   startHealthConsumer,
   startAlertConsumer
-} from './modules/health/health.consumer'
-import { initSocket } from './services/socket.service'
+} from '@/modules/health/health.consumer'
+import { initSocket } from '@/services/socket.service'
 
 const port = env.PORT
 const app = express()

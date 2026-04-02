@@ -1,4 +1,9 @@
-import { Outlet, createRootRouteWithContext } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import {
+  Outlet,
+  createRootRouteWithContext,
+  useLocation,
+} from '@tanstack/react-router'
 import type { QueryClient } from '@tanstack/react-query'
 import { authApi } from '@/features/auth/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
@@ -33,6 +38,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function rootComponent() {
   const isInitialized = useAuthStore((s) => s.isInitialized)
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const scrollContainer = document.querySelector<HTMLElement>(
+      '[data-route-scroll-container="true"]',
+    )
+
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+      return
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [pathname])
 
   if (!isInitialized) {
     return (

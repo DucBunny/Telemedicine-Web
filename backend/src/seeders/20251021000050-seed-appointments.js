@@ -21,17 +21,15 @@ module.exports = {
     ]
 
     patients.forEach((pat) => {
-      const randomDay = faker.date.recent({ days: 30 })
-      const startDate = generateTime(randomDay)
-      const endDate = new Date(startDate.getTime() + 30 * 60 * 1000) // Meet 30 phút
-
       for (let i = 0; i < 3; i++) {
+        const scheduled_at = generateTime(faker.date.recent({ days: 30 }))
+
         // 3 Lịch sử khám (Đã xong)
         appointments.push({
           patient_id: pat.user_id,
           doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
-          scheduled_at: startDate,
-          actual_ended_at: endDate,
+          scheduled_at: scheduled_at,
+          actual_ended_at: new Date(scheduled_at.getTime() + 30 * 60 * 1000),
           duration_minutes: 30,
           status: 'completed',
           type: faker.helpers.arrayElement(types),
@@ -60,7 +58,7 @@ module.exports = {
         appointments.push({
           patient_id: pat.user_id,
           doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
-          scheduled_at: generateTime(faker.date.soon({ days: 14 })),
+          scheduled_at: generateTime(faker.date.recent({ days: 7 })),
           actual_ended_at: null,
           duration_minutes: 30,
           status: 'cancelled',

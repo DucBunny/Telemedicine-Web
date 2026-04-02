@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { ArrowRight, Clock, CloudSun, Sun } from 'lucide-react'
+import { useMediaQuery } from 'usehooks-ts'
 import type { TimeSlot } from '@/features/patient/components/appointments/TimeSlotGrid'
 import type { AppointmentType } from '@/features/patient/types'
 import { useGetAvailableSlots } from '@/features/patient/hooks/useAppointmentQueries'
@@ -19,7 +20,11 @@ import { ChildPageHeader } from '@/features/patient/components/common/PageHeader
 import { VisitTypeToggle } from '@/features/patient/components/appointments/VisitTypeToggle'
 import { CalendarWidget } from '@/features/patient/components/appointments/CalendarWidget'
 import { TimeSlotGrid } from '@/features/patient/components/appointments/TimeSlotGrid'
-import { formatDateForApi, formatLongDate } from '@/lib/format-date'
+import {
+  formatDateForApi,
+  formatLongDate,
+  formatShortDate,
+} from '@/lib/format-date'
 
 const BASE_MORNING_SLOTS: Array<TimeSlot> = [
   { time: '08:00', isAvailable: false },
@@ -47,6 +52,7 @@ export const TimeSelectionPage = () => {
   const { doctorId, specialtyId } = Route.useSearch()
 
   const navigate = useNavigate()
+  const isMobile = useMediaQuery('(max-width: 768px)')
   const { open } = useSidebar()
 
   const [visitType, setVisitType] = useState<AppointmentType>('offline')
@@ -175,12 +181,15 @@ export const TimeSelectionPage = () => {
           open ? 'lg:left-64' : 'md:left-20',
         )}>
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex flex-col">
+          <div>
             <span className="text-xs font-medium text-slate-500 md:text-sm dark:text-slate-400">
               Thời gian đã chọn
             </span>
-            <span className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              {selectedTime}, {formatLongDate(formattedDate)}
+            <span className="block text-lg font-bold text-slate-900 dark:text-slate-100">
+              {selectedTime},{' '}
+              {isMobile
+                ? formatShortDate(formattedDate)
+                : formatLongDate(formattedDate)}
             </span>
           </div>
           <div className="text-right">

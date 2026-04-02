@@ -1,18 +1,18 @@
 import express from 'express'
 import { authMiddleware } from '@/middlewares/auth.middleware'
-import authRouter from './auth.route'
-import userRouter from './user.route'
-import statsRouter from './stats.route'
-import deviceRouter from './device.route'
-import doctorRouter from './doctor.route'
-import patientRouter from './patient.route'
-import appointmentRouter from './appointment.route'
-import medicalRecordRouter from './medicalRecord.route'
-import specialtyRouter from './specialty.route'
-import uploadRouter from './upload.route'
-import meRouter from './me.route'
-import chatRouter from './chat.route'
-import notificationRouter from './notification.route'
+import authRouter from '@/routes/auth.route'
+import userRouter from '@/routes/user.route'
+import statsRouter from '@/routes/stats.route'
+import deviceRouter from '@/routes/device.route'
+import doctorRouter from '@/routes/doctor.route'
+import patientRouter from '@/routes/patient.route'
+import appointmentRouter from '@/routes/appointment.route'
+import medicalRecordRouter from '@/routes/medicalRecord.route'
+import specialtyRouter from '@/routes/specialty.route'
+import uploadRouter from '@/routes/upload.route'
+import meRouter from '@/routes/me.route'
+import chatRouter from '@/routes/chat.route'
+import notificationRouter from '@/routes/notification.route'
 
 const router = express.Router()
 
@@ -38,7 +38,7 @@ router.use('/devices', deviceRouter)
 router.use('/doctors', doctorRouter)
 router.use('/patients', patientRouter)
 router.use('/appointments', appointmentRouter)
-router.use('/records', medicalRecordRouter)
+router.use('/medical-records', medicalRecordRouter)
 router.use('/specialties', specialtyRouter)
 router.use('/uploads', uploadRouter)
 router.use('/chat', chatRouter)

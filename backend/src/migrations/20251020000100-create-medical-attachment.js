@@ -11,6 +11,7 @@ module.exports = {
       },
       medical_record_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'medical_records',
           key: 'id'
@@ -18,14 +19,19 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      file_url: {
+      file_name: {
         type: Sequelize.STRING
+      },
+      file_url: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       file_type: {
         type: Sequelize.STRING
       },
       uploaded_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

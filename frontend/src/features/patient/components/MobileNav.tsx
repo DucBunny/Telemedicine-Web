@@ -26,9 +26,6 @@ export const MobileNav = ({ activeTab }: MobileNavProps) => {
               className="size-6"
               strokeWidth={activeTab === item.id ? 3 : 2}
             />
-            {/* <span className="mt-1 text-[10px] font-medium">
-              {item.mobileLabel}
-            </span> */}
           </Link>
         </Button>
       ))}

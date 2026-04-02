@@ -18,7 +18,11 @@ export function formatLongDate(dateStr: string) {
  * @returns Formatted date string in Vietnamese locale (e.g., "01/01/2024")
  */
 export function formatShortDate(dateStr: string) {
-  return new Date(dateStr.split(' ')[0]).toLocaleDateString('vi-VN')
+  return new Date(dateStr.split(' ')[0]).toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
 }
 
 /**

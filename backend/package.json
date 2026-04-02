@@ -10,8 +10,8 @@
     "build": "npm run clean && npm run build-babel",
     "production": "npm run build && node ./build/src/server.js",
     "dev": "nodemon --exec ./node_modules/.bin/babel-node ./src/server.js",
-    "db:reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all",
-    "seed": "npx sequelize-cli db:seed:all"
+    "db:reset": "npx sequelize-cli db:drop && npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm run seed:nosql",
+    "seed:nosql": "babel-node ./src/seeders/nosql/index.js"
   },
   "author": "Duc",
   "license": "ISC",

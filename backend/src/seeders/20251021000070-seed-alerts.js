@@ -61,10 +61,7 @@ module.exports = {
       }
     }
 
-    if (alerts.length > 0) {
-      await queryInterface.bulkInsert('alerts', alerts, {})
-    }
-    return
+    await queryInterface.bulkInsert('alerts', alerts, {})
   },
 
   async down(queryInterface, Sequelize) {

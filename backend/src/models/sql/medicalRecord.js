@@ -4,6 +4,12 @@ const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class MedicalRecord extends Model {
     static associate(models) {
+      // Hồ sơ thuộc về 1 ca khám
+      MedicalRecord.belongsTo(models.Appointment, {
+        foreignKey: 'appointmentId',
+        as: 'appointment'
+      })
+
       // Hồ sơ thuộc về bệnh nhân
       MedicalRecord.belongsTo(models.Patient, {
         foreignKey: 'patientId',
@@ -28,15 +34,23 @@ module.exports = (sequelize, DataTypes) => {
 
   MedicalRecord.init(
     {
-      patientId: DataTypes.INTEGER,
-      doctorId: DataTypes.INTEGER,
+      appointmentId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      patientId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      doctorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      symptoms: DataTypes.TEXT,
       diagnosis: DataTypes.TEXT,
-      prescription: DataTypes.TEXT,
-      notes: DataTypes.TEXT,
-      visitDate: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-      }
+      treatmentPlan: DataTypes.TEXT,
+      prescription: DataTypes.JSON,
+      notes: DataTypes.TEXT
     },
     {
       sequelize,

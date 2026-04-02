@@ -1,58 +1,84 @@
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
-  AdviceSection,
-  DiagnosisSection,
-  PrescriptionSection,
+  AttachmentsSection,
+  ClinicalInfoSection,
+  PrescriptionTableSection,
   RecordDoctorCard,
-  RecordTitleHeader,
 } from '@/features/patient/components/medicalRecords'
 import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
-import {
-  MOCK_ADVICES,
-  MOCK_DIAGNOSIS,
-  MOCK_DOCTOR,
-  MOCK_MEDICATIONS,
-  MOCK_RECORD,
-} from '@/features/patient/data/recordsMockData'
+import { useGetRecordById } from '@/features/patient/hooks/useRecordQueries'
+import Loader from '@/components/Loader'
 
 export const RecordDetailPage = () => {
   const navigate = useNavigate()
+  const params = useParams({ from: '/patient/records/$recordId' })
+  const recordId = params.recordId ? parseInt(params.recordId) : 0
+
+  const { data: record, isLoading, error } = useGetRecordById(recordId)
 
   const handleBack = () => {
     navigate({ to: '/patient/records' })
+  }
+
+  const attachments = record?.medicalAttachments ?? []
+
+  if (isLoading) return <Loader />
+
+  if (error || !record) {
+    return (
+      <div className="px-4">
+        <ChildPageHeader title="Chi tiết hồ sơ" onBack={handleBack} />
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-red-500">Không thể tải chi tiết hồ sơ</p>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="px-4">
       <ChildPageHeader title="Chi tiết hồ sơ" onBack={handleBack} />
 
-      <div className="space-y-3 pb-25 md:space-y-6 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0">
+      <div className="space-y-3 pb-25 md:space-y-4 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0">
+        {/* Title row — col-span-2 */}
         <div className="flex items-center justify-between lg:col-span-12">
-          <RecordTitleHeader record={MOCK_RECORD} />
+          <h2 className="text-3xl leading-tight font-bold">
+            {record.diagnosis}
+          </h2>
 
           <Button
             variant="teal_primary"
             className="hidden h-12 rounded-full text-base font-bold active:scale-[0.98] lg:inline-flex">
-            <>
-              <Download className="size-5" strokeWidth="2.5" />
-              <span>Tải xuống đơn thuốc</span>
-            </>
+            <Download className="size-5" strokeWidth="2.5" />
+            <span>Tải xuống đơn thuốc</span>
           </Button>
         </div>
-        <div className="lg:col-span-5">
-          <RecordDoctorCard doctor={MOCK_DOCTOR} record={MOCK_RECORD} />
+
+        {/* Mobile: 1st │ Desktop: col 1, row 2 */}
+        <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2">
+          <RecordDoctorCard record={record} />
         </div>
-        <div className="lg:col-span-7">
-          <DiagnosisSection diagnosis={MOCK_DIAGNOSIS} />
+
+        {/* Mobile: 2nd │ Desktop: col 2, rows 2-4 (full height) */}
+        <div className="lg:col-span-5 lg:col-start-8 lg:row-span-3 lg:row-start-2 lg:self-stretch">
+          <ClinicalInfoSection record={record} />
         </div>
-        <div className="lg:col-span-6">
-          <PrescriptionSection medications={MOCK_MEDICATIONS} />
-        </div>
-        <div className="lg:col-span-6">
-          <AdviceSection advices={MOCK_ADVICES} />
-        </div>
+
+        {/* Mobile: 3rd │ Desktop: col 1, row 3 */}
+        {record.prescription && (
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3">
+            <PrescriptionTableSection prescription={record.prescription} />
+          </div>
+        )}
+
+        {/* Mobile: 4th │ Desktop: col 1, row 4 */}
+        {attachments.length > 0 && (
+          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-4">
+            <AttachmentsSection attachments={attachments} />
+          </div>
+        )}
       </div>
 
       {/* Floating Bottom Action Bar */}
@@ -60,10 +86,8 @@ export const RecordDetailPage = () => {
         <Button
           variant="teal_primary"
           className="h-12 w-full rounded-full text-base! font-bold active:scale-[0.98]">
-          <>
-            <Download className="size-5" strokeWidth="2.5" />
-            <span>Tải xuống đơn thuốc</span>
-          </>
+          <Download className="size-5" strokeWidth="2.5" />
+          <span>Tải xuống đơn thuốc</span>
         </Button>
       </div>
     </div>

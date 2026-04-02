@@ -25,7 +25,9 @@ export const PatientLayout = ({ children, activeTab }: PatientLayoutProps) => {
 
       {/* Main Content */}
       <SidebarInset>
-        <main className="scrollbar-hide h-svh w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
+        <main
+          data-route-scroll-container="true"
+          className="scrollbar-hide h-svh w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
           {children}
         </main>
 

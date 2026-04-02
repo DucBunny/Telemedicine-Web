@@ -9,8 +9,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      appointment_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'appointments',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       patient_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'patients',
           key: 'user_id'
@@ -20,25 +31,28 @@ module.exports = {
       },
       doctor_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'doctors',
           key: 'user_id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        onDelete: 'CASCADE'
+      },
+      symptoms: {
+        type: Sequelize.TEXT
       },
       diagnosis: {
         type: Sequelize.TEXT
       },
-      prescription: {
+      treatment_plan: {
         type: Sequelize.TEXT
+      },
+      prescription: {
+        type: Sequelize.JSON
       },
       notes: {
         type: Sequelize.TEXT
-      },
-      visit_date: {
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       created_at: {
         allowNull: false,
