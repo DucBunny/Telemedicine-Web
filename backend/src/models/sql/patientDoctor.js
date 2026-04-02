@@ -24,10 +24,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: 'patient_doctors',
       modelName: 'PatientDoctor',
       timestamps: false
     }
   )
-  
+
   return PatientDoctor
 }

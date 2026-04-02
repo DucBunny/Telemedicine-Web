@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: 'chat_messages',
       modelName: 'ChatMessage'
     }
   )

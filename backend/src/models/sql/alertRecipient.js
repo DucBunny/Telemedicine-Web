@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: 'alert_recipients',
       modelName: 'AlertRecipient'
     }
   )

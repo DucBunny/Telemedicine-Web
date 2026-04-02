@@ -55,6 +55,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: 'alerts',
       modelName: 'Alert'
     }
   )

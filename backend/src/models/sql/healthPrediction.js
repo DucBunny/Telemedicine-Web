@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
+      tableName: 'health_predictions',
       modelName: 'HealthPrediction',
       updatedAt: false
     }

@@ -1,5 +1,6 @@
 'use strict'
 const { Model } = require('sequelize')
+const withCursorPagination = require('sequelize-cursor-pagination')
 
 module.exports = (sequelize, DataTypes) => {
   class Notification extends Model {
@@ -55,9 +56,33 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: 'Notification'
+      tableName: 'notifications',
+      modelName: 'Notification',
+      indexes: [
+        {
+          // Hỗ trợ lọc thông báo của một user cụ thể cực nhanh
+          name: 'idx_notifications_user_id',
+          fields: ['user_id']
+        },
+        {
+          // Hỗ trợ cursorPaginate khi sắp xếp theo mới nhất
+          name: 'idx_notifications_cursor',
+          fields: ['created_at', 'id']
+        },
+        {
+          // Hỗ trợ lọc thông báo chưa đọc
+          name: 'idx_notifications_is_read',
+          fields: ['is_read']
+        }
+      ]
     }
   )
+
+  // Phương thức phân trang con trỏ cho Infinite Scroll
+  withCursorPagination({
+    methodName: 'cursorPaginate',
+    primaryKeyField: 'id'
+  })(Notification)
 
   return Notification
 }
