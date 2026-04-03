@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import type { PaginationParams } from '@/types/api.type'
 import type {
@@ -51,14 +50,12 @@ export const useGetAvailableSlots = (params: GetAvailableSlotsParams) => {
  */
 export const useCreateAppointment = () => {
   const queryClient = useQueryClient()
-  const navigate = useNavigate()
 
   return useMutation({
     mutationFn: (payload: CreateAppointmentBody) =>
       appointmentApi.createAppointment(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: APPOINTMENT_KEYS.lists() })
-      navigate({ to: '/patient/appointments' })
       toast.success('Đặt lịch thành công!')
     },
     onError: (error) => {

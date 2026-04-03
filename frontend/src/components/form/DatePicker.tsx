@@ -10,6 +10,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
+import { formatDateForApi } from '@/lib/format-date'
 
 interface DatePickerProps {
   label?: string
@@ -45,8 +46,8 @@ export const DatePicker = ({
         name: field.name,
         value: field.state.value,
         onBlur: field.handleBlur,
-        onChange: (date: Date | undefined) => {
-          field.handleChange(date)
+        onChange: (date: Date) => {
+          field.handleChange(formatDateForApi(date))
           onChange?.(date)
         },
       }
@@ -88,7 +89,7 @@ export const DatePicker = ({
               defaultMonth={binding.value}
               captionLayout="dropdown"
               onSelect={(d) => {
-                binding.onChange?.(d)
+                binding.onChange?.(d!)
                 setOpen(false)
               }}
             />

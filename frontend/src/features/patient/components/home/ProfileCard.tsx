@@ -13,7 +13,7 @@ export const ProfileCard = ({ profileData, unreadCount }: ProfileCardProps) => {
     <div className="flex items-center justify-between pt-8 pb-4 md:pt-4">
       <div className="flex items-center gap-4">
         <img
-          src={profileData?.user.avatar}
+          src={profileData?.user.avatar ?? import.meta.env.VITE_DEFAULT_AVT}
           className="ring-teal-primary/50 size-12 rounded-full border-2 border-white/40 ring-2"
           alt={profileData?.user.fullName}
         />

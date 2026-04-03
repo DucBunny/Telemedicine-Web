@@ -19,6 +19,24 @@ export const uploadSingle = async (req, res, next) => {
 }
 
 /**
+ * Upload avatar image
+ * PUT /uploads/avatar
+ */
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    const userId = req.user.id
+    const result = await uploadService.uploadAvatar(userId, req.file)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * Upload multiple files (tối đa 5)
  * POST /uploads/multiple
  */

@@ -56,7 +56,7 @@ export const notificationApi = {
     const { data } = await apiClient.put<
       ApiSuccessResponse<{ success: boolean }>
     >(`${NOTIFICATION_BASE}/read-all`)
-    return data.data
+    return data.success
   },
 
   /**
@@ -66,6 +66,6 @@ export const notificationApi = {
     const { data } = await apiClient.delete<
       ApiSuccessResponse<{ success: boolean }>
     >(`${NOTIFICATION_BASE}/${id}`)
-    return data.data
+    return data.success
   },
 }

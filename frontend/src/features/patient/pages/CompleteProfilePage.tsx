@@ -3,11 +3,11 @@ import { Cake, Check, FileClock, MapPin, UserPlus } from 'lucide-react'
 import { useForm } from '@tanstack/react-form'
 import { toast } from 'sonner'
 import { useState } from 'react'
+import z from 'zod'
 import {
   BLOOD_TYPE_OPTIONS,
   GENDER_OPTIONS,
 } from '@/features/patient/constants'
-import { completeProfileSchema } from '@/features/patient/schemas'
 import { InputField } from '@/components/form/InputField'
 import { SelectField } from '@/components/form/SelectField'
 import { DatePicker } from '@/components/form/DatePicker'
@@ -17,22 +17,57 @@ import { useUpdatePatientProfile } from '@/features/patient/hooks/usePatientQuer
 import { useAuthStore } from '@/stores/auth.store'
 import { getErrorMessage } from '@/lib/axios'
 
+const completeProfileSchema = z.object({
+  dateOfBirth: z.string().min(1, 'Vui lòng nhập ngày sinh'),
+  gender: z.enum(['male', 'female', 'other'], 'Vui lòng chọn giới tính'),
+  bloodType: z.enum(
+    ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-', 'unknown'],
+    'Vui lòng chọn nhóm máu',
+  ),
+  height: z
+    .string()
+    .min(1, 'Vui lòng nhập chiều cao')
+    .transform((val) => Number(val))
+    .pipe(
+      z
+        .number()
+        .min(30, 'Chiều cao phải lớn hơn 30cm')
+        .max(300, 'Chiều cao phải nhỏ hơn 300cm'),
+    ),
+  weight: z
+    .string()
+    .min(1, 'Vui lòng nhập cân nặng')
+    .transform((val) => Number(val))
+    .pipe(
+      z
+        .number()
+        .min(1, 'Cân nặng phải lớn hơn 1kg')
+        .max(500, 'Cân nặng phải nhỏ hơn 500kg'),
+    ),
+  medicalHistory: z
+    .string()
+    .max(500, 'Tiền sử bệnh lý không được vượt quá 500 ký tự'),
+  address: z.string().min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
+})
+
+type CompleteProfileFormData = z.input<typeof completeProfileSchema>
+
 export const CompleteProfilePage = () => {
   const navigate = useNavigate()
-  const updateProfileMutation = useUpdatePatientProfile()
   const setProfileComplete = useAuthStore((s) => s.setProfileComplete)
+  const updatePatientProfileMutation = useUpdatePatientProfile()
   const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm({
     defaultValues: {
-      dateOfBirth: '' as string | Date,
-      gender: '',
-      bloodType: '',
+      dateOfBirth: '',
+      gender: 'other',
+      bloodType: 'unknown',
       height: '',
       weight: '',
       medicalHistory: '',
       address: '',
-    },
+    } as CompleteProfileFormData,
     validators: {
       onSubmit: completeProfileSchema,
     },
@@ -40,13 +75,10 @@ export const CompleteProfilePage = () => {
       setFormError(null)
 
       try {
-        // await updateProfileMutation.mutateAsync(value)
-        // setProfileComplete(true)
-        console.log(
-          'Thông tin hồ sơ hoàn chỉnh:',
+        await updatePatientProfileMutation.mutateAsync(
           completeProfileSchema.parse(value),
         )
-        toast.success('Hoàn thiện hồ sơ thành công!')
+        setProfileComplete(true)
         navigate({ to: '/patient', replace: true })
       } catch (error) {
         const errorMessage = getErrorMessage(error)
@@ -195,12 +227,10 @@ export const CompleteProfilePage = () => {
                 <Button
                   type="submit"
                   variant="teal_primary"
-                  disabled={!canSubmit || updateProfileMutation.isPending}
+                  disabled={!canSubmit || isSubmitting}
                   className="h-12 w-full rounded-xl text-base! font-bold active:scale-[0.98] lg:max-w-2/3">
                   <Check className="size-5" strokeWidth="2.5" />
-                  {isSubmitting || updateProfileMutation.isPending
-                    ? 'Đang lưu...'
-                    : 'Hoàn tất'}
+                  {isSubmitting ? 'Đang lưu...' : 'Hoàn tất'}
                 </Button>
               )}
             />

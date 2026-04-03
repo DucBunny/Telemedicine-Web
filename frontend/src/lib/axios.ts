@@ -14,6 +14,20 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Luôn gửi cookies (cho refresh token)
+  paramsSerializer: {
+    serialize: (params) => {
+      const searchParams = new URLSearchParams()
+      Object.entries(params).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          // Serialize array as multiple params: status=pending&status=confirmed
+          value.forEach((item) => searchParams.append(key, String(item)))
+        } else if (value !== undefined && value !== null) {
+          searchParams.append(key, String(value))
+        }
+      })
+      return searchParams.toString()
+    },
+  },
 })
 
 // Auth endpoints không cần auto-refresh token khi gặp 401

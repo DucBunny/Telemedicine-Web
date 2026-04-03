@@ -28,6 +28,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
 
   // User errors
   USER_NOT_FOUND: 'Không tìm thấy người dùng',
+  INCORRECT_PASSWORD: 'Mật khẩu hiện tại không chính xác',
   //   TOKEN_EXPIRED: 'Phiên đăng nhập đã hết hạn',
   //   INVALID_TOKEN: 'Phiên đăng nhập không hợp lệ',
 
@@ -50,6 +51,10 @@ export const ERROR_MESSAGES: Record<string, string> = {
   //   NOT_FOUND: 'Không tìm thấy dữ liệu',
   //   RESOURCE_NOT_FOUND: 'Không tìm thấy tài nguyên',
   //   ALREADY_EXISTS: 'Dữ liệu đã tồn tại',
+
+  // Upload errors
+  NO_FILE: 'Không có file nào được tải lên',
+  FILE_TOO_LARGE: 'Kích thước file vượt quá giới hạn',
 
   // Server errors
   INTERNAL_SERVER_ERROR: 'Lỗi hệ thống, vui lòng thử lại sau',

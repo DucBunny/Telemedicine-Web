@@ -33,7 +33,7 @@ export const AppointmentConfirmInfoCard = ({
           <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg">
             {doctor.user.avatar ? (
               <img
-                src={doctor.user.avatar}
+                src={doctor.user.avatar ?? import.meta.env.VITE_DEFAULT_AVT}
                 alt={doctor.user.fullName}
                 className="h-full w-full object-cover"
               />

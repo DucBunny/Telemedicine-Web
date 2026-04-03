@@ -1,4 +1,4 @@
-import { LogOut } from 'lucide-react'
+import { Loader, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
 import { MainPageHeader } from '@/features/patient/components/common'
@@ -11,7 +11,19 @@ import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 
 export const ProfilePage = () => {
   const logoutMutation = useLogoutMutation()
-  const { data: patientProfile } = useGetPatientProfile()
+  const { data: patientProfile, isLoading, error } = useGetPatientProfile()
+
+  if (isLoading) return <Loader />
+
+  if (error)
+    return (
+      <div className="px-4">
+        <MainPageHeader title="Thông tin cá nhân" />
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-red-500">Không thể tải thông tin cá nhân</p>
+        </div>
+      </div>
+    )
 
   return (
     <div className="px-4">

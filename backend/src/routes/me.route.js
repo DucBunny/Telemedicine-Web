@@ -7,7 +7,8 @@ import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
 import { getAppointmentsQuerySchema } from '@/validations/appointment.validation'
 import { getMedicalRecordsQuerySchema } from '@/validations/medicalRecord.validation'
-import { getNotificationsQuerySchema } from '../validations/notification.validation'
+import { getNotificationsQuerySchema } from '@/validations/notification.validation'
+import { changePasswordSchema } from '@/validations/user.validation'
 
 const router = express.Router()
 
@@ -22,6 +23,19 @@ router.get(
   '/profile',
   authorizeRoles(['doctor', 'patient']),
   userController.getMyProfile
+)
+
+router.put(
+  '/profile',
+  authorizeRoles(['doctor', 'patient']),
+  userController.updateMyProfile
+)
+
+router.put(
+  '/change-password',
+  authorizeRoles(['doctor', 'patient']),
+  validate({ body: changePasswordSchema }),
+  userController.changePassword
 )
 
 router.get(

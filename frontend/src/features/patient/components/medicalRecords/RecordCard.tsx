@@ -21,17 +21,11 @@ export const RecordCard = ({ record, onClick }: RecordCardProps) => {
 
       {/* Thông tin người phụ trách */}
       <div className="mb-3 flex items-center gap-2">
-        {record.doctor?.user.avatar ? (
-          <img
-            src={record.doctor.user.avatar}
-            alt={record.doctor.user.fullName}
-            className="size-8 rounded-full object-cover"
-          />
-        ) : (
-          <div className="flex size-8 items-center justify-center rounded-full bg-slate-200 text-xs font-bold">
-            {record.doctor?.user.fullName.charAt(0)}
-          </div>
-        )}
+        <img
+          src={record.doctor?.user.avatar ?? import.meta.env.VITE_DEFAULT_AVT}
+          alt={record.doctor?.user.fullName}
+          className="size-8 rounded-full object-cover"
+        />
         <span className="text-sm md:text-base">
           {record.doctor?.degree}. {record.doctor?.user.fullName}
         </span>

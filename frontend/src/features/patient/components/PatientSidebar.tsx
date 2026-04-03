@@ -109,8 +109,10 @@ export const PatientSidebar = ({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center rounded-xl py-3 group-data-[collapsible=icon]:justify-center group-data-[state=expanded]:bg-gray-50 group-data-[state=expanded]:px-3">
             <img
-              src={patientProfile?.user.avatar}
-              alt="Avatar"
+              src={
+                patientProfile?.user.avatar ?? import.meta.env.VITE_DEFAULT_AVT
+              }
+              alt={patientProfile?.user.fullName}
               className="h-10 w-10 rounded-full"
             />
             <div className="ml-3 overflow-hidden group-data-[collapsible=icon]:hidden">

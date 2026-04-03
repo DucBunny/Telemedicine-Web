@@ -1,6 +1,7 @@
 import { cloudinary, env } from '@/config'
 import { StatusCodes } from 'http-status-codes'
-import { ApiError } from '@/utils/api-error'
+import ApiError from '@/utils/api-error'
+import * as userRepo from '@/repositories/user.repo'
 
 /**
  * Upload buffer lên Cloudinary qua upload_stream
@@ -19,6 +20,24 @@ const uploadToCloudinary = (buffer, options = {}) => {
     )
     stream.end(buffer)
   })
+}
+
+/**
+ * Trích xuất public_id từ Cloudinary URL
+ * @param {string} url - Cloudinary URL
+ * @returns {string|null} public_id hoặc null nếu không phải Cloudinary URL
+ */
+const extractPublicIdFromUrl = (url) => {
+  if (!url || !url.includes('cloudinary.com')) return null
+
+  try {
+    // URL format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{public_id}.{format}
+    const regex = /\/upload\/(?:v\d+\/)?(.+)\.[^.]+$/
+    const match = url.match(regex)
+    return match ? match[1] : null
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -69,6 +88,58 @@ export const uploadSingle = async (file, options = {}) => {
     width: result.width || null,
     height: result.height || null
   }
+}
+
+/**
+ * Upload avatar và cập nhật vào DB
+ * - Upload ảnh mới lên Cloudinary
+ * - Xóa avatar cũ trên Cloudinary (nếu có)
+ * - Cập nhật URL mới vào User table
+ */
+export const uploadAvatar = async (userId, file) => {
+  if (!file)
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded.', 'NO_FILE')
+
+  // Lấy thông tin user hiện tại để có avatar cũ
+  const currentUser = await userRepo.findById(userId)
+  if (!currentUser)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'User not found',
+      'USER_NOT_FOUND'
+    )
+
+  const oldAvatarUrl = currentUser.avatar
+  const oldPublicId = extractPublicIdFromUrl(oldAvatarUrl)
+
+  // Upload avatar mới
+  const result = await uploadSingle(file, {
+    moduleName: 'avatars',
+    transformation: [
+      {
+        width: 400,
+        height: 400,
+        crop: 'fill',
+        gravity: 'face',
+        quality: 'auto'
+      }
+    ]
+  })
+
+  // Cập nhật avatar mới vào DB
+  await userRepo.update(userId, { avatar: result.url })
+
+  // Xóa avatar cũ trên Cloudinary (nếu có và là Cloudinary URL)
+  if (oldPublicId) {
+    try {
+      await deleteFile(oldPublicId, 'image')
+    } catch (error) {
+      // Log lỗi nhưng không throw - avatar mới đã được lưu thành công
+      console.error('Failed to delete old avatar:', error.message)
+    }
+  }
+
+  return result
 }
 
 /**

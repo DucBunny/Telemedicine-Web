@@ -2,6 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { CircleCheck, LockKeyhole, LockKeyholeOpen, Save } from 'lucide-react'
 import { z } from 'zod'
+import { useChangePassword } from '@/features/patient/hooks/usePatientQueries'
 import { Button } from '@/components/ui/button'
 import { InputField } from '@/components/form/InputField'
 import { ChildPageHeader } from '@/features/patient/components/common/PageHeader'
@@ -9,8 +10,10 @@ import { ChildPageHeader } from '@/features/patient/components/common/PageHeader
 const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
-    newPassword: z.string(),
-    // .min(8, 'Mật khẩu mới phải có ít nhất 8 ký tự')
+    newPassword: z
+      .string()
+      .min(1, 'Vui lòng nhập mật khẩu mới')
+      .min(6, 'Mật khẩu mới phải có ít nhất 6 ký tự'),
     // .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ in hoa')
     // .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
     // .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 chữ số'),
@@ -25,6 +28,7 @@ type ChangePasswordForm = z.infer<typeof changePasswordSchema>
 
 export const ChangePasswordPage = () => {
   const navigate = useNavigate()
+  const { mutateAsync: changePassword } = useChangePassword()
 
   const form = useForm({
     defaultValues: {
@@ -35,13 +39,13 @@ export const ChangePasswordPage = () => {
     validators: {
       onChange: changePasswordSchema,
     },
-    onSubmit: ({ value }) => {
-      console.log('Submit thay đổi mật khẩu:', {
-        currentPassword: value.currentPassword,
-        newPassword: value.newPassword,
-      })
-      // Sau khi đổi mật khẩu thành công, quay lại profile
-      navigate({ to: '/patient/profile' })
+    onSubmit: async ({ value }) => {
+      try {
+        await changePassword(value)
+        navigate({ to: '/patient/profile' })
+      } catch (error) {
+        console.error('Lỗi khi đổi mật khẩu:', error)
+      }
     },
   })
 
@@ -89,8 +93,7 @@ export const ChangePasswordPage = () => {
                 label="Mật khẩu mới"
                 leftIcon={LockKeyholeOpen}
                 placeholder="Nhập mật khẩu mới"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
+                field={field}
                 type="password"
                 className="h-12"
               />
@@ -104,8 +107,7 @@ export const ChangePasswordPage = () => {
                 label="Xác nhận mật khẩu"
                 leftIcon={CircleCheck}
                 placeholder="Nhập lại mật khẩu mới"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
+                field={field}
                 type="password"
                 className="h-12"
               />

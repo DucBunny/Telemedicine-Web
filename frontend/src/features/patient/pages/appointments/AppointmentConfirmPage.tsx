@@ -67,6 +67,7 @@ export const AppointmentConfirmPage = () => {
         durationMinutes: 30,
         type,
       })
+      navigate({ to: '/patient/appointments' })
     } catch (error) {
       console.error('Booking failed:', error)
     }

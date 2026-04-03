@@ -31,7 +31,10 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
         <div className="flex items-center gap-3">
           <img
             className="ring-teal-primary/50 h-12 w-12 rounded-full border-2 border-white/40 ring-2"
-            src={appointment.doctor?.user.avatar}
+            src={
+              appointment.doctor?.user.avatar ??
+              import.meta.env.VITE_DEFAULT_AVT
+            }
             alt={appointment.doctor?.user.fullName}
           />
           <div>

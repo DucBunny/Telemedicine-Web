@@ -67,7 +67,10 @@ export const RecordTable = ({
                         'flex size-9 shrink-0 items-center justify-center rounded-full text-xs font-bold',
                       )}>
                       <img
-                        src={record.doctor?.user.avatar}
+                        src={
+                          record.doctor?.user.avatar ??
+                          import.meta.env.VITE_DEFAULT_AVT
+                        }
                         alt={record.doctor?.user.fullName}
                         className="size-9 rounded-full object-cover"
                       />

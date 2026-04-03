@@ -80,7 +80,10 @@ export const AppointmentDetailDialog = ({
             <div className="flex items-center gap-4">
               <img
                 className="ring-teal-primary/50 size-14 rounded-full border-2 border-white/40 ring-2"
-                src={appointment.doctor?.user.avatar}
+                src={
+                  appointment.doctor?.user.avatar ??
+                  import.meta.env.VITE_DEFAULT_AVT
+                }
                 alt={appointment.doctor?.user.fullName}
               />
               <div className="flex-1">

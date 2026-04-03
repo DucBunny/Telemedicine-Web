@@ -22,6 +22,9 @@ router.post(
 // Upload ảnh
 router.post('/image', uploadImage.single('file'), uploadController.uploadSingle)
 
+// Upload avatar (ảnh đại diện)
+router.put('/avatar', uploadImage.single('file'), uploadController.uploadAvatar)
+
 // Upload tài liệu
 router.post(
   '/document',

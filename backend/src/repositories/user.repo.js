@@ -6,6 +6,10 @@ export const create = async (data, options = {}) => {
 }
 
 export const findById = async (id) => {
+  return await User.findByPk(id)
+}
+
+export const findByIdExcludePassword = async (id) => {
   return await User.findByPk(id, {
     attributes: { exclude: ['password'] }
   })
@@ -17,13 +21,6 @@ export const findByEmail = async (email) => {
 
 export const findByPhoneNumber = async (phoneNumber) => {
   return await User.findOne({ where: { phoneNumber } })
-}
-
-export const updatePassword = async (userId, newHashedPassword) => {
-  return await User.update(
-    { password: newHashedPassword },
-    { where: { id: userId } }
-  )
 }
 
 export const getAll = async ({
@@ -65,8 +62,9 @@ export const getAll = async ({
   }
 }
 
-export const updateStatus = async (userId, status) => {
-  return await User.update({ status }, { where: { id: userId } })
+export const update = async (id, data, options = {}) => {
+  const [updated] = await User.update(data, { where: { id }, ...options })
+  return updated > 0 ? await findByIdExcludePassword(id) : null
 }
 
 export const deleteById = async (id) => {

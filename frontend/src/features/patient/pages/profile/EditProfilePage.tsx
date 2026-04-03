@@ -1,11 +1,21 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Cake, Check, MapPin, Phone, User } from 'lucide-react'
+import { Cake, Camera, Check, Mail, MapPin, Phone, User } from 'lucide-react'
 import { useForm } from '@tanstack/react-form'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { z } from 'zod'
-import { GENDER_OPTIONS } from '@/features/patient/constants'
+import { useQueryClient } from '@tanstack/react-query'
+import {
+  BLOOD_TYPE_OPTIONS,
+  GENDER_OPTIONS,
+} from '@/features/patient/constants'
+import { uploadApi } from '@/features/patient/api/upload.api'
 import { SelectField } from '@/components/form/SelectField'
 import { DatePicker } from '@/components/form/DatePicker'
-import { useGetPatientProfile } from '@/features/patient/hooks/usePatientQueries'
+import {
+  useGetPatientProfile,
+  useUpdatePatientProfile,
+} from '@/features/patient/hooks/usePatientQueries'
 import { InputField } from '@/components/form/InputField'
 import { TextAreaField } from '@/components/form/TextAreaField'
 import { Button } from '@/components/ui/button'
@@ -14,50 +24,116 @@ import { ChildPageHeader } from '@/features/patient/components/common/PageHeader
 const patientSchema = z.object({
   user: z.object({
     fullName: z.string().min(2, 'Họ và tên phải có ít nhất 2 ký tự'),
-    avatar: z.string().url('URL ảnh không hợp lệ').optional(),
     phoneNumber: z
       .string()
       .min(1, 'Vui lòng nhập số điện thoại')
       .regex(/^(0|\+84)(3|5|7|8|9)[0-9]{8}$/, 'Số điện thoại không hợp lệ'),
+    email: z.string().email('Email không hợp lệ'),
   }),
   dateOfBirth: z.string().min(1, 'Vui lòng nhập ngày sinh'),
   gender: z.enum(['male', 'female', 'other'], 'Vui lòng chọn giới tính'),
   address: z.string().min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
+  height: z
+    .string()
+    .min(1, 'Vui lòng nhập chiều cao')
+    .transform((val) => Number(val))
+    .pipe(
+      z
+        .number()
+        .min(30, 'Chiều cao phải lớn hơn 30cm')
+        .max(300, 'Chiều cao phải nhỏ hơn 300cm'),
+    ),
+  weight: z
+    .string()
+    .min(1, 'Vui lòng nhập cân nặng')
+    .transform((val) => Number(val))
+    .pipe(
+      z
+        .number()
+        .min(1, 'Cân nặng phải lớn hơn 1kg')
+        .max(500, 'Cân nặng phải nhỏ hơn 500kg'),
+    ),
+  bloodType: z.enum(
+    ['A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-', 'unknown'],
+    'Vui lòng chọn nhóm máu',
+  ),
 })
 
-type PatientProfileFormData = z.infer<typeof patientSchema>
+type PatientProfileFormData = z.input<typeof patientSchema>
 
 export const EditProfilePage = () => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const { data: patientProfile } = useGetPatientProfile()
+  const updatePatientProfileMutation = useUpdatePatientProfile()
+
+  // State cho avatar preview và pending file
+  const [avatarPreview, setAvatarPreview] = useState<string>('')
+  const pendingAvatarFile = useRef<File | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm({
     defaultValues: {
       user: {
         fullName: patientProfile?.user.fullName || '',
-        avatar: patientProfile?.user.avatar || '',
         phoneNumber: patientProfile?.user.phoneNumber || '',
+        email: patientProfile?.user.email || '',
       },
       dateOfBirth: patientProfile?.dateOfBirth || '',
       gender: patientProfile?.gender || 'other',
       address: patientProfile?.address || '',
+      height: String(patientProfile?.height) || '',
+      weight: String(patientProfile?.weight) || '',
+      bloodType: patientProfile?.bloodType || 'unknown',
     } as PatientProfileFormData,
     validators: {
       onSubmit: patientSchema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       try {
-        // Gọi API để lưu thông tin cập nhật (chưa có API thực tế, chỉ log ra console)
-        console.log('Thông tin cập nhật:', value)
+        setIsSubmitting(true)
+
+        // Upload avatar nếu có file pending
+        if (pendingAvatarFile.current) {
+          toast.loading('Đang tải ảnh lên...', { id: 'upload-avatar' })
+          await uploadApi.uploadAvatar(pendingAvatarFile.current)
+          toast.success('Cập nhật ảnh đại diện thành công!', {
+            id: 'upload-avatar',
+          })
+          // Invalidate sau khi upload avatar (vì uploadAvatar đã cập nhật DB)
+          queryClient.invalidateQueries({ queryKey: ['patients', 'profile'] })
+        }
+
+        // Cập nhật thông tin profile (mutation tự động invalidate trong onSuccess)
+        await updatePatientProfileMutation.mutateAsync(
+          patientSchema.parse(value),
+        )
+
         navigate({ to: '/patient/profile' })
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Lỗi khi lưu thông tin:', error)
+      } finally {
+        setIsSubmitting(false)
       }
     },
   })
 
   const handleAvatarChange = () => {
-    console.log('Mở trình chọn ảnh...')
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+
+      // Lưu file để upload khi submit
+      pendingAvatarFile.current = file
+
+      // Tạo preview URL
+      const previewUrl = URL.createObjectURL(file)
+      setAvatarPreview(previewUrl)
+    }
+    input.click()
   }
 
   return (
@@ -75,30 +151,27 @@ export const EditProfilePage = () => {
         }}
         className="space-y-3 pb-23 md:pb-11 lg:mx-auto lg:max-w-3/4 lg:rounded-2xl lg:border lg:border-gray-200 lg:bg-white lg:p-6 lg:shadow xl:max-w-2/3">
         {/* Avatar Section */}
-        <form.Field
-          name="user.avatar"
-          children={(field) => (
-            <div className="flex flex-col items-center py-4">
-              <div className="relative">
-                <div
-                  className="border-background-light dark:border-background-dark h-28 w-28 rounded-full border-4 bg-cover bg-center shadow-lg"
-                  style={{ backgroundImage: `url("${field.state.value}")` }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAvatarChange}
-                  className="bg-primary border-surface-light dark:border-surface-dark absolute right-0 bottom-0 flex items-center justify-center rounded-full border-2 p-2 text-white shadow-md transition-all hover:brightness-110">
-                  <span className="material-symbols-outlined text-[18px]">
-                    photo_camera
-                  </span>
-                </button>
-              </div>
-              <p className="text-text-secondary-light dark:text-text-secondary-dark mt-3 text-xs">
-                Nhấn vào ảnh để thay đổi
-              </p>
-            </div>
-          )}
-        />
+        <div className="flex flex-col items-center py-4">
+          <div className="relative">
+            <img
+              className="border-teal-primary size-28 rounded-full border-2 bg-cover bg-center shadow-lg"
+              src={avatarPreview || patientProfile?.user.avatar}
+              alt={patientProfile?.user.fullName}
+            />
+            <Button
+              type="button"
+              onClick={handleAvatarChange}
+              disabled={isSubmitting}
+              size="icon"
+              variant="teal_primary"
+              className="absolute right-0 bottom-0 rounded-full">
+              <Camera />
+            </Button>
+          </div>
+          <p className="mt-3 text-xs text-slate-600">
+            Nhấn vào ảnh để thay đổi
+          </p>
+        </div>
 
         {/* Form Fields */}
         <form.Field
@@ -142,21 +215,81 @@ export const EditProfilePage = () => {
               />
             )}
           />
+
+          <form.Field
+            name="user.email"
+            children={(field) => (
+              <InputField
+                label="Email"
+                type="email"
+                placeholder="Email"
+                rightIcon={Mail}
+                field={field}
+                className="h-12"
+              />
+            )}
+          />
+
+          <form.Field
+            name="user.phoneNumber"
+            children={(field) => (
+              <InputField
+                label="Số điện thoại"
+                type="tel"
+                placeholder="Số điện thoại"
+                rightIcon={Phone}
+                field={field}
+                className="h-12"
+              />
+            )}
+          />
         </div>
 
-        <form.Field
-          name="user.phoneNumber"
-          children={(field) => (
-            <InputField
-              label="Số điện thoại"
-              type="tel"
-              placeholder="Số điện thoại"
-              rightIcon={Phone}
-              field={field}
-              className="h-12"
-            />
-          )}
-        />
+        <div className="grid grid-cols-3 gap-3">
+          <form.Field
+            name="height"
+            children={(field) => (
+              <InputField
+                label="Chiều cao"
+                type="number"
+                min="0"
+                placeholder="(cm)"
+                field={field}
+                rightIcon={Cake}
+                className="h-12"
+              />
+            )}
+          />
+
+          <form.Field
+            name="weight"
+            children={(field) => (
+              <InputField
+                label="Cân nặng"
+                type="number"
+                min="0"
+                placeholder="(kg)"
+                field={field}
+                rightIcon="wc"
+                className="h-12!"
+              />
+            )}
+          />
+
+          <form.Field
+            name="bloodType"
+            children={(field) => (
+              <SelectField
+                options={BLOOD_TYPE_OPTIONS}
+                label="Nhóm máu"
+                placeholder="A+, v.v"
+                field={field}
+                rightIcon="wc"
+                className="h-12!"
+              />
+            )}
+          />
+        </div>
 
         <form.Field
           name="address"
@@ -180,8 +313,8 @@ export const EditProfilePage = () => {
           </Button>
 
           <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
+            selector={(state) => [state.canSubmit]}
+            children={([canSubmit]) => (
               <Button
                 type="submit"
                 variant="teal_primary"
@@ -197,8 +330,8 @@ export const EditProfilePage = () => {
         {/* Fixed Bottom Button */}
         <div className="fixed right-0 bottom-0 left-0 p-4 md:left-20 lg:hidden">
           <form.Subscribe
-            selector={(state) => [state.canSubmit, state.isSubmitting]}
-            children={([canSubmit, isSubmitting]) => (
+            selector={(state) => [state.canSubmit]}
+            children={([canSubmit]) => (
               <Button
                 type="submit"
                 variant="teal_primary"
