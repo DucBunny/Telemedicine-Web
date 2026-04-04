@@ -44,6 +44,20 @@ async function main() {
       )
     }
 
+    // Deduplicate pairs by (patient_id, doctor_id) to avoid duplicate conversations
+    const uniquePairs = []
+    const seenPairs = new Set()
+
+    for (const pair of pairs) {
+      const pairKey = `${pair.patient_id}-${pair.doctor_id}`
+      if (!seenPairs.has(pairKey)) {
+        seenPairs.add(pairKey)
+        uniquePairs.push(pair)
+      }
+    }
+
+    pairs = uniquePairs
+
     await clearMessages()
     await clearConversations()
 

@@ -3,7 +3,7 @@ import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 
 const doctorMessages = [
-  'Xin chào! Tôi đã xem kết quả xet nghiệm của bạn. Có vẻ ổn, nhưng cần theo dõi thêm.',
+  'Xin chào! Tôi đã xem kết quả xét nghiệm của bạn. Có vẻ ổn, nhưng cần theo dõi thêm.',
   'Bạn đã uống thuốc đầy đủ chưa? Nhớ uống sau ăn nhé.',
   'Kết quả siêu âm đã sẵn sàng. Hãy đến phòng khám trong tuần này.',
   'Huyết áp của bạn gần đây như thế nào? Bạn có đo tại nhà không?',
@@ -80,5 +80,5 @@ export const seedMessages = async (seededConversations) => {
     }
   }
 
-  console.log(`${totalMessages} messages created`)
+  console.log(`${totalMessages} messages seeded`)
 }
