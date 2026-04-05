@@ -1,6 +1,13 @@
 import { Device } from '@/models/sql/index'
 
 /**
+ * Create new device
+ */
+export const create = async (data) => {
+  return await Device.create(data)
+}
+
+/**
  * Get all devices
  */
 export const getAll = async ({ page = 1, limit = 10, status = '' }) => {

@@ -23,23 +23,7 @@ export const getPatientsByDoctorId = async (req, res, next) => {
   }
 }
 
-/**
- * Get current patient profile (for logged in patient)
- */
-export const getProfile = async (req, res, next) => {
-  try {
-    const userId = req.user.id // from JWT token
-    const patient = await patientService.getPatientByUserId(userId)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: patient
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
+//---------------------------------------
 /**
  * Create new patient
  */
@@ -48,23 +32,6 @@ export const getProfile = async (req, res, next) => {
 //     const patient = await patientService.createPatient(req.body)
 
 //     res.status(StatusCodes.CREATED).json({
-//       success: true,
-//       data: patient
-//     })
-//   } catch (error) {
-//     next(error)
-//   }
-// }
-
-// /**
-//  * Update patient
-//  */
-// export const updatePatient = async (req, res, next) => {
-//   try {
-//     const { id } = req.params
-//     const patient = await patientService.updatePatient(id, req.body)
-
-//     res.status(StatusCodes.OK).json({
 //       success: true,
 //       data: patient
 //     })
@@ -124,3 +91,125 @@ export const getProfile = async (req, res, next) => {
 //     next(error)
 //   }
 // }
+
+// ---------------------------------------
+
+/**
+ * Get all patients
+ */
+export const getAllPatients = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, search = '' } = req.query
+    const result = await patientService.getAllPatients({ page, limit, search })
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result.data,
+      meta: result.pagination
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Update current patient profile (for logged in patient)
+ */
+export const updateMyProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id // from JWT token
+    const patient = await patientService.updatePatientByUserId(userId, req.body)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: patient
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Create new patient
+ */
+export const createPatient = async (req, res, next) => {
+  try {
+    const patient = await patientService.createPatient(req.body)
+
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      data: patient
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Update patient
+ */
+export const updatePatient = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const patient = await patientService.updatePatient(id, req.body)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: patient
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Delete patient
+ */
+export const deletePatient = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const result = await patientService.deletePatient(id)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Get patient's devices
+ */
+export const getPatientDevices = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const devices = await patientService.getPatientDevices(id)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: devices
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Get my devices (for logged in patient)
+ */
+export const getMyDevices = async (req, res, next) => {
+  try {
+    const userId = req.user.id // from JWT token
+    const patient = await patientService.getPatientByUserId(userId)
+    const devices = await patientService.getPatientDevices(patient.id)
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: devices
+    })
+  } catch (error) {
+    next(error)
+  }
+}

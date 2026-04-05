@@ -7,7 +7,7 @@ import * as uploadService from '@/services/upload.service'
  */
 export const uploadSingle = async (req, res, next) => {
   try {
-    const result = await uploadService.uploadSingle(req.file)
+    const result = await uploadService.uploadSingle(req.file, req.options)
 
     res.status(StatusCodes.OK).json({
       success: true,

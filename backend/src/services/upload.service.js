@@ -56,10 +56,14 @@ export const uploadSingle = async (file, options = {}) => {
   const environment = env.NODE_ENV || 'development'
   const rootFolder = env.CLOUDINARY_ROOT_FOLDER || 'telemedicine'
 
-  // Lấy tên module từ options truyền vào (vd: 'users', 'doctors', 'posts'), nếu không có thì mặc định là 'general'
+  // Lấy tên module từ options truyền vào (vd: 'users', 'doctors', 'posts', 'chats/{conversationId}')
+  // Nếu không có thì mặc định là 'general'
   const moduleName = options.moduleName || 'general'
 
   const typeFolder = isImage ? 'images' : 'documents'
+
+  // Support nested module paths (e.g., 'chats/{conversationId}')
+  // Folder structure: rootFolder/environment/moduleName/typeFolder
   const folderPath = `${rootFolder}/${environment}/${moduleName}/${typeFolder}`
 
   const uploadOptions = {
@@ -117,8 +121,8 @@ export const uploadAvatar = async (userId, file) => {
     moduleName: 'avatars',
     transformation: [
       {
-        width: 400,
-        height: 400,
+        width: 300,
+        height: 300,
         crop: 'fill',
         gravity: 'face',
         quality: 'auto'
