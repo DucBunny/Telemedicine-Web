@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rm -rf build && mkdir build",
-    "build-babel": "./node_modules/.bin/babel ./src -d ./build/src",
+    "build-babel": "babel ./src -d ./build/src",
     "build": "npm run clean && npm run build-babel",
     "production": "npm run build && node ./build/src/server.js",
     "dev": "nodemon --exec ./node_modules/.bin/babel-node ./src/server.js",
@@ -16,6 +16,7 @@
   "author": "Duc",
   "license": "ISC",
   "dependencies": {
+    "@babel/cli": "^7.28.6",
     "@babel/runtime": "^7.28.4",
     "amqplib": "^0.10.9",
     "axios": "^1.13.2",
@@ -41,7 +42,6 @@
     "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.3",
     "@babel/core": "^7.28.5",
     "@babel/node": "^7.28.0",
     "@babel/plugin-transform-runtime": "^7.28.5",
