@@ -17,9 +17,14 @@
   "license": "ISC",
   "dependencies": {
     "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/node": "^7.29.0",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@babel/runtime": "^7.28.4",
     "amqplib": "^0.10.9",
     "axios": "^1.13.2",
+    "babel-plugin-module-resolver": "^5.0.3",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
@@ -42,12 +47,7 @@
     "zod-validation-error": "^5.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.5",
-    "@babel/node": "^7.28.0",
-    "@babel/plugin-transform-runtime": "^7.28.5",
-    "@babel/preset-env": "^7.28.5",
     "@faker-js/faker": "^10.2.0",
-    "babel-plugin-module-resolver": "^5.0.2",
     "nodemon": "^3.1.11",
     "sequelize-cli": "^6.6.3"
   }
