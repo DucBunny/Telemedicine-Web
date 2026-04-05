@@ -80,10 +80,7 @@ module.exports = (sequelize, DataTypes) => {
   )
 
   // Thiết lập pagination với cursor
-  Notification.cursorPaginate = makePaginate(Notification, {
-    primaryKeyField: 'id',
-    paginationField: 'createdAt'
-  })
+  Notification.cursorPaginate = makePaginate(Notification)
 
   return Notification
 }

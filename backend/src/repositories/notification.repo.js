@@ -22,9 +22,10 @@ export const getNotifications = async (
         attributes: ['fullName']
       }
     ],
-    desc: true,
-    paginationField: 'createdAt', // Sắp xếp theo thời gian tạo mới nhất
-    primaryKeyField: 'id',
+    order: [
+      ['createdAt', 'DESC'],
+      ['id', 'DESC']
+    ],
     limit,
     after: nextCursor ?? null, // Cursor for pagination
     raw: false
