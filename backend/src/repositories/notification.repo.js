@@ -5,9 +5,8 @@ import { Notification, User } from '@/models/sql/index'
  */
 export const getNotifications = async (
   userId,
-  { nextCursor, limit = 8, isRead }
+  { nextCursor, limit = 10, isRead }
 ) => {
-  const parsedLimit = Math.min(limit, 10)
   const whereClause = { userId }
 
   if (isRead !== undefined) {
@@ -23,12 +22,11 @@ export const getNotifications = async (
         attributes: ['fullName']
       }
     ],
-    order: [
-      ['createdAt', 'DESC'],
-      ['id', 'DESC']
-    ],
-    limit: parsedLimit, // Max 10 items per request
-    after: nextCursor ? nextCursor : null, // Cursor for pagination
+    desc: true,
+    paginationField: 'createdAt', // Sắp xếp theo thời gian tạo mới nhất
+    primaryKeyField: 'id',
+    limit,
+    after: nextCursor ?? null, // Cursor for pagination
     raw: false
   })
 
@@ -39,8 +37,7 @@ export const getNotifications = async (
     meta: {
       nextCursor: result.pageInfo?.endCursor || null,
       hasMore: result.pageInfo?.hasNextPage || false,
-      count: data.length,
-      total: result.totalCount
+      count: data.length
     }
   }
 }
