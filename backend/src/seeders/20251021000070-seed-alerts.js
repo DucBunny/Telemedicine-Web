@@ -1,12 +1,20 @@
 'use strict'
-const { fakerVI: faker } = require('@faker-js/faker')
+const { fakerVI: faker, de } = require('@faker-js/faker')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Lấy hồ sơ bệnh án để tạo cảnh báo phù hợp
+    const devices = await queryInterface.sequelize.query(
+      `SELECT id, assigned_to FROM devices WHERE is_assigned = true;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    )
     const records = await queryInterface.sequelize.query(
-      `SELECT patient_id, diagnosis FROM medical_records;`,
+      `
+      SELECT mr.patient_id, mr.diagnosis 
+      FROM medical_records mr 
+      WHERE mr.patient_id 
+      IN (SELECT DISTINCT assigned_to FROM devices WHERE is_assigned = true);
+      `,
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     )
     const now = new Date()
@@ -23,6 +31,8 @@ module.exports = {
         if (Math.random() > 0.3) {
           alertData = {
             patient_id: record.patient_id,
+            device_id: devices.find((d) => d.assigned_to === record.patient_id)
+              ?.id,
             type: 'bpm',
             value: faker.number.int({ min: 110, max: 150 }),
             message: 'Cảnh báo: Nhịp tim vượt ngưỡng an toàn',
@@ -40,6 +50,8 @@ module.exports = {
         if (Math.random() > 0.3) {
           alertData = {
             patient_id: record.patient_id,
+            device_id: devices.find((d) => d.assigned_to === record.patient_id)
+              ?.id,
             type: 'spo2',
             value: faker.number.int({ min: 90, max: 93 }),
             message: 'Cảnh báo: Nồng độ oxy trong máu thấp',

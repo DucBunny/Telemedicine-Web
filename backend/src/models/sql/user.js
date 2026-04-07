@@ -22,16 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         as: 'refreshTokens'
       })
 
-      // Quan hệ với Chat (Tin nhắn gửi đi & nhận về)
-      User.hasMany(models.ChatMessage, {
-        foreignKey: 'senderId',
-        as: 'sentMessages'
-      })
-      User.hasMany(models.ChatMessage, {
-        foreignKey: 'receiverId',
-        as: 'receivedMessages'
-      })
-
       // Quan hệ với CallLog
       User.hasMany(models.CallLog, {
         foreignKey: 'callerId',
@@ -64,21 +54,40 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('admin', 'doctor', 'patient'),
         defaultValue: 'patient'
       },
-      avatar: DataTypes.STRING,
-      phoneNumber: DataTypes.STRING,
+      avatar: {
+        type: DataTypes.STRING
+      },
+      phoneNumber: {
+        type: DataTypes.STRING,
+        unique: true
+      },
       status: {
         type: DataTypes.ENUM('active', 'locked', 'pending'),
         defaultValue: 'pending'
       },
       lastLoginAt: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        defaultValue: null
       }
     },
     {
       sequelize,
       tableName: 'users',
-      modelName: 'User'
+      modelName: 'User',
+      indexes: [
+        {
+          // Hỗ trợ tìm kiếm user theo email nhanh chóng, đồng thời đảm bảo email không bị trùng lặp
+          unique: true,
+          name: 'idx_users_email',
+          fields: ['email']
+        },
+        {
+          // Hỗ trợ lọc user theo số điện thoại nhanh chóng, đồng thời đảm bảo số điện thoại không bị trùng lặp
+          unique: true,
+          name: 'idx_users_phone_number',
+          fields: ['phone_number']
+        }
+      ]
     }
   )
 

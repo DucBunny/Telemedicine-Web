@@ -20,24 +20,24 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       device_id: {
-        type: Sequelize.STRING,
-        allowNull: true,
+        type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'devices',
-          key: 'device_id'
+          key: 'id'
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
       prediction_id: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        // allowNull: false,
         references: {
           model: 'health_predictions',
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        onDelete: 'CASCADE'
       },
       type: {
         type: Sequelize.STRING

@@ -3,18 +3,22 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('devices', {
-      device_id: {
-        // Khóa chính là String (MAC Address)
+      id: {
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
       name: {
         type: Sequelize.STRING
       },
-      status: {
-        type: Sequelize.ENUM('active', 'inactive', 'maintenance'),
-        defaultValue: 'active'
+      is_online: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      is_assigned: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
       },
       assigned_to: {
         // Gắn cho bệnh nhân nào

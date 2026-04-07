@@ -39,10 +39,7 @@ export const paginationWithSearchSchema = paginationQuerySchema.extend(
 /**
  * Date string schema
  */
-export const datetimeStringSchema = z.iso.datetime(
-  { local: true },
-  'Date is invalid'
-)
+export const datetimeStringSchema = z.iso.datetime('Date is invalid')
 
 /**
  * Phone number schema (Vietnamese format)

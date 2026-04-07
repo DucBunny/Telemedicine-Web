@@ -4,6 +4,9 @@ export const env = {
   PORT: process.env.PORT || 8080,
   NODE_ENV: process.env.NODE_ENV || 'development',
 
+  // Application timezone (IANA format) where the clinic operates
+  APP_TIME_ZONE: process.env.APP_TIME_ZONE || 'Asia/Ho_Chi_Minh',
+
   // TiDB Cloud configuration
   DB_PORT: process.env.DB_PORT || 3306,
   DB_HOST: process.env.DB_HOST || 'localhost',

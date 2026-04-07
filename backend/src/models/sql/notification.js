@@ -23,8 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       userId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        field: 'user_id'
+        allowNull: false
       },
       type: {
         type: DataTypes.ENUM('alert', 'appointment', 'message'),
@@ -37,21 +36,17 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT
       },
       referenceId: {
-        type: DataTypes.INTEGER,
-        field: 'reference_id'
+        type: DataTypes.STRING
       },
       senderId: {
-        type: DataTypes.INTEGER,
-        field: 'sender_id'
+        type: DataTypes.INTEGER
       },
       isRead: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false,
-        field: 'is_read'
+        defaultValue: false
       },
       readAt: {
-        type: DataTypes.DATE,
-        field: 'read_at'
+        type: DataTypes.DATE
       }
     },
     {

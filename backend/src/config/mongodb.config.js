@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { env } from './env'
+import { env } from '@/config/env'
 
 const mongo_uri = env.MONGODB_CLUSTER
   ? `mongodb+srv://${env.MONGODB_USER}:${env.MONGODB_PASSWORD}@${env.MONGODB_CLUSTER}/${env.MONGODB_DB_NAME}`

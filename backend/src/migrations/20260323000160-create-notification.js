@@ -30,7 +30,7 @@ module.exports = {
         type: Sequelize.TEXT
       },
       reference_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       sender_id: {
         type: Sequelize.INTEGER,

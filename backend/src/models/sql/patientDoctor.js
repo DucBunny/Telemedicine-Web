@@ -20,7 +20,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('primary', 'consultant', 'on_call'),
         allowNull: false
       },
-      assignedAt: DataTypes.DATE
+      assignedAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+        allowNull: false
+      }
     },
     {
       sequelize,

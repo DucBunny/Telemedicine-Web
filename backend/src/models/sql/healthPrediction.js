@@ -21,11 +21,22 @@ module.exports = (sequelize, DataTypes) => {
 
   HealthPrediction.init(
     {
-      patientId: DataTypes.INTEGER,
-      predictedStatus: DataTypes.ENUM('normal', 'warning', 'critical'),
-      confidence: DataTypes.FLOAT,
-      modelVersion: DataTypes.STRING,
-      inputWindow: DataTypes.INTEGER
+      patientId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      predictedStatus: {
+        type: DataTypes.ENUM('normal', 'warning', 'critical')
+      },
+      confidence: {
+        type: DataTypes.FLOAT
+      },
+      modelVersion: {
+        type: DataTypes.STRING
+      },
+      inputWindow: {
+        type: DataTypes.INTEGER
+      }
     },
     {
       sequelize,

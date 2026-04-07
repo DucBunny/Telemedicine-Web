@@ -46,11 +46,21 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      symptoms: DataTypes.TEXT,
-      diagnosis: DataTypes.TEXT,
-      treatmentPlan: DataTypes.TEXT,
-      prescription: DataTypes.JSON,
-      notes: DataTypes.TEXT
+      symptoms: {
+        type: DataTypes.TEXT
+      },
+      diagnosis: {
+        type: DataTypes.TEXT
+      },
+      treatmentPlan: {
+        type: DataTypes.TEXT
+      },
+      prescription: {
+        type: DataTypes.JSON
+      },
+      notes: {
+        type: DataTypes.TEXT
+      }
     },
     {
       sequelize,

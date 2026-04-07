@@ -20,14 +20,23 @@ module.exports = (sequelize, DataTypes) => {
 
   CallLog.init(
     {
-      callerId: DataTypes.INTEGER,
-      receiverId: DataTypes.INTEGER,
-      startTime: DataTypes.DATE,
-      endTime: DataTypes.DATE,
-      durationSeconds: DataTypes.INTEGER,
+      callerId: {
+        type: DataTypes.INTEGER
+      },
+      receiverId: {
+        type: DataTypes.INTEGER
+      },
+      startTime: {
+        type: DataTypes.DATE
+      },
+      endTime: {
+        type: DataTypes.DATE
+      },
+      durationSeconds: {
+        type: DataTypes.INTEGER
+      },
       status: {
-        type: DataTypes.ENUM('missed', 'rejected', 'completed'),
-        defaultValue: 'missed'
+        type: DataTypes.ENUM('missed', 'rejected', 'completed')
       }
     },
     {

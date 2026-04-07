@@ -35,23 +35,44 @@ module.exports = (sequelize, DataTypes) => {
 
   Alert.init(
     {
-      patientId: DataTypes.INTEGER,
-      deviceId: DataTypes.INTEGER,
-      predictionId: DataTypes.INTEGER,
-      type: DataTypes.STRING, // VD: "bpm"
-      value: DataTypes.FLOAT, // VD: "150"
-      message: DataTypes.STRING,
+      patientId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      deviceId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      predictionId: {
+        type: DataTypes.INTEGER
+        // allowNull: false
+      },
+      type: {
+        type: DataTypes.STRING
+      }, // VD: "bpm"
+      value: {
+        type: DataTypes.FLOAT
+      }, // VD: "150"
+      message: {
+        type: DataTypes.STRING
+      },
       severity: {
         type: DataTypes.ENUM('low', 'medium', 'critical'),
         defaultValue: 'medium'
       },
-      source: DataTypes.STRING,
+      source: {
+        type: DataTypes.STRING
+      },
       isResolved: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
       },
-      resolvedAt: DataTypes.DATE,
-      resolvedBy: DataTypes.INTEGER
+      resolvedAt: {
+        type: DataTypes.DATE
+      },
+      resolvedBy: {
+        type: DataTypes.INTEGER
+      }
     },
     {
       sequelize,

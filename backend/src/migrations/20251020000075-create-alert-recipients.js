@@ -3,15 +3,9 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('alert_recipients', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
       alert_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        primaryKey: true,
         references: {
           model: 'alerts',
           key: 'id'
@@ -21,7 +15,7 @@ module.exports = {
       },
       doctor_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        primaryKey: true,
         references: {
           model: 'doctors',
           key: 'user_id'
@@ -39,6 +33,7 @@ module.exports = {
       },
       delivered_at: {
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         allowNull: false
       },
       read_at: {
@@ -46,16 +41,6 @@ module.exports = {
       },
       acknowledged_at: {
         type: Sequelize.DATE
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
     })
   },

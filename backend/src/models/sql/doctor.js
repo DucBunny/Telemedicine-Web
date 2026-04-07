@@ -71,10 +71,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true
       },
-      degree: DataTypes.STRING,
-      experienceYears: DataTypes.INTEGER,
-      bio: DataTypes.TEXT,
-      address: DataTypes.STRING
+      degree: {
+        type: DataTypes.STRING
+      },
+      experienceYears: {
+        type: DataTypes.INTEGER
+      },
+      bio: {
+        type: DataTypes.TEXT
+      },
+      address: {
+        type: DataTypes.STRING
+      }
     },
     {
       sequelize,

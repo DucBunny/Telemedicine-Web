@@ -2,9 +2,13 @@ import * as appointmentRepo from '@/repositories/appointment.repo'
 import * as doctorRepo from '@/repositories/doctor.repo'
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
+// import * as socketService from '@/services/socket.emitters'
 import * as socketService from '@/services/socket.service'
+import { env } from '@/config/env'
 import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
+import { getDay } from 'date-fns'
+import { formatInTimeZone } from 'date-fns-tz'
 
 /**
  * Get appointments for logged in user (doctor or patient) with filter
@@ -103,10 +107,15 @@ const isSlotAvailable = (slot, durationMin, offSchedules, bookedAppts) => {
 
   // Kiểm tra overlap với appointments đã đặt
   for (const appt of bookedAppts) {
-    const apptDate = new Date(appt.scheduledAt)
-    const apptStart = apptDate.getHours() * 60 + apptDate.getMinutes()
-    // const apptStart = apptDate.getUTCHours() * 60 + apptDate.getUTCMinutes()
-    const apptEnd = apptStart + (appt.duration ?? 30)
+    // Chuyển appt.scheduledAt về giờ địa phương của phòng khám
+    const apptHour = Number(
+      formatInTimeZone(appt.scheduledAt, env.APP_TIME_ZONE, 'HH')
+    )
+    const apptMinute = Number(
+      formatInTimeZone(appt.scheduledAt, env.APP_TIME_ZONE, 'mm')
+    )
+    const apptStart = apptHour * 60 + apptMinute
+    const apptEnd = apptStart + (appt.durationMinutes ?? 30)
     if (slotStart < apptEnd && slotEnd > apptStart) return false
   }
 
@@ -125,8 +134,7 @@ export const getAvailableSlots = async (doctorId, date) => {
       'DOCTOR_NOT_FOUND'
     )
 
-  const dateObj = new Date(date)
-  const dayOfWeek = dateObj.getDay() // 0=Sun, 1=Mon...
+  const dayOfWeek = getDay(date) // 0=Sun, 1=Mon, 2=Tue, ...
 
   const [workingHours, offSchedules, bookedAppts] = await Promise.all([
     appointmentRepo.getWorkingHours(doctorId, dayOfWeek),
@@ -156,9 +164,9 @@ export const createAppointment = async ({
   type,
   reason
 }) => {
-  // Kiểm tra slot có còn trống không
-  const dateStr = scheduledAt.split('T')[0] // Lấy date từ string gốc
-  const slotTime = scheduledAt.split('T')[1].slice(0, 5) // Lấy time từ string gốc
+  // Chuyển scheduledAt về giờ địa phương của phòng khám để kiểm tra slot
+  const dateStr = formatInTimeZone(scheduledAt, env.APP_TIME_ZONE, 'yyyy-MM-dd')
+  const slotTime = formatInTimeZone(scheduledAt, env.APP_TIME_ZONE, 'HH:mm')
 
   const available = await getAvailableSlots(doctorId, dateStr)
   if (!available.includes(slotTime))

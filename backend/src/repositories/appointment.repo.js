@@ -9,6 +9,7 @@ import {
   DoctorOffSchedule,
   PatientDoctor
 } from '@/models/sql/index'
+import { endOfDay, parse, startOfDay } from 'date-fns'
 import { Op } from 'sequelize'
 
 /**
@@ -168,14 +169,15 @@ export const getOffSchedules = async (doctorId, date) => {
  * Get booked appointments (pending/confirmed) for a doctor on a specific date
  */
 export const getBookedAppointments = async (doctorId, date) => {
-  const startOfDay = new Date(`${date}T00:00:00`)
-  const endOfDay = new Date(`${date}T23:59:59.999`)
+  const localDate = parse(date, 'yyyy-MM-dd', new Date())
+  const startOfDayVal = startOfDay(localDate)
+  const endOfDayVal = endOfDay(localDate)
 
   return await Appointment.findAll({
     where: {
       doctorId,
       scheduledAt: {
-        [Op.between]: [startOfDay, endOfDay]
+        [Op.between]: [startOfDayVal, endOfDayVal]
       },
       status: ['pending', 'confirmed']
     },

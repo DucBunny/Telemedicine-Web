@@ -4,6 +4,7 @@ const { Model } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class DoctorWorkingHours extends Model {
     static associate(models) {
+      // N-1 với Doctor (1 bác sĩ có nhiều khung giờ làm việc)
       DoctorWorkingHours.belongsTo(models.Doctor, {
         foreignKey: 'doctorId',
         targetKey: 'userId',

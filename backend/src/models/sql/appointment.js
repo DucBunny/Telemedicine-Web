@@ -22,13 +22,21 @@ module.exports = (sequelize, DataTypes) => {
 
   Appointment.init(
     {
-      patientId: DataTypes.INTEGER,
-      doctorId: DataTypes.INTEGER,
+      patientId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
+      doctorId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+      },
       scheduledAt: {
         type: DataTypes.DATE,
         allowNull: false
       },
-      actualEndedAt: DataTypes.DATE,
+      actualEndedAt: {
+        type: DataTypes.DATE
+      },
       durationMinutes: {
         type: DataTypes.INTEGER,
         defaultValue: 30
@@ -41,9 +49,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('online', 'offline'),
         defaultValue: 'online'
       },
-      meetingLink: DataTypes.STRING,
-      reason: DataTypes.TEXT,
-      cancelReason: DataTypes.TEXT
+      meetingLink: {
+        type: DataTypes.STRING
+      },
+      reason: {
+        type: DataTypes.TEXT
+      },
+      cancelReason: {
+        type: DataTypes.TEXT
+      }
     },
     {
       sequelize,

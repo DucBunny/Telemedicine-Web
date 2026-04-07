@@ -62,18 +62,34 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         allowNull: false
       },
-      dateOfBirth: DataTypes.DATEONLY,
-      gender: DataTypes.ENUM('male', 'female', 'other'),
-      bloodType: DataTypes.STRING,
-      height: DataTypes.FLOAT,
-      weight: DataTypes.FLOAT,
-      medicalHistory: DataTypes.TEXT,
-      address: DataTypes.STRING,
+      dateOfBirth: {
+        type: DataTypes.DATEONLY
+      },
+      gender: {
+        type: DataTypes.ENUM('male', 'female', 'other')
+      },
+      bloodType: {
+        type: DataTypes.STRING
+      },
+      height: {
+        type: DataTypes.FLOAT
+      },
+      weight: {
+        type: DataTypes.FLOAT
+      },
+      medicalHistory: {
+        type: DataTypes.TEXT
+      },
+      address: {
+        type: DataTypes.STRING
+      },
       currentHealthStatus: {
         type: DataTypes.ENUM('stable', 'monitoring', 'critical'),
         defaultValue: 'stable'
       },
-      currentIssue: DataTypes.TEXT,
+      currentIssue: {
+        type: DataTypes.TEXT
+      },
       lastAlertAt: {
         type: DataTypes.DATE,
         allowNull: true

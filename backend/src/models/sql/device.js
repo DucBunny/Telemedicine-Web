@@ -15,17 +15,27 @@ module.exports = (sequelize, DataTypes) => {
 
   Device.init(
     {
-      deviceId: {
-        type: DataTypes.STRING,
-        primaryKey: true, // Dùng MAC Address hoặc Serial Number làm ID
-        allowNull: false
+      name: {
+        type: DataTypes.STRING
       },
-      name: DataTypes.STRING,
-      status: {
-        type: DataTypes.ENUM('active', 'inactive', 'maintenance'),
-        defaultValue: 'active'
+      isOnline: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       },
-      assignedTo: DataTypes.INTEGER
+      isAssigned: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      assignedTo: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'patients',
+          key: 'user_id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      }
     },
     {
       sequelize,

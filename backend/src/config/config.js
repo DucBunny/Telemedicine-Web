@@ -7,11 +7,8 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT || 'mysql',
-    timezone: '+07:00',
+    dialect: process.env.DB_DIALECT,
     dialectOptions: {
-      dateStrings: true,
-      typeCast: true,
       ssl: {
         require: true,
         rejectUnauthorized: false
@@ -24,11 +21,8 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT || 'mysql',
-    timezone: '+07:00',
+    dialect: process.env.DB_DIALECT,
     dialectOptions: {
-      dateStrings: true,
-      typeCast: true,
       ssl: {
         require: true,
         rejectUnauthorized: false
@@ -41,11 +35,8 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT || 'mysql',
-    timezone: '+07:00',
+    dialect: process.env.DB_DIALECT,
     dialectOptions: {
-      dateStrings: true,
-      typeCast: true,
       ssl: {
         require: true,
         rejectUnauthorized: true

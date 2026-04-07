@@ -8,18 +8,35 @@ module.exports = (sequelize, DataTypes) => {
 
   AlertRecipient.init(
     {
-      alertId: DataTypes.INTEGER,
-      doctorId: DataTypes.INTEGER,
-      isRead: { type: DataTypes.BOOLEAN, defaultValue: false },
-      isAcknowledged: { type: DataTypes.BOOLEAN, defaultValue: false },
-      deliveredAt: { type: DataTypes.DATE, allowNull: false },
-      readAt: DataTypes.DATE,
-      acknowledgedAt: DataTypes.DATE
+      alertId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true
+      },
+      doctorId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true
+      },
+      isRead: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      isAcknowledged: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      readAt: {
+        type: DataTypes.DATE
+      },
+      acknowledgedAt: {
+        type: DataTypes.DATE
+      }
     },
     {
       sequelize,
       tableName: 'alert_recipients',
-      modelName: 'AlertRecipient'
+      modelName: 'AlertRecipient',
+      createdAt: 'deliveredAt',
+      updatedAt: false
     }
   )
 

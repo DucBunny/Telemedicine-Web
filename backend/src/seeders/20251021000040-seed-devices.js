@@ -16,9 +16,10 @@ module.exports = {
 
     for (let i = 0; i < deviceCount; i++) {
       devices.push({
-        device_id: 'ESP_' + (i + 1).toString().padStart(2, '0'),
-        name: `Máy đo nhịp tim ESP32 #` + (i + 1).toString().padStart(2, '0'),
-        status: faker.helpers.arrayElement(['active', 'active', 'maintenance']), // Tỷ lệ active cao hơn
+        id: i + 1,
+        name: `Máy đo nhịp tim #` + (i + 1).toString().padStart(2, '0'),
+        is_online: faker.datatype.boolean(),
+        is_assigned: true,
         assigned_to: patients[i].user_id,
         created_at: now,
         updated_at: now
@@ -28,9 +29,12 @@ module.exports = {
     // Tạo 10 thiết bị dự phòng (chưa gán cho ai - assigned_to: null)
     for (let i = 0; i < 10; i++) {
       devices.push({
-        device_id: 'ESP_SPARE_' + (i + 1).toString().padStart(2, '0'),
-        name: `Thiết bị dự phòng #` + (i + 1).toString().padStart(2, '0'),
-        status: 'inactive',
+        id: i + deviceCount + 1,
+        name:
+          `Máy đo nhịp tim #` +
+          (i + deviceCount + 1).toString().padStart(2, '0'),
+        is_online: false,
+        is_assigned: false,
         assigned_to: null,
         created_at: now,
         updated_at: now

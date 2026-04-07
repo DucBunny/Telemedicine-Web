@@ -18,22 +18,23 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      fileName: DataTypes.STRING,
+      fileName: {
+        type: DataTypes.STRING
+      },
       fileUrl: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      fileType: DataTypes.STRING,
-      uploadedAt: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+      fileType: {
+        type: DataTypes.STRING
       }
     },
     {
       sequelize,
       tableName: 'medical_attachments',
       modelName: 'MedicalAttachment',
-      timestamps: false
+      createdAt: 'uploadedAt',
+      updatedAt: false
     }
   )
 
