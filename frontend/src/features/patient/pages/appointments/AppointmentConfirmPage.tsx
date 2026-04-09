@@ -17,7 +17,7 @@ import { ChildPageHeader } from '@/features/patient/components/common/PageHeader
 import { AppointmentConfirmInfoCard } from '@/features/patient/components/appointments/AppointmentConfirmInfoCard'
 import { CostSummary } from '@/features/patient/components/appointments/CostSummary'
 import { useCreateAppointment } from '@/features/patient/hooks/useAppointmentQueries'
-import { formatShortDate } from '@/lib/format-date'
+import { formatShortDate, toUtcIsoFromVietnamLocal } from '@/lib/format-date'
 
 export const AppointmentConfirmPage = () => {
   // Get search params
@@ -56,8 +56,8 @@ export const AppointmentConfirmPage = () => {
       return
     }
 
-    // Combine date and time into ISO string
-    const scheduledAt = `${date}T${time}:00`
+    // Convert the selected Vietnam local date/time into UTC ISO before sending to backend.
+    const scheduledAt = toUtcIsoFromVietnamLocal(date, time)
 
     try {
       await createAppointmentMutation.mutateAsync({

@@ -1,10 +1,18 @@
-export const TypingIndicator = () => {
+import type { ChatUser } from '@/features/patient/types'
+
+interface TypingIndicatorProps {
+  otherParticipant?: ChatUser
+}
+
+export const TypingIndicator = ({ otherParticipant }: TypingIndicatorProps) => {
   return (
     <div className="flex max-w-[80%] gap-2">
       {/* Avatar */}
-      <div className="mt-auto mb-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-700">
-        BS
-      </div>
+      <img
+        className="mt-auto mb-1 flex size-8 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-700"
+        src={otherParticipant?.avatar ?? import.meta.env.VITE_DEFAULT_AVATAR}
+        alt={otherParticipant?.fullName}
+      />
 
       {/* Typing indicators */}
       <div className="flex flex-col gap-1">

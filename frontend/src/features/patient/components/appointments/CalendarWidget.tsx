@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { formatMonthYearVN } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
@@ -33,10 +34,7 @@ export const CalendarWidget = ({
   const emptyCells = Array.from({ length: startingDayOfWeek }, (_, i) => i)
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1)
 
-  const monthName = currentMonth.toLocaleDateString('vi-VN', {
-    month: 'long',
-    year: 'numeric',
-  })
+  const monthName = formatMonthYearVN(currentMonth)
 
   const handlePrevMonth = () => {
     setCurrentMonth(

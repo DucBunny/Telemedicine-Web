@@ -155,7 +155,10 @@ export const EditProfilePage = () => {
           <div className="relative">
             <img
               className="border-teal-primary size-28 rounded-full border-2 bg-cover bg-center shadow-lg"
-              src={avatarPreview || patientProfile?.user.avatar}
+              src={
+                (avatarPreview || patientProfile?.user.avatar) ??
+                import.meta.env.VITE_DEFAULT_AVT
+              }
               alt={patientProfile?.user.fullName}
             />
             <Button

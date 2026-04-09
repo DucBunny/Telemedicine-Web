@@ -69,7 +69,6 @@ export interface CursorPaginationMeta {
   nextCursor?: string
   hasMore: boolean
   count: number
-  total: number
 }
 
 /**

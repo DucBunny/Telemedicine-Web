@@ -36,9 +36,15 @@ export const uploadApi = {
   /**
    * Upload general image
    */
-  uploadImage: async (file: File): Promise<UploadResult> => {
+  uploadImage: async (
+    file: File,
+    options?: { moduleName?: string },
+  ): Promise<UploadResult> => {
     const formData = new FormData()
     formData.append('file', file)
+    if (options?.moduleName) {
+      formData.append('moduleName', options.moduleName)
+    }
 
     const { data } = await apiClient.post<ApiSuccessResponse<UploadResult>>(
       '/uploads/image',
@@ -56,9 +62,15 @@ export const uploadApi = {
   /**
    * Upload document file
    */
-  uploadDocument: async (file: File): Promise<UploadResult> => {
+  uploadDocument: async (
+    file: File,
+    options?: { moduleName?: string },
+  ): Promise<UploadResult> => {
     const formData = new FormData()
     formData.append('file', file)
+    if (options?.moduleName) {
+      formData.append('moduleName', options.moduleName)
+    }
 
     const { data } = await apiClient.post<ApiSuccessResponse<UploadResult>>(
       '/uploads/document',

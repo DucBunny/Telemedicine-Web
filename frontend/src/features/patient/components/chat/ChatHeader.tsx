@@ -1,13 +1,13 @@
 import { ArrowLeft, Info, Phone, Video } from 'lucide-react'
-import type { DoctorContact } from '@/features/patient/data/chatMockData'
+import type { ChatUser } from '@/features/patient/types'
 import { Button } from '@/components/ui/button'
 
 interface ChatHeaderProps {
-  doctor: DoctorContact
+  otherParticipant?: ChatUser
   onBack: () => void
 }
 
-export const ChatHeader = ({ doctor, onBack }: ChatHeaderProps) => {
+export const ChatHeader = ({ otherParticipant, onBack }: ChatHeaderProps) => {
   return (
     <div className="z-50 border-b border-gray-100 bg-white p-2 md:ml-20 lg:ml-0">
       <div className="flex w-full items-center justify-between gap-1">
@@ -21,19 +21,24 @@ export const ChatHeader = ({ doctor, onBack }: ChatHeaderProps) => {
           </Button>
 
           <div className="relative shrink-0">
-            <div
-              className="h-10 w-10 rounded-full bg-cover bg-center"
-              style={{ backgroundImage: `url("${doctor.avatarUrl}")` }}
+            <img
+              className="size-10 rounded-full bg-cover bg-center"
+              src={
+                otherParticipant?.avatar ?? import.meta.env.VITE_DEFAULT_AVATAR
+              }
+              alt={otherParticipant?.fullName}
             />
-            {doctor.isOnline && (
-              <span className="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
+            {otherParticipant && (
+              <span className="absolute right-0 bottom-0 size-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
             )}
           </div>
 
           <div className="min-w-0 flex-1">
-            <h2 className="truncate text-base font-bold">{doctor.name}</h2>
+            <h2 className="truncate text-base font-bold">
+              {otherParticipant?.fullName}
+            </h2>
             <p className="text-sm">
-              {doctor.isOnline ? 'Đang hoạt động' : 'Không hoạt động'}
+              {otherParticipant ? 'Đang hoạt động' : 'Không hoạt động'}
             </p>
           </div>
         </div>

@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Check, Ellipsis } from 'lucide-react'
+import { useInView } from 'react-intersection-observer'
 import { Button } from '@/components/ui/button'
 import { ChildPageHeader } from '@/features/patient/components/common'
 import { NotificationItem } from '@/features/patient/components/notifications/NotificationItem'
 import {
-  useGetMyNotificationsInfinite,
+  useGetMyNotifications,
   useMarkAllNotificationsAsRead,
 } from '@/features/patient/hooks/useNotificationQueries'
 import Loader, { LoaderItem } from '@/components/Loader'
@@ -15,6 +16,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { disconnectSocket, initSocket } from '@/lib/socket'
+import { useAuthStore } from '@/stores/auth.store'
 
 const filterOptions = [
   { id: 'all', label: 'Tất cả' },
@@ -23,57 +26,46 @@ const filterOptions = [
 
 export const NotificationsPage = () => {
   const navigate = useNavigate()
+  const user = useAuthStore((s) => s.user)
 
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
   const { mutate: markAllAsRead } = useMarkAllNotificationsAsRead()
 
-  const sentinelRef = useRef<HTMLDivElement>(null) // người gác cổng: báo hiệu khi nào thì fetch trang tiếp theo
-
   // Fetch notifications with infinite scroll (cursor pagination)
   const {
     data,
     isLoading,
-    isFetchingNextPage,
+    error,
     hasNextPage,
     fetchNextPage,
-    error,
-  } = useGetMyNotificationsInfinite({
+    isFetchingNextPage,
+  } = useGetMyNotifications({
     limit: 6,
     isRead: filter === 'unread' ? false : undefined,
+  })
+
+  // Infinite scroll trigger
+  const { ref: loadMoreRef } = useInView({
+    onChange: (inView) => {
+      if (inView && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage()
+      }
+    },
   })
 
   // Flatten all pages into a single list
   const notifications = data?.pages.flatMap((page) => page.data) ?? []
 
-  // IntersectionObserver: tự động fetch trang tiếp theo khi sentinel vào viewport
   useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
+    // Khởi tạo socket khi component mount
+    initSocket({ userId: user?.id })
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [entry] = entries
-
-        /**
-         * entry.isIntersecting: true khi sentinel vào viewport
-         * hasNextPage: true khi còn trang tiếp theo
-         * isFetchingNextPage: true khi đang fetch trang tiếp theo
-         * { threshold: 0.1 }: khi sentinel cách viewport 10% thì fetch trang tiếp theo
-         */
-        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
-        }
-      },
-      { threshold: 0.1 },
-    )
-
-    // Bắt đầu quan sát sentinel
-    observer.observe(sentinel)
-
-    // Dọn dẹp khi component unmount
-    return () => observer.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+    return () => {
+      // Disconnect khi unmount
+      disconnectSocket()
+    }
+  }, [user!.id])
 
   const handleBack = () => {
     navigate({ to: '/patient' })
@@ -128,9 +120,9 @@ export const NotificationsPage = () => {
           </div>
 
           <Button
-            variant="teal_outline"
+            variant="ghost"
             size="sm"
-            className="hidden h-6.5 rounded-full text-sm duration-200 active:scale-98 min-[500px]:flex"
+            className="text-teal-primary! hidden rounded-full text-sm duration-200 active:scale-98 min-[500px]:flex"
             onClick={() => markAllAsRead()}>
             <Check />
             Đánh dấu tất cả là đã đọc
@@ -148,13 +140,10 @@ export const NotificationsPage = () => {
           </div>
         )}
 
-        {/* Sentinel – điểm mốc để trigger fetch trang tiếp theo */}
-        <div ref={sentinelRef} className="h-1" aria-hidden="true" />
-
-        {/* Loading indicator khi đang fetch trang tiếp */}
-        {isFetchingNextPage && (
-          <div className="flex justify-center py-4">
-            <LoaderItem />
+        {/* Load more trigger */}
+        {hasNextPage && (
+          <div ref={loadMoreRef} className="flex justify-center py-4">
+            {isFetchingNextPage && <LoaderItem />}
           </div>
         )}
 

@@ -23,33 +23,38 @@ export type AppointmentType = 'offline' | 'online'
 
 export type NotificationType = 'alert' | 'appointment' | 'message'
 
+export type MessageStatus = 'sent' | 'read'
+export type MessageType = 'text' | 'image' | 'file' | 'system_alert'
+
 // Chat Types
 export interface ChatUser {
   id: number
   fullName: string
   avatar?: string
-  email?: string
+}
+
+export interface ChatMessageContent {
+  text?: string
+  file_url?: string
+  file_name?: string
 }
 
 export interface ChatMessage {
-  id: number
-  senderId: number
-  receiverId: number
-  message: string
-  attachmentUrl?: string
-  isRead: boolean
+  id: string
+  sender: ChatUser
+  type: MessageType
+  content: ChatMessageContent
+  status: MessageStatus
   createdAt: string
-  updatedAt: string
-  sender?: ChatUser
-  receiver?: ChatUser
 }
 
 export interface ChatConversation {
+  id: string
   user: ChatUser
   lastMessage: {
     message: string
     createdAt: string
-    isRead: boolean
+    type: string
   } | null
   unreadCount: number
 }

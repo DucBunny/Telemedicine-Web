@@ -15,6 +15,7 @@ export const apiClient = axios.create({
   },
   withCredentials: true, // Luôn gửi cookies (cho refresh token)
   paramsSerializer: {
+    // Xử lý params array thành multiple params
     serialize: (params) => {
       const searchParams = new URLSearchParams()
       Object.entries(params).forEach(([key, value]) => {

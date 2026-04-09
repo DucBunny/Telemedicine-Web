@@ -17,6 +17,7 @@ export const SearchBar = ({
       <Search className="size-5 text-gray-400" strokeWidth="2.5" />
     </div>
     <Input
+      name="search"
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}

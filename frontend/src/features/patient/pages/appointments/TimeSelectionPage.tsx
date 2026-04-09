@@ -52,7 +52,7 @@ export const TimeSelectionPage = () => {
   const { doctorId, specialtyId } = Route.useSearch()
 
   const navigate = useNavigate()
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery('(max-width: 767px)')
   const { open } = useSidebar()
 
   const [visitType, setVisitType] = useState<AppointmentType>('offline')

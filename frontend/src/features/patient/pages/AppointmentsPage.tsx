@@ -16,7 +16,7 @@ export const AppointmentsPage = () => {
 
   const { data: appointmentsData } = useGetMyAppointments({
     page: 1,
-    limit: 5,
+    limit: 20,
     status: statusParam,
   })
 

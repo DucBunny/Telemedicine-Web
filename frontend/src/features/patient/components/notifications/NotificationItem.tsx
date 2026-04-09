@@ -66,7 +66,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="icon"
+              variant="ghost"
               size="icon-sm"
               className="absolute top-3 right-1 rounded-full focus-visible:ring-0">
               <Ellipsis />

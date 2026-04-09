@@ -36,14 +36,14 @@ export const EmptyChatList = ({ onBookAction }: EmptyChatListProps) => {
       <h2 className="mb-3 text-xl font-bold">
         Bạn chưa có cuộc trò chuyện nào
       </h2>
-      <p className="mb-8 max-w-70 leading-relaxed font-semibold">
+      <p className="mb-8 max-w-70 leading-relaxed font-medium text-gray-600">
         Hãy kết nối với bác sĩ để bắt đầu nhận tư vấn trực tuyến.
       </p>
 
       <Button
         onClick={onBookAction}
         variant="teal_primary"
-        className="h-12 w-full max-w-sm rounded-full text-base font-bold active:scale-[0.98]">
+        className="h-12 w-full max-w-sm rounded-full text-base! font-bold active:scale-[0.98]">
         <CalendarDays className="size-5" strokeWidth="2.5" />
         Đặt lịch ngay
       </Button>

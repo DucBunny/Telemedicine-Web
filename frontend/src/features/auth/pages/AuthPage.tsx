@@ -33,8 +33,9 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
         <div className="from-teal-primary/80 via-teal-primary/50 absolute inset-0 z-10 bg-linear-to-t to-transparent" />
 
         <div className="relative z-20 max-w-2xl p-12 text-center text-white">
-          <div className="mb-6 flex justify-center">
-            <img src="/logo.png" alt="MedCare Logo" className="size-20" />
+          <div className="mb-6 flex items-center justify-center">
+            <img src="/logo.png" alt="MedCare Logo" className="size-16" />
+            <span className="ml-3 text-5xl font-bold">MedCare</span>
           </div>
           <h1 className="mb-4 text-4xl font-bold drop-shadow-md">
             {isLoginTab
@@ -48,7 +49,7 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
           </p>
 
           {/* Feature List Mini */}
-          <div className="mt-6 flex justify-center space-x-8">
+          <div className="my-8 flex justify-center space-x-8">
             <div className="flex flex-col items-center">
               <div className="mb-2 flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/10">
                 <Heart size={20} />

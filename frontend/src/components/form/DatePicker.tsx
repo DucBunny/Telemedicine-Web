@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { formatDateForApi } from '@/lib/format-date'
+import { formatDateForApi, formatShortDate } from '@/lib/format-date'
 
 interface DatePickerProps {
   label?: string
@@ -77,9 +77,7 @@ export const DatePicker = ({
                 hasError ? 'border-red-500' : 'border-gray-300',
                 className,
               )}>
-              {binding.value
-                ? new Date(binding.value).toLocaleDateString('vi-VN')
-                : placeholder}
+              {binding.value ? formatShortDate(binding.value) : placeholder}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
