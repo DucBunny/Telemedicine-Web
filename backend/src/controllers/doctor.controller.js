@@ -34,8 +34,8 @@ export const getAllDoctors = async (req, res, next) => {
  */
 export const getDoctorDetail = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const doctor = await doctorService.getDoctorByUserId(id)
+    const { doctorId } = req.params
+    const doctor = await doctorService.getDoctorByUserId(doctorId)
     res.status(StatusCodes.OK).json({
       success: true,
       data: doctor
@@ -68,8 +68,8 @@ export const createDoctor = async (req, res, next) => {
  */
 export const updateDoctor = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const doctor = await doctorService.updateDoctor(id, req.body)
+    const { doctorId } = req.params
+    const doctor = await doctorService.updateDoctor(doctorId, req.body)
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -85,8 +85,8 @@ export const updateDoctor = async (req, res, next) => {
  */
 export const deleteDoctor = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const result = await doctorService.deleteDoctor(id)
+    const { doctorId } = req.params
+    const result = await doctorService.deleteDoctor(doctorId)
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -102,9 +102,12 @@ export const deleteDoctor = async (req, res, next) => {
  */
 export const getDoctorPatients = async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { doctorId } = req.params
     const { page = 1, limit = 10 } = req.query
-    const result = await doctorService.getDoctorPatients(id, { page, limit })
+    const result = await doctorService.getDoctorPatients(doctorId, {
+      page,
+      limit
+    })
 
     res.status(StatusCodes.OK).json({
       success: true,

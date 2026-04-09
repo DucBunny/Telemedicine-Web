@@ -12,7 +12,7 @@ const router = express.Router()
 
 // Get record by ID
 router.get(
-  '/:id',
+  '/:recordId',
   authorizeRoles(['doctor', 'patient', 'admin']),
   validate({ params: getMedicalRecordByIdParamSchema }),
   medicalRecordController.getMedicalRecordDetail

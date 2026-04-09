@@ -1,48 +1,96 @@
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 import { User } from '@/models/sql/index'
-import mongoose from 'mongoose'
+import ApiError from '@/utils/api-error'
+import { StatusCodes } from 'http-status-codes'
+import { Op } from 'sequelize'
+import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
  * Get all conversations for a user (cursor-based pagination)
- * Cursor dựa trên last_message.created_at để sắp xếp theo thời gian
+ * Cursor dựa trên last_message.created_at để sắp xếp theo thời gian mới nhất
  */
-export const getConversations = async (userId, { cursor, limit = 20 }) => {
-  const query = { participants: userId }
+export const getConversations = async (
+  userId,
+  { cursor, limit = 20, search }
+) => {
+  const normalizedSearch = search?.trim()
 
-  // Nếu có cursor, lấy các conversation có last_message.created_at < cursor
-  if (cursor) {
-    query['last_message.created_at'] = { $lt: new Date(cursor) }
+  let conversationQuery = { participants: userId }
+
+  if (normalizedSearch) {
+    const matchingUsers = await User.findAll({
+      where: {
+        id: { [Op.ne]: userId },
+        [Op.or]: [caseInsensitiveSearch('full_name', normalizedSearch)]
+      },
+      attributes: ['id']
+    })
+
+    const matchingUserIds = matchingUsers.map((user) => user.id)
+
+    if (matchingUserIds.length === 0)
+      return {
+        data: [],
+        meta: {
+          nextCursor: null,
+          hasMore: false,
+          count: 0
+        }
+      }
+
+    conversationQuery = {
+      $and: [
+        { participants: userId },
+        { participants: { $in: matchingUserIds } }
+      ]
+    }
   }
 
-  const conversations = await Conversation.find(query)
-    .sort({ 'last_message.created_at': -1 })
-    .limit(parseInt(limit) + 1) // Lấy thêm 1 để check hasMore
-    .lean()
+  const pagingResult = await Conversation.paginate({
+    query: conversationQuery,
+    limit,
+    paginatedField: 'last_message.created_at',
+    next: cursor,
+    fields: {
+      _id: 1,
+      participants: 1,
+      unread_counts: 1,
+      'last_message.message_id': 1,
+      'last_message.sender_id': 1,
+      'last_message.type': 1,
+      'last_message.content': 1,
+      'last_message.created_at': 1
+    }
+  })
 
-  // Check if there are more results
-  const hasMore = conversations.length > limit
-  if (hasMore) {
-    conversations.pop() // Remove extra item
+  const conversations = pagingResult.results
+
+  // Get other participants' IDs, filter undefined (in case of malformed data), and deduplicate
+  const otherUserIds = [
+    ...new Set(
+      conversations
+        .map((conv) => conv.participants.find((id) => id !== userId))
+        .filter(Boolean)
+    )
+  ]
+
+  // If there are no conversations, we can skip the SQL query and return early
+  if (otherUserIds.length === 0) {
+    return {
+      data: [],
+      meta: {
+        nextCursor: null,
+        hasMore: false,
+        count: 0
+      }
+    }
   }
-
-  // Get next cursor from last item
-  const nextCursor =
-    conversations.length > 0
-      ? conversations[
-          conversations.length - 1
-        ].last_message?.created_at?.toISOString()
-      : null
-
-  // Get other participants' IDs
-  const otherUserIds = conversations.map((conv) =>
-    conv.participants.find((id) => id !== userId)
-  )
 
   // Get user details from SQL
   const users = await User.findAll({
     where: { id: otherUserIds },
-    attributes: ['id', 'fullName', 'avatar', 'email']
+    attributes: ['id', 'fullName', 'avatar']
   })
 
   const userMap = {}
@@ -50,15 +98,13 @@ export const getConversations = async (userId, { cursor, limit = 20 }) => {
     userMap[user.id] = {
       id: user.id,
       fullName: user.fullName,
-      avatar: user.avatar,
-      email: user.email
+      avatar: user.avatar
     }
   })
 
   // Format the response
   const data = conversations.map((conv) => {
     const otherUserId = conv.participants.find((id) => id !== userId)
-    // Khi dùng .lean(), unread_counts là object thường thay vì Map
     const unreadCounts = conv.unread_counts || {}
     const unreadCount =
       unreadCounts[userId.toString()] || unreadCounts[userId] || 0
@@ -70,8 +116,7 @@ export const getConversations = async (userId, { cursor, limit = 20 }) => {
         ? {
             message: conv.last_message.content,
             createdAt: conv.last_message.created_at,
-            type: conv.last_message.type,
-            status: conv.last_message.status || 'sent'
+            type: conv.last_message.type
           }
         : null,
       unreadCount
@@ -81,78 +126,68 @@ export const getConversations = async (userId, { cursor, limit = 20 }) => {
   return {
     data,
     meta: {
-      nextCursor,
-      hasMore,
-      limit: parseInt(limit)
+      nextCursor: pagingResult?.next || null,
+      hasMore: pagingResult?.hasNext || false,
+      count: data.length
     }
   }
 }
 
 /**
- * Get messages between two users (cursor-based pagination)
- * Cursor dựa trên _id của message
+ * Get messages by conversationId (cursor-based pagination)
  */
-export const getMessages = async (userId1, userId2, { cursor, limit = 50 }) => {
-  // Find conversation
+export const getMessagesByConversationId = async (
+  currentUserId,
+  conversationId,
+  { cursor, limit = 20 }
+) => {
+  // Find conversation and verify user is a participant
   const conversation = await Conversation.findOne({
-    participants: { $all: [userId1, userId2] }
+    _id: conversationId,
+    participants: currentUserId
   }).lean()
 
-  if (!conversation) {
-    return {
-      data: [],
-      meta: {
-        nextCursor: null,
-        hasMore: false,
-        limit: parseInt(limit)
-      }
+  if (!conversation)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND'
+    )
+
+  const pagingResult = await Message.paginate({
+    query: { conversation_id: conversation._id },
+    limit,
+    next: cursor,
+    fields: {
+      _id: 1,
+      sender_id: 1,
+      type: 1,
+      content: 1,
+      status: 1,
+      created_at: 1
     }
-  }
+  })
 
-  const query = { conversation_id: conversation._id }
+  const messages = pagingResult.results
 
-  // Nếu có cursor, lấy messages có _id < cursor (older messages)
-  if (cursor) {
-    query._id = { $lt: new mongoose.Types.ObjectId(cursor) }
-  }
-
-  // Get messages (newest first, then reverse for display)
-  const messages = await Message.find(query)
-    .sort({ _id: -1 })
-    .limit(parseInt(limit) + 1)
-    .lean()
-
-  // Check if there are more results
-  const hasMore = messages.length > limit
-  if (hasMore) {
-    messages.pop()
-  }
-
-  // Get next cursor from last item (oldest in this batch)
-  const nextCursor =
-    messages.length > 0 ? messages[messages.length - 1]._id.toString() : null
+  const otherUserId = conversation.participants.find(
+    (id) => id !== currentUserId
+  )
 
   // Get user details from SQL
   const users = await User.findAll({
-    where: { id: [userId1, userId2] },
+    where: { id: [currentUserId, otherUserId] },
     attributes: ['id', 'fullName', 'avatar']
   })
 
-  const userMap = {}
-  users.forEach((user) => {
-    userMap[user.id] = {
-      id: user.id,
-      fullName: user.fullName,
-      avatar: user.avatar
-    }
-  })
+  const currentUser = users.find((user) => user.id === currentUserId)
+  const otherUser = users.find((user) => user.id === otherUserId)
 
   // Format messages with user details and reverse for chronological order
   const data = messages
     .map((msg) => ({
       id: msg._id.toString(),
-      sender: userMap[msg.sender_id],
-      receiver: userMap[userId1 === msg.sender_id ? userId2 : userId1],
+      sender: msg.sender_id === currentUserId ? currentUser : otherUser,
       type: msg.type,
       content: msg.content,
       status: msg.status,
@@ -163,9 +198,9 @@ export const getMessages = async (userId1, userId2, { cursor, limit = 50 }) => {
   return {
     data,
     meta: {
-      nextCursor,
-      hasMore,
-      limit: parseInt(limit)
+      nextCursor: pagingResult?.next || null,
+      hasMore: pagingResult?.hasNext || false,
+      count: data.length
     }
   }
 }
@@ -176,7 +211,7 @@ export const getMessages = async (userId1, userId2, { cursor, limit = 50 }) => {
 export const createMessage = async (data) => {
   const {
     senderId,
-    receiverId,
+    conversationId,
     message,
     type = 'text',
     fileUrl,
@@ -185,26 +220,28 @@ export const createMessage = async (data) => {
 
   // Find or create conversation
   let conversation = await Conversation.findOne({
-    participants: { $all: [senderId, receiverId] }
+    _id: conversationId
   })
 
-  if (!conversation) {
-    // Create new conversation
-    conversation = await Conversation.create({
-      participants: [senderId, receiverId],
-      unread_counts: new Map([
-        [receiverId.toString(), 0],
-        [senderId.toString(), 0]
-      ])
-    })
-  }
+  if (!conversation)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND'
+    )
+
+  if (!conversation.participants.includes(senderId))
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'You are not a participant in this conversation',
+      'FORBIDDEN'
+    )
+
+  const otherUserId = conversation.participants.find((id) => id !== senderId)
 
   // Create message content based on type
   const messageContent = {}
-
-  if (message) {
-    messageContent.text = message
-  }
+  if (message) messageContent.text = message
 
   if (fileUrl) {
     messageContent.file_url = fileUrl
@@ -215,7 +252,7 @@ export const createMessage = async (data) => {
 
   // Create message
   const newMessage = await Message.create({
-    conversation_id: conversation._id,
+    conversation_id: conversationId,
     sender_id: senderId,
     type,
     content: messageContent,
@@ -225,58 +262,56 @@ export const createMessage = async (data) => {
   // Update conversation's last_message with appropriate content
   let lastMessageContent = message || ''
   if (type === 'image') {
-    lastMessageContent = '📷 Đã gửi một ảnh'
+    lastMessageContent = 'Đã gửi một ảnh'
   } else if (type === 'file') {
-    lastMessageContent = `📎 ${fileName || 'Đã gửi file'}`
+    lastMessageContent = `${fileName || 'Đã gửi file'}`
   }
 
-  conversation.last_message = {
-    message_id: newMessage._id,
-    sender_id: senderId,
-    type: newMessage.type,
-    content: lastMessageContent,
-    created_at: newMessage.created_at
-  }
-
-  // Increment unread count for receiver
-  const currentUnreadCount =
-    conversation.unread_counts.get(receiverId.toString()) || 0
-  conversation.unread_counts.set(receiverId.toString(), currentUnreadCount + 1)
-
-  await conversation.save()
+  await Conversation.updateOne(
+    { _id: conversationId },
+    {
+      $set: {
+        last_message: {
+          message_id: newMessage._id,
+          sender_id: senderId,
+          type: newMessage.type,
+          content: lastMessageContent,
+          created_at: newMessage.created_at
+        }
+      },
+      $inc: {
+        [`unread_counts.${otherUserId}`]: 1 // Tự động tăng 1 cho receiver
+      }
+    }
+  )
 
   return newMessage
 }
 
 /**
- * Mark message as read
- */
-export const markAsRead = async (messageId) => {
-  const message = await Message.findById(messageId)
-  if (!message) return null
-
-  message.status = 'read'
-  await message.save()
-
-  return message
-}
-
-/**
  * Mark all messages from a user as read
  */
-export const markAllAsRead = async (receiverId, senderId) => {
+export const markAllAsRead = async (userId, conversationId) => {
   // Find conversation
   const conversation = await Conversation.findOne({
-    participants: { $all: [receiverId, senderId] }
+    _id: conversationId,
+    participants: userId
   })
 
-  if (!conversation) return { modifiedCount: 0 }
+  if (!conversation)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND'
+    )
+
+  const otherUserId = conversation.participants.find((id) => id !== userId)
 
   // Update all unread messages in this conversation from senderId
   const result = await Message.updateMany(
     {
       conversation_id: conversation._id,
-      sender_id: senderId,
+      sender_id: otherUserId,
       status: { $ne: 'read' }
     },
     {
@@ -285,74 +320,50 @@ export const markAllAsRead = async (receiverId, senderId) => {
   )
 
   // Reset unread count for receiver in conversation
-  conversation.unread_counts.set(receiverId.toString(), 0)
-  await conversation.save()
+  await Conversation.updateOne(
+    { _id: conversation._id },
+    { $set: { [`unread_counts.${userId}`]: 0 } }
+  )
 
   return result
 }
 
 /**
- * Get messages by conversationId (cursor-based pagination)
+ * Get messages between two users (cursor-based pagination)
+ * Cursor dựa trên _id của message
  */
-export const getMessagesByConversationId = async (
+export const getMessagesByUserIds = async (
   currentUserId,
-  conversationId,
-  { cursor, limit = 50 }
+  otherUserId,
+  { cursor, limit = 20 }
 ) => {
-  // Validate conversationId format
-  if (!mongoose.Types.ObjectId.isValid(conversationId)) {
-    return {
-      data: [],
-      meta: {
-        nextCursor: null,
-        hasMore: false,
-        limit: parseInt(limit)
-      }
-    }
-  }
-
-  // Find conversation and verify user is a participant
+  // Find conversation
   const conversation = await Conversation.findOne({
-    _id: new mongoose.Types.ObjectId(conversationId),
-    participants: currentUserId
+    participants: { $all: [currentUserId, otherUserId] }
   }).lean()
 
-  if (!conversation) {
-    return {
-      data: [],
-      meta: {
-        nextCursor: null,
-        hasMore: false,
-        limit: parseInt(limit)
-      }
+  if (!conversation)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND'
+    )
+
+  const pagingResult = await Message.paginate({
+    query: { conversation_id: conversation._id },
+    limit,
+    next: cursor,
+    fields: {
+      _id: 1,
+      sender_id: 1,
+      type: 1,
+      content: 1,
+      status: 1,
+      created_at: 1
     }
-  }
+  })
 
-  const query = { conversation_id: conversation._id }
-
-  // Nếu có cursor, lấy messages có _id < cursor (older messages)
-  if (cursor) {
-    query._id = { $lt: new mongoose.Types.ObjectId(cursor) }
-  }
-
-  // Get messages (newest first, then reverse for display)
-  const messages = await Message.find(query)
-    .sort({ _id: -1 })
-    .limit(parseInt(limit) + 1)
-    .lean()
-
-  // Check if there are more results
-  const hasMore = messages.length > limit
-  if (hasMore) {
-    messages.pop()
-  }
-
-  // Get next cursor from last item (oldest in this batch)
-  const nextCursor =
-    messages.length > 0 ? messages[messages.length - 1]._id.toString() : null
-
-  // Get other participant's ID
-  const otherUserId = conversation.participants.find((id) => id !== currentUserId)
+  const messages = pagingResult.results
 
   // Get user details from SQL
   const users = await User.findAll({
@@ -360,21 +371,15 @@ export const getMessagesByConversationId = async (
     attributes: ['id', 'fullName', 'avatar']
   })
 
-  const userMap = {}
-  users.forEach((user) => {
-    userMap[user.id] = {
-      id: user.id,
-      fullName: user.fullName,
-      avatar: user.avatar
-    }
-  })
+  const currentUser = users.find((user) => user.id === currentUserId)
+  const otherUser = users.find((user) => user.id === otherUserId)
 
   // Format messages with user details and reverse for chronological order
   const data = messages
     .map((msg) => ({
       id: msg._id.toString(),
-      sender: userMap[msg.sender_id],
-      receiver: userMap[currentUserId === msg.sender_id ? otherUserId : currentUserId],
+      sender: msg.sender_id === currentUserId ? currentUser : otherUser,
+      receiver: msg.sender_id === currentUserId ? otherUser : currentUser,
       type: msg.type,
       content: msg.content,
       status: msg.status,
@@ -385,9 +390,9 @@ export const getMessagesByConversationId = async (
   return {
     data,
     meta: {
-      nextCursor,
-      hasMore,
-      limit: parseInt(limit)
+      nextCursor: pagingResult?.next || null,
+      hasMore: pagingResult?.hasNext || false,
+      count: data.length
     }
   }
 }

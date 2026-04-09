@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import * as MongoPaging from 'mongo-cursor-pagination'
 
 const ConversationSchema = new mongoose.Schema(
   {
@@ -39,8 +40,11 @@ const ConversationSchema = new mongoose.Schema(
   }
 )
 
-// Index để tìm nhanh conversation theo participants
-ConversationSchema.index({ participants: 1 })
+// Index để tìm nhanh conversation theo participants và sắp xếp theo thời gian tin nhắn cuối cùng
+ConversationSchema.index({ participants: 1, 'last_message.created_at': -1 })
+
+// Plugin để hỗ trợ cursor-based pagination
+ConversationSchema.plugin(MongoPaging.mongoosePlugin)
 
 const Conversation = mongoose.model('Conversation', ConversationSchema)
 

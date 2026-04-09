@@ -7,7 +7,7 @@ import * as notificationService from '@/services/notification.service'
 export const getNotifications = async (req, res, next) => {
   try {
     const userId = req.user.id
-    const { nextCursor, limit = 8, isRead } = req.validatedQuery || req.query
+    const { nextCursor, limit = 8, isRead } = req.validatedQuery
 
     const result = await notificationService.getNotifications(userId, {
       nextCursor,
@@ -49,9 +49,12 @@ export const getUnreadCount = async (req, res, next) => {
 export const markAsRead = async (req, res, next) => {
   try {
     const userId = req.user.id
-    const { id } = req.params
+    const { notificationId } = req.params
 
-    const notification = await notificationService.markAsRead(id, userId)
+    const notification = await notificationService.markAsRead(
+      notificationId,
+      userId
+    )
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -68,9 +71,12 @@ export const markAsRead = async (req, res, next) => {
 export const markAsUnread = async (req, res, next) => {
   try {
     const userId = req.user.id
-    const { id } = req.params
+    const { notificationId } = req.params
 
-    const notification = await notificationService.markAsUnread(id, userId)
+    const notification = await notificationService.markAsUnread(
+      notificationId,
+      userId
+    )
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -104,9 +110,9 @@ export const markAllAsRead = async (req, res, next) => {
 export const deleteNotification = async (req, res, next) => {
   try {
     const userId = req.user.id
-    const { id } = req.params
+    const { notificationId } = req.params
 
-    await notificationService.deleteNotification(id, userId)
+    await notificationService.deleteNotification(notificationId, userId)
 
     res.status(StatusCodes.OK).json({
       success: true

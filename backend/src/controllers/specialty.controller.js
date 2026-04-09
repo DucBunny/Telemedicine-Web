@@ -21,8 +21,8 @@ export const getAllSpecialties = async (req, res, next) => {
  */
 export const getSpecialtyDetail = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const specialty = await specialtyService.getSpecialtyById(id)
+    const { specialtyId } = req.params
+    const specialty = await specialtyService.getSpecialtyById(specialtyId)
     res.status(StatusCodes.OK).json({
       success: true,
       data: specialty

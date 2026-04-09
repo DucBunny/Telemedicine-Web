@@ -20,7 +20,7 @@ router.get(
 )
 
 router.get(
-  '/:id',
+  '/:doctorId',
   authorizeRoles(['patient']),
   validate({ params: getDoctorByIdParamSchema }),
   doctorController.getDoctorDetail
@@ -37,7 +37,7 @@ router.get(
 // Public routes - get all doctors (for patients to browse)
 
 router.get(
-  '/:id/patients',
+  '/:doctorId/patients',
   validate({
     params: getDoctorByIdParamSchema,
     query: getDoctorPatientsQuerySchema
@@ -53,13 +53,13 @@ router.post(
   doctorController.createDoctor
 )
 router.put(
-  '/:id',
+  '/:doctorId',
   authorizeRoles(['admin', 'doctor']),
   validate({ params: getDoctorByIdParamSchema, body: updateDoctorSchema }),
   doctorController.updateDoctor
 )
 router.delete(
-  '/:id',
+  '/:doctorId',
   authorizeRoles(['admin']),
   validate({ params: getDoctorByIdParamSchema }),
   doctorController.deleteDoctor

@@ -22,7 +22,19 @@
 
 ### Examples
 
-- Fetch list (with pagination):
+- Create resource (201):
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "64a...",
+    "name": "Cafe A"
+  }
+}
+```
+
+- Fetch list (with offset-based pagination):
 
 ```json
 {
@@ -44,14 +56,23 @@
 }
 ```
 
-- Create resource (201):
+- Fetch list (with cursor-based pagination):
 
 ```json
 {
   "success": true,
-  "data": {
-    "id": "64a...",
-    "name": "Cafe A"
+  "data": [
+    {
+      /* item */
+    },
+    {
+      /* item */
+    }
+  ],
+  "meta": {
+    "nextCursor": "eyJpZCI6IjY0YS4uLiJ9",
+    "hasMore": true,
+    "count": 10
   }
 }
 ```

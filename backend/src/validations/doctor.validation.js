@@ -1,24 +1,23 @@
 import { z } from 'zod'
 import {
-  idParamSchema,
   paginationWithSearchSchema,
-  paginationQuerySchema
+  paginationQuerySchema,
+  intIdSchema
 } from '@/validations/common.validation'
 
 /**
  * Get all doctors query schema
  */
-export const getAllDoctorsQuerySchema = paginationWithSearchSchema
-  .extend({
-    specialtyId: z.coerce.number().int().positive('Specialty ID is invalid'),
-    search: z.string()
-  })
-  .partial() // tất cả trường đều optional
+export const getAllDoctorsQuerySchema = paginationWithSearchSchema.extend({
+  specialtyId: intIdSchema('Specialty ID is invalid').optional()
+})
 
 /**
  * Get doctor by ID param schema
  */
-export const getDoctorByIdParamSchema = idParamSchema
+export const getDoctorByIdParamSchema = z.object({
+  doctorId: intIdSchema('Doctor ID is invalid')
+})
 
 //------------------------------
 /**

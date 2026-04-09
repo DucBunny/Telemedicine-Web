@@ -7,9 +7,13 @@ import * as chatService from '@/services/chat.service'
 export const getConversations = async (req, res, next) => {
   try {
     const userId = req.user.id // from JWT token
-    const { cursor, limit = 20 } = req.query
+    const { nextCursor, limit = 20, search } = req.validatedQuery
 
-    const result = await chatService.getConversations(userId, { cursor, limit })
+    const result = await chatService.getConversations(userId, {
+      cursor: nextCursor,
+      limit,
+      search
+    })
 
     res.status(StatusCodes.OK).json({
       success: true,
@@ -22,18 +26,18 @@ export const getConversations = async (req, res, next) => {
 }
 
 /**
- * Get messages between current user and another user (cursor-based)
+ * Get messages by conversationId (cursor-based)
  */
-export const getMessages = async (req, res, next) => {
+export const getMessagesByConversationId = async (req, res, next) => {
   try {
     const currentUserId = req.user.id // from JWT token
-    const { userId: otherUserId } = req.params
-    const { cursor, limit = 50 } = req.query
+    const { conversationId } = req.params
+    const { nextCursor, limit = 20 } = req.validatedQuery
 
-    const result = await chatService.getMessages(
+    const result = await chatService.getMessagesByConversationId(
       currentUserId,
-      parseInt(otherUserId),
-      { cursor, limit }
+      conversationId,
+      { cursor: nextCursor, limit }
     )
 
     res.status(StatusCodes.OK).json({
@@ -64,37 +68,17 @@ export const sendMessage = async (req, res, next) => {
 }
 
 /**
- * Mark message as read
- */
-export const markMessageAsRead = async (req, res, next) => {
-  try {
-    const userId = req.user.id // from JWT token
-    const { id } = req.params
-
-    const message = await chatService.markMessageAsRead(id, userId)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: message
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-/**
  * Mark all messages from a sender as read
  */
 export const markAllMessagesAsRead = async (req, res, next) => {
   try {
-    const receiverId = req.user.id // from JWT token
-    const { userId: senderId } = req.params
+    const userId = req.user.id // from JWT token
+    const { conversationId } = req.params
 
-    await chatService.markAllMessagesAsRead(receiverId, parseInt(senderId))
+    await chatService.markAllMessagesAsRead(userId, conversationId)
 
     res.status(StatusCodes.OK).json({
-      success: true,
-      data: { message: 'All messages marked as read' }
+      success: true
     })
   } catch (error) {
     next(error)
@@ -102,18 +86,18 @@ export const markAllMessagesAsRead = async (req, res, next) => {
 }
 
 /**
- * Get messages by conversationId (cursor-based)
+ * Get messages between current user and another user (cursor-based)
  */
-export const getMessagesByConversationId = async (req, res, next) => {
+export const getMessagesByUserIds = async (req, res, next) => {
   try {
     const currentUserId = req.user.id // from JWT token
-    const { conversationId } = req.params
-    const { cursor, limit = 50 } = req.query
+    const { userId: otherUserId } = req.params
+    const { nextCursor, limit = 20 } = req.validatedQuery
 
-    const result = await chatService.getMessagesByConversationId(
+    const result = await chatService.getMessagesByUserIds(
       currentUserId,
-      conversationId,
-      { cursor, limit }
+      otherUserId,
+      { cursor: nextCursor, limit }
     )
 
     res.status(StatusCodes.OK).json({

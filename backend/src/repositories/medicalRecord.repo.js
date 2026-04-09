@@ -5,10 +5,10 @@ import {
   MedicalRecord,
   Specialty,
   Appointment,
-  MedicalAttachment,
-  Sequelize
+  MedicalAttachment
 } from '@/models/sql/index'
 import { Op } from 'sequelize'
+import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
  * Generic function to find medical records by owner (doctor or patient)
@@ -92,21 +92,9 @@ export const findByPatientId = async (
       patientId,
       ...(searchKeyword && {
         [Op.or]: [
-          Sequelize.where(
-            Sequelize.fn('lower', Sequelize.col('doctor.user.full_name')),
-            'LIKE',
-            `%${searchKeyword}%`
-          ),
-          Sequelize.where(
-            Sequelize.fn('lower', Sequelize.col('diagnosis')),
-            'LIKE',
-            `%${searchKeyword}%`
-          ),
-          Sequelize.where(
-            Sequelize.fn('lower', Sequelize.col('doctor.specialty.name')),
-            'LIKE',
-            `%${searchKeyword}%`
-          )
+          caseInsensitiveSearch('doctor.user.full_name', searchKeyword),
+          caseInsensitiveSearch('diagnosis', searchKeyword),
+          caseInsensitiveSearch('doctor.specialty.name', searchKeyword)
         ]
       })
     },
@@ -138,8 +126,8 @@ export const findByPatientId = async (
 /**
  * Find medical record by ID
  */
-export const findById = async (id) => {
-  return await MedicalRecord.findByPk(id, {
+export const findById = async (recordId) => {
+  return await MedicalRecord.findByPk(recordId, {
     include: [
       {
         model: Doctor,
@@ -182,8 +170,8 @@ export const create = async (data) => {
 /**
  * Update medical record
  */
-export const update = async (id, data) => {
-  const record = await MedicalRecord.findByPk(id)
+export const update = async (recordId, data) => {
+  const record = await MedicalRecord.findByPk(recordId)
   if (!record) return null
   return await record.update(data)
 }
@@ -191,8 +179,8 @@ export const update = async (id, data) => {
 /**
  * Delete medical record
  */
-export const deleteRecord = async (id) => {
-  const record = await MedicalRecord.findByPk(id)
+export const deleteRecord = async (recordId) => {
+  const record = await MedicalRecord.findByPk(recordId)
   if (!record) return null
   await record.destroy()
   return true

@@ -1,31 +1,33 @@
 import { z } from 'zod'
-import { idParamSchema } from '@/validations/common.validation'
-
-/**
- * Cursor pagination schema cho chat
- */
-const cursorPaginationSchema = z.object({
-  cursor: z.string().optional(),
-  limit: z.coerce.number().int().min(1).max(100).optional().default(20)
-})
+import {
+  intIdSchema,
+  objectIdSchema,
+  paginationQuerySchema,
+  paginationWithSearchSchema
+} from '@/validations/common.validation'
 
 /**
  * Get conversations query schema (cursor-based)
  */
-export const getConversationsQuerySchema = cursorPaginationSchema
+export const getConversationsQuerySchema = paginationWithSearchSchema
 
 /**
  * Get messages query schema (cursor-based)
  */
-export const getMessagesQuerySchema = cursorPaginationSchema.extend({
-  limit: z.coerce.number().int().min(1).max(100).optional().default(50)
-})
+export const getMessagesQuerySchema = paginationQuerySchema
 
 /**
  * Get messages param schema (userId)
  */
 export const getMessagesParamSchema = z.object({
-  userId: z.coerce.number().int().positive('User ID không hợp lệ')
+  userId: intIdSchema('User ID is invalid')
+})
+
+/**
+ * Get messages param schema (conversationId)
+ */
+export const getConversationIdParamSchema = z.object({
+  conversationId: objectIdSchema('Conversation ID is invalid')
 })
 
 /**
@@ -33,13 +35,13 @@ export const getMessagesParamSchema = z.object({
  */
 export const sendMessageSchema = z
   .object({
-    receiverId: z.coerce.number().int().positive('Receiver ID không hợp lệ'),
+    conversationId: objectIdSchema('Conversation ID is invalid'),
     message: z
       .string()
-      .max(2000, 'Tin nhắn không được vượt quá 2000 ký tự')
+      .max(2000, 'Message cannot exceed 2000 characters')
       .optional(),
-    type: z.enum(['text', 'image', 'file']).optional().default('text'),
-    fileUrl: z.string().url('URL file không hợp lệ').optional(),
+    type: z.enum(['text', 'image', 'file']).optional(),
+    fileUrl: z.string().url('Invalid file URL').optional(),
     fileName: z.string().max(255).optional()
   })
   .refine(
@@ -47,7 +49,7 @@ export const sendMessageSchema = z
       // Either message or fileUrl must be present
       return data.message || data.fileUrl
     },
-    { message: 'Tin nhắn hoặc file đính kèm là bắt buộc' }
+    { message: 'Message or file attachment is required' }
   )
   .refine(
     (data) => {
@@ -57,10 +59,5 @@ export const sendMessageSchema = z
       }
       return true
     },
-    { message: 'File URL là bắt buộc cho tin nhắn ảnh/file' }
+    { message: 'File URL is required for image/file messages' }
   )
-
-/**
- * Mark message as read param schema
- */
-export const markMessageAsReadParamSchema = idParamSchema

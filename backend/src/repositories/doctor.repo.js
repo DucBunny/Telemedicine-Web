@@ -1,5 +1,6 @@
-import { User, Doctor, Specialty, Patient, Sequelize } from '@/models/sql/index'
+import { User, Doctor, Specialty, Patient } from '@/models/sql/index'
 import { Op } from 'sequelize'
+import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
  * Get doctor by user ID
@@ -40,16 +41,8 @@ export const getAll = async ({
 
   if (searchKeyword) {
     whereClause[Op.or] = [
-      Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col('user.full_name')),
-        'LIKE',
-        `%${searchKeyword}%`
-      ),
-      Sequelize.where(
-        Sequelize.fn('lower', Sequelize.col('address')),
-        'LIKE',
-        `%${searchKeyword}%`
-      )
+      caseInsensitiveSearch('user.full_name', searchKeyword),
+      caseInsensitiveSearch('address', searchKeyword)
     ]
   }
 

@@ -1,22 +1,20 @@
 import { z } from 'zod'
 import {
-  idParamSchema,
-  paginationQuerySchema
+  intIdSchema,
+  paginationWithSearchSchema
 } from '@/validations/common.validation'
 
 /**
  * Get medical records query schema
  */
-export const getMedicalRecordsQuerySchema = paginationQuerySchema
-  .extend({
-    search: z.string()
-  })
-  .partial() // tất cả trường đều optional
+export const getMedicalRecordsQuerySchema = paginationWithSearchSchema
 
 /**
  * Get medical record by ID param schema
  */
-export const getMedicalRecordByIdParamSchema = idParamSchema
+export const getMedicalRecordByIdParamSchema = z.object({
+  recordId: intIdSchema('Medical record ID is invalid')
+})
 
 //----------------------------------------
 /**

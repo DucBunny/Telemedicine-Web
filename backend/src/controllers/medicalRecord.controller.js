@@ -26,8 +26,8 @@ export const getMyMedicalRecords = async (req, res, next) => {
 
 export const getMedicalRecordDetail = async (req, res, next) => {
   try {
-    const { id } = req.params
-    const record = await medicalRecordService.getMedicalRecordById(id)
+    const { recordId } = req.params
+    const record = await medicalRecordService.getMedicalRecordById(recordId)
     res.status(StatusCodes.OK).json({
       success: true,
       data: record

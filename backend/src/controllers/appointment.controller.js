@@ -33,11 +33,11 @@ export const getMyAppointments = async (req, res, next) => {
  */
 export const cancelAppointment = async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { appointmentId } = req.params
     const { role } = req.user
     const { cancelReason } = req.body
     const result = await appointmentService.cancelAppointment(
-      id,
+      appointmentId,
       { cancelReason },
       role
     )
@@ -73,7 +73,7 @@ export const getAvailableSlots = async (req, res, next) => {
  */
 export const createAppointment = async (req, res, next) => {
   try {
-    const { id: patientId } = req.user
+    const patientId = req.user.id
     const { doctorId, scheduledAt, durationMinutes, type, reason } = req.body
 
     const appointment = await appointmentService.createAppointment({
@@ -96,13 +96,13 @@ export const createAppointment = async (req, res, next) => {
 
 //-------------------------------------------------------
 /**
- * POST /appointments/:id/confirm  (Doctor/Admin)
+ * POST /appointments/:appointmentId/confirm  (Doctor/Admin)
  */
 export const confirmAppointment = async (req, res, next) => {
   try {
-    const { id } = req.params
+    const { appointmentId } = req.params
     const result = await appointmentService.confirmAppointment(
-      parseInt(id),
+      appointmentId,
       req.io
     )
     res.status(StatusCodes.OK).json({ success: true, data: result })

@@ -19,8 +19,8 @@ export const getUnreadCount = async (userId) => {
 /**
  * Mark 1 notification as read
  */
-export const markAsRead = async (id, userId) => {
-  const notification = await notificationRepo.markAsRead(id, userId)
+export const markAsRead = async (notificationId, userId) => {
+  const notification = await notificationRepo.markAsRead(notificationId, userId)
   if (!notification)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
@@ -34,8 +34,11 @@ export const markAsRead = async (id, userId) => {
 /**
  * Mark 1 notification as unread
  */
-export const markAsUnread = async (id, userId) => {
-  const notification = await notificationRepo.markAsUnread(id, userId)
+export const markAsUnread = async (notificationId, userId) => {
+  const notification = await notificationRepo.markAsUnread(
+    notificationId,
+    userId
+  )
   if (!notification)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
@@ -63,8 +66,11 @@ export const createNotification = async (data) => {
 /**
  * Delete notification
  */
-export const deleteNotification = async (id, userId) => {
-  const deleted = await notificationRepo.deleteNotification(id, userId)
+export const deleteNotification = async (notificationId, userId) => {
+  const deleted = await notificationRepo.deleteNotification(
+    notificationId,
+    userId
+  )
   if (!deleted)
     throw new ApiError(
       StatusCodes.NOT_FOUND,

@@ -57,29 +57,29 @@ export const getUnreadCount = async (userId) => {
  * - Only the owner of the notification can mark it as read
  * - Returns null if notification not found or user is not the owner
  */
-export const markAsRead = async (id, userId) => {
+export const markAsRead = async (notificationId, userId) => {
   const [updated] = await Notification.update(
     {
       isRead: true,
       readAt: new Date()
     },
-    { where: { id, userId } }
+    { where: { id: notificationId, userId } }
   )
-  return updated > 0 ? await Notification.findByPk(id) : null
+  return updated > 0 ? await Notification.findByPk(notificationId) : null
 }
 
 /**
  * Mark notification as unread
  */
-export const markAsUnread = async (id, userId) => {
+export const markAsUnread = async (notificationId, userId) => {
   const [updated] = await Notification.update(
     {
       isRead: false,
       readAt: null
     },
-    { where: { id, userId } }
+    { where: { id: notificationId, userId } }
   )
-  return updated > 0 ? await Notification.findByPk(id) : null
+  return updated > 0 ? await Notification.findByPk(notificationId) : null
 }
 
 /**
@@ -105,8 +105,8 @@ export const create = async (data) => {
 /**
  * Delete notification
  */
-export const deleteNotification = async (id, userId) => {
+export const deleteNotification = async (notificationId, userId) => {
   return await Notification.destroy({
-    where: { id, userId }
+    where: { id: notificationId, userId }
   })
 }

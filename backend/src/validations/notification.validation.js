@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import {
-  idParamSchema,
+  intIdSchema,
   paginationQuerySchema
 } from '@/validations/common.validation'
 
@@ -8,7 +8,7 @@ import {
  * Notification type enum
  */
 const notificationTypeEnum = z.enum(['alert', 'appointment', 'message'], {
-  errorMap: () => ({ message: 'Loại thông báo không hợp lệ' })
+  errorMap: () => ({ message: 'Notification type is invalid' })
 })
 
 /**
@@ -24,17 +24,23 @@ export const getNotificationsQuerySchema = paginationQuerySchema.extend({
 /**
  * Mark notification as read param schema
  */
-export const markNotificationAsReadParamSchema = idParamSchema
+export const markNotificationAsReadParamSchema = z.object({
+  notificationId: intIdSchema('Notification ID is invalid')
+})
 
 /**
  * Mark notification as unread param schema
  */
-export const markNotificationAsUnreadParamSchema = idParamSchema
+export const markNotificationAsUnreadParamSchema = z.object({
+  notificationId: intIdSchema('Notification ID is invalid')
+})
 
 /**
  * Delete notification param schema
  */
-export const deleteNotificationParamSchema = idParamSchema
+export const deleteNotificationParamSchema = z.object({
+  notificationId: intIdSchema('Notification ID is invalid')
+})
 
 //------------------------------------------------
 /**

@@ -1,12 +1,17 @@
 import { z } from 'zod'
 
 /**
- * Common ID parameter schema (UUID)
+ * Common MySQL ID schema (int)
  */
-export const idParamSchema = z.object({
-  // id: z.string().uuid('ID không hợp lệ')
-  id: z.coerce.number().int().positive('ID is invalid')
-})
+export const intIdSchema = (errMessage = 'ID is invalid') =>
+  z.coerce.number().int().positive(errMessage)
+
+/**
+ * Common MongoDB ObjectId schema (string)
+ */
+export const objectIdSchema = (
+  errMessage = 'ID is must be a valid MongoDB ObjectId'
+) => z.string().regex(/^[0-9a-fA-F]{24}$/, errMessage)
 
 /**
  * Common pagination query schema

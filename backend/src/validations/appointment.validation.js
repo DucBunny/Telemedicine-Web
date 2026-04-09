@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import {
-  idParamSchema,
   paginationQuerySchema,
-  datetimeStringSchema
+  datetimeStringSchema,
+  intIdSchema
 } from '@/validations/common.validation'
 
 const appointmentStatusEnum = z.enum(
@@ -18,7 +18,9 @@ const appointmentTypeEnum = z.enum(
 /**
  * Get appointment by ID param schema
  */
-export const getAppointmentByIdParamSchema = idParamSchema
+export const getAppointmentByIdParamSchema = z.object({
+  appointmentId: intIdSchema('Appointment ID is invalid')
+})
 
 /**
  * Get appointments query schema
@@ -44,7 +46,7 @@ export const cancelAppointmentSchema = z.object({
  * Get available slots query schema
  */
 export const getAvailableSlotsQuerySchema = z.object({
-  doctorId: z.coerce.number().int().positive('Doctor ID is invalid'),
+  doctorId: intIdSchema('Doctor ID is invalid'),
   date: z.iso.date('Date is invalid')
 })
 
@@ -52,7 +54,7 @@ export const getAvailableSlotsQuerySchema = z.object({
  * Create appointment body schema
  */
 export const createAppointmentSchema = z.object({
-  doctorId: z.coerce.number().int().positive('Doctor ID is invalid'),
+  doctorId: intIdSchema('Doctor ID is invalid'),
   scheduledAt: datetimeStringSchema,
   durationMinutes: z.coerce
     .number()

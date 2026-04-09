@@ -26,7 +26,7 @@ router.put(
 
 // Mark 1 notification as read
 router.put(
-  '/:id/read',
+  '/:notificationId/read',
   authorizeRoles(['patient', 'doctor', 'admin']),
   validate({ params: markNotificationAsReadParamSchema }),
   notificationController.markAsRead
@@ -34,7 +34,7 @@ router.put(
 
 // Mark 1 notification as unread
 router.put(
-  '/:id/unread',
+  '/:notificationId/unread',
   authorizeRoles(['patient', 'doctor', 'admin']),
   validate({ params: markNotificationAsUnreadParamSchema }),
   notificationController.markAsUnread
@@ -42,7 +42,7 @@ router.put(
 
 // Delete notification
 router.delete(
-  '/:id',
+  '/:notificationId',
   authorizeRoles(['patient', 'doctor', 'admin']),
   validate({ params: deleteNotificationParamSchema }),
   notificationController.deleteNotification

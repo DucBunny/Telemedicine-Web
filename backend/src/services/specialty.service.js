@@ -1,5 +1,6 @@
 import { Specialty } from '@/models/sql/index'
 import ApiError from '@/utils/api-error'
+import { StatusCodes } from 'http-status-codes'
 
 /**
  * Get all specialties
@@ -13,8 +14,8 @@ export const getAllSpecialties = async () => {
 /**
  * Get specialty by ID
  */
-export const getSpecialtyById = async (id) => {
-  const specialty = await Specialty.findByPk(id)
+export const getSpecialtyById = async (specialtyId) => {
+  const specialty = await Specialty.findByPk(specialtyId)
   if (!specialty)
     throw new ApiError(
       StatusCodes.NOT_FOUND,

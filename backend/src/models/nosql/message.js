@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import * as MongoPaging from 'mongo-cursor-pagination'
 
 const MessageSchema = new mongoose.Schema(
   {
@@ -30,7 +31,7 @@ const MessageSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['sent', 'delivered', 'read'],
+      enum: ['sent', 'read'],
       default: 'sent'
     }
   },
@@ -41,6 +42,9 @@ const MessageSchema = new mongoose.Schema(
 
 // Index để tìm nhanh tin nhắn theo conversation_id và sắp xếp theo thời gian tạo
 MessageSchema.index({ conversation_id: 1, created_at: -1 })
+
+// Plugin để hỗ trợ cursor-based pagination
+MessageSchema.plugin(MongoPaging.mongoosePlugin)
 
 const Message = mongoose.model('Message', MessageSchema)
 

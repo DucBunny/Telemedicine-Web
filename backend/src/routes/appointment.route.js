@@ -4,10 +4,10 @@ import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
 import {
   getAppointmentByIdParamSchema,
-  createAppointmentSchema,
-  confirmAppointmentSchema,
   cancelAppointmentSchema,
-  getAvailableSlotsQuerySchema
+  getAvailableSlotsQuerySchema,
+  createAppointmentSchema,
+  confirmAppointmentSchema
 } from '@/validations/appointment.validation'
 
 const router = express.Router()
@@ -39,7 +39,7 @@ router.get(
  * @description Doctor or patient cancels an appointment
  */
 router.put(
-  '/:id/cancel',
+  '/:appointmentId/cancel',
   authorizeRoles(['doctor', 'patient']),
   validate({
     params: getAppointmentByIdParamSchema,
@@ -54,7 +54,7 @@ router.put(
  * @description Doctor confirms an appointment
  */
 router.post(
-  '/:id/confirm',
+  '/:appointmentId/confirm',
   authorizeRoles(['doctor', 'admin']),
   validate({
     params: getAppointmentByIdParamSchema,

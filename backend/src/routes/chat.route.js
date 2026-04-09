@@ -5,33 +5,17 @@ import {
   getConversationsQuerySchema,
   getMessagesQuerySchema,
   getMessagesParamSchema,
-  sendMessageSchema,
-  markMessageAsReadParamSchema
+  getConversationIdParamSchema,
+  sendMessageSchema
 } from '@/validations/chat.validation'
 
 const router = express.Router()
-
-// Note: Authentication is applied globally in api.js
 
 // Get conversations list
 router.get(
   '/conversations',
   validate({ query: getConversationsQuerySchema }),
   chatController.getConversations
-)
-
-// Get messages with a specific user (legacy - by userId)
-router.get(
-  '/conversations/:userId/messages',
-  validate({ params: getMessagesParamSchema, query: getMessagesQuerySchema }),
-  chatController.getMessages
-)
-
-// Get messages by conversationId
-router.get(
-  '/conversations/:conversationId/messages-by-id',
-  validate({ query: getMessagesQuerySchema }),
-  chatController.getMessagesByConversationId
 )
 
 // Send a message
@@ -41,18 +25,31 @@ router.post(
   chatController.sendMessage
 )
 
-// Mark a message as read
-router.patch(
-  '/messages/:id/read',
-  validate({ params: markMessageAsReadParamSchema }),
-  chatController.markMessageAsRead
+// Get messages by conversationId
+router.get(
+  '/conversations/:conversationId/messages',
+  validate({
+    params: getConversationIdParamSchema,
+    query: getMessagesQuerySchema
+  }),
+  chatController.getMessagesByConversationId
 )
 
 // Mark all messages from a user as read
-router.patch(
-  '/conversations/:userId/read-all',
-  validate({ params: getMessagesParamSchema }),
+router.put(
+  '/conversations/:conversationId/read-all',
+  validate({ params: getConversationIdParamSchema }),
   chatController.markAllMessagesAsRead
+)
+
+// Legacy route for clients still using userId; resolves to the conversation lookup endpoint internally.
+router.get(
+  '/users/:userId/messages',
+  validate({
+    params: getMessagesParamSchema,
+    query: getMessagesQuerySchema
+  }),
+  chatController.getMessagesByUserIds
 )
 
 export default router

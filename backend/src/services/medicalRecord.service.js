@@ -27,8 +27,8 @@ export const getMyMedicalRecords = async (
 /**
  * Get medical record by ID
  */
-export const getMedicalRecordById = async (id) => {
-  const record = await medicalRecordRepo.findById(id)
+export const getMedicalRecordById = async (recordId) => {
+  const record = await medicalRecordRepo.findById(recordId)
   if (!record) {
     throw new ApiError(
       StatusCodes.NOT_FOUND,

@@ -126,8 +126,8 @@ export const findByPatientId = async (
 /**
  * Find appointment by ID
  */
-export const findById = async (id) => {
-  return await Appointment.findByPk(id)
+export const findById = async (appointmentId) => {
+  return await Appointment.findByPk(appointmentId)
 }
 
 /**

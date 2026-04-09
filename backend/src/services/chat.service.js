@@ -5,19 +5,26 @@ import ApiError from '@/utils/api-error'
 /**
  * Get conversations for logged in user
  */
-export const getConversations = async (userId, { page, limit }) => {
-  return await chatRepo.getConversations(userId, { page, limit })
+export const getConversations = async (userId, { cursor, limit, search }) => {
+  return await chatRepo.getConversations(userId, { cursor, limit, search })
 }
 
 /**
- * Get messages between current user and another user
+ * Get messages by conversationId
  */
-export const getMessages = async (
+export const getMessagesByConversationId = async (
   currentUserId,
-  otherUserId,
-  { page, limit }
+  conversationId,
+  { cursor, limit }
 ) => {
-  return await chatRepo.getMessages(currentUserId, otherUserId, { page, limit })
+  return await chatRepo.getMessagesByConversationId(
+    currentUserId,
+    conversationId,
+    {
+      cursor,
+      limit
+    }
+  )
 }
 
 /**
@@ -33,56 +40,28 @@ export const sendMessage = async (senderId, data) => {
     )
   }
 
-  const message = await chatRepo.createMessage({
+  return await chatRepo.createMessage({
     senderId,
     ...data
   })
-
-  return message
-}
-
-/**
- * Mark message as read
- */
-export const markMessageAsRead = async (messageId, userId) => {
-  const message = await chatRepo.markAsRead(messageId)
-
-  if (!message) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Message not found',
-      'MESSAGE_NOT_FOUND'
-    )
-  }
-
-  // Verify user is NOT the sender (can only mark received messages as read)
-  if (message.sender_id === userId) {
-    throw new ApiError(
-      StatusCodes.FORBIDDEN,
-      'You can only mark received messages as read',
-      'FORBIDDEN'
-    )
-  }
-
-  return message
 }
 
 /**
  * Mark all messages from a sender as read
  */
-export const markAllMessagesAsRead = async (receiverId, senderId) => {
-  return await chatRepo.markAllAsRead(receiverId, senderId)
+export const markAllMessagesAsRead = async (userId, conversationId) => {
+  return await chatRepo.markAllAsRead(userId, conversationId)
 }
 
 /**
- * Get messages by conversationId
+ * Get messages between current user and another user
  */
-export const getMessagesByConversationId = async (
+export const getMessagesByUserIds = async (
   currentUserId,
-  conversationId,
+  otherUserId,
   { cursor, limit }
 ) => {
-  return await chatRepo.getMessagesByConversationId(currentUserId, conversationId, {
+  return await chatRepo.getMessagesByUserIds(currentUserId, otherUserId, {
     cursor,
     limit
   })
