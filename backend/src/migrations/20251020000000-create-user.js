@@ -34,8 +34,8 @@ module.exports = {
         unique: true
       },
       status: {
-        type: Sequelize.ENUM('active', 'locked', 'pending'),
-        defaultValue: 'pending'
+        type: Sequelize.ENUM('active', 'locked', 'incomplete'),
+        defaultValue: 'incomplete'
       },
       last_login_at: {
         type: Sequelize.DATE,

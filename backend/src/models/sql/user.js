@@ -62,8 +62,8 @@ module.exports = (sequelize, DataTypes) => {
         unique: true
       },
       status: {
-        type: DataTypes.ENUM('active', 'locked', 'pending'),
-        defaultValue: 'pending'
+        type: DataTypes.ENUM('active', 'locked', 'incomplete'),
+        defaultValue: 'incomplete'
       },
       lastLoginAt: {
         type: DataTypes.DATE,

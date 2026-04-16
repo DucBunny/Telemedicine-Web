@@ -124,7 +124,8 @@ export const login = async ({ username, password, deviceInfo }) => {
   let isProfileComplete = true
   if (user.role === 'patient') {
     const patient = await patientRepo.findByUserId(user.id)
-    isProfileComplete = patient && patient.gender !== null
+    isProfileComplete =
+      patient && patient.gender !== null && user.status !== 'incomplete'
   }
 
   const tokens = await generateTokens(user, deviceInfo)
@@ -179,7 +180,8 @@ export const refreshToken = async ({ requestToken, deviceInfo = null }) => {
     let isProfileComplete = true
     if (user.role === 'patient') {
       const patient = await patientRepo.findByUserId(user.id)
-      isProfileComplete = patient && patient.gender !== null
+      isProfileComplete =
+        patient && patient.gender !== null && user.status !== 'incomplete'
     }
 
     const newTokens = await generateTokens(user, deviceInfo)
