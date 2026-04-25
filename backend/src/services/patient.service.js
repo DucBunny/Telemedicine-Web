@@ -1,18 +1,8 @@
+import { StatusCodes } from 'http-status-codes'
+import { sequelize } from '@/models/sql'
 import * as patientRepo from '@/repositories/patient.repo'
 import * as userRepo from '@/repositories/user.repo'
-import { StatusCodes } from 'http-status-codes'
 import ApiError from '@/utils/api-error'
-import { sequelize } from '@/models/sql'
-
-/**
- * Get patients by doctor ID
- */
-export const getPatientsByDoctorId = async (
-  doctorId,
-  { page = 1, limit = 10 }
-) => {
-  return await patientRepo.findByDoctorId(doctorId, { page, limit })
-}
 
 /**
  * Get patient by user ID
@@ -23,7 +13,7 @@ export const getPatientByUserId = async (userId) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Patient not found',
-      'PATIENT_NOT_FOUND'
+      'PATIENT_NOT_FOUND',
     )
   return patient
 }
@@ -34,24 +24,56 @@ export const getPatientByUserId = async (userId) => {
 export const updatePatient = async (id, { user: userData, ...data }) => {
   return await sequelize.transaction(async (t) => {
     let user = null
-    if (userData)
+    if (userData) {
+      if (userData.email) {
+        // Check if email is already in use by another user
+        const existingEmail = await userRepo.findByEmail(userData.email)
+        if (existingEmail && existingEmail.id !== id)
+          throw new ApiError(
+            StatusCodes.CONFLICT,
+            'Email already exists',
+            'EMAIL_EXISTS',
+          )
+      }
+
+      if (userData.phoneNumber) {
+        // Check if phone is already in use by another user
+        const existingPhone = await userRepo.findByPhoneNumber(
+          userData.phoneNumber,
+        )
+        if (existingPhone && existingPhone.id !== id)
+          throw new ApiError(
+            StatusCodes.CONFLICT,
+            'Phone number already exists',
+            'PHONE_NUMBER_EXISTS',
+          )
+      }
+
       user = await userRepo.update(id, userData, {
-        transaction: t
+        transaction: t,
       })
+    }
 
     const patient = await patientRepo.update(id, data, {
-      transaction: t
+      transaction: t,
     })
 
     if (!patient || (userData && !user))
       throw new ApiError(
         StatusCodes.NOT_FOUND,
         'Patient not found',
-        'PATIENT_NOT_FOUND'
+        'PATIENT_NOT_FOUND',
       )
 
     return patient
   })
+}
+
+/**
+ * Get patients by doctor ID
+ */
+export const getPatientsByDoctorId = async (doctorId, { page, limit }) => {
+  return await patientRepo.findByDoctorId(doctorId, { page, limit })
 }
 
 // ---------------------------------------
@@ -71,21 +93,6 @@ export const createPatient = async (data) => {
 }
 
 /**
- * Update patient by user ID (for logged in patient)
- */
-export const updatePatientByUserId = async (userId, data) => {
-  const patient = await patientRepo.updateByUserId(userId, data)
-  if (!patient) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Patient not found',
-      'PATIENT_NOT_FOUND'
-    )
-  }
-  return patient
-}
-
-/**
  * Delete patient
  */
 export const deletePatient = async (id) => {
@@ -94,7 +101,7 @@ export const deletePatient = async (id) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Patient not found',
-      'PATIENT_NOT_FOUND'
+      'PATIENT_NOT_FOUND',
     )
   }
   return { message: 'Patient deleted successfully' }

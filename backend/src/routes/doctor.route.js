@@ -3,11 +3,11 @@ import * as doctorController from '@/controllers/doctor.controller'
 import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
 import {
+  createDoctorSchema,
   getAllDoctorsQuerySchema,
   getDoctorByIdParamSchema,
   getDoctorPatientsQuerySchema,
-  createDoctorSchema,
-  updateDoctorSchema
+  updateDoctorSchema,
 } from '@/validations/doctor.validation'
 
 const router = express.Router()
@@ -16,14 +16,14 @@ router.get(
   '/',
   authorizeRoles(['patient']),
   validate({ query: getAllDoctorsQuerySchema }),
-  doctorController.getAllDoctors
+  doctorController.getAllDoctors,
 )
 
 router.get(
   '/:doctorId',
   authorizeRoles(['patient']),
   validate({ params: getDoctorByIdParamSchema }),
-  doctorController.getDoctorDetail
+  doctorController.getDoctorDetail,
 )
 //----------------------------------------
 
@@ -31,18 +31,7 @@ router.get(
   '/me/patients',
   authorizeRoles(['doctor']),
   validate({ query: getDoctorPatientsQuerySchema }),
-  doctorController.getMyPatients
-)
-
-// Public routes - get all doctors (for patients to browse)
-
-router.get(
-  '/:doctorId/patients',
-  validate({
-    params: getDoctorByIdParamSchema,
-    query: getDoctorPatientsQuerySchema
-  }),
-  doctorController.getDoctorPatients
+  doctorController.getMyPatients,
 )
 
 // Admin routes - manage doctors
@@ -50,19 +39,19 @@ router.post(
   '/',
   authorizeRoles(['admin']),
   validate({ body: createDoctorSchema }),
-  doctorController.createDoctor
+  doctorController.createDoctor,
 )
 router.put(
   '/:doctorId',
   authorizeRoles(['admin', 'doctor']),
   validate({ params: getDoctorByIdParamSchema, body: updateDoctorSchema }),
-  doctorController.updateDoctor
+  doctorController.updateDoctor,
 )
 router.delete(
   '/:doctorId',
   authorizeRoles(['admin']),
   validate({ params: getDoctorByIdParamSchema }),
-  doctorController.deleteDoctor
+  doctorController.deleteDoctor,
 )
 
 export default router

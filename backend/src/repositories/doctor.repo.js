@@ -1,24 +1,25 @@
-import { User, Doctor, Specialty, Patient } from '@/models/sql/index'
 import { Op } from 'sequelize'
+import { Doctor, Patient, Specialty, User } from '@/models/sql/index'
 import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
  * Get doctor by user ID
  */
-export const findByUserId = async (userId) => {
+export const findByUserId = async (userId, options = {}) => {
   return await Doctor.findByPk(userId, {
     include: [
       {
         model: User,
         as: 'user',
-        attributes: ['fullName', 'email', 'phoneNumber', 'role', 'avatar']
+        attributes: ['fullName', 'email', 'phoneNumber', 'role', 'avatar'],
       },
       {
         model: Specialty,
         as: 'specialty',
-        attributes: ['name']
-      }
-    ]
+        attributes: ['name'],
+      },
+    ],
+    ...options,
   })
 }
 
@@ -29,7 +30,7 @@ export const getAll = async ({
   page = 1,
   limit = 10,
   search = '',
-  specialtyId = null
+  specialtyId = null,
 }) => {
   const offset = (page - 1) * limit
   const whereClause = {}
@@ -42,7 +43,7 @@ export const getAll = async ({
   if (searchKeyword) {
     whereClause[Op.or] = [
       caseInsensitiveSearch('user.full_name', searchKeyword),
-      caseInsensitiveSearch('address', searchKeyword)
+      caseInsensitiveSearch('address', searchKeyword),
     ]
   }
 
@@ -53,20 +54,20 @@ export const getAll = async ({
         model: User,
         as: 'user',
         attributes: ['fullName', 'avatar'],
-        required: Boolean(searchKeyword)
+        required: Boolean(searchKeyword),
       },
       {
         model: Specialty,
         as: 'specialty',
-        attributes: ['name']
-      }
+        attributes: ['name'],
+      },
     ],
     limit: parseInt(limit),
     offset: parseInt(offset),
     order: [['experienceYears', 'DESC']],
     subQuery: false,
     distinct: true,
-    col: 'user_id'
+    col: 'user_id',
   })
 
   return {
@@ -75,11 +76,21 @@ export const getAll = async ({
       page: parseInt(page),
       limit: parseInt(limit),
       total: count,
-      totalPages: Math.ceil(count / limit)
-    }
+      totalPages: Math.ceil(count / limit),
+    },
   }
 }
 
+/**
+ * Update doctor
+ */
+export const update = async (userId, data, options = {}) => {
+  const [updated] = await Doctor.update(data, {
+    where: { userId },
+    ...options,
+  })
+  return updated > 0 ? await findByUserId(userId, options) : null
+}
 // ------------------------------------------------------------
 
 /**
@@ -90,58 +101,8 @@ export const create = async (data) => {
 }
 
 /**
- * Update doctor
- */
-export const update = async (id, data) => {
-  const doctor = await Doctor.findByPk(id)
-  if (!doctor) return null
-
-  return await doctor.update(data)
-}
-
-/**
  * Delete doctor
  */
 export const deleteDoctor = async (id) => {
   return await Doctor.destroy({ where: { id } })
-}
-
-/**
- * Get doctor's patients
- */
-export const getDoctorPatients = async (doctorId, { page = 1, limit = 10 }) => {
-  const offset = (page - 1) * limit
-
-  const doctor = await Doctor.findByPk(doctorId, {
-    include: [
-      {
-        model: Patient,
-        as: 'patients',
-        include: [
-          {
-            model: User,
-            as: 'user',
-            attributes: ['fullName', 'email', 'phoneNumber']
-          }
-        ]
-      }
-    ],
-    limit: parseInt(limit),
-    offset: parseInt(offset)
-  })
-
-  if (!doctor) return null
-
-  // Count total patients for this doctor
-  const totalPatients = await doctor.countPatients()
-
-  return {
-    data: doctor.patients,
-    meta: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total: totalPatients,
-      totalPages: Math.ceil(totalPatients / limit)
-    }
-  }
 }

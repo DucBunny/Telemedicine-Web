@@ -12,13 +12,13 @@ export const getConversations = async (req, res, next) => {
     const result = await chatService.getConversations(userId, {
       cursor: nextCursor,
       limit,
-      search
+      search,
     })
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)
@@ -37,13 +37,35 @@ export const getMessagesByConversationId = async (req, res, next) => {
     const result = await chatService.getMessagesByConversationId(
       currentUserId,
       conversationId,
-      { cursor: nextCursor, limit }
+      { cursor: nextCursor, limit },
     )
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Get conversation detail by conversationId
+ */
+export const getConversationDetail = async (req, res, next) => {
+  try {
+    const currentUserId = req.user.id
+    const { conversationId } = req.params
+
+    const conversation = await chatService.getConversationDetail(
+      currentUserId,
+      conversationId,
+    )
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: conversation,
     })
   } catch (error) {
     next(error)
@@ -56,11 +78,12 @@ export const getMessagesByConversationId = async (req, res, next) => {
 export const sendMessage = async (req, res, next) => {
   try {
     const senderId = req.user.id // from JWT token
-    const message = await chatService.sendMessage(senderId, req.body)
+    const data = req.body
+    const message = await chatService.sendMessage(senderId, data)
 
     res.status(StatusCodes.CREATED).json({
       success: true,
-      data: message
+      data: message,
     })
   } catch (error) {
     next(error)
@@ -78,7 +101,7 @@ export const markAllMessagesAsRead = async (req, res, next) => {
     await chatService.markAllMessagesAsRead(userId, conversationId)
 
     res.status(StatusCodes.OK).json({
-      success: true
+      success: true,
     })
   } catch (error) {
     next(error)
@@ -97,13 +120,13 @@ export const getMessagesByUserIds = async (req, res, next) => {
     const result = await chatService.getMessagesByUserIds(
       currentUserId,
       otherUserId,
-      { cursor: nextCursor, limit }
+      { cursor: nextCursor, limit },
     )
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)

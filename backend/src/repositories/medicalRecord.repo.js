@@ -1,13 +1,13 @@
-import {
-  Doctor,
-  Patient,
-  User,
-  MedicalRecord,
-  Specialty,
-  Appointment,
-  MedicalAttachment
-} from '@/models/sql/index'
 import { Op } from 'sequelize'
+import {
+  Appointment,
+  Doctor,
+  MedicalAttachment,
+  MedicalRecord,
+  Patient,
+  Specialty,
+  User,
+} from '@/models/sql/index'
 import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
@@ -18,7 +18,7 @@ const findByOwner = async ({
   include,
   attributes,
   page = 1,
-  limit = 10
+  limit = 10,
 }) => {
   const offset = (page - 1) * limit
 
@@ -27,8 +27,8 @@ const findByOwner = async ({
     {
       model: Appointment,
       as: 'appointment',
-      attributes: ['id', 'scheduledAt']
-    }
+      attributes: ['id', 'scheduledAt'],
+    },
   ]
 
   const { rows, count } = await MedicalRecord.findAndCountAll({
@@ -40,7 +40,7 @@ const findByOwner = async ({
     order: [['appointment', 'scheduledAt', 'DESC']],
     subQuery: false,
     distinct: true,
-    col: 'id'
+    col: 'id',
   })
 
   return {
@@ -49,8 +49,8 @@ const findByOwner = async ({
       page: parseInt(page),
       limit: parseInt(limit),
       total: count,
-      totalPages: Math.ceil(count / limit)
-    }
+      totalPages: Math.ceil(count / limit),
+    },
   }
 }
 
@@ -68,13 +68,13 @@ export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
           {
             model: User,
             as: 'user',
-            attributes: ['fullName', 'avatar']
-          }
-        ]
-      }
+            attributes: ['fullName', 'avatar'],
+          },
+        ],
+      },
     ],
     page,
-    limit
+    limit,
   })
 }
 
@@ -83,20 +83,18 @@ export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
  */
 export const findByPatientId = async (
   patientId,
-  { page = 1, limit = 10, search = '' }
+  { page = 1, limit = 10, search = '' },
 ) => {
-  const searchKeyword = search?.trim().toLowerCase()
-
   return await findByOwner({
     where: {
       patientId,
-      ...(searchKeyword && {
+      ...(search?.trim().toLowerCase() && {
         [Op.or]: [
-          caseInsensitiveSearch('doctor.user.full_name', searchKeyword),
-          caseInsensitiveSearch('diagnosis', searchKeyword),
-          caseInsensitiveSearch('doctor.specialty.name', searchKeyword)
-        ]
-      })
+          caseInsensitiveSearch('doctor.user.full_name', search),
+          caseInsensitiveSearch('diagnosis', search),
+          caseInsensitiveSearch('doctor.specialty.name', search),
+        ],
+      }),
     },
     include: [
       {
@@ -106,20 +104,20 @@ export const findByPatientId = async (
           {
             model: User,
             as: 'user',
-            attributes: ['fullName', 'avatar']
+            attributes: ['fullName', 'avatar'],
           },
           {
             model: Specialty,
             as: 'specialty',
-            attributes: ['name']
-          }
+            attributes: ['name'],
+          },
         ],
-        attributes: ['degree']
-      }
+        attributes: ['degree'],
+      },
     ],
     attributes: ['id', 'diagnosis', 'symptoms'],
     page,
-    limit
+    limit,
   })
 }
 
@@ -136,25 +134,25 @@ export const findById = async (recordId) => {
           {
             model: User,
             as: 'user',
-            attributes: ['fullName', 'avatar']
+            attributes: ['fullName', 'avatar'],
           },
           {
             model: Specialty,
             as: 'specialty',
-            attributes: ['name']
-          }
-        ]
+            attributes: ['name'],
+          },
+        ],
       },
       {
         model: Appointment,
         as: 'appointment',
-        attributes: ['id', 'scheduledAt']
+        attributes: ['id', 'scheduledAt'],
       },
       {
         model: MedicalAttachment,
-        as: 'medicalAttachments'
-      }
-    ]
+        as: 'medicalAttachments',
+      },
+    ],
   })
 }
 

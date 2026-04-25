@@ -1,7 +1,7 @@
-import * as userService from '@/services/user.service'
+import { StatusCodes } from 'http-status-codes'
 import * as doctorService from '@/services/doctor.service'
 import * as patientService from '@/services/patient.service'
-import { StatusCodes } from 'http-status-codes'
+import * as userService from '@/services/user.service'
 
 /**
  * Get my profile for logged in user
@@ -17,7 +17,7 @@ export const getMyProfile = async (req, res, next) => {
     }
     res.status(StatusCodes.OK).json({
       success: true,
-      data: profile
+      data: profile,
     })
   } catch (error) {
     next(error)
@@ -38,7 +38,7 @@ export const updateMyProfile = async (req, res, next) => {
     }
     res.status(StatusCodes.OK).json({
       success: true,
-      data: updatedProfile
+      data: updatedProfile,
     })
   } catch (error) {
     next(error)
@@ -55,7 +55,7 @@ export const changePassword = async (req, res, next) => {
     await userService.changeUserPassword(userId, currentPassword, newPassword)
 
     res.status(StatusCodes.OK).json({
-      success: true
+      success: true,
     })
   } catch (error) {
     next(error)
@@ -72,7 +72,7 @@ export const getAllUsers = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)
@@ -85,7 +85,7 @@ export const getUserById = async (req, res, next) => {
     const user = await userService.getUserById(id)
     res.status(StatusCodes.OK).json({
       success: true,
-      data: user
+      data: user,
     })
   } catch (error) {
     next(error)
@@ -100,7 +100,7 @@ export const updateUserStatus = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: user
+      data: user,
     })
   } catch (error) {
     next(error)
@@ -114,7 +114,7 @@ export const deleteUser = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result
+      data: result,
     })
   } catch (error) {
     next(error)

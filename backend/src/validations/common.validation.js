@@ -42,6 +42,45 @@ export const paginationWithSearchSchema = paginationQuerySchema.extend(
 )
 
 /**
+ * Convert empty string query value to undefined before validating with schema.
+ */
+export const emptyStringToUndefined = (schema) =>
+  z.preprocess((raw) => {
+    if (raw == null) return undefined
+
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim()
+      return trimmed === '' ? undefined : trimmed
+    }
+
+    return raw
+  }, schema)
+
+/**
+ * Convert empty string/array query value to undefined before validating with schema.
+ * Useful for query params that accept both single string and array values.
+ */
+export const emptyStringOrArrayToUndefined = (schema) =>
+  z.preprocess((raw) => {
+    if (raw == null) return undefined
+
+    if (Array.isArray(raw)) {
+      const normalized = raw
+        .map((value) => (typeof value === 'string' ? value.trim() : value))
+        .filter((value) => value !== '')
+
+      return normalized.length > 0 ? normalized : undefined
+    }
+
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim()
+      return trimmed === '' ? undefined : trimmed
+    }
+
+    return raw
+  }, schema)
+
+/**
  * Date string schema
  */
 export const datetimeStringSchema = z.iso.datetime('Date is invalid')

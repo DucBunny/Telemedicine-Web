@@ -1,16 +1,23 @@
 import { z } from 'zod'
 import {
   idParamSchema,
-  paginationWithSearchSchema,
   optionalDateStringSchema,
-  optionalPhoneNumberSchema
+  optionalPhoneNumberSchema,
+  paginationQuerySchema,
+  paginationWithSearchSchema,
 } from '@/validations/common.validation'
 
+/**
+ * Get patients query schema
+ */
+export const getPatientsQuerySchema = paginationQuerySchema
+
+//----------------------------------------
 /**
  * Gender enum
  */
 const genderEnum = z.enum(['male', 'female', 'other'], {
-  errorMap: () => ({ message: 'Giới tính không hợp lệ' })
+  errorMap: () => ({ message: 'Giới tính không hợp lệ' }),
 })
 
 /**
@@ -19,15 +26,15 @@ const genderEnum = z.enum(['male', 'female', 'other'], {
 const bloodTypeEnum = z.enum(
   ['A', 'B', 'AB', 'O', 'A+', 'B+', 'AB+', 'O+', 'A-', 'B-', 'AB-', 'O-'],
   {
-    errorMap: () => ({ message: 'Nhóm máu không hợp lệ' })
-  }
+    errorMap: () => ({ message: 'Nhóm máu không hợp lệ' }),
+  },
 )
 
 /**
  * Health status enum
  */
 const healthStatusEnum = z.enum(['stable', 'monitoring', 'critical'], {
-  errorMap: () => ({ message: 'Trạng thái sức khỏe không hợp lệ' })
+  errorMap: () => ({ message: 'Trạng thái sức khỏe không hợp lệ' }),
 })
 
 /**
@@ -62,7 +69,7 @@ export const createPatientSchema = z.object({
   currentIssue: z
     .string()
     .max(1000, 'Vấn đề hiện tại không được vượt quá 1000 ký tự')
-    .optional()
+    .optional(),
 })
 
 /**
@@ -86,7 +93,7 @@ export const updatePatientSchema = z.object({
   currentIssue: z
     .string()
     .max(1000, 'Vấn đề hiện tại không được vượt quá 1000 ký tự')
-    .optional()
+    .optional(),
 })
 
 /**
@@ -105,5 +112,5 @@ export const updatePatientProfileSchema = z.object({
   currentIssue: z
     .string()
     .max(1000, 'Vấn đề hiện tại không được vượt quá 1000 ký tự')
-    .optional()
+    .optional(),
 })

@@ -1,36 +1,40 @@
 import { z } from 'zod'
 import {
-  paginationQuerySchema,
   datetimeStringSchema,
-  intIdSchema
+  emptyStringOrArrayToUndefined,
+  emptyStringToUndefined,
+  intIdSchema,
+  paginationWithSearchSchema,
 } from '@/validations/common.validation'
 
 const appointmentStatusEnum = z.enum(
   ['pending', 'confirmed', 'completed', 'cancelled'],
-  'Appointment status is invalid'
+  'Appointment status is invalid',
 )
 
 const appointmentTypeEnum = z.enum(
   ['online', 'offline'],
-  'Appointment type is invalid'
+  'Appointment type is invalid',
 )
 
 /**
  * Get appointment by ID param schema
  */
 export const getAppointmentByIdParamSchema = z.object({
-  appointmentId: intIdSchema('Appointment ID is invalid')
+  appointmentId: intIdSchema('Appointment ID is invalid'),
 })
 
 /**
  * Get appointments query schema
  */
-export const getAppointmentsQuerySchema = paginationQuerySchema
-  .extend({
-    status: z.union([appointmentStatusEnum, z.array(appointmentStatusEnum)]), // hỗ trợ filter theo 1 hoặc nhiều status (string or array)
-    type: appointmentTypeEnum
-  })
-  .partial() // tất cả trường đều optional
+export const getAppointmentsQuerySchema = paginationWithSearchSchema.extend({
+  status: emptyStringOrArrayToUndefined(
+    z.union([appointmentStatusEnum, z.array(appointmentStatusEnum)]).optional(),
+  ), // hỗ trợ filter theo 1 hoặc nhiều status; status rỗng sẽ bỏ filter
+  type: emptyStringToUndefined(appointmentTypeEnum.optional()),
+  scheduledFrom: emptyStringToUndefined(datetimeStringSchema.optional()),
+  scheduledTo: emptyStringToUndefined(datetimeStringSchema.optional()),
+})
 
 /**
  * Cancel appointment body schema
@@ -39,7 +43,7 @@ export const cancelAppointmentSchema = z.object({
   cancelReason: z
     .string()
     .min(1, 'Cancel reason is required')
-    .max(500, 'Cancel reason cannot exceed 500 characters')
+    .max(500, 'Cancel reason cannot exceed 500 characters'),
 })
 
 /**
@@ -47,7 +51,7 @@ export const cancelAppointmentSchema = z.object({
  */
 export const getAvailableSlotsQuerySchema = z.object({
   doctorId: intIdSchema('Doctor ID is invalid'),
-  date: z.iso.date('Date is invalid')
+  date: z.iso.date('Date is invalid'),
 })
 
 /**
@@ -60,14 +64,14 @@ export const createAppointmentSchema = z.object({
     .number()
     .int()
     .refine((v) => [30, 60].includes(v), {
-      message: 'Duration must be 30 or 60 minutes'
+      message: 'Duration must be 30 or 60 minutes',
     })
     .default(30),
   type: appointmentTypeEnum,
   reason: z
     .string()
     .min(1, 'Reason is required')
-    .max(500, 'Reason cannot exceed 500 characters')
+    .max(500, 'Reason cannot exceed 500 characters'),
 })
 
 //-------------------------------------------------------
@@ -81,7 +85,7 @@ export const updateAppointmentSchema = z.object({
     .number()
     .int()
     .refine((v) => [30, 60].includes(v), {
-      message: 'Duration must be 30 or 60 minutes'
+      message: 'Duration must be 30 or 60 minutes',
     })
     .optional(),
   status: appointmentStatusEnum.optional(),
@@ -91,12 +95,5 @@ export const updateAppointmentSchema = z.object({
   cancelReason: z
     .string()
     .max(500, 'Cancel reason cannot exceed 500 characters')
-    .optional()
-})
-
-/**
- * Confirm appointment body schema
- */
-export const confirmAppointmentSchema = z.object({
-  meetingLink: z.string().url('Link meeting không hợp lệ').optional()
+    .optional(),
 })

@@ -1,12 +1,12 @@
+import Conversation from '@/models/nosql/conversation'
 import {
-  User,
+  AlertRecipient,
+  Appointment,
+  Device,
   Doctor,
   Patient,
-  Device,
   PatientDoctor,
-  Appointment,
-  Alert,
-  Message
+  User,
 } from '@/models/sql/index'
 
 /**
@@ -19,11 +19,11 @@ export const getSystemStats = async () => {
   const totalDevices = await Device.count()
 
   const devicesOnline = await Device.count({
-    where: { status: 'active' }
+    where: { status: 'active' },
   })
 
   const devicesMaintenance = await Device.count({
-    where: { status: 'maintenance' }
+    where: { status: 'maintenance' },
   })
 
   return {
@@ -32,7 +32,7 @@ export const getSystemStats = async () => {
     totalPatients,
     totalDevices,
     devicesOnline,
-    devicesMaintenance
+    devicesMaintenance,
   }
 }
 
@@ -41,28 +41,26 @@ export const getSystemStats = async () => {
  */
 export const getDoctorStats = async (doctorId) => {
   const totalPatients = await PatientDoctor.count({
-    where: { doctorId }
+    where: { doctorId },
   })
   const totalAppointments = await Appointment.count({
-    where: { doctorId }
+    where: { doctorId },
   })
-  const totalAlerts = await Alert.count({
-    include: [
-      {
-        model: Doctor,
-        as: 'doctors',
-        where: { user_id: doctorId }
-      }
-    ]
+  const totalAlerts = await AlertRecipient.count({
+    where: {
+      doctorId,
+      isAcknowledged: false,
+    },
   })
-  const totalUnreadMessages = await Message.count({
-    where: { doctorId, isRead: false }
+  const totalUnreadConversations = await Conversation.countDocuments({
+    participants: doctorId,
+    [`unread_counts.${doctorId.toString()}`]: { $gt: 0 },
   })
 
   return {
     totalPatients,
     totalAppointments,
     totalAlerts,
-    totalUnreadMessages
+    totalUnreadConversations,
   }
 }

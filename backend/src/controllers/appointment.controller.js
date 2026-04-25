@@ -1,5 +1,5 @@
-import * as appointmentService from '@/services/appointment.service'
 import { StatusCodes } from 'http-status-codes'
+import * as appointmentService from '@/services/appointment.service'
 import { normalizeQueryArray } from '@/utils/normalize-query-array'
 
 /**
@@ -8,7 +8,14 @@ import { normalizeQueryArray } from '@/utils/normalize-query-array'
 export const getMyAppointments = async (req, res, next) => {
   try {
     const { id: userId, role } = req.user
-    const { page = 1, limit = 10 } = req.validatedQuery
+    const {
+      page = 1,
+      limit = 10,
+      type,
+      scheduledFrom,
+      scheduledTo,
+      search,
+    } = req.validatedQuery
     const rawStatus =
       req.validatedQuery.status ?? req.validatedQuery['status[]'] ?? []
     const normalizedStatus = normalizeQueryArray(rawStatus)
@@ -16,12 +23,16 @@ export const getMyAppointments = async (req, res, next) => {
     const result = await appointmentService.getMyAppointments(userId, role, {
       page,
       limit,
-      status: normalizedStatus
+      status: normalizedStatus,
+      type,
+      scheduledFrom,
+      scheduledTo,
+      search,
     })
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)
@@ -39,11 +50,11 @@ export const cancelAppointment = async (req, res, next) => {
     const result = await appointmentService.cancelAppointment(
       appointmentId,
       { cancelReason },
-      role
+      role,
     )
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -60,7 +71,7 @@ export const getAvailableSlots = async (req, res, next) => {
     const slots = await appointmentService.getAvailableSlots(doctorId, date)
     res.status(StatusCodes.OK).json({
       success: true,
-      data: slots
+      data: slots,
     })
   } catch (error) {
     next(error)
@@ -82,30 +93,32 @@ export const createAppointment = async (req, res, next) => {
       scheduledAt,
       durationMinutes,
       type,
-      reason
+      reason,
     })
 
     res.status(StatusCodes.CREATED).json({
       success: true,
-      data: appointment
+      data: appointment,
     })
   } catch (error) {
     next(error)
   }
 }
 
-//-------------------------------------------------------
 /**
- * POST /appointments/:appointmentId/confirm  (Doctor/Admin)
+ * POST /appointments/:appointmentId/confirm  (Doctor)
  */
 export const confirmAppointment = async (req, res, next) => {
   try {
     const { appointmentId } = req.params
     const result = await appointmentService.confirmAppointment(
       appointmentId,
-      req.io
+      req.io,
     )
-    res.status(StatusCodes.OK).json({ success: true, data: result })
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result,
+    })
   } catch (error) {
     next(error)
   }

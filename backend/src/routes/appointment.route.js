@@ -3,11 +3,10 @@ import * as appointmentController from '@/controllers/appointment.controller'
 import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
 import {
-  getAppointmentByIdParamSchema,
   cancelAppointmentSchema,
-  getAvailableSlotsQuerySchema,
   createAppointmentSchema,
-  confirmAppointmentSchema
+  getAppointmentByIdParamSchema,
+  getAvailableSlotsQuerySchema,
 } from '@/validations/appointment.validation'
 
 const router = express.Router()
@@ -20,7 +19,7 @@ router.post(
   '/',
   authorizeRoles(['patient']),
   validate({ body: createAppointmentSchema }),
-  appointmentController.createAppointment
+  appointmentController.createAppointment,
 )
 
 /**
@@ -31,7 +30,7 @@ router.get(
   '/available-slots',
   authorizeRoles(['patient']),
   validate({ query: getAvailableSlotsQuerySchema }),
-  appointmentController.getAvailableSlots
+  appointmentController.getAvailableSlots,
 )
 
 /**
@@ -43,24 +42,22 @@ router.put(
   authorizeRoles(['doctor', 'patient']),
   validate({
     params: getAppointmentByIdParamSchema,
-    body: cancelAppointmentSchema
+    body: cancelAppointmentSchema,
   }),
-  appointmentController.cancelAppointment
+  appointmentController.cancelAppointment,
 )
 
-//-------------------------------------------------------
 /**
  * @route POST /appointments/:id/confirm
  * @description Doctor confirms an appointment
  */
 router.post(
   '/:appointmentId/confirm',
-  authorizeRoles(['doctor', 'admin']),
+  authorizeRoles(['doctor']),
   validate({
     params: getAppointmentByIdParamSchema,
-    body: confirmAppointmentSchema
   }),
-  appointmentController.confirmAppointment
+  appointmentController.confirmAppointment,
 )
 
 export default router

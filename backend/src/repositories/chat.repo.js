@@ -1,9 +1,9 @@
+import { StatusCodes } from 'http-status-codes'
+import { Op } from 'sequelize'
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 import { User } from '@/models/sql/index'
 import ApiError from '@/utils/api-error'
-import { StatusCodes } from 'http-status-codes'
-import { Op } from 'sequelize'
 import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
@@ -12,7 +12,7 @@ import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
  */
 export const getConversations = async (
   userId,
-  { cursor, limit = 20, search }
+  { cursor, limit = 20, search },
 ) => {
   const normalizedSearch = search?.trim()
 
@@ -22,9 +22,9 @@ export const getConversations = async (
     const matchingUsers = await User.findAll({
       where: {
         id: { [Op.ne]: userId },
-        [Op.or]: [caseInsensitiveSearch('full_name', normalizedSearch)]
+        [Op.or]: [caseInsensitiveSearch('full_name', normalizedSearch)],
       },
-      attributes: ['id']
+      attributes: ['id'],
     })
 
     const matchingUserIds = matchingUsers.map((user) => user.id)
@@ -35,15 +35,15 @@ export const getConversations = async (
         meta: {
           nextCursor: null,
           hasMore: false,
-          count: 0
-        }
+          count: 0,
+        },
       }
 
     conversationQuery = {
       $and: [
         { participants: userId },
-        { participants: { $in: matchingUserIds } }
-      ]
+        { participants: { $in: matchingUserIds } },
+      ],
     }
   }
 
@@ -60,8 +60,8 @@ export const getConversations = async (
       'last_message.sender_id': 1,
       'last_message.type': 1,
       'last_message.content': 1,
-      'last_message.created_at': 1
-    }
+      'last_message.created_at': 1,
+    },
   })
 
   const conversations = pagingResult.results
@@ -71,8 +71,8 @@ export const getConversations = async (
     ...new Set(
       conversations
         .map((conv) => conv.participants.find((id) => id !== userId))
-        .filter(Boolean)
-    )
+        .filter(Boolean),
+    ),
   ]
 
   // If there are no conversations, we can skip the SQL query and return early
@@ -82,15 +82,15 @@ export const getConversations = async (
       meta: {
         nextCursor: null,
         hasMore: false,
-        count: 0
-      }
+        count: 0,
+      },
     }
   }
 
   // Get user details from SQL
   const users = await User.findAll({
     where: { id: otherUserIds },
-    attributes: ['id', 'fullName', 'avatar']
+    attributes: ['id', 'fullName', 'avatar'],
   })
 
   const userMap = {}
@@ -98,7 +98,7 @@ export const getConversations = async (
     userMap[user.id] = {
       id: user.id,
       fullName: user.fullName,
-      avatar: user.avatar
+      avatar: user.avatar,
     }
   })
 
@@ -116,10 +116,10 @@ export const getConversations = async (
         ? {
             message: conv.last_message.content,
             createdAt: conv.last_message.created_at,
-            type: conv.last_message.type
+            type: conv.last_message.type,
           }
         : null,
-      unreadCount
+      unreadCount,
     }
   })
 
@@ -128,8 +128,8 @@ export const getConversations = async (
     meta: {
       nextCursor: pagingResult?.next || null,
       hasMore: pagingResult?.hasNext || false,
-      count: data.length
-    }
+      count: data.length,
+    },
   }
 }
 
@@ -139,19 +139,19 @@ export const getConversations = async (
 export const getMessagesByConversationId = async (
   currentUserId,
   conversationId,
-  { cursor, limit = 20 }
+  { cursor, limit = 20 },
 ) => {
   // Find conversation and verify user is a participant
   const conversation = await Conversation.findOne({
     _id: conversationId,
-    participants: currentUserId
+    participants: currentUserId,
   }).lean()
 
   if (!conversation)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Conversation not found',
-      'CONVERSATION_NOT_FOUND'
+      'CONVERSATION_NOT_FOUND',
     )
 
   const pagingResult = await Message.paginate({
@@ -164,20 +164,20 @@ export const getMessagesByConversationId = async (
       type: 1,
       content: 1,
       status: 1,
-      created_at: 1
-    }
+      created_at: 1,
+    },
   })
 
   const messages = pagingResult.results
 
   const otherUserId = conversation.participants.find(
-    (id) => id !== currentUserId
+    (id) => id !== currentUserId,
   )
 
   // Get user details from SQL
   const users = await User.findAll({
     where: { id: [currentUserId, otherUserId] },
-    attributes: ['id', 'fullName', 'avatar']
+    attributes: ['id', 'fullName', 'avatar'],
   })
 
   const currentUser = users.find((user) => user.id === currentUserId)
@@ -191,7 +191,7 @@ export const getMessagesByConversationId = async (
       type: msg.type,
       content: msg.content,
       status: msg.status,
-      createdAt: msg.created_at
+      createdAt: msg.created_at,
     }))
     .reverse()
 
@@ -200,8 +200,62 @@ export const getMessagesByConversationId = async (
     meta: {
       nextCursor: pagingResult?.next || null,
       hasMore: pagingResult?.hasNext || false,
-      count: data.length
+      count: data.length,
+    },
+  }
+}
+
+/**
+ * Get conversations by user ID (for doctor or patient)
+ */
+export const getConversationDetail = async (currentUserId, conversationId) => {
+  const conversation = await Conversation.findOne({
+    _id: conversationId,
+    participants: currentUserId,
+  }).lean()
+
+  if (!conversation)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND',
+    )
+
+  const otherUserId = conversation.participants.find(
+    (id) => id !== currentUserId,
+  )
+
+  const users = await User.findAll({
+    where: { id: conversation.participants },
+    attributes: ['id', 'fullName', 'avatar'],
+  })
+
+  const userMap = {}
+  users.forEach((user) => {
+    userMap[user.id] = {
+      id: user.id,
+      name: user.fullName,
+      fullName: user.fullName,
+      avatar: user.avatar,
     }
+  })
+
+  const unreadCounts = conversation.unread_counts || {}
+  const unreadCount =
+    unreadCounts[currentUserId.toString()] || unreadCounts[currentUserId] || 0
+
+  return {
+    id: conversation._id.toString(),
+    participants: conversation.participants,
+    user: userMap[otherUserId] || null,
+    lastMessage: conversation.last_message
+      ? {
+          message: conversation.last_message.content,
+          createdAt: conversation.last_message.created_at,
+          type: conversation.last_message.type,
+        }
+      : null,
+    unreadCount,
   }
 }
 
@@ -215,26 +269,20 @@ export const createMessage = async (data) => {
     message,
     type = 'text',
     fileUrl,
-    fileName
+    fileName,
   } = data
 
   // Find or create conversation
   let conversation = await Conversation.findOne({
-    _id: conversationId
+    _id: conversationId,
+    participants: senderId,
   })
 
   if (!conversation)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Conversation not found',
-      'CONVERSATION_NOT_FOUND'
-    )
-
-  if (!conversation.participants.includes(senderId))
-    throw new ApiError(
-      StatusCodes.FORBIDDEN,
-      'You are not a participant in this conversation',
-      'FORBIDDEN'
+      'CONVERSATION_NOT_FOUND',
     )
 
   const otherUserId = conversation.participants.find((id) => id !== senderId)
@@ -256,7 +304,7 @@ export const createMessage = async (data) => {
     sender_id: senderId,
     type,
     content: messageContent,
-    status: 'sent'
+    status: 'sent',
   })
 
   // Update conversation's last_message with appropriate content
@@ -276,13 +324,13 @@ export const createMessage = async (data) => {
           sender_id: senderId,
           type: newMessage.type,
           content: lastMessageContent,
-          created_at: newMessage.created_at
-        }
+          created_at: newMessage.created_at,
+        },
       },
       $inc: {
-        [`unread_counts.${otherUserId}`]: 1 // Tự động tăng 1 cho receiver
-      }
-    }
+        [`unread_counts.${otherUserId}`]: 1, // Tự động tăng 1 cho receiver
+      },
+    },
   )
 
   return newMessage
@@ -295,14 +343,14 @@ export const markAllAsRead = async (userId, conversationId) => {
   // Find conversation
   const conversation = await Conversation.findOne({
     _id: conversationId,
-    participants: userId
+    participants: userId,
   })
 
   if (!conversation)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Conversation not found',
-      'CONVERSATION_NOT_FOUND'
+      'CONVERSATION_NOT_FOUND',
     )
 
   const otherUserId = conversation.participants.find((id) => id !== userId)
@@ -312,17 +360,17 @@ export const markAllAsRead = async (userId, conversationId) => {
     {
       conversation_id: conversation._id,
       sender_id: otherUserId,
-      status: { $ne: 'read' }
+      status: { $ne: 'read' },
     },
     {
-      $set: { status: 'read' }
-    }
+      $set: { status: 'read' },
+    },
   )
 
   // Reset unread count for receiver in conversation
   await Conversation.updateOne(
     { _id: conversation._id },
-    { $set: { [`unread_counts.${userId}`]: 0 } }
+    { $set: { [`unread_counts.${userId}`]: 0 } },
   )
 
   return result
@@ -335,18 +383,18 @@ export const markAllAsRead = async (userId, conversationId) => {
 export const getMessagesByUserIds = async (
   currentUserId,
   otherUserId,
-  { cursor, limit = 20 }
+  { cursor, limit = 20 },
 ) => {
   // Find conversation
   const conversation = await Conversation.findOne({
-    participants: { $all: [currentUserId, otherUserId] }
+    participants: { $all: [currentUserId, otherUserId] },
   }).lean()
 
   if (!conversation)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Conversation not found',
-      'CONVERSATION_NOT_FOUND'
+      'CONVERSATION_NOT_FOUND',
     )
 
   const pagingResult = await Message.paginate({
@@ -359,8 +407,8 @@ export const getMessagesByUserIds = async (
       type: 1,
       content: 1,
       status: 1,
-      created_at: 1
-    }
+      created_at: 1,
+    },
   })
 
   const messages = pagingResult.results
@@ -368,7 +416,7 @@ export const getMessagesByUserIds = async (
   // Get user details from SQL
   const users = await User.findAll({
     where: { id: [currentUserId, otherUserId] },
-    attributes: ['id', 'fullName', 'avatar']
+    attributes: ['id', 'fullName', 'avatar'],
   })
 
   const currentUser = users.find((user) => user.id === currentUserId)
@@ -383,7 +431,7 @@ export const getMessagesByUserIds = async (
       type: msg.type,
       content: msg.content,
       status: msg.status,
-      createdAt: msg.created_at
+      createdAt: msg.created_at,
     }))
     .reverse()
 
@@ -392,7 +440,7 @@ export const getMessagesByUserIds = async (
     meta: {
       nextCursor: pagingResult?.next || null,
       hasMore: pagingResult?.hasNext || false,
-      count: data.length
-    }
+      count: data.length,
+    },
   }
 }

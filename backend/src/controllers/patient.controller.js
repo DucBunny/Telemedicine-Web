@@ -4,19 +4,19 @@ import * as patientService from '@/services/patient.service'
 /**
  * Get patients by doctor ID
  */
-export const getPatientsByDoctorId = async (req, res, next) => {
+export const getMyPatients = async (req, res, next) => {
   try {
-    const userId = req.user.id // from JWT token
-    const { page = 1, limit = 10 } = req.query
-    const result = await patientService.getPatientsByDoctorId(userId, {
+    const doctorId = req.user.id // from JWT token
+    const { page = 1, limit = 10 } = req.validatedQuery
+    const result = await patientService.getPatientsByDoctorId(doctorId, {
       page,
-      limit
+      limit,
     })
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)
@@ -105,7 +105,7 @@ export const getAllPatients = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.pagination
+      meta: result.pagination,
     })
   } catch (error) {
     next(error)
@@ -122,7 +122,7 @@ export const updateMyProfile = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: patient
+      data: patient,
     })
   } catch (error) {
     next(error)
@@ -138,7 +138,7 @@ export const createPatient = async (req, res, next) => {
 
     res.status(StatusCodes.CREATED).json({
       success: true,
-      data: patient
+      data: patient,
     })
   } catch (error) {
     next(error)
@@ -155,7 +155,7 @@ export const updatePatient = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: patient
+      data: patient,
     })
   } catch (error) {
     next(error)
@@ -172,7 +172,7 @@ export const deletePatient = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -189,7 +189,7 @@ export const getPatientDevices = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: devices
+      data: devices,
     })
   } catch (error) {
     next(error)
@@ -207,7 +207,7 @@ export const getMyDevices = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: devices
+      data: devices,
     })
   } catch (error) {
     next(error)

@@ -53,7 +53,7 @@ export const seedMessages = async (seededConversations) => {
         sender_id: senderId,
         type: 'text',
         content: { text },
-        status: i < msgCount - 2 ? 'read' : 'delivered',
+        status: i < msgCount - 2 ? 'read' : 'sent',
         created_at: createdAt
       })
 

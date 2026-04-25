@@ -1,14 +1,14 @@
-import * as appointmentRepo from '@/repositories/appointment.repo'
-import * as doctorRepo from '@/repositories/doctor.repo'
-import Conversation from '@/models/nosql/conversation'
-import Message from '@/models/nosql/message'
-// import * as socketService from '@/services/socket.emitters'
-import * as socketService from '@/services/socket.service'
-import { env } from '@/config/env'
-import ApiError from '@/utils/api-error'
-import { StatusCodes } from 'http-status-codes'
 import { getDay } from 'date-fns'
 import { formatInTimeZone } from 'date-fns-tz'
+import { StatusCodes } from 'http-status-codes'
+import { env } from '@/config/env'
+import Conversation from '@/models/nosql/conversation'
+import Message from '@/models/nosql/message'
+import * as appointmentRepo from '@/repositories/appointment.repo'
+import * as doctorRepo from '@/repositories/doctor.repo'
+// import * as socketService from '@/services/socket.emitters'
+import * as socketService from '@/services/socket.service'
+import ApiError from '@/utils/api-error'
 
 /**
  * Get appointments for logged in user (doctor or patient) with filter
@@ -16,19 +16,23 @@ import { formatInTimeZone } from 'date-fns-tz'
 export const getMyAppointments = async (
   userId,
   role,
-  { page, limit, status }
+  { page, limit, status, type, scheduledFrom, scheduledTo, search },
 ) => {
   if (role === 'doctor') {
     return await appointmentRepo.findByDoctorId(userId, {
       page,
       limit,
-      status
+      status,
+      type,
+      scheduledFrom,
+      scheduledTo,
+      search,
     })
   } else if (role === 'patient') {
     return await appointmentRepo.findByPatientId(userId, {
       page,
       limit,
-      status
+      status,
     })
   }
 }
@@ -39,27 +43,27 @@ export const getMyAppointments = async (
 export const cancelAppointment = async (
   appointmentId,
   { cancelReason },
-  role
+  role,
 ) => {
   const appointment = await appointmentRepo.findById(appointmentId)
   if (!appointment)
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Appointment not found',
-      'APPOINTMENT_NOT_FOUND'
+      'APPOINTMENT_NOT_FOUND',
     )
 
   if (appointment.status === 'cancelled')
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
       'Appointment is already cancelled',
-      'ALREADY_CANCELLED'
+      'ALREADY_CANCELLED',
     )
 
   return await appointmentRepo.update(appointmentId, {
     cancelReason:
       (role === 'patient' ? 'Bệnh nhân: ' : 'Bác sĩ: ') + cancelReason,
-    status: 'cancelled'
+    status: 'cancelled',
   })
 }
 
@@ -109,10 +113,10 @@ const isSlotAvailable = (slot, durationMin, offSchedules, bookedAppts) => {
   for (const appt of bookedAppts) {
     // Chuyển appt.scheduledAt về giờ địa phương của phòng khám
     const apptHour = Number(
-      formatInTimeZone(appt.scheduledAt, env.APP_TIME_ZONE, 'HH')
+      formatInTimeZone(appt.scheduledAt, env.APP_TIME_ZONE, 'HH'),
     )
     const apptMinute = Number(
-      formatInTimeZone(appt.scheduledAt, env.APP_TIME_ZONE, 'mm')
+      formatInTimeZone(appt.scheduledAt, env.APP_TIME_ZONE, 'mm'),
     )
     const apptStart = apptHour * 60 + apptMinute
     const apptEnd = apptStart + (appt.durationMinutes ?? 30)
@@ -131,7 +135,7 @@ export const getAvailableSlots = async (doctorId, date) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Doctor not found',
-      'DOCTOR_NOT_FOUND'
+      'DOCTOR_NOT_FOUND',
     )
 
   const dayOfWeek = getDay(date) // 0=Sun, 1=Mon, 2=Tue, ...
@@ -139,17 +143,17 @@ export const getAvailableSlots = async (doctorId, date) => {
   const [workingHours, offSchedules, bookedAppts] = await Promise.all([
     appointmentRepo.getWorkingHours(doctorId, dayOfWeek),
     appointmentRepo.getOffSchedules(doctorId, date),
-    appointmentRepo.getBookedAppointments(doctorId, date)
+    appointmentRepo.getBookedAppointments(doctorId, date),
   ])
 
   if (!workingHours.length) return []
 
   const allSlots = workingHours.flatMap((wh) =>
-    generateSlots(wh.startTime, wh.endTime, 30)
+    generateSlots(wh.startTime, wh.endTime, 30),
   )
 
   return allSlots.filter((slot) =>
-    isSlotAvailable(slot, 30, offSchedules, bookedAppts)
+    isSlotAvailable(slot, 30, offSchedules, bookedAppts),
   )
 }
 
@@ -162,7 +166,7 @@ export const createAppointment = async ({
   scheduledAt,
   durationMinutes = 30,
   type,
-  reason
+  reason,
 }) => {
   // Chuyển scheduledAt về giờ địa phương của phòng khám để kiểm tra slot
   const dateStr = formatInTimeZone(scheduledAt, env.APP_TIME_ZONE, 'yyyy-MM-dd')
@@ -173,7 +177,7 @@ export const createAppointment = async ({
     throw new ApiError(
       StatusCodes.CONFLICT,
       'Selected time slot is no longer available',
-      'SLOT_UNAVAILABLE'
+      'SLOT_UNAVAILABLE',
     )
 
   return await appointmentRepo.create({
@@ -183,13 +187,13 @@ export const createAppointment = async ({
     durationMinutes,
     type,
     reason,
-    status: 'pending'
+    status: 'pending',
   })
 }
 
 //-------------------------------------------------------
 /**
- * Bác sĩ duyệt lịch hẹn + khởi tạo chat
+ * Confirm appointment by ID (by doctor)
  */
 export const confirmAppointment = async (appointmentId, io) => {
   const appointment = await appointmentRepo.findById(appointmentId)
@@ -197,14 +201,14 @@ export const confirmAppointment = async (appointmentId, io) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Selected appointment not found',
-      'APPOINTMENT_NOT_FOUND'
+      'APPOINTMENT_NOT_FOUND',
     )
 
   if (appointment.status !== 'pending')
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
       'Selected appointment is not in pending status',
-      'INVALID_STATUS'
+      'INVALID_STATUS',
     )
 
   // 1. Cập nhật status
@@ -213,19 +217,19 @@ export const confirmAppointment = async (appointmentId, io) => {
   // 2. Đảm bảo quan hệ patient-doctor tồn tại
   await appointmentRepo.ensurePatientDoctor(
     appointment.patientId,
-    appointment.doctorId
+    appointment.doctorId,
   )
 
   // 3. Tìm hoặc tạo conversation
   const { patientId, doctorId } = appointment
   let conversation = await Conversation.findOne({
-    participants: { $all: [patientId, doctorId] }
+    participants: { $all: [patientId, doctorId] },
   })
 
   if (!conversation) {
     conversation = await Conversation.create({
       participants: [patientId, doctorId],
-      unread_counts: {}
+      unread_counts: {},
     })
   }
 
@@ -235,12 +239,12 @@ export const confirmAppointment = async (appointmentId, io) => {
 
   const message = await Message.create({
     conversation_id: conversation._id,
-    sender_id: doctorId, // system message gắn với doctor context
+    sender_id: doctorId,
     type: 'system_alert',
     content: {
-      text: systemContent
+      text: systemContent,
     },
-    status: 'sent'
+    status: 'sent',
   })
 
   // 5. Cập nhật last_message + unread_counts cho patient
@@ -250,7 +254,7 @@ export const confirmAppointment = async (appointmentId, io) => {
     sender_id: doctorId,
     type: 'system_alert',
     content: systemContent,
-    created_at: message.created_at
+    created_at: message.created_at,
   }
   conversation.unread_counts.set(String(patientId), currentUnread + 1)
   await conversation.save()
@@ -262,15 +266,12 @@ export const confirmAppointment = async (appointmentId, io) => {
       ioInstance.to(`patient:${patientId}`).emit('appointment:confirmed', {
         appointmentId,
         conversationId: conversation._id,
-        message: systemContent
+        message: systemContent,
       })
     }
   } catch (_) {
     // Socket không critical, bỏ qua lỗi
   }
 
-  return {
-    appointment: await appointmentRepo.findById(appointmentId),
-    conversation
-  }
+  return await appointmentRepo.findById(appointmentId)
 }

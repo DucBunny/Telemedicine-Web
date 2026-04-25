@@ -1,5 +1,5 @@
-import * as chatRepo from '@/repositories/chat.repo'
 import { StatusCodes } from 'http-status-codes'
+import * as chatRepo from '@/repositories/chat.repo'
 import ApiError from '@/utils/api-error'
 
 /**
@@ -15,16 +15,23 @@ export const getConversations = async (userId, { cursor, limit, search }) => {
 export const getMessagesByConversationId = async (
   currentUserId,
   conversationId,
-  { cursor, limit }
+  { cursor, limit },
 ) => {
   return await chatRepo.getMessagesByConversationId(
     currentUserId,
     conversationId,
     {
       cursor,
-      limit
-    }
+      limit,
+    },
   )
+}
+
+/**
+ * Get conversation detail
+ */
+export const getConversationDetail = async (currentUserId, conversationId) => {
+  return await chatRepo.getConversationDetail(currentUserId, conversationId)
 }
 
 /**
@@ -36,13 +43,13 @@ export const sendMessage = async (senderId, data) => {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
       'Cannot send message to yourself',
-      'INVALID_RECEIVER'
+      'INVALID_RECEIVER',
     )
   }
 
   return await chatRepo.createMessage({
     senderId,
-    ...data
+    ...data,
   })
 }
 
@@ -59,10 +66,10 @@ export const markAllMessagesAsRead = async (userId, conversationId) => {
 export const getMessagesByUserIds = async (
   currentUserId,
   otherUserId,
-  { cursor, limit }
+  { cursor, limit },
 ) => {
   return await chatRepo.getMessagesByUserIds(currentUserId, otherUserId, {
     cursor,
-    limit
+    limit,
   })
 }

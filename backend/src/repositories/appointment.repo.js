@@ -1,16 +1,17 @@
+import { endOfDay, parse, startOfDay } from 'date-fns'
+import { Op } from 'sequelize'
 import {
   Appointment,
   Doctor,
-  Patient,
-  User,
-  Specialty,
-  Sequelize,
-  DoctorWorkingHours,
   DoctorOffSchedule,
-  PatientDoctor
+  DoctorWorkingHours,
+  Patient,
+  PatientDoctor,
+  Sequelize,
+  Specialty,
+  User,
 } from '@/models/sql/index'
-import { endOfDay, parse, startOfDay } from 'date-fns'
-import { Op } from 'sequelize'
+import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
  * Generic function to find appointments by owner (doctor or patient)
@@ -20,7 +21,10 @@ const findByOwner = async ({
   include,
   page = 1,
   limit = 10,
-  status = []
+  status = [],
+  type,
+  scheduledFrom,
+  scheduledTo,
 }) => {
   const offset = (page - 1) * limit
   const statusOrder = `
@@ -39,6 +43,16 @@ const findByOwner = async ({
     whereClause.status = status
   }
 
+  if (type) {
+    whereClause.type = type
+  }
+
+  if (scheduledFrom || scheduledTo) {
+    whereClause.scheduledAt = {}
+    if (scheduledFrom) whereClause.scheduledAt[Op.gte] = new Date(scheduledFrom)
+    if (scheduledTo) whereClause.scheduledAt[Op.lte] = new Date(scheduledTo)
+  }
+
   const { rows, count } = await Appointment.findAndCountAll({
     where: whereClause,
     include,
@@ -47,8 +61,8 @@ const findByOwner = async ({
     order: [
       [Sequelize.literal(statusOrder), 'ASC'],
       ['scheduled_at', 'ASC'],
-      ['id', 'ASC']
-    ]
+      ['id', 'ASC'],
+    ],
   })
 
   return {
@@ -57,8 +71,8 @@ const findByOwner = async ({
       page: parseInt(page),
       limit: parseInt(limit),
       total: count,
-      totalPages: Math.ceil(count / limit)
-    }
+      totalPages: Math.ceil(count / limit),
+    },
   }
 }
 
@@ -67,10 +81,23 @@ const findByOwner = async ({
  */
 export const findByDoctorId = async (
   doctorId,
-  { page = 1, limit = 10, status = [] }
+  {
+    page = 1,
+    limit = 10,
+    status = [],
+    type,
+    scheduledFrom,
+    scheduledTo,
+    search,
+  },
 ) => {
   return await findByOwner({
-    where: { doctorId },
+    where: {
+      doctorId,
+      ...(search?.trim().toLowerCase() && {
+        [Op.or]: [caseInsensitiveSearch('patient.user.full_name', search)],
+      }),
+    },
     include: [
       {
         model: Patient,
@@ -79,14 +106,17 @@ export const findByDoctorId = async (
           {
             model: User,
             as: 'user',
-            attributes: ['fullName', 'avatar']
-          }
-        ]
-      }
+            attributes: ['fullName', 'avatar'],
+          },
+        ],
+      },
     ],
     page,
     limit,
-    status
+    status,
+    type,
+    scheduledFrom,
+    scheduledTo,
   })
 }
 
@@ -95,7 +125,7 @@ export const findByDoctorId = async (
  */
 export const findByPatientId = async (
   patientId,
-  { page = 1, limit = 10, status = [] }
+  { page = 1, limit = 10, status = [] },
 ) => {
   return await findByOwner({
     where: { patientId },
@@ -107,19 +137,19 @@ export const findByPatientId = async (
           {
             model: User,
             as: 'user',
-            attributes: ['fullName', 'avatar']
+            attributes: ['fullName', 'avatar'],
           },
           {
             model: Specialty,
             as: 'specialty',
-            attributes: ['name']
-          }
-        ]
-      }
+            attributes: ['name'],
+          },
+        ],
+      },
     ],
     page,
     limit,
-    status
+    status,
   })
 }
 
@@ -142,7 +172,7 @@ export const create = async (data) => {
  */
 export const update = async (appointmentId, data) => {
   const [updated] = await Appointment.update(data, {
-    where: { id: appointmentId }
+    where: { id: appointmentId },
   })
   return updated > 0 ? await Appointment.findByPk(appointmentId) : null
 }
@@ -152,7 +182,7 @@ export const update = async (appointmentId, data) => {
  */
 export const getWorkingHours = async (doctorId, dayOfWeek) => {
   return await DoctorWorkingHours.findAll({
-    where: { doctorId, dayOfWeek }
+    where: { doctorId, dayOfWeek },
   })
 }
 
@@ -161,7 +191,7 @@ export const getWorkingHours = async (doctorId, dayOfWeek) => {
  */
 export const getOffSchedules = async (doctorId, date) => {
   return await DoctorOffSchedule.findAll({
-    where: { doctorId, offDate: date }
+    where: { doctorId, offDate: date },
   })
 }
 
@@ -177,11 +207,11 @@ export const getBookedAppointments = async (doctorId, date) => {
     where: {
       doctorId,
       scheduledAt: {
-        [Op.between]: [startOfDayVal, endOfDayVal]
+        [Op.between]: [startOfDayVal, endOfDayVal],
       },
-      status: ['pending', 'confirmed']
+      status: ['pending', 'confirmed'],
     },
-    attributes: ['scheduledAt', 'durationMinutes']
+    attributes: ['scheduledAt', 'durationMinutes'],
   })
 }
 
@@ -196,8 +226,8 @@ export const ensurePatientDoctor = async (patientId, doctorId) => {
       patientId,
       doctorId,
       role: 'primary',
-      assignedAt: new Date()
-    }
+      assignedAt: new Date(),
+    },
   })
   return record
 }

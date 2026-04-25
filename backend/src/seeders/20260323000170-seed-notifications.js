@@ -8,6 +8,10 @@ module.exports = {
       `SELECT user_id FROM patients;`,
       { type: queryInterface.sequelize.QueryTypes.SELECT }
     )
+    const doctors = await queryInterface.sequelize.query(
+      `SELECT user_id FROM doctors;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT }
+    )
     const appointments = await queryInterface.sequelize.query(
       `SELECT id, patient_id, doctor_id FROM appointments LIMIT 300;`,
       { type: queryInterface.sequelize.QueryTypes.SELECT }
@@ -16,11 +20,15 @@ module.exports = {
     const now = new Date()
     const notifications = []
 
-    // Build a map: patient_id → [{ id, doctor_id }]
+    // Build maps for patient and doctor views of appointments
     const aptByPatient = {}
+    const aptByDoctor = {}
     for (const apt of appointments) {
       if (!aptByPatient[apt.patient_id]) aptByPatient[apt.patient_id] = []
       aptByPatient[apt.patient_id].push(apt)
+
+      if (!aptByDoctor[apt.doctor_id]) aptByDoctor[apt.doctor_id] = []
+      aptByDoctor[apt.doctor_id].push(apt)
     }
 
     // Alerts per patient (if table exists)
@@ -130,6 +138,80 @@ module.exports = {
           content: rand(msgContents),
           reference_id: null,
           sender_id: doctorId,
+          is_read: isRead,
+          read_at: isRead
+            ? new Date(
+                now.getTime() - faker.number.int({ min: 60000, max: 43200000 })
+              )
+            : null,
+          created_at: new Date(
+            now.getTime() - faker.number.int({ min: 60000, max: 172800000 })
+          ),
+          updated_at: now
+        })
+      }
+    }
+
+    const doctorApptTitles = [
+      'Lịch hẹn mới từ bệnh nhân',
+      'Nhắc lịch khám sắp tới',
+      'Lịch hẹn đã được cập nhật'
+    ]
+    const doctorApptContents = [
+      'Bạn có lịch hẹn mới với bệnh nhân. Vui lòng kiểm tra chi tiết.',
+      'Lịch khám với bệnh nhân sắp diễn ra trong thời gian tới.',
+      'Thông tin lịch hẹn với bệnh nhân vừa được cập nhật.'
+    ]
+    const doctorMsgTitles = [
+      'Tin nhắn mới từ bệnh nhân',
+      'Bệnh nhân đã phản hồi'
+    ]
+    const doctorMsgContents = [
+      'Bạn vừa nhận được tin nhắn mới từ bệnh nhân.',
+      'Bệnh nhân đã phản hồi cuộc trò chuyện của bạn.'
+    ]
+
+    for (const doctor of doctors) {
+      const did = doctor.user_id
+      const myApts = aptByDoctor[did] || []
+
+      // appointment notifications for doctors
+      for (let i = 0; i < myApts.length; i++) {
+        const apt = myApts[i]
+        const isRead = randBool(0.45)
+        notifications.push({
+          user_id: did,
+          type: 'appointment',
+          title: rand(doctorApptTitles),
+          content: rand(doctorApptContents),
+          reference_id: apt.id,
+          sender_id: apt.patient_id,
+          is_read: isRead,
+          read_at: isRead
+            ? new Date(
+                now.getTime() - faker.number.int({ min: 60000, max: 86400000 })
+              )
+            : null,
+          created_at: new Date(
+            now.getTime() - faker.number.int({ min: 3600000, max: 604800000 })
+          ),
+          updated_at: now
+        })
+      }
+
+      // 1–3 message notifications (from patients they have seen)
+      const msgPatients = [
+        ...new Set(myApts.slice(0, 3).map((a) => a.patient_id))
+      ]
+      for (const patientId of msgPatients) {
+        const isRead = randBool(0.4)
+        notifications.push({
+          user_id: did,
+          type: 'message',
+          title: rand(doctorMsgTitles),
+          content: rand(doctorMsgContents),
+          reference_id: null,
+          sender_id: patientId,
           is_read: isRead,
           read_at: isRead
             ? new Date(
