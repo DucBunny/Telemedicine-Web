@@ -1,6 +1,7 @@
 ﻿import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
-import { AppointmentConfirmPage } from '@/features/patient/pages/appointments/AppointmentConfirmPage'
+
+import { AppointmentConfirmPage } from '@/pages/patient/appointments/AppointmentConfirmPage'
 
 const confirmSearchSchema = z.object({
   doctorId: z.number(),

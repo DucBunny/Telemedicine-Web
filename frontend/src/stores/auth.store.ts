@@ -1,17 +1,18 @@
 import { create } from 'zustand'
-import type { AuthUser } from '@/features/auth/types/auth.types'
+
+import type { User } from '@/features/auth/types/auth.types'
 
 interface AuthState {
   // State
   accessToken: string | null
-  user: AuthUser | null
+  user: User | null
   isInitialized: boolean
   isProfileComplete: boolean
 
   // Actions
   setAuth: (
     accessToken: string,
-    user: AuthUser,
+    user: User,
     isProfileComplete?: boolean,
   ) => void
   clearAuth: () => void
@@ -34,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   isProfileComplete: true,
 
   // Set cả access token và user (dùng khi login hoặc refresh)
-  setAuth: (accessToken: string, user: AuthUser, isProfileComplete = true) =>
+  setAuth: (accessToken: string, user: User, isProfileComplete = true) =>
     set({ accessToken, user, isInitialized: true, isProfileComplete }),
 
   // Clear toàn bộ auth state (logout)

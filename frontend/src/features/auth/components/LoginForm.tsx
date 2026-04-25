@@ -1,17 +1,19 @@
-import { useForm } from '@tanstack/react-form'
-import { LockKeyhole, SquarePlus, User } from 'lucide-react'
-import { Link, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useForm } from '@tanstack/react-form'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { LockKeyhole, SquarePlus, User } from 'lucide-react'
+
 import type { LoginFormData } from '@/features/auth/schemas'
-import { loginSchema } from '@/features/auth/schemas'
+
 import { useLoginMutation } from '@/features/auth/hooks/useAuthMutations'
+import { loginSchema } from '@/features/auth/schemas'
 import { InputField } from '@/components/form/InputField'
 import { Button } from '@/components/ui/button'
 import { getErrorMessage } from '@/lib/axios'
 
 export const LoginForm = () => {
   const navigate = useNavigate()
-  const loginMutation = useLoginMutation()
+  const { mutateAsync: login, isPending: isLoginPending } = useLoginMutation()
   const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm({
@@ -26,7 +28,7 @@ export const LoginForm = () => {
       setFormError(null)
 
       try {
-        await loginMutation.mutateAsync(value)
+        await login(value)
       } catch (error) {
         const errorMessage = getErrorMessage(error)
         setFormError(errorMessage)
@@ -105,13 +107,11 @@ export const LoginForm = () => {
               <Button
                 type="submit"
                 variant="teal_primary"
-                disabled={!canSubmit || loginMutation.isPending}
+                disabled={!canSubmit || isLoginPending}
                 className={`h-14 w-full rounded-xl text-lg! font-bold hover:-translate-y-0.5 ${
                   !canSubmit ? 'cursor-not-allowed opacity-50' : ''
                 }`}>
-                {isSubmitting || loginMutation.isPending
-                  ? 'Đang xử lý...'
-                  : 'Đăng nhập'}
+                {isSubmitting || isLoginPending ? 'Đang xử lý...' : 'Đăng nhập'}
               </Button>
             )}
           />

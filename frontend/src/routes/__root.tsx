@@ -4,7 +4,9 @@ import {
   createRootRouteWithContext,
   useLocation,
 } from '@tanstack/react-router'
+
 import type { QueryClient } from '@tanstack/react-query'
+
 import { authApi } from '@/features/auth/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -16,6 +18,7 @@ interface MyRouterContext {
 declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     hideMobileNav?: boolean
+    hideHeader?: boolean
   }
 }
 

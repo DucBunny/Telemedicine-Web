@@ -8,6 +8,7 @@ import {
   User,
   Wifi,
 } from 'lucide-react'
+
 import { HERO_STATS } from '@/features/landing/config'
 
 export const HeroSection = () => {

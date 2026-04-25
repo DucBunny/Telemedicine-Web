@@ -1,5 +1,7 @@
 import { redirect } from '@tanstack/react-router'
+
 import type { UserRole } from '@/features/auth/types/auth.types'
+
 import { selectIsAuthenticated, useAuthStore } from '@/stores/auth.store'
 
 interface RequireAuthOptions {

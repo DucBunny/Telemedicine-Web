@@ -1,8 +1,8 @@
 export type UserRole = 'admin' | 'doctor' | 'patient'
-export type UserStatus = 'active' | 'locked' | 'pending'
+export type UserStatus = 'active' | 'locked' | 'incomplete'
 
 // User info returned by auth endpoints (sanitized)
-export interface AuthUser {
+export interface User {
   id: number
   email: string
   fullName: string
@@ -11,6 +11,6 @@ export interface AuthUser {
   status: UserStatus
   avatar?: string
   lastLoginAt?: string | null
-  createdAt?: string | null
-  updatedAt?: string | null
+  createdAt: string
+  updatedAt: string
 }

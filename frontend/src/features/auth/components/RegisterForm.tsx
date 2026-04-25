@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useForm } from '@tanstack/react-form'
+import { useNavigate } from '@tanstack/react-router'
 import {
   CircleAlert,
   LockKeyhole,
@@ -7,20 +9,21 @@ import {
   User,
   UserRoundCheck,
 } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+
 import type { RegisterFormData } from '@/features/auth/schemas'
-import { FieldError } from '@/components/form/FieldError'
-import { registerSchema } from '@/features/auth/schemas'
+
 import { useRegisterMutation } from '@/features/auth/hooks/useAuthMutations'
+import { registerSchema } from '@/features/auth/schemas'
+import { FieldError } from '@/components/form/FieldError'
+import { InputField } from '@/components/form/InputField'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { InputField } from '@/components/form/InputField'
 import { getErrorMessage } from '@/lib/axios'
 
 export const RegisterForm = () => {
   const navigate = useNavigate()
-  const registerMutation = useRegisterMutation()
+  const { mutateAsync: register, isPending: isRegisterPending } =
+    useRegisterMutation()
   const [formError, setFormError] = useState<string | null>(null)
 
   const form = useForm({
@@ -39,7 +42,7 @@ export const RegisterForm = () => {
       setFormError(null)
 
       try {
-        await registerMutation.mutateAsync(value)
+        await register(value)
       } catch (error) {
         const errorMessage = getErrorMessage(error)
         setFormError(errorMessage)
@@ -194,11 +197,11 @@ export const RegisterForm = () => {
               <Button
                 variant="teal_primary"
                 type="submit"
-                disabled={!canSubmit || registerMutation.isPending}
+                disabled={!canSubmit || isRegisterPending}
                 className={`mx-auto flex h-14 w-full max-w-md rounded-xl text-lg! font-bold hover:-translate-y-0.5 ${
                   !canSubmit ? 'cursor-not-allowed opacity-50' : ''
                 }`}>
-                {isSubmitting || registerMutation.isPending
+                {isSubmitting || isRegisterPending
                   ? 'Đang xử lý...'
                   : 'Đăng ký'}
               </Button>

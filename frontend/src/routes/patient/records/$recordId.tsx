@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { RecordDetailPage } from '@/features/patient/pages/records/RecordDetailPage'
-import { recordApi } from '@/features/patient/api/record.api'
-import { RECORD_KEYS } from '@/features/patient/hooks/useRecordQueries'
+
+import { recordApi } from '@/features/medicalRecords/api/record.api'
+import { RECORD_KEYS } from '@/features/medicalRecords/hooks/useRecordQueries'
+import { RecordDetailPage } from '@/pages/patient/records/RecordDetailPage'
 
 export const Route = createFileRoute('/patient/records/$recordId')({
   component: RecordDetailPage,

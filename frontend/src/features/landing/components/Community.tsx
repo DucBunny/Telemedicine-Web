@@ -1,5 +1,5 @@
-import { SectionTitle } from '@/features/landing/components/SectionTitle'
 import { CommunityCard } from '@/features/landing/components/CommunityCard'
+import { SectionTitle } from '@/features/landing/components/SectionTitle'
 import { COMMUNITY_CARDS } from '@/features/landing/config'
 
 export const Community = () => (

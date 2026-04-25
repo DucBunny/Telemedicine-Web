@@ -2,7 +2,10 @@
 
 /** @type {import('prettier').Config} */
 const config = {
-  plugins: ['prettier-plugin-tailwindcss'],
+  plugins: [
+    '@ianvs/prettier-plugin-sort-imports',
+    'prettier-plugin-tailwindcss',
+  ],
   tailwindFunctions: ['cva', 'clsx', 'cn'],
   semi: false,
   singleQuote: true,
@@ -11,6 +14,21 @@ const config = {
   printWidth: 80,
   bracketSameLine: true,
   htmlWhitespaceSensitivity: 'ignore',
+
+  // -- Sort imports --
+  importOrder: [
+    '^react',
+    '<THIRD_PARTY_MODULES>',
+    '',
+    '<TYPES>',
+    '<TYPES>^@/(.*)$',
+    '<TYPES>^[./]',
+    '',
+    '^@/features/(.*)$',
+    '^@/(.*)$',
+    '^[./]',
+  ],
+  importOrderCaseSensitive: true,
 }
 
 export default config

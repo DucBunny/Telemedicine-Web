@@ -1,16 +1,18 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
+
 import type {
   LoginRequestDto,
   LoginResponseDto,
   RegisterRequestDto,
-} from '@/features/auth/dto/auth.dto'
+} from '@/features/auth/types/auth.dto'
+
 import { authApi } from '@/features/auth/api/auth.api'
 import { roleToPath } from '@/features/auth/config'
-import { useAuthStore } from '@/stores/auth.store'
 import { getErrorMessage } from '@/lib/axios'
 import { Route as LoginRoute } from '@/routes/(auth)/login'
+import { useAuthStore } from '@/stores/auth.store'
 
 export const useLoginMutation = () => {
   const setAuth = useAuthStore((s) => s.setAuth)
@@ -32,7 +34,9 @@ export const useLoginMutation = () => {
 
       const nextPath = redirect ?? roleToPath[data.user.role]
       navigate({ to: nextPath, replace: true })
-      toast.success('Đăng nhập thành công!')
+      toast.success('Đăng nhập thành công!', {
+        id: 'login',
+      })
     },
     onError: (error) => {
       const errorMessage = getErrorMessage(error)
@@ -51,7 +55,9 @@ export const useRegisterMutation = () => {
     mutationFn: (payload: RegisterRequestDto) => authApi.register(payload),
     onSuccess: () => {
       navigate({ to: '/login' })
-      toast.success('Đăng ký thành công!')
+      toast.success('Đăng ký thành công!', {
+        id: 'register',
+      })
     },
     onError: (error) => {
       const errorMessage = getErrorMessage(error)
@@ -72,7 +78,9 @@ export const useLogoutMutation = () => {
     onSuccess: () => {
       clearAuth()
       navigate({ to: '/' })
-      toast.success('Đăng xuất thành công!')
+      toast.success('Đăng xuất thành công!', {
+        id: 'logout',
+      })
     },
     onError: (error) => {
       navigate({ to: '/' })

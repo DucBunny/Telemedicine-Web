@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { AnimatePresence, easeInOut, motion } from 'framer-motion'
 import { ArrowRight, Menu, X } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+
 import { NAV_LINKS } from '@/features/landing/config'
 import { Button } from '@/components/ui/button'
 

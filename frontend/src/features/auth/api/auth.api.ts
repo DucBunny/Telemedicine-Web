@@ -4,11 +4,12 @@ import type {
   RefreshTokenResponseDto,
   RegisterRequestDto,
   RegisterResponseDto,
-} from '@/features/auth/dto/auth.dto'
+} from '@/features/auth/types/auth.dto'
 import type {
   ApiSuccessOnlyResponse,
   ApiSuccessResponse,
 } from '@/types/api.type'
+
 import { apiClient } from '@/lib/axios'
 
 const AUTH_BASE = '/auth'
@@ -19,7 +20,6 @@ export const authApi = {
       `${AUTH_BASE}/login`,
       payload,
     )
-
     return data.data
   },
 
@@ -27,7 +27,6 @@ export const authApi = {
     const { data } = await apiClient.post<
       ApiSuccessResponse<RegisterResponseDto>
     >(`${AUTH_BASE}/register`, payload)
-
     return data.data
   },
 
@@ -35,7 +34,6 @@ export const authApi = {
     const { data } = await apiClient.post<
       ApiSuccessResponse<RefreshTokenResponseDto>
     >(`${AUTH_BASE}/refresh-token`, {}, { withCredentials: true })
-
     return data.data
   },
 
@@ -45,7 +43,6 @@ export const authApi = {
       {},
       { withCredentials: true },
     )
-
     return data
   },
 }

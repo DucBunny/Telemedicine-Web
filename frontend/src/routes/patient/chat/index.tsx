@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { ChatPage } from '@/features/patient/pages/ChatPage'
-import { chatApi } from '@/features/patient/api/chat.api'
-import { CHAT_KEYS } from '@/features/patient/hooks/useChatQueries'
+
+import { chatApi } from '@/features/chat/api/chat.api'
+import { CHAT_KEYS } from '@/features/chat/hooks/useChatQueries'
+import { ChatPage } from '@/pages/patient/ChatPage'
 
 export const Route = createFileRoute('/patient/chat/')({
   component: ChatPage,

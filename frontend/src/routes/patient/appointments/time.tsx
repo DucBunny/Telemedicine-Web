@@ -1,6 +1,7 @@
 ﻿import { createFileRoute } from '@tanstack/react-router'
 import z from 'zod'
-import { TimeSelectionPage } from '@/features/patient/pages/appointments/TimeSelectionPage'
+
+import { TimeSelectionPage } from '@/pages/patient/appointments/TimeSelectionPage'
 
 const timeSearchSchema = z.object({
   doctorId: z.number().int().positive(),

@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { appointmentApi } from '@/features/patient/api/appointment.api'
-import { APPOINTMENT_KEYS } from '@/features/patient/hooks/useAppointmentQueries'
-import { AppointmentsPage } from '@/features/patient/pages/AppointmentsPage'
+
+import { appointmentApi } from '@/features/appointments/api/appointment.api'
+import { APPOINTMENT_KEYS } from '@/features/appointments/hooks/useAppointmentQueries'
+import { AppointmentsPage } from '@/pages/patient/AppointmentsPage'
 
 export const Route = createFileRoute('/patient/appointments/')({
   loader: async ({ context: { queryClient } }) => {

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
-import { DoctorSelectionPage } from '@/features/patient/pages/appointments/DoctorSelectionPage'
+
+import { DoctorSelectionPage } from '@/pages/patient/appointments/DoctorSelectionPage'
 
 const doctorsSearchSchema = z.object({
   specialtyId: z.number().int().positive(),
