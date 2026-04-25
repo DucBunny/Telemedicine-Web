@@ -1,12 +1,15 @@
 import React from 'react'
 import { ArrowLeft } from 'lucide-react'
+
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface PageHeaderProps {
   title: string
   onBack?: () => void
   rightAction?: React.ReactNode
   breadcrumb?: React.ReactNode
+  className?: string
 }
 
 // Used for sub-pages that require a back button
@@ -15,8 +18,13 @@ export const ChildPageHeader = ({
   onBack,
   rightAction,
   breadcrumb,
+  className,
 }: PageHeaderProps) => (
-  <header className="flex items-center justify-between pt-6 pb-4 md:pt-0">
+  <header
+    className={cn(
+      'flex items-center justify-between pt-6 pb-4 md:pt-0',
+      className,
+    )}>
     {/* Back Button */}
     {onBack ? (
       <Button
@@ -41,8 +49,16 @@ export const ChildPageHeader = ({
 )
 
 // Used for main pages that don't require a back button
-export const MainPageHeader = ({ title, rightAction }: PageHeaderProps) => (
-  <header className="flex items-center justify-between pt-6 pb-4 md:pt-0">
+export const MainPageHeader = ({
+  title,
+  rightAction,
+  className,
+}: PageHeaderProps) => (
+  <header
+    className={cn(
+      'flex items-center justify-between pt-6 pb-4 md:pt-0',
+      className,
+    )}>
     <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
 
     {rightAction ?? <div className="size-10" />}

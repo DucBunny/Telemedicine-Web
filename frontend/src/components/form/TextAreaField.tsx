@@ -1,7 +1,9 @@
 import React from 'react'
-import { FieldWrapper, IconDisplay } from './FieldWrapper'
-import type { LucideIcon } from 'lucide-react'
+
 import type { AnyFieldApi } from '@tanstack/react-form'
+import type { LucideIcon } from 'lucide-react'
+
+import { FieldWrapper, IconDisplay } from '@/components/form/FieldWrapper'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 

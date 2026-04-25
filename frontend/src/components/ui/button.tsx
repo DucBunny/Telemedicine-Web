@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
+
 import type { VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
@@ -26,6 +27,8 @@ const buttonVariants = cva(
           'text-teal-primary bg-teal-50 hover:bg-teal-100/70 focus-visible:ring-teal-300',
         teal_outline:
           'border-teal-primary text-teal-primary border bg-transparent hover:bg-teal-100/50 focus-visible:ring-teal-300',
+        teal_blur:
+          'border border-teal-500 bg-teal-50 text-teal-700 hover:bg-teal-100/50 dark:border-teal-900/50 dark:bg-teal-900/20 dark:text-teal-400 dark:hover:bg-teal-50/70',
         red_blur:
           'border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30',
       },

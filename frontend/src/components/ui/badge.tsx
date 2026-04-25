@@ -1,12 +1,13 @@
 import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
+
 import type { VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
 const badgeVariants = cva(
-  'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border px-2 py-0.5 text-[10px] font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] md:text-xs [&>svg]:pointer-events-none [&>svg]:size-3',
+  'focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-md border px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] [&>svg]:pointer-events-none [&>svg]:size-3',
   {
     variants: {
       variant: {
@@ -32,6 +33,10 @@ const badgeVariants = cva(
           'border-transparent bg-teal-100/50 text-teal-700 backdrop-blur-sm',
         purple_blur:
           'border-transparent bg-purple-100/50 text-purple-700 backdrop-blur-sm',
+        orange_blur:
+          'border-transparent bg-orange-100/50 text-orange-700 backdrop-blur-sm',
+        green_blur:
+          'border-transparent bg-green-100/50 text-green-700 backdrop-blur-sm',
       },
     },
     defaultVariants: {
@@ -58,4 +63,7 @@ function Badge({
   )
 }
 
+type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>
+
 export { Badge, badgeVariants }
+export type { BadgeVariant }

@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
-import { FieldWrapper, IconDisplay } from './FieldWrapper'
+
 import type { AnyFieldApi } from '@tanstack/react-form'
 import type { LucideIcon } from 'lucide-react'
-import { Input } from '@/components/ui/input'
+
+import { FieldWrapper, IconDisplay } from '@/components/form/FieldWrapper'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {

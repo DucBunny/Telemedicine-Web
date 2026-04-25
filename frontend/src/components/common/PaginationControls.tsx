@@ -1,4 +1,6 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+
+import { Input } from '@/components/ui/input'
 import {
   Pagination,
   PaginationContent,
@@ -44,6 +46,25 @@ export function PaginationControls({
   showPageInfo = true,
   showItemsInfo = false,
 }: PaginationControlsProps) {
+  const [mobilePageInput, setMobilePageInput] = useState(String(currentPage))
+
+  useEffect(() => {
+    setMobilePageInput(String(currentPage))
+  }, [currentPage])
+
+  const submitMobilePage = () => {
+    const parsedPage = Number.parseInt(mobilePageInput, 10)
+    const nextPage = Number.isNaN(parsedPage)
+      ? currentPage
+      : Math.min(Math.max(parsedPage, 1), totalPages)
+
+    setMobilePageInput(String(nextPage))
+
+    if (nextPage !== currentPage) {
+      onPageChange(nextPage)
+    }
+  }
+
   // Tính toán các số trang cần hiển thị
   const pageNumbers = useMemo(() => {
     const delta = 1 // Số trang hiển thị bên trái và phải trang hiện tại
@@ -90,12 +111,12 @@ export function PaginationControls({
   return (
     <div
       className={cn(
-        'flex flex-col items-center gap-3 sm:flex-row sm:justify-between',
+        'flex flex-col items-center gap-3 lg:flex-row lg:justify-between',
         className,
       )}>
       {/* Items info */}
       {showItemsInfo && itemsInfo && (
-        <div className="text-sm text-gray-600">
+        <div className="hidden text-sm text-gray-600 lg:block">
           Hiển thị <span className="font-medium">{itemsInfo.startItem}</span>-
           <span className="font-medium">{itemsInfo.endItem}</span> trong tổng{' '}
           <span className="font-medium">{itemsInfo.totalItems}</span>
@@ -105,12 +126,67 @@ export function PaginationControls({
       {/* Pagination */}
       <div className="flex items-center gap-3 whitespace-nowrap">
         {showPageInfo && (
-          <div className="text-sm text-gray-600">
+          <div className="hidden text-sm text-gray-600 lg:block">
             Trang {currentPage} / {totalPages}
           </div>
         )}
 
-        <Pagination>
+        {/* Mobile */}
+        <Pagination className="lg:hidden">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  if (currentPage > 1) {
+                    onPageChange(currentPage - 1)
+                  }
+                }}
+                className={cn(
+                  currentPage <= 1 && 'pointer-events-none opacity-50',
+                )}
+                size="sm"
+              />
+            </PaginationItem>
+
+            <PaginationItem>
+              <div className="flex items-center gap-1.5">
+                <Input
+                  name="page"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={totalPages}
+                  value={mobilePageInput}
+                  onChange={(event) => setMobilePageInput(event.target.value)}
+                  onBlur={submitMobilePage}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') event.currentTarget.blur()
+                  }}
+                  aria-label="Current page"
+                  className="h-8 p-0 text-center text-sm"
+                />
+                <span className="text-sm text-gray-600">/ {totalPages}</span>
+              </div>
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  if (currentPage < totalPages) {
+                    onPageChange(currentPage + 1)
+                  }
+                }}
+                className={cn(
+                  currentPage >= totalPages && 'pointer-events-none opacity-50',
+                )}
+                size="sm"
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
+        {/* Desktop */}
+        <Pagination className="hidden lg:flex">
           <PaginationContent>
             {/* Previous button */}
             <PaginationItem>
@@ -134,7 +210,8 @@ export function PaginationControls({
                 ) : (
                   <PaginationLink
                     onClick={() => onPageChange(pageNum)}
-                    isActive={currentPage === pageNum}>
+                    isActive={currentPage === pageNum}
+                    size="icon">
                     {pageNum}
                   </PaginationLink>
                 )}

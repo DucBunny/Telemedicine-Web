@@ -1,7 +1,10 @@
 import { useState } from 'react'
-import { FieldWrapper, IconDisplay } from './FieldWrapper'
+import { vi } from 'date-fns/locale'
+
 import type { AnyFieldApi } from '@tanstack/react-form'
 import type { LucideIcon } from 'lucide-react'
+
+import { FieldWrapper, IconDisplay } from '@/components/form/FieldWrapper'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import {
@@ -9,8 +12,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
 import { formatDateForApi, formatShortDate } from '@/lib/format-date'
+import { cn } from '@/lib/utils'
 
 interface DatePickerProps {
   label?: string
@@ -90,6 +93,7 @@ export const DatePicker = ({
                 binding.onChange?.(d!)
                 setOpen(false)
               }}
+              locale={vi}
             />
           </PopoverContent>
         </Popover>

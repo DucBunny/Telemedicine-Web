@@ -6,8 +6,9 @@ import {
 } from 'lucide-react'
 
 import type { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+
 import { buttonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
   return (
@@ -68,31 +69,33 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
+  size,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink
       aria-label="Go to previous page"
-      size="default"
+      size={size || 'default'}
       className={cn('gap-1 px-2.5 sm:pl-2.5', className)}
       {...props}>
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Trước</span>
+      <span className="text-sm">Trước</span>
     </PaginationLink>
   )
 }
 
 function PaginationNext({
   className,
+  size,
   ...props
 }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink
       aria-label="Go to next page"
-      size="default"
+      size={size || 'default'}
       className={cn('gap-1 px-2.5 sm:pr-2.5', className)}
       {...props}>
-      <span className="hidden sm:block">Tiếp</span>
+      <span className="text-sm">Tiếp</span>
       <ChevronRightIcon />
     </PaginationLink>
   )
