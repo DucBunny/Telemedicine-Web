@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 import type { User } from '@/features/auth/types/auth.types'
 
-interface AuthState {
+interface AuthStore {
   // State
   accessToken: string | null
   user: User | null
@@ -27,7 +27,7 @@ interface AuthState {
  * - isInitialized: Đánh dấu đã khởi tạo auth chưa (để tránh flash)
  * - isProfileComplete: Đánh dấu user đã hoàn thiện hồ sơ chưa (dùng cho patient)
  */
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthStore>((set) => ({
   // Initial state
   accessToken: null,
   user: null,
@@ -35,8 +35,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   isProfileComplete: true,
 
   // Set cả access token và user (dùng khi login hoặc refresh)
-  setAuth: (accessToken: string, user: User, isProfileComplete = true) =>
-    set({ accessToken, user, isInitialized: true, isProfileComplete }),
+  setAuth: (
+    accessToken: string,
+    user: User,
+    isProfileComplete: boolean = true,
+  ) => set({ accessToken, user, isInitialized: true, isProfileComplete }),
 
   // Clear toàn bộ auth state (logout)
   clearAuth: () =>
@@ -56,7 +59,9 @@ export const useAuthStore = create<AuthState>((set) => ({
 }))
 
 // Selectors để sử dụng trong components
-export const selectUser = (state: AuthState) => state.user
-export const selectIsAuthenticated = (state: AuthState) =>
+export const selectUser = (state: AuthStore) => state.user
+export const selectIsAuthenticated = (state: AuthStore) =>
   !!state.accessToken && !!state.user
-export const selectIsInitialized = (state: AuthState) => state.isInitialized
+export const selectIsInitialized = (state: AuthStore) => state.isInitialized
+export const selectIsProfileComplete = (state: AuthStore) =>
+  state.isProfileComplete

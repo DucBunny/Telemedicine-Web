@@ -17,12 +17,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Route } from '@/routes/patient/appointments/doctors'
+import { useBookingAppointment } from '@/stores/bookAppointment.store'
 
 export const DoctorSelectionPage = () => {
-  // Get specialtyId from search params & fetch specialty name
-  const { specialtyId } = Route.useSearch()
-  const { data: specialty } = useGetSpecialtyDetail(specialtyId)
+  const specialtyId = useBookingAppointment((state) => state.specialtyId)
+  const { data: specialty } = useGetSpecialtyDetail(specialtyId!)
+  const setDoctorId = useBookingAppointment((state) => state.setDoctorId)
 
   const navigate = useNavigate()
 
@@ -35,15 +35,15 @@ export const DoctorSelectionPage = () => {
   const { data: doctorsData, isLoading } = useGetDoctors({
     page: 1,
     limit: 10,
-    specialtyId: specialtyId,
+    specialtyId: specialtyId!,
     search: debouncedSearch,
   })
 
   // Handle book appointment to time selection page
   const handleBookAppointment = (doctorId: number) => {
+    setDoctorId(doctorId)
     navigate({
       to: '/patient/appointments/time',
-      search: { doctorId, specialtyId },
     })
   }
 

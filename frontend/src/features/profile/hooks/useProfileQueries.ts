@@ -3,8 +3,9 @@ import { toast } from 'sonner'
 
 import { profileApi } from '@/features/profile/api/profile.api'
 import { getErrorMessage } from '@/lib/axios'
+import { useAuthStore } from '@/stores/auth.store'
 
-const PROFILE_KEYS = {
+export const PROFILE_KEYS = {
   all: ['profile'] as const,
 
   profile: () => [...PROFILE_KEYS.all, 'current'] as const,
@@ -31,8 +32,9 @@ export const useUpdatePatientProfile = () => {
 
   return useMutation({
     mutationFn: profileApi.updatePatientProfile,
-    onSuccess: () => {
+    onSuccess: (updatedProfile) => {
       queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.profile() })
+      useAuthStore.setState({ user: updatedProfile.user })
       toast.success('Cập nhật thông tin cá nhân thành công!')
     },
     onError: (error) => {
@@ -51,8 +53,9 @@ export const useUpdateDoctorProfile = () => {
 
   return useMutation({
     mutationFn: profileApi.updateDoctorProfile,
-    onSuccess: () => {
+    onSuccess: (updatedProfile) => {
       queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.profile() })
+      useAuthStore.setState({ user: updatedProfile.user })
       toast.success('Cập nhật thông tin cá nhân thành công!')
     },
     onError: (error) => {

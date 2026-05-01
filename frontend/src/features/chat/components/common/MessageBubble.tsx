@@ -8,7 +8,7 @@ import { SafeImage } from '@/components/common/SafeImage'
 import { Button } from '@/components/ui/button'
 import { formatTime } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
-import { useAuthStore } from '@/stores/auth.store'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
 
 interface MessageBubbleProps {
   message: ChatMessage
@@ -21,7 +21,7 @@ export const MessageBubble = ({
   isFirst = false,
   isLast = false,
 }: MessageBubbleProps) => {
-  const currentUser = useAuthStore((state) => state.user)
+  const currentUser = useAuthStore(selectUser)
   const isSelf = message.sender.id === currentUser?.id
   const [imageError, setImageError] = useState(false)
 

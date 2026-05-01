@@ -114,6 +114,7 @@ export const Filters = ({
       <div className="relative w-full max-w-sm">
         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 transform text-gray-400" />
         <Input
+          name="search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Tìm kiếm bệnh nhân..."

@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
@@ -10,12 +10,12 @@ import type {
 
 import { authApi } from '@/features/auth/api/auth.api'
 import { roleToPath } from '@/features/auth/config'
+import { PROFILE_KEYS } from '@/features/profile/hooks/useProfileQueries'
 import { getErrorMessage } from '@/lib/axios'
 import { Route as LoginRoute } from '@/routes/(auth)/login'
 import { useAuthStore } from '@/stores/auth.store'
 
 export const useLoginMutation = () => {
-  const setAuth = useAuthStore((s) => s.setAuth)
   const navigate = useNavigate()
   const { redirect } = LoginRoute.useSearch()
 
@@ -23,7 +23,9 @@ export const useLoginMutation = () => {
     mutationKey: ['auth', 'login'],
     mutationFn: (payload: LoginRequestDto) => authApi.login(payload),
     onSuccess: (data: LoginResponseDto) => {
-      setAuth(data.accessToken, data.user, data.isProfileComplete)
+      useAuthStore
+        .getState()
+        .setAuth(data.accessToken, data.user, data.isProfileComplete)
 
       // Check if profile is incomplete for patient
       if (data.user.role === 'patient' && !data.isProfileComplete) {
@@ -69,14 +71,15 @@ export const useRegisterMutation = () => {
 }
 
 export const useLogoutMutation = () => {
-  const clearAuth = useAuthStore((s) => s.clearAuth)
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   return useMutation({
     mutationKey: ['auth', 'logout'],
     mutationFn: () => authApi.logout(),
     onSuccess: () => {
-      clearAuth()
+      useAuthStore.getState().clearAuth()
+      queryClient.removeQueries({ queryKey: PROFILE_KEYS.all })
       navigate({ to: '/' })
       toast.success('Đăng xuất thành công!', {
         id: 'logout',

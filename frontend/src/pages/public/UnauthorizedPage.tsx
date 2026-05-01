@@ -2,10 +2,10 @@ import { Link } from '@tanstack/react-router'
 
 import { roleToPath } from '@/features/auth/config'
 import { Button } from '@/components/ui/button'
-import { useAuthStore } from '@/stores/auth.store'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
 
 export const UnauthorizedPage = () => {
-  const user = useAuthStore((s) => s.user)
+  const user = useAuthStore(selectUser)
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 p-6">

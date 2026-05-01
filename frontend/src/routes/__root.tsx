@@ -8,7 +8,7 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 
 import { authApi } from '@/features/auth/api/auth.api'
-import { useAuthStore } from '@/stores/auth.store'
+import { selectIsInitialized, useAuthStore } from '@/stores/auth.store'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -40,7 +40,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 })
 
 function rootComponent() {
-  const isInitialized = useAuthStore((s) => s.isInitialized)
+  const isInitialized = useAuthStore(selectIsInitialized)
   const { pathname } = useLocation()
 
   useEffect(() => {

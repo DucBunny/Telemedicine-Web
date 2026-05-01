@@ -3,10 +3,8 @@ import { Link } from '@tanstack/react-router'
 import { Bell } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
-import type { Patient } from '@/features/patients/types'
 import type { NavItem } from '@/types/navigation'
 
-import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
 import { SafeImage } from '@/components/common/SafeImage'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -21,6 +19,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 import { cn } from '@/lib/utils'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
 import { PATIENT_NAVIGATION_ITEMS } from '@/types/navigation'
 
 interface PatientSidebarProps {
@@ -32,7 +31,7 @@ export const PatientSidebar = ({
   activeTab,
   unreadCount,
 }: PatientSidebarProps) => {
-  const { data: patientProfile } = useGetProfile<Patient>()
+  const currentUser = useAuthStore(selectUser)
   const { setOpen } = useSidebar()
   const isTablet = useMediaQuery('(768px <= width < 1024px)')
   useEffect(() => {
@@ -106,16 +105,16 @@ export const PatientSidebar = ({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center rounded-xl py-3 group-data-[collapsible=icon]:justify-center group-data-[state=expanded]:bg-gray-50 group-data-[state=expanded]:px-3">
             <SafeImage
-              src={patientProfile?.user.avatar}
-              alt={patientProfile?.user.fullName}
+              src={currentUser?.avatar}
+              alt={currentUser?.fullName}
               className="size-10 rounded-full"
             />
             <div className="ml-3 overflow-hidden group-data-[collapsible=icon]:hidden">
               <p className="truncate text-sm font-semibold text-gray-900">
-                {patientProfile?.user.fullName}
+                {currentUser?.fullName}
               </p>
               <p className="text-xs font-medium text-gray-500">
-                ID: {patientProfile?.userId}
+                ID: {currentUser?.id}
               </p>
             </div>
           </SidebarMenuItem>

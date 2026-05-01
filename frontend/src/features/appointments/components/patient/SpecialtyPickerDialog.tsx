@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useBookingAppointment } from '@/stores/bookAppointment.store'
 
 interface SpecialtyPickerDialogProps {
   isOpen: boolean
@@ -21,11 +22,12 @@ export const SpecialtyPickerDialog = ({
 }: SpecialtyPickerDialogProps) => {
   const { data: specialtiesData } = useGetSpecialties()
   const navigate = useNavigate()
+  const setSpecialtyId = useBookingAppointment((state) => state.setSpecialtyId)
 
   const handleSelect = (specialtyId: number) => {
+    setSpecialtyId(specialtyId)
     navigate({
       to: '/patient/appointments/doctors',
-      search: { specialtyId },
     })
     onOpenChange(false)
   }

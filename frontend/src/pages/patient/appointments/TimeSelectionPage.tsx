@@ -28,7 +28,7 @@ import {
   formatShortDate,
 } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
-import { Route } from '@/routes/patient/appointments/time'
+import { useBookingAppointment } from '@/stores/bookAppointment.store'
 
 const BASE_MORNING_SLOTS: Array<TimeSlot> = [
   { time: '08:00', isAvailable: false },
@@ -52,8 +52,8 @@ const BASE_AFTERNOON_SLOTS: Array<TimeSlot> = [
 ]
 
 export const TimeSelectionPage = () => {
-  // Get doctorId and specialtyId from search params
-  const { doctorId, specialtyId } = Route.useSearch()
+  const doctorId = useBookingAppointment((state) => state.doctorId)
+  const setSchedule = useBookingAppointment((state) => state.setSchedule)
 
   const navigate = useNavigate()
   const isMobile = useMediaQuery('(max-width: 767px)')
@@ -94,21 +94,18 @@ export const TimeSelectionPage = () => {
   const handleBack = () => {
     navigate({
       to: '/patient/appointments/doctors',
-      search: { specialtyId },
     })
   }
 
   // Handle continue navigation
   const handleContinue = () => {
+    setSchedule({
+      date: formattedDate,
+      time: selectedTime,
+      type: visitType,
+    })
     navigate({
       to: '/patient/appointments/confirm',
-      search: {
-        doctorId,
-        specialtyId,
-        date: formattedDate,
-        time: selectedTime,
-        type: visitType,
-      },
     })
   }
 

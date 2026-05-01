@@ -9,6 +9,7 @@ import {
 } from '@/features/appointments/components/patient'
 import { useCreateAppointment } from '@/features/appointments/hooks/useAppointmentQueries'
 import { useGetDoctorDetail } from '@/features/doctors/hooks/useDoctorQueries'
+import LoaderScreen from '@/components/common/Loader'
 import { ChildPageHeader } from '@/components/common/PageHeader'
 import {
   Breadcrumb,
@@ -20,11 +21,14 @@ import {
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { formatShortDate, toUtcIsoFromVietnamLocal } from '@/lib/format-date'
-import { Route } from '@/routes/patient/appointments/confirm'
+import {
+  useBookingAppointment,
+  useBookingFormValues,
+} from '@/stores/bookAppointment.store'
 
 export const AppointmentConfirmPage = () => {
-  // Get search params
-  const { doctorId, specialtyId, date, time, type } = Route.useSearch()
+  const { doctorId, date, time, type } = useBookingFormValues()
+  const resetForm = useBookingAppointment((state) => state.resetForm)
 
   const navigate = useNavigate()
 
@@ -34,7 +38,11 @@ export const AppointmentConfirmPage = () => {
   const maxReasonLength = 200
 
   // Fetch doctor details from API
-  const { data: doctor, isLoading, isError } = useGetDoctorDetail(doctorId)
+  const {
+    data: doctor,
+    isLoading,
+    isError,
+  } = useGetDoctorDetail(doctorId ?? undefined)
 
   // Mutation for booking
   const { mutateAsync: createAppointment, isPending: isCreatePending } =
@@ -44,13 +52,12 @@ export const AppointmentConfirmPage = () => {
   const handleBack = () => {
     navigate({
       to: '/patient/appointments/time',
-      search: { doctorId, specialtyId },
     })
   }
 
   // Handle confirm booking
   const handleConfirm = async () => {
-    if (!doctorId || !date || !time || !type) {
+    if (!doctorId || !date || !time) {
       toast.error('Thiếu thông tin đặt lịch')
       return
     }
@@ -71,6 +78,7 @@ export const AppointmentConfirmPage = () => {
         durationMinutes: 30,
         type,
       })
+      resetForm()
       navigate({ to: '/patient/appointments' })
     } catch (error) {
       console.error('Booking failed:', error)
@@ -80,12 +88,15 @@ export const AppointmentConfirmPage = () => {
   const appointmentType = type === 'online' ? 'Tư vấn Online' : 'Khám trực tiếp'
   const estimatedCost = type === 'online' ? '150.000đ' : '200.000đ'
 
-  if (isLoading)
+  if (!doctorId || !date || !time) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p>Đang tải thông tin bác sĩ...</p>
+        <p>Thiếu thông tin đặt lịch</p>
       </div>
     )
+  }
+
+  if (isLoading) return <LoaderScreen />
 
   if (isError || !doctor)
     return (
@@ -125,8 +136,8 @@ export const AppointmentConfirmPage = () => {
           <AppointmentConfirmInfoCard
             doctor={doctor}
             appointment={{
-              date: formatShortDate(date ?? ''),
-              time: time ?? '',
+              date: formatShortDate(date),
+              time: time,
               type: appointmentType,
             }}
           />

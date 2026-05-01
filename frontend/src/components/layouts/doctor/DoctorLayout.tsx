@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 import { Outlet, useLocation, useMatches } from '@tanstack/react-router'
 import { useMediaQuery } from 'usehooks-ts'
 
@@ -11,16 +11,17 @@ import {
   DoctorSidebar,
   MobileNav,
 } from '@/components/layouts/doctor'
-import { DoctorLayoutContext } from '@/components/layouts/doctor/DoctorLayoutContext'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { routeToActiveTab } from '@/lib/route-active-tab'
+import { useHeaderTitleStore } from '@/stores/headerTitle.store'
+import { DOCTOR_NAVIGATION_ITEMS } from '@/types/navigation'
 
 import './styles.css'
 
 export const DoctorLayout = () => {
   const { pathname } = useLocation()
   const activeTab = routeToActiveTab(pathname)
-  const [headerTitle, setHeaderTitle] = useState('')
+  const setTitle = useHeaderTitleStore((s) => s.setTitle)
 
   const matches = useMatches()
   const isHiddenMobileNav = matches.some(
@@ -31,13 +32,11 @@ export const DoctorLayout = () => {
   const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   useEffect(() => {
-    setHeaderTitle('')
-  }, [pathname])
-
-  const layoutContext = useMemo(
-    () => ({ setHeaderTitle }),
-    [setHeaderTitle],
-  )
+    setTitle(
+      DOCTOR_NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label ||
+        '',
+    )
+  }, [activeTab, pathname, setTitle])
 
   // Listen for realtime notifications (sockets)
   useRealtimeNotifications()
@@ -53,19 +52,13 @@ export const DoctorLayout = () => {
       {/* Main Content */}
       <SidebarInset>
         {(isDesktop || !isHiddenHeader) && (
-          <DoctorHeader
-            activeTab={activeTab}
-            unreadCount={unreadCount}
-            titleOverride={headerTitle}
-          />
+          <DoctorHeader unreadCount={unreadCount} />
         )}
 
         <main
           data-route-scroll-container="true"
           className="h-svh w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
-          <DoctorLayoutContext.Provider value={layoutContext}>
-            <Outlet />
-          </DoctorLayoutContext.Provider>
+          <Outlet />
         </main>
 
         {/* Mobile Navigation */}

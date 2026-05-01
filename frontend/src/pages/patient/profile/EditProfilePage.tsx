@@ -9,6 +9,7 @@ import { z } from 'zod'
 import type { Patient } from '@/features/patients/types'
 
 import {
+  PROFILE_KEYS,
   useGetProfile,
   useUpdatePatientProfile,
 } from '@/features/profile/hooks/useProfileQueries'
@@ -103,7 +104,7 @@ export const EditProfilePage = () => {
             id: 'upload-avatar',
           })
           // Invalidate sau khi upload avatar (vì uploadAvatar đã cập nhật DB)
-          queryClient.invalidateQueries({ queryKey: ['patients', 'profile'] })
+          queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.profile() })
         }
 
         // Cập nhật thông tin profile (mutation tự động invalidate trong onSuccess)

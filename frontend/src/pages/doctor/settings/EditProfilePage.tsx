@@ -17,6 +17,7 @@ import { z } from 'zod'
 import type { Doctor } from '@/features/doctors/types'
 
 import {
+  PROFILE_KEYS,
   useGetProfile,
   useUpdateDoctorProfile,
 } from '@/features/profile/hooks/useProfileQueries'
@@ -25,8 +26,8 @@ import { ChildPageHeader } from '@/components/common/PageHeader'
 import { SafeImage } from '@/components/common/SafeImage'
 import { InputField } from '@/components/form/InputField'
 import { TextAreaField } from '@/components/form/TextAreaField'
-import { useDoctorHeaderTitle } from '@/components/layouts/doctor'
 import { Button } from '@/components/ui/button'
+import { useHeaderTitleStore } from '@/stores/headerTitle.store'
 
 const doctorSchema = z.object({
   user: z.object({
@@ -50,7 +51,7 @@ const doctorSchema = z.object({
 type DoctorProfileFormData = z.input<typeof doctorSchema>
 
 export const EditProfilePage = () => {
-  useDoctorHeaderTitle('Chỉnh sửa thông tin')
+  useHeaderTitleStore.getState().setTitle('Chỉnh sửa thông tin')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: doctorProfile } = useGetProfile<Doctor>()
@@ -89,7 +90,7 @@ export const EditProfilePage = () => {
             id: 'upload-avatar',
           })
           // Invalidate sau khi upload avatar (vì uploadAvatar đã cập nhật DB)
-          queryClient.invalidateQueries({ queryKey: ['profile', 'current'] })
+          queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.profile() })
         }
 
         // Cập nhật thông tin profile (mutation tự động invalidate trong onSuccess)

@@ -9,25 +9,16 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { DOCTOR_NAVIGATION_ITEMS } from '@/types/navigation'
+import { useHeaderTitleStore } from '@/stores/headerTitle.store'
 
 interface DoctorHeaderProps {
-  activeTab: string
   unreadCount: number
-  titleOverride?: string
 }
 
-export const DoctorHeader = ({
-  activeTab,
-  unreadCount,
-  titleOverride,
-}: DoctorHeaderProps) => {
+export const DoctorHeader = ({ unreadCount }: DoctorHeaderProps) => {
   const { data: doctorProfile } = useGetProfile<Doctor>()
   const navigate = useNavigate()
-  const fallbackTitle = DOCTOR_NAVIGATION_ITEMS.find(
-    (item) => item.id === activeTab,
-  )?.label
-  const headerTitle = titleOverride?.trim() || fallbackTitle
+  const title = useHeaderTitleStore((s) => s.title)
 
   return (
     <header className="sticky top-0 z-20 flex h-15 min-w-0 items-center justify-between border-b border-gray-200 bg-white px-4 md:h-18 md:px-6">
@@ -35,7 +26,7 @@ export const DoctorHeader = ({
         {/* Desktop Toggle */}
         <div className="flex min-w-0 items-center">
           <SidebarTrigger className="hover:text-teal-primary mr-3 hidden shrink-0 text-gray-500 lg:block" />
-          <h2 className="truncate text-xl font-bold text-gray-800">{headerTitle}</h2>
+          <h2 className="truncate text-xl font-bold text-gray-800">{title}</h2>
         </div>
       </div>
 
