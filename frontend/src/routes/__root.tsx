@@ -19,6 +19,7 @@ declare module '@tanstack/react-router' {
   interface StaticDataRouteOption {
     hideMobileNav?: boolean
     hideHeader?: boolean
+    title?: string
   }
 }
 

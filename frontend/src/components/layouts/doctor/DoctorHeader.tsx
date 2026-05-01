@@ -9,16 +9,15 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { useHeaderTitleStore } from '@/stores/headerTitle.store'
 
 interface DoctorHeaderProps {
   unreadCount: number
+  title: string
 }
 
-export const DoctorHeader = ({ unreadCount }: DoctorHeaderProps) => {
+export const DoctorHeader = ({ unreadCount, title }: DoctorHeaderProps) => {
   const { data: doctorProfile } = useGetProfile<Doctor>()
   const navigate = useNavigate()
-  const title = useHeaderTitleStore((s) => s.title)
 
   return (
     <header className="sticky top-0 z-20 flex h-15 min-w-0 items-center justify-between border-b border-gray-200 bg-white px-4 md:h-18 md:px-6">

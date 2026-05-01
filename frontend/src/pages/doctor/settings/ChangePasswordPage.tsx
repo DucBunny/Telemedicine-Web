@@ -7,7 +7,6 @@ import { useChangePassword } from '@/features/profile/hooks/useProfileQueries'
 import { ChildPageHeader } from '@/components/common/PageHeader'
 import { InputField } from '@/components/form/InputField'
 import { Button } from '@/components/ui/button'
-import { useHeaderTitleStore } from '@/stores/headerTitle.store'
 
 const changePasswordSchema = z
   .object({
@@ -29,7 +28,6 @@ const changePasswordSchema = z
 type ChangePasswordForm = z.infer<typeof changePasswordSchema>
 
 export const ChangePasswordPage = () => {
-  useHeaderTitleStore.getState().setTitle('Đổi mật khẩu')
   const navigate = useNavigate()
   const { mutateAsync: changePassword } = useChangePassword()
 

@@ -27,7 +27,6 @@ import { SafeImage } from '@/components/common/SafeImage'
 import { InputField } from '@/components/form/InputField'
 import { TextAreaField } from '@/components/form/TextAreaField'
 import { Button } from '@/components/ui/button'
-import { useHeaderTitleStore } from '@/stores/headerTitle.store'
 
 const doctorSchema = z.object({
   user: z.object({
@@ -51,7 +50,6 @@ const doctorSchema = z.object({
 type DoctorProfileFormData = z.input<typeof doctorSchema>
 
 export const EditProfilePage = () => {
-  useHeaderTitleStore.getState().setTitle('Chỉnh sửa thông tin')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: doctorProfile } = useGetProfile<Doctor>()

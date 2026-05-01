@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { Outlet, useLocation, useMatches } from '@tanstack/react-router'
 import { useMediaQuery } from 'usehooks-ts'
 
@@ -13,7 +12,6 @@ import {
 } from '@/components/layouts/doctor'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { routeToActiveTab } from '@/lib/route-active-tab'
-import { useHeaderTitleStore } from '@/stores/headerTitle.store'
 import { DOCTOR_NAVIGATION_ITEMS } from '@/types/navigation'
 
 import './styles.css'
@@ -21,22 +19,30 @@ import './styles.css'
 export const DoctorLayout = () => {
   const { pathname } = useLocation()
   const activeTab = routeToActiveTab(pathname)
-  const setTitle = useHeaderTitleStore((s) => s.setTitle)
 
   const matches = useMatches()
-  const isHiddenMobileNav = matches.some(
-    (match) => match.staticData.hideMobileNav,
-  )
-  const isHiddenHeader = matches.some((match) => match.staticData.hideHeader)
 
   const isDesktop = useMediaQuery('(min-width: 1024px)')
 
-  useEffect(() => {
-    setTitle(
-      DOCTOR_NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label ||
-        '',
-    )
-  }, [activeTab, pathname, setTitle])
+  // Lấy thông tin từ staticData của route hiện tại
+  // reverse để ưu tiên lấy thông tin từ route con trước, sau đó mới đến route cha
+  const {
+    hideMobileNav: isHiddenMobileNav,
+    hideHeader: isHiddenHeader,
+    title,
+  } = matches
+    .reverse()
+    .find(
+      (match) =>
+        match.staticData.title ||
+        match.staticData.hideMobileNav ||
+        match.staticData.hideHeader,
+    )?.staticData || {}
+
+  const pageTitle =
+    title ||
+    DOCTOR_NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label ||
+    ''
 
   // Listen for realtime notifications (sockets)
   useRealtimeNotifications()
@@ -52,7 +58,7 @@ export const DoctorLayout = () => {
       {/* Main Content */}
       <SidebarInset>
         {(isDesktop || !isHiddenHeader) && (
-          <DoctorHeader unreadCount={unreadCount} />
+          <DoctorHeader unreadCount={unreadCount} title={pageTitle} />
         )}
 
         <main
