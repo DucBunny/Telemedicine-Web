@@ -3,9 +3,15 @@ import { Link } from '@tanstack/react-router'
 import type { HealthData } from '@/features/health/hooks/useHealthData'
 
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface VitalCardsProps {
   latestData: HealthData | null
+}
+
+interface VitalCardsGridProps {
+  latestData: HealthData | null
+  className?: string
 }
 
 interface VitalInfo {
@@ -41,12 +47,12 @@ const VitalCard = ({ vital }: { vital: VitalInfo }) => (
   </div>
 )
 
-export const VitalCards = ({ latestData }: VitalCardsProps) => {
-  const VITALS_DATA: Array<VitalInfo> = [
+function buildVitals(latestData: HealthData | null): Array<VitalInfo> {
+  return [
     {
       id: '1',
       label: 'Nhịp tim',
-      value: latestData?.bpm || '--',
+      value: latestData?.bpm ?? '--',
       unit: 'bpm',
       icon: 'ecg_heart',
       colorClass: 'bg-rose-50 text-rose-500',
@@ -54,16 +60,32 @@ export const VitalCards = ({ latestData }: VitalCardsProps) => {
     {
       id: '2',
       label: 'SpO2',
-      value: latestData?.spo2 || '--',
+      value: latestData?.spo2 ?? '--',
       unit: '%',
       icon: 'spo2',
       colorClass: 'bg-blue-50 text-blue-500',
     },
   ]
+}
+
+export const VitalCardsGrid = ({
+  latestData,
+  className,
+}: VitalCardsGridProps) => {
+  const vitals = buildVitals(latestData)
 
   return (
+    <div className={cn('grid grid-cols-2 gap-3 md:gap-4', className)}>
+      {vitals.map((vital) => (
+        <VitalCard key={vital.id} vital={vital} />
+      ))}
+    </div>
+  )
+}
+
+export const VitalCards = ({ latestData }: VitalCardsProps) => {
+  return (
     <div>
-      {/* Header */}
       <div className="flex items-center justify-between md:mb-4">
         <h3 className="text-lg font-semibold text-slate-900">
           Chỉ số sức khỏe
@@ -76,22 +98,7 @@ export const VitalCards = ({ latestData }: VitalCardsProps) => {
         </Link>
       </div>
 
-      {/* Status */}
-      {/* <div className="mb-2 flex items-center justify-end">
-        <span className="flex items-center rounded-full bg-gray-100 px-2 py-1 text-[10px] text-gray-500">
-          <span
-            className={`mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full ${latestData ? 'bg-green-500' : 'bg-gray-400'}`}
-          />
-          {latestData ? 'Đang theo dõi' : 'Chưa có dữ liệu'}
-        </span>
-      </div> */}
-
-      {/* Vitals */}
-      <div className="grid grid-cols-2 gap-3 md:gap-6">
-        {VITALS_DATA.map((vital) => (
-          <VitalCard key={vital.id} vital={vital} />
-        ))}
-      </div>
+      <VitalCardsGrid latestData={latestData} />
     </div>
   )
 }

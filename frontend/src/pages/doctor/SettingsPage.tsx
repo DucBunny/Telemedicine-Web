@@ -27,7 +27,7 @@ export const SettingsPage = () => {
     )
 
   return (
-    <div className="px-4 pt-4">
+    <div className="px-4 pt-4 md:p-0">
       <div className="flex flex-col gap-3 md:gap-6 lg:flex-row">
         <ProfileAvatarCard
           currentUser={doctorProfile}

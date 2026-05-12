@@ -11,6 +11,8 @@ import {
 } from 'date-fns'
 import { vi } from 'date-fns/locale'
 
+import type { DateRange } from 'react-day-picker'
+
 /**
  * Parses a date string or Date object into a Date object.
  */
@@ -80,7 +82,7 @@ export function formatTime(date: string | Date) {
  * @example calculateAge(new Date('1990-01-02')) => 34 (as of 2/1/2024)
  */
 export function calculateAge(birthDateValue: string | Date) {
-  return differenceInYears(parseDateInput(birthDateValue), new Date())
+  return differenceInYears(new Date(), parseDateInput(birthDateValue))
 }
 
 /**
@@ -157,4 +159,19 @@ export function formatMonthYearVN(date: string | Date) {
   return format(parseDateInput(date), 'MMMM yyyy', {
     locale: vi,
   })
+}
+
+/**
+ * Format a date range to a label string.
+ * @param range - The date range to format
+ * @param emptyLabel - The label to show when the date range is empty
+ * @returns The formatted date range label
+ */
+export function formatDateRangeLabel(
+  range: DateRange | undefined,
+  emptyLabel: string,
+) {
+  if (!range?.from && !range?.to) return emptyLabel
+
+  return `${formatShortDate(range.from || '')} - ${formatShortDate(range.to || '')}`
 }

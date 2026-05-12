@@ -2,6 +2,7 @@ import type { MedicalRecord } from '@/features/medicalRecords/types'
 import type {
   CreateRecordBody,
   GetMyRecordsParams,
+  GetPatientMedicalRecordsParams,
   UpdateRecordBody,
 } from '@/features/medicalRecords/types/record.dto'
 import type { ApiPaginatedResponse, ApiSuccessResponse } from '@/types/api.type'
@@ -67,5 +68,20 @@ export const recordApi = {
     >(`${RECORD_BASE}/${id}`)
 
     return data.data
+  },
+
+  /**
+   * Get medical records by patient ID and current doctor ID
+   */
+  getRecordsByPatientIdAndCurrentDoctor: async (
+    patientId: number,
+    params: GetPatientMedicalRecordsParams,
+  ) => {
+    const { data } = await apiClient.get<ApiPaginatedResponse<MedicalRecord>>(
+      `me/patients/${patientId}/medical-records`,
+      { params },
+    )
+
+    return data
   },
 }

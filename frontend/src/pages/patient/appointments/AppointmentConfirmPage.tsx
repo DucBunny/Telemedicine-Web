@@ -81,7 +81,7 @@ export const AppointmentConfirmPage = () => {
       resetForm()
       navigate({ to: '/patient/appointments' })
     } catch (error) {
-      console.error('Booking failed:', error)
+      console.error('[Appointments] Create Error:', error)
     }
   }
 

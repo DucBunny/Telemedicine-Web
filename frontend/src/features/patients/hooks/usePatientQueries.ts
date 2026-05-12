@@ -10,6 +10,10 @@ const PATIENT_KEYS = {
   lists: () => [...PATIENT_KEYS.all, 'list'] as const,
   list: (params: GetMyPatientsParams) =>
     [...PATIENT_KEYS.lists(), params] as const,
+
+  details: () => [...PATIENT_KEYS.all, 'detail'] as const,
+  detail: (patientId: number) =>
+    [...PATIENT_KEYS.details(), patientId] as const,
 }
 
 /**
@@ -20,5 +24,16 @@ export const useGetMyPatients = (params: GetMyPatientsParams) => {
     queryKey: PATIENT_KEYS.list(params),
     queryFn: () => patientApi.getMyPatients(params),
     placeholderData: keepPreviousData,
+  })
+}
+
+/**
+ * Hook to get patient detail by id
+ */
+export const useGetPatientDetail = (patientId: number) => {
+  return useQuery({
+    queryKey: PATIENT_KEYS.detail(patientId),
+    queryFn: () => patientApi.getPatientDetail(patientId),
+    enabled: !!patientId,
   })
 }

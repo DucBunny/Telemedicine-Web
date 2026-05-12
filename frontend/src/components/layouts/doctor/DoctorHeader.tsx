@@ -30,15 +30,6 @@ export const DoctorHeader = ({ unreadCount, title }: DoctorHeaderProps) => {
       </div>
 
       <div className="flex shrink-0 items-center">
-        <div className="relative me-2 hidden lg:block">
-          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Tìm kiếm nhanh..."
-            className="w-48 border-gray-200 bg-gray-50 pr-4 pl-9 focus-visible:ring-teal-500 focus-visible:ring-offset-0 md:w-64"
-          />
-        </div>
-
         <Button
           variant="ghost"
           size="icon-lg"

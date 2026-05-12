@@ -51,21 +51,21 @@ export const DoctorLayout = () => {
   const { data: unreadCount = 0 } = useGetUnreadNotificationCount()
 
   return (
-    <SidebarProvider className="fixed h-dvh overflow-x-auto font-sans">
+    <SidebarProvider className="fixed h-dvh max-h-dvh overflow-hidden font-sans">
       {/* Sidebar */}
       <DoctorSidebar activeTab={activeTab} unreadCount={unreadCount} />
 
       {/* Main Content */}
-      <SidebarInset>
+      <SidebarInset className="min-h-0 overflow-hidden">
         {(isDesktop || !isHiddenHeader) && (
           <DoctorHeader unreadCount={unreadCount} title={pageTitle} />
         )}
 
-        <main
+        <div
           data-route-scroll-container="true"
-          className="h-svh w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
+          className="min-h-0 w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
           <Outlet />
-        </main>
+        </div>
 
         {/* Mobile Navigation */}
         {!isHiddenMobileNav && <MobileNav activeTab={activeTab} />}

@@ -43,7 +43,7 @@ export const useLoginMutation = () => {
     onError: (error) => {
       const errorMessage = getErrorMessage(error)
       toast.error(errorMessage || 'Đăng nhập thất bại')
-      console.error('Login failed:', errorMessage)
+      console.error('[Auth] Login Error:', errorMessage)
     },
     retry: false,
   })
@@ -64,7 +64,7 @@ export const useRegisterMutation = () => {
     onError: (error) => {
       const errorMessage = getErrorMessage(error)
       toast.error(errorMessage || 'Đăng ký thất bại')
-      console.error('Register failed:', errorMessage)
+      console.error('[Auth] Register Error:', errorMessage)
     },
     retry: false,
   })
@@ -87,7 +87,7 @@ export const useLogoutMutation = () => {
     },
     onError: (error) => {
       navigate({ to: '/' })
-      console.error('Logout failed:', getErrorMessage(error))
+      console.error('[Auth] Logout Error:', getErrorMessage(error))
     },
     retry: false,
   })

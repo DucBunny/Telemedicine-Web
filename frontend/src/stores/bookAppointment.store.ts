@@ -21,7 +21,14 @@ interface BookingAppointmentStore {
   resetForm: () => void
 }
 
-// Zustand store để quản lý state của form đặt lịch hẹn
+/**
+ * Zustand store để quản lý state của form đặt lịch hẹn
+ * - specialtyId: ID chuyên khoa (filter doctor list)
+ * - doctorId: ID bác sĩ cần đặt lịch hẹn
+ * - date: Ngày đặt lịch hẹn
+ * - time: Giờ đặt lịch hẹn
+ * - type: Loại lịch hẹn ('offline' | 'online')
+ */
 export const useBookingAppointment = create<BookingAppointmentStore>()(
   persist(
     (set) => ({

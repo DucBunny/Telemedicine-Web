@@ -5,13 +5,18 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
+import { BellRing } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type { Notification } from '@/features/notifications/types'
 import type { GetMyNotificationsParams } from '@/features/notifications/types/notification.dto'
 
 import { notificationApi } from '@/features/notifications/api/notification.api'
-import { subscribeToNotifications } from '@/lib/socket'
+import {
+  addNotificationListener,
+  addNotificationReadListener,
+  addUnreadCountListener,
+} from '@/stores/systemSocket.store'
 
 export const NOTIFICATION_KEYS = {
   all: ['notifications'] as const,
@@ -128,29 +133,50 @@ export const useDeleteNotification = () => {
 }
 
 /**
- * Hook to listen for realtime notifications via socket
+ * Hook to listen for realtime notifications via systemSocket (/system namespace).
+ * Dùng addNotificationListener từ systemSocket.store thay vì legacy socket (/ namespace).
  */
 export const useRealtimeNotifications = () => {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const handleNewNotification = (notification: Notification) => {
-      // Refresh notification lists and unread count
+    const unsubscribe = addNotificationListener(
+      (notification: Notification) => {
+        // Hiển thị toast ngay lập tức (ưu tiên hàng đầu)
+        toast('Thông báo mới', {
+          description: notification.title,
+          duration: 5000,
+          icon: <BellRing className="size-4.5" />,
+        })
+
+        // Cập nhật unread count trực tiếp vào cache (không trigger HTTP request)
+        queryClient.setQueryData(
+          NOTIFICATION_KEYS.unreadCount(),
+          (old: number | undefined) => (old ?? 0) + 1,
+        )
+
+        // Invalidate danh sách notification (defer nhẹ để không ảnh hưởng toast)
+        setTimeout(() => {
+          queryClient.invalidateQueries({
+            queryKey: NOTIFICATION_KEYS.lists(),
+          })
+        }, 300)
+      },
+    )
+
+    const unsubscribeRead = addNotificationReadListener(({ id }) => {
       queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.lists() })
-      queryClient.invalidateQueries({
-        queryKey: NOTIFICATION_KEYS.unreadCount(),
-      })
+      queryClient.invalidateQueries({ queryKey: NOTIFICATION_KEYS.detail(id) })
+    })
 
-      // Show toast notification
-      toast(notification.title || 'Thông báo mới', {
-        description: notification.content,
-      })
-    }
-
-    const unsubscribe = subscribeToNotifications(handleNewNotification)
+    const unsubscribeUnreadCount = addUnreadCountListener(({ count }) => {
+      queryClient.setQueryData(NOTIFICATION_KEYS.unreadCount(), count)
+    })
 
     return () => {
       unsubscribe()
+      unsubscribeRead()
+      unsubscribeUnreadCount()
     }
   }, [queryClient])
 }

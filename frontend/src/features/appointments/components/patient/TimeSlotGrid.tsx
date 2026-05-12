@@ -1,11 +1,8 @@
 import type { LucideIcon } from 'lucide-react'
+import type { TimeSlot } from '@/features/appointments/types'
 
 import { Button } from '@/components/ui/button'
-
-export interface TimeSlot {
-  time: string
-  isAvailable: boolean
-}
+import { cn } from '@/lib/utils'
 
 interface TimeSlotGridProps {
   title: string
@@ -14,6 +11,7 @@ interface TimeSlotGridProps {
   slots: Array<TimeSlot>
   selectedTime: string
   onSelectTime: (time: string) => void
+  gridClassName?: string
 }
 
 export const TimeSlotGrid = ({
@@ -23,6 +21,7 @@ export const TimeSlotGrid = ({
   slots,
   selectedTime,
   onSelectTime,
+  gridClassName,
 }: TimeSlotGridProps) => {
   const availableSlots = slots.filter((s) => s.isAvailable).length
 
@@ -41,7 +40,8 @@ export const TimeSlotGrid = ({
         </span>
       </div>
 
-      <div className="grid grid-cols-4 gap-3 lg:grid-cols-2">
+      <div
+        className={cn('grid grid-cols-4 gap-3 lg:grid-cols-2', gridClassName)}>
         {slots.map((slot) => {
           const isSelected = selectedTime === slot.time
           return (

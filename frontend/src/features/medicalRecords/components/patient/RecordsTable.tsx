@@ -20,7 +20,7 @@ import { formatShortDate, formatTime } from '@/lib/format-date'
 
 interface MedicalRecordsTableProps {
   data: ApiPaginatedResponse<MedicalRecord> | undefined
-  onViewDetail?: (recordId: string) => void
+  onViewDetail?: (recordId: number) => void
   pagination: UsePaginationReturn
 }
 
@@ -49,7 +49,7 @@ export const RecordsTable = ({
             records.map((record) => (
               <TableRow
                 key={record.id}
-                onDoubleClick={() => onViewDetail?.(String(record.id))}
+                onDoubleClick={() => onViewDetail?.(record.id)}
                 className="border-gray-100 hover:bg-teal-50/50">
                 {/* Cột Ngày & Giờ */}
                 <TableCell>
@@ -97,7 +97,7 @@ export const RecordsTable = ({
                   <Button
                     variant="ghost"
                     size="icon-sm"
-                    onClick={() => onViewDetail?.(String(record.id))}
+                    onClick={() => onViewDetail?.(record.id)}
                     className="text-teal-primary hover:text-teal-primary-foreground hover:bg-gray-100">
                     <Eye className="size-5" />
                   </Button>

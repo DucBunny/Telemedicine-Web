@@ -4,7 +4,10 @@ import { ChevronRight } from 'lucide-react'
 import type { DoctorStats } from '@/features/dashboard/types'
 import type { Doctor } from '@/features/doctors/types'
 
-import { useGetMyAppointments } from '@/features/appointments/hooks/useAppointmentQueries'
+import {
+  useGetMyAppointments,
+  useRealtimeAppointments,
+} from '@/features/appointments/hooks/useAppointmentQueries'
 import {
   AlertsCard,
   // PatientsTable,
@@ -23,6 +26,7 @@ export const DashboardPage = () => {
     limit: 5,
     status: ['confirmed'],
   })
+  useRealtimeAppointments()
   const { data: statsData, isLoading: isStatsLoading } =
     useGetDashboardStats<DoctorStats>()
 
@@ -47,9 +51,6 @@ export const DashboardPage = () => {
         <div className="space-y-3 md:space-y-6 lg:col-span-2">
           {/* Upcoming Appointments */}
           <UpcomingAppointments appointments={appointmentsData?.data} />
-
-          {/* Attention Patients Table */}
-          {/* <PatientsTable /> */}
         </div>
 
         {/* Alerts Column */}

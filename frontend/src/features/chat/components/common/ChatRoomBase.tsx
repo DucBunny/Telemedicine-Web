@@ -1,10 +1,11 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
+import { useQueryClient } from '@tanstack/react-query'
 import { isSameDay } from 'date-fns'
 import { toast } from 'sonner'
 
 import type { ChatMessage, MessageType } from '@/features/chat/types'
-import type { SocketChatMessage } from '@/lib/socket.types'
+import type { SocketChatMessage } from '@/sockets/socket.types'
 
 import {
   ChatHeader,
@@ -14,6 +15,7 @@ import {
   TypingIndicator,
 } from '@/features/chat/components/common'
 import {
+  CHAT_KEYS,
   useAddMessageToCache,
   useGetConversationDetail,
   useGetMessagesByConversationId,
@@ -21,8 +23,15 @@ import {
 } from '@/features/chat/hooks/useChatQueries'
 import { uploadApi } from '@/features/uploads/api/upload.api'
 import Loader, { LoaderItem } from '@/components/common/Loader'
-import { useChatSocket } from '@/lib/socket.hooks'
-import { useAuthStore } from '@/stores/auth.store'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
+// import { useChatSocket } from '@/sockets/socket.hooks'
+import {
+  addChatMessageListener,
+  addChatReadListener,
+  addChatTypingStartListener,
+  addChatTypingStopListener,
+  useChatSocketStore,
+} from '@/stores/chatSocket.store'
 
 interface MessageGroup {
   date: Date
@@ -35,7 +44,7 @@ interface ChatRoomBaseProps {
 }
 
 export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
-  const currentUser = useAuthStore((state) => state.user)
+  const currentUser = useAuthStore(selectUser)
 
   const [inputValue, setInputValue] = useState('')
   const [selectedFile, setSelectedFile] = useState<{
@@ -43,11 +52,13 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
     type: 'image' | 'file'
   } | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const previousScrollHeightRef = useRef(0)
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true)
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Get conversation detail
   const { data: conversationDetail } = useGetConversationDetail(conversationId)
@@ -65,37 +76,106 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
   const { mutateAsync: sendMessage, isPending: isSendMessagePending } =
     useSendMessage()
   const { addMessage } = useAddMessageToCache()
+  const queryClient = useQueryClient()
+  const {
+    joinConversation,
+    leaveConversation,
+    sendTypingStart,
+    sendTypingStop,
+    sendReadEvent,
+  } = useChatSocketStore()
 
   const allMessages = messagesData?.pages.flatMap((page) => page.data) || []
   const otherParticipant = conversationDetail?.user
 
-  // Socket for real-time messaging
-  const { isTyping, sendTyping, stopTyping } = useChatSocket({
-    userId: currentUser?.id || 0,
-    otherUserId: otherParticipant?.id || 0,
-    onMessage: useCallback(
+  // Khi vào conversation: join room + gửi read event ngay lập tức
+  useEffect(() => {
+    if (!conversationId) return
+    joinConversation(conversationId)
+    setIsTyping(false)
+    setShouldScrollToBottom(true)
+    sendReadEvent(conversationId)
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+      typingTimeoutRef.current = null
+    }
+    return () => leaveConversation(conversationId)
+  }, [conversationId, joinConversation, leaveConversation, sendReadEvent])
+
+  useEffect(() => {
+    const unsubscribeMessage = addChatMessageListener(
       (message: SocketChatMessage) => {
-        // Add new message to cache if it's from the other user
+        if (message.conversationId !== conversationId) return
+
+        const normalizedMessage: ChatMessage = {
+          id: message.id,
+          sender: {
+            id: message.sender.id,
+            fullName: message.sender.fullName,
+            avatar: message.sender.avatar ?? undefined,
+          },
+          type: message.type,
+          content: message.content,
+          status: message.status === 'read' ? 'read' : 'sent',
+          createdAt: message.createdAt,
+        }
+        addMessage(conversationId, normalizedMessage)
+        setShouldScrollToBottom(true)
+
+        // Nếu là tin nhắn từ người khác → gửi read event ngay qua socket
+        // Backend handler sẽ cập nhật DB + relay cho người kia
         if (message.sender.id !== currentUser?.id) {
-          const normalizedMessage: ChatMessage = {
-            id: message.id,
-            sender: {
-              id: message.sender.id,
-              fullName: message.sender.fullName,
-              avatar: message.sender.avatar ?? undefined,
-            },
-            type: message.type,
-            content: message.content,
-            status: message.status === 'read' ? 'read' : 'sent',
-            createdAt: message.createdAt,
-          }
-          addMessage(conversationId, normalizedMessage)
-          setShouldScrollToBottom(true)
+          sendReadEvent(conversationId)
         }
       },
-      [conversationId, currentUser?.id, addMessage],
-    ),
-  })
+    )
+
+    const unsubscribeRead = addChatReadListener((payload) => {
+      if (payload.conversationId !== conversationId) return
+      queryClient.invalidateQueries({
+        queryKey: CHAT_KEYS.messagesListByConversation(conversationId),
+      })
+      queryClient.invalidateQueries({ queryKey: CHAT_KEYS.conversations() })
+    })
+
+    const unsubscribeTypingStart = addChatTypingStartListener(
+      ({ userId, conversationId: typingConversationId }) => {
+        if (typingConversationId !== conversationId) return
+        if (userId === currentUser?.id) return
+        setIsTyping(true)
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current)
+        }
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false)
+          typingTimeoutRef.current = null
+        }, 3000)
+      },
+    )
+
+    const unsubscribeTypingStop = addChatTypingStopListener(
+      ({ userId, conversationId: typingConversationId }) => {
+        if (typingConversationId !== conversationId) return
+        if (userId === currentUser?.id) return
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current)
+          typingTimeoutRef.current = null
+        }
+        setIsTyping(false)
+      },
+    )
+
+    return () => {
+      unsubscribeMessage()
+      unsubscribeRead()
+      unsubscribeTypingStart()
+      unsubscribeTypingStop()
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+        typingTimeoutRef.current = null
+      }
+    }
+  }, [addMessage, conversationId, currentUser?.id, queryClient, sendReadEvent])
 
   // Load more trigger (for older messages when scrolling up)
   const { ref: loadMoreRef, inView } = useInView({ threshold: 0 })
@@ -165,7 +245,7 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
   const handleSendMessage = async () => {
     if (!inputValue.trim() && !selectedFile) return
 
-    stopTyping()
+    // stopTyping()
     setIsUploading(true)
 
     try {
@@ -200,9 +280,10 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
       // Clear inputs
       setInputValue('')
       setSelectedFile(null)
+      sendTypingStop(conversationId)
       setShouldScrollToBottom(true)
     } catch (error) {
-      console.error('Error sending message:', error)
+      console.error('[Chat] Send Message Error:', error)
       toast.error('Không thể gửi tin nhắn. Vui lòng thử lại.')
     } finally {
       setIsUploading(false)
@@ -211,19 +292,20 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
 
   const handleInputChange = (value: string) => {
     setInputValue(value)
+    if (!conversationId) return
     if (value.trim()) {
-      sendTyping()
+      sendTypingStart(conversationId)
     } else {
-      stopTyping()
+      sendTypingStop(conversationId)
     }
   }
 
   // Auto scroll to latest message
   useEffect(() => {
-    if (shouldScrollToBottom) {
+    if (shouldScrollToBottom || isTyping) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })
     }
-  }, [allMessages.length, shouldScrollToBottom])
+  }, [allMessages.length, isTyping, shouldScrollToBottom])
 
   if (isLoading) return <Loader />
 

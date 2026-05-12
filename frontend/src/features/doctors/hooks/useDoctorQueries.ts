@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
-import type { PaginationParams } from '@/types/api.type'
+import type { GetAllDoctorsParams } from '@/features/doctors/types/doctor.dto'
 
 import { doctorApi } from '@/features/doctors/api/doctor.api'
 
@@ -8,9 +8,8 @@ export const DOCTOR_KEYS = {
   all: ['doctors'] as const,
 
   lists: () => [...DOCTOR_KEYS.all, 'list'] as const,
-  list: (
-    params: PaginationParams & { specialtyId?: number; search?: string },
-  ) => [...DOCTOR_KEYS.lists(), params] as const,
+  list: (params: GetAllDoctorsParams) =>
+    [...DOCTOR_KEYS.lists(), params] as const,
 
   details: () => [...DOCTOR_KEYS.all, 'detail'] as const,
   detail: (doctorId: number) => [...DOCTOR_KEYS.details(), doctorId] as const,
@@ -19,9 +18,7 @@ export const DOCTOR_KEYS = {
 /**
  * Hook to get all doctors list
  */
-export const useGetDoctors = (
-  params: PaginationParams & { specialtyId?: number; search?: string },
-) => {
+export const useGetDoctors = (params: GetAllDoctorsParams) => {
   return useQuery({
     queryKey: DOCTOR_KEYS.list(params),
     queryFn: () => doctorApi.getAllDoctors(params),

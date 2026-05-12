@@ -45,7 +45,7 @@ export const ChangePasswordPage = () => {
         await changePassword(value)
         navigate({ to: '/doctor/settings' })
       } catch (error) {
-        console.error('Lỗi khi đổi mật khẩu:', error)
+        console.error('[Settings] Change Password Error:', error)
       }
     },
   })

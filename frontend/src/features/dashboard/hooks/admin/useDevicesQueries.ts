@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { deviceApi } from '../api/device.api'
+
 import type { PaginationParams } from '@/types/api.type'
+
+import { deviceApi } from '../api/device.api'
 
 const DEVICE_KEYS = {
   all: ['admin'] as const,

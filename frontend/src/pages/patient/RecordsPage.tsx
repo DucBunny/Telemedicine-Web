@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useDebounceValue } from 'usehooks-ts'
 
@@ -30,10 +30,17 @@ export const RecordsPage = () => {
     isError,
   } = useGetMyRecords({ page: p.page, limit: p.limit, search: debouncedSearch })
 
+  useEffect(() => {
+    p.reset()
+  }, [debouncedSearch])
+
   const allRecords = recordsData?.data ?? []
 
-  const handleRecordDetail = (recordId: string) => {
-    navigate({ to: '/patient/records/$recordId', params: { recordId } })
+  const handleRecordDetail = (recordId: number) => {
+    navigate({
+      to: '/patient/records/$recordId',
+      params: { recordId: String(recordId) },
+    })
   }
 
   const statsData = [

@@ -6,7 +6,7 @@ import { formatShortDate } from '@/lib/format-date'
 
 interface RecordCardProps {
   record: MedicalRecord
-  onClick?: (recordId: string) => void
+  onClick?: (recordId: number) => void
 }
 
 export const RecordCard = ({ record, onClick }: RecordCardProps) => {
@@ -47,7 +47,7 @@ export const RecordCard = ({ record, onClick }: RecordCardProps) => {
       <Button
         variant={'teal_primary'}
         size="lg"
-        onClick={() => onClick?.(String(record.id))}
+        onClick={() => onClick?.(record.id)}
         className="w-full rounded-xl text-sm">
         Xem chi tiết
       </Button>

@@ -1,10 +1,12 @@
-import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { CalendarPlus } from 'lucide-react'
 
 import type { Patient } from '@/features/patients/types'
 
-import { useGetMyAppointments } from '@/features/appointments/hooks/useAppointmentQueries'
+import {
+  useGetMyAppointments,
+  useRealtimeAppointments,
+} from '@/features/appointments/hooks/useAppointmentQueries'
 import {
   AppointmentCard,
   ECGChart,
@@ -17,8 +19,7 @@ import { useHealthData } from '@/features/health/hooks/useHealthData'
 import { useGetUnreadNotificationCount } from '@/features/notifications/hooks/useNotificationQueries'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
 import { Button } from '@/components/ui/button'
-import { disconnectSocket, initSocket } from '@/lib/socket'
-import { useAuthStore } from '@/stores/auth.store'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
 
 export const HomePage = () => {
   const { data: profileData } = useGetProfile<Patient>()
@@ -27,20 +28,12 @@ export const HomePage = () => {
     limit: 5,
     status: ['confirmed'],
   })
+  useRealtimeAppointments()
   const { data: unreadCount } = useGetUnreadNotificationCount()
 
-  const user = useAuthStore((s) => s.user)
+  const user = useAuthStore(selectUser)
   const { healthData, latestData } = useHealthData(user!.id)
   const { alerts } = useHealthAlerts()
-  useEffect(() => {
-    // Khởi tạo socket khi component mount
-    initSocket({ userId: user?.id, patientId: profileData?.userId })
-
-    return () => {
-      // Disconnect khi unmount
-      disconnectSocket()
-    }
-  }, [user!.id])
 
   return (
     <div className="px-4">
@@ -48,7 +41,7 @@ export const HomePage = () => {
 
       <div className="grid grid-cols-1 gap-3 md:gap-6 lg:grid-cols-12">
         {/* Cột trái */}
-        <div className="flex flex-col gap-3 md:gap-6 lg:col-span-8">
+        <div className="flex flex-col gap-3 md:gap-4 lg:col-span-8">
           {/* Các thẻ chỉ số cơ bản */}
           <StatCards profileData={profileData} />
 

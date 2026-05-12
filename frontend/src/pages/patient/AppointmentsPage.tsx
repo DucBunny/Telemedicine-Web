@@ -1,21 +1,27 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 
+import type { AppointmentStatus } from '@/features/appointments/types'
+
 import {
   AppointmentCard,
   AppointmentStatusFilter,
   SpecialtyPickerDialog,
 } from '@/features/appointments/components/patient'
-import { useGetMyAppointments } from '@/features/appointments/hooks/useAppointmentQueries'
+import {
+  useGetMyAppointments,
+  useRealtimeAppointments,
+} from '@/features/appointments/hooks/useAppointmentQueries'
 import LoaderScreen from '@/components/common/Loader'
 import { MainPageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
 
 export const AppointmentsPage = () => {
-  const [statusFilter, setStatusFilter] = useState('upcoming')
+  const [statusFilter, setStatusFilter] =
+    useState<AppointmentStatus>('upcoming')
   const [bookingOpen, setBookingOpen] = useState(false)
 
-  const statusParam =
+  const statusParam: Array<AppointmentStatus> =
     statusFilter === 'upcoming' ? ['confirmed', 'pending'] : [statusFilter]
 
   const {
@@ -27,6 +33,8 @@ export const AppointmentsPage = () => {
     limit: 20,
     status: statusParam,
   })
+
+  useRealtimeAppointments()
 
   if (isLoading) return <LoaderScreen />
 

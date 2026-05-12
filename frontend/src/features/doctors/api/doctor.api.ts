@@ -1,9 +1,6 @@
 import type { Doctor } from '@/features/doctors/types'
-import type {
-  ApiPaginatedResponse,
-  ApiSuccessResponse,
-  PaginationParams,
-} from '@/types/api.type'
+import type { GetAllDoctorsParams } from '@/features/doctors/types/doctor.dto'
+import type { ApiPaginatedResponse, ApiSuccessResponse } from '@/types/api.type'
 
 import { apiClient } from '@/lib/axios'
 
@@ -13,12 +10,7 @@ export const doctorApi = {
   /**
    * Get all doctors (for patient to browse and book) (offset-limit based)
    */
-  getAllDoctors: async (
-    params: PaginationParams & {
-      search?: string
-      specialtyId?: number | null
-    },
-  ) => {
+  getAllDoctors: async (params: GetAllDoctorsParams) => {
     const { data } = await apiClient.get<ApiPaginatedResponse<Doctor>>(
       DOCTOR_BASE,
       { params },

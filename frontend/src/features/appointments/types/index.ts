@@ -27,3 +27,8 @@ export interface Appointment {
   doctor?: Doctor
   patient?: Patient
 }
+
+export interface TimeSlot {
+  time: string
+  isAvailable: boolean
+}

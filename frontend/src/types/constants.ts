@@ -1,4 +1,5 @@
 import type { BadgeVariant } from '@/components/ui/badge'
+import type { TimeSlot } from '@/features/appointments/types'
 import type { NotificationType } from '@/features/notifications/types'
 import type { BloodTypeOption, GenderOption } from '@/features/patients/types'
 
@@ -73,3 +74,24 @@ export const NOTIFICATION_TYPE_FILTERS: Record<
     variant: 'teal_blur',
   },
 } as const
+
+export const BASE_MORNING_SLOTS: Array<TimeSlot> = [
+  { time: '08:00', isAvailable: false },
+  { time: '08:30', isAvailable: false },
+  { time: '09:00', isAvailable: false },
+  { time: '09:30', isAvailable: false },
+  { time: '10:00', isAvailable: false },
+  { time: '10:30', isAvailable: false },
+  { time: '11:00', isAvailable: false },
+  { time: '11:30', isAvailable: false },
+]
+
+export const BASE_AFTERNOON_SLOTS: Array<TimeSlot> = [
+  { time: '13:30', isAvailable: false },
+  { time: '14:00', isAvailable: false },
+  { time: '14:30', isAvailable: false },
+  { time: '15:00', isAvailable: false },
+  { time: '15:30', isAvailable: false },
+  { time: '16:00', isAvailable: false },
+  { time: '16:30', isAvailable: false },
+]

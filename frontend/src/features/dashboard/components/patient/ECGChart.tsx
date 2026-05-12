@@ -131,9 +131,9 @@ export const ECGChart = () => {
   }, [])
 
   return (
-    <div className="flex grid-cols-12 flex-col gap-3 md:grid lg:flex xl:grid">
+    <div className="flex grid-cols-11 flex-col gap-3 md:gap-4 xl:grid xl:gap-3">
       {/* Left */}
-      <div className="order-last col-span-10 rounded-2xl border border-gray-100 bg-white p-3 text-white shadow-sm md:order-first lg:order-last xl:order-first">
+      <div className="order-last col-span-9 rounded-2xl border border-gray-100 bg-white p-3 text-white shadow-sm xl:order-first">
         {/* <div className="mb-4 flex gap-6 rounded-md border border-gray-700 bg-gray-800 p-3 text-sm">
         <p className="flex items-center gap-2">
           <span className="text-gray-400">Trạng thái kết nối:</span>
@@ -175,7 +175,7 @@ export const ECGChart = () => {
       </div>
 
       {/* Right */}
-      <div className="order-first col-span-2 flex gap-3 md:order-last md:flex-col lg:order-first xl:order-last">
+      <div className="order-first col-span-2 flex gap-3 md:gap-4 xl:order-last xl:flex-col xl:gap-3">
         {/* Card 1: Phân loại nhịp */}
         <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm">
           <h3 className="text-sm font-medium text-slate-500 md:text-base">

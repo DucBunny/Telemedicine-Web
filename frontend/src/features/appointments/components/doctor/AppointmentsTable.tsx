@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { Calendar, CheckCircle, Hospital, Info, Video, X } from 'lucide-react'
+import {
+  Calendar,
+  CheckCircle,
+  Hospital,
+  Info,
+  RefreshCw,
+  Video,
+  X,
+} from 'lucide-react'
 
 import type { Appointment } from '@/features/appointments/types'
 import type { UsePaginationReturn } from '@/hooks/usePagination'
@@ -7,9 +15,14 @@ import type { ApiPaginatedResponse } from '@/types/api.type'
 
 import {
   AppointmentDetailDialog,
+  AppointmentStatusCorrectionDialog,
   CancelAppointmentDialog,
 } from '@/features/appointments/components/doctor'
 import { useConfirmAppointment } from '@/features/appointments/hooks/useAppointmentQueries'
+import {
+  canDoctorPatchAppointmentStatus,
+  isAppointmentConfirmLockedByTime,
+} from '@/features/appointments/utils/doctor-appointment-rules'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import LoaderScreen from '@/components/common/Loader'
 import { PaginationControls } from '@/components/common/PaginationControls'
@@ -30,6 +43,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatShortDate, formatTime } from '@/lib/format-date'
+import { cn } from '@/lib/utils'
 import { APPOINTMENT_STATUS_FILTERS } from '@/types/constants'
 
 interface AppointmentsTableProps {
@@ -53,7 +67,13 @@ export const AppointmentsTable = ({
     useState<Appointment | null>(null)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [statusCorrectionOpen, setStatusCorrectionOpen] = useState(false)
+
   const { mutateAsync: confirmAppointment } = useConfirmAppointment()
+
+  const confirmTimeLocked = selectedAppointment
+    ? isAppointmentConfirmLockedByTime(selectedAppointment.scheduledAt)
+    : false
 
   if (isLoading) return <LoaderScreen className="h-64" />
 
@@ -74,7 +94,7 @@ export const AppointmentsTable = ({
             <TableHead className="w-25">Thời gian</TableHead>
             <TableHead className="w-25 text-center">Loại khám</TableHead>
             <TableHead className="w-50">Lý do</TableHead>
-            <TableHead className="w-25 text-center">Trạng thái</TableHead>
+            <TableHead className="w-30 text-center">Trạng thái</TableHead>
             <TableHead className="w-32"></TableHead>
           </TableRow>
         </TableHeader>
@@ -85,6 +105,10 @@ export const AppointmentsTable = ({
               const isOnline = appt.type === 'online'
               const statusOption = APPOINTMENT_STATUS_FILTERS[appt.status]
               const isCancelled = appt.status === 'cancelled'
+              const confirmLocked =
+                appt.status === 'pending' &&
+                isAppointmentConfirmLockedByTime(appt.scheduledAt)
+              const canStatusPatch = canDoctorPatchAppointmentStatus(appt)
 
               return (
                 <TableRow
@@ -134,7 +158,7 @@ export const AppointmentsTable = ({
                   </TableCell>
 
                   {/* Cột lý do */}
-                  <TableCell className="max-w-xs min-w-0 truncate text-xs md:text-sm">
+                  <TableCell className="min-w-0 truncate">
                     {isCancelled ? appt.cancelReason : appt.reason}
                   </TableCell>
 
@@ -154,15 +178,25 @@ export const AppointmentsTable = ({
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              className="text-green-600 hover:bg-green-50 hover:text-green-700"
+                              disabled={confirmLocked}
+                              className={cn(
+                                'text-green-600 hover:bg-green-50 hover:text-green-700',
+                                confirmLocked &&
+                                  'opacity-40 hover:bg-transparent hover:text-green-600',
+                              )}
                               onClick={() => {
+                                if (confirmLocked) return
                                 setSelectedAppointment(appt)
                                 setIsConfirmDialogOpen(true)
                               }}>
                               <CheckCircle className="size-5" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent side="top">Xác nhận</TooltipContent>
+                          <TooltipContent side="top">
+                            {confirmLocked
+                              ? 'Không thể xác nhận trong vòng 15 phút trước giờ hẹn'
+                              : 'Xác nhận'}
+                          </TooltipContent>
                         </Tooltip>
                       )}
 
@@ -181,6 +215,33 @@ export const AppointmentsTable = ({
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent side="top">Hủy</TooltipContent>
+                        </Tooltip>
+                      )}
+
+                      {['confirmed', 'cancelled'].includes(appt.status) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              hidden={!canStatusPatch}
+                              className={cn(
+                                'text-amber-600 hover:bg-amber-50 hover:text-amber-800',
+                                !canStatusPatch &&
+                                  'opacity-40 hover:bg-transparent hover:text-amber-600',
+                              )}
+                              onClick={() => {
+                                if (!canStatusPatch) return
+                                setSelectedAppointment(appt)
+                                setStatusCorrectionOpen(true)
+                              }}>
+                              <RefreshCw className="size-5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-34">
+                            Đổi trạng thái sau ca (Hoàn thành/Hủy) trong vòng 48
+                            giờ sau khi kết thúc ca
+                          </TooltipContent>
                         </Tooltip>
                       )}
 
@@ -237,6 +298,12 @@ export const AppointmentsTable = ({
         appointment={selectedAppointment}
       />
 
+      <AppointmentStatusCorrectionDialog
+        open={statusCorrectionOpen}
+        onOpenChange={() => setStatusCorrectionOpen(false)}
+        appointment={selectedAppointment}
+      />
+
       <CancelAppointmentDialog
         isOpen={isCancelDialogOpen}
         onOpenChange={() => setIsCancelDialogOpen(false)}
@@ -261,7 +328,13 @@ export const AppointmentsTable = ({
             <span className="text-teal-primary font-semibold">
               {formatShortDate(selectedAppointment?.scheduledAt ?? new Date())}
             </span>{' '}
-            không?
+            không?{' '}
+            {confirmTimeLocked && (
+              <span className="text-sm text-amber-700">
+                Không thể xác nhận khi đã quá gần hoặc đã qua giờ hẹn (trước giờ
+                khám dưới 15 phút).
+              </span>
+            )}
           </p>
         }
         cancelButton={
@@ -277,7 +350,9 @@ export const AppointmentsTable = ({
           <Button
             type="button"
             variant="teal_primary"
+            disabled={confirmTimeLocked}
             onClick={() => {
+              if (confirmTimeLocked) return
               confirmAppointment(selectedAppointment?.id ?? 0)
               setIsConfirmDialogOpen(false)
             }}

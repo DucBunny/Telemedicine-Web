@@ -95,8 +95,8 @@ export const EditProfilePage = () => {
         await updateDoctorProfile(doctorSchema.parse(value))
 
         navigate({ to: '/doctor/settings' })
-      } catch (error: unknown) {
-        console.error('Lỗi khi lưu thông tin:', error)
+      } catch (error) {
+        console.error('[Settings] Edit Profile Error:', error)
       } finally {
         setIsSubmitting(false)
       }

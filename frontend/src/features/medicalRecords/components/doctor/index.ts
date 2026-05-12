@@ -1,0 +1,1 @@
+export { RecordPatientCard } from './RecordPatientCard'

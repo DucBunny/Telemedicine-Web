@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import type {
   CreateRecordBody,
   GetMyRecordsParams,
+  GetPatientMedicalRecordsParams,
   UpdateRecordBody,
 } from '@/features/medicalRecords/types/record.dto'
 
@@ -21,6 +22,10 @@ export const RECORD_KEYS = {
   lists: () => [...RECORD_KEYS.all, 'list'] as const,
   list: (params?: GetMyRecordsParams) =>
     [...RECORD_KEYS.lists(), params] as const,
+  listByPatientId: (
+    patientId: number,
+    params: GetPatientMedicalRecordsParams,
+  ) => [...RECORD_KEYS.lists(), 'patient', patientId, params] as const,
 
   details: () => [...RECORD_KEYS.all, 'detail'] as const,
   detail: (id: number) => [...RECORD_KEYS.details(), id] as const,
@@ -107,5 +112,21 @@ export const useDeleteRecord = () => {
       toast.error(errorMessage || 'Xoá hồ sơ thất bại')
     },
     retry: false,
+  })
+}
+
+/**
+ * Hook to get medical records by patient ID and current doctor ID
+ */
+export const useGetRecordsByPatientIdAndCurrentDoctor = (
+  patientId: number,
+  params: GetPatientMedicalRecordsParams,
+) => {
+  return useQuery({
+    queryKey: RECORD_KEYS.listByPatientId(patientId, params),
+    queryFn: () =>
+      recordApi.getRecordsByPatientIdAndCurrentDoctor(patientId, params),
+    enabled: !!patientId,
+    placeholderData: keepPreviousData,
   })
 }

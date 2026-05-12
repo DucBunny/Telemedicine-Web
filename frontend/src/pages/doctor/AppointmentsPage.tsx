@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDebounceValue } from 'usehooks-ts'
 
 import type {
@@ -8,12 +8,18 @@ import type {
 
 import {
   AppointmentsTable,
+  DoctorCreateAppointmentDialog,
   Filters,
 } from '@/features/appointments/components/doctor'
-import { useGetMyAppointments } from '@/features/appointments/hooks/useAppointmentQueries'
+import {
+  useGetMyAppointments,
+  useRealtimeAppointments,
+} from '@/features/appointments/hooks/useAppointmentQueries'
 import { usePagination } from '@/hooks/usePagination'
 
 export const AppointmentsPage = () => {
+  const [createAppointmentOpen, setCreateAppointmentOpen] = useState(false)
+
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounceValue(search, 500) // 500ms delay before fetching
 
@@ -27,6 +33,8 @@ export const AppointmentsPage = () => {
     initialPage: 1,
     initialLimit: 5,
   })
+
+  useRealtimeAppointments()
 
   const handleApplyFilters = ({
     statusFilter: nextStatusFilter,
@@ -56,6 +64,10 @@ export const AppointmentsPage = () => {
     search: debouncedSearch,
   })
 
+  useEffect(() => {
+    p.reset()
+  }, [debouncedSearch])
+
   return (
     <div className="space-y-3 p-4 md:space-y-6 md:p-0">
       {/* Filters & Actions */}
@@ -67,6 +79,7 @@ export const AppointmentsPage = () => {
         onApplyFilters={handleApplyFilters}
         search={search}
         setSearch={setSearch}
+        onOpenCreateAppointment={() => setCreateAppointmentOpen(true)}
       />
 
       {/* Appointments List */}
@@ -75,6 +88,11 @@ export const AppointmentsPage = () => {
         pagination={p}
         isLoading={isLoading}
         isError={isError}
+      />
+
+      <DoctorCreateAppointmentDialog
+        open={createAppointmentOpen}
+        onOpenChange={setCreateAppointmentOpen}
       />
     </div>
   )

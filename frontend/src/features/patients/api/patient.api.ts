@@ -1,6 +1,6 @@
 import type { Patient } from '@/features/patients/types'
 import type { GetMyPatientsParams } from '@/features/patients/types/patient.dto'
-import type { ApiPaginatedResponse } from '@/types/api.type'
+import type { ApiPaginatedResponse, ApiSuccessResponse } from '@/types/api.type'
 
 import { apiClient } from '@/lib/axios'
 
@@ -17,5 +17,16 @@ export const patientApi = {
     )
 
     return data
+  },
+
+  /**
+   * Get patient detail by id
+   */
+  getPatientDetail: async (patientId: number) => {
+    const { data } = await apiClient.get<ApiSuccessResponse<Patient>>(
+      `${PATIENT_BASE}/${patientId}`,
+    )
+
+    return data.data
   },
 }

@@ -3,8 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { ArrowRight, Clock, CloudSun, Sun } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
-import type { TimeSlot } from '@/features/appointments/components/patient/TimeSlotGrid'
-import type { AppointmentType } from '@/features/appointments/types'
+import type { AppointmentType, TimeSlot } from '@/features/appointments/types'
 
 import {
   CalendarWidget,
@@ -29,27 +28,7 @@ import {
 } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
 import { useBookingAppointment } from '@/stores/bookAppointment.store'
-
-const BASE_MORNING_SLOTS: Array<TimeSlot> = [
-  { time: '08:00', isAvailable: false },
-  { time: '08:30', isAvailable: false },
-  { time: '09:00', isAvailable: false },
-  { time: '09:30', isAvailable: false },
-  { time: '10:00', isAvailable: false },
-  { time: '10:30', isAvailable: false },
-  { time: '11:00', isAvailable: false },
-  { time: '11:30', isAvailable: false },
-]
-
-const BASE_AFTERNOON_SLOTS: Array<TimeSlot> = [
-  { time: '13:30', isAvailable: false },
-  { time: '14:00', isAvailable: false },
-  { time: '14:30', isAvailable: false },
-  { time: '15:00', isAvailable: false },
-  { time: '15:30', isAvailable: false },
-  { time: '16:00', isAvailable: false },
-  { time: '16:30', isAvailable: false },
-]
+import { BASE_AFTERNOON_SLOTS, BASE_MORNING_SLOTS } from '@/types/constants'
 
 export const TimeSelectionPage = () => {
   const doctorId = useBookingAppointment((state) => state.doctorId)

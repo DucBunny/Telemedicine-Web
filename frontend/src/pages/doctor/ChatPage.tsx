@@ -1,13 +1,28 @@
+import { useEffect } from 'react'
 import { useParams } from '@tanstack/react-router'
 
 import { ChatDesktopLayout } from '@/features/chat/components/common/ChatDesktopLayout'
 import { ChatEmptyState } from '@/features/chat/components/common/ChatEmptyState'
 import { ChatList, ChatRoom } from '@/features/chat/components/doctor'
+import { useAuthStore } from '@/stores/auth.store'
+import { useChatSocketStore } from '@/stores/chatSocket.store'
 
 export const ChatPage = () => {
   // Try to get conversationId from params (undefined if on index route)
   const params = useParams({ strict: false })
   const conversationId = params.conversationId
+  const { connect, disconnect } = useChatSocketStore()
+  const accessToken = useAuthStore((s) => s.accessToken)
+
+  useEffect(() => {
+    if (!accessToken) {
+      disconnect()
+      return
+    }
+
+    connect()
+    return () => disconnect()
+  }, [accessToken, connect, disconnect])
 
   return (
     <>

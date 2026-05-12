@@ -1,8 +1,9 @@
 import type { ChatConversation } from '@/features/chat/types'
 
-import { SafeImage } from '@/components/common/SafeImage'
+import { StatusAvatar } from '@/components/common/StatusAvatar'
 import { formatDistanceToNowWithSeconds } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
+import { usePresenceStore } from '@/stores/presence.store'
 
 interface ChatItemProps {
   conversation: ChatConversation
@@ -15,7 +16,10 @@ export const ChatItem = ({
   onClick,
   isActive,
 }: ChatItemProps) => {
-  const hasUnread = conversation.unreadCount > 0
+  const hasUnread = conversation.unreadCount > 0 && !isActive
+  const isUserOnline = usePresenceStore(
+    (state) => !!state.onlineUsers[conversation.user.id],
+  )
 
   return (
     <div
@@ -27,13 +31,12 @@ export const ChatItem = ({
           : 'hover:bg-gray-100 active:bg-gray-200',
       )}>
       {/* Avatar */}
-      <div className="relative shrink-0">
-        <SafeImage
-          src={conversation.user.avatar}
-          alt={conversation.user.fullName}
-          className="size-14 rounded-full bg-gray-200 object-cover"
-        />
-      </div>
+      <StatusAvatar
+        isUserOnline={isUserOnline}
+        src={conversation.user.avatar}
+        alt={conversation.user.fullName}
+        className="size-14"
+      />
 
       {/* Chat Info */}
       <div className="min-w-0 flex-1 space-y-1">

@@ -7,10 +7,11 @@ import {
   AppointmentDetailDialog,
   CancelAppointmentDialog,
 } from '@/features/appointments/components/patient'
-import { SafeImage } from '@/components/common/SafeImage'
+import { StatusAvatar } from '@/components/common/StatusAvatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatLongDate, formatTime } from '@/lib/format-date'
+import { usePresenceStore } from '@/stores/presence.store'
 import { APPOINTMENT_STATUS_FILTERS } from '@/types/constants'
 
 interface AppointmentCardProps {
@@ -18,6 +19,10 @@ interface AppointmentCardProps {
 }
 
 export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
+  const isUserOnline = usePresenceStore(
+    (state) => !!state.onlineUsers[appointment.doctor?.userId ?? 0],
+  )
+
   const isOnline = appointment.type === 'online'
   const statusOption = APPOINTMENT_STATUS_FILTERS[appointment.status]
   const isShowCancelButton =
@@ -30,15 +35,17 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
 
   return (
-    <div className="teal700 relative flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-800">
+    <div className="relative flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-gray-800">
       {/* Doctor Info & Status */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <SafeImage
-            className="ring-teal-primary/50 size-12 rounded-full border-2 border-white/40 ring-2"
+          <StatusAvatar
+            isUserOnline={isUserOnline}
             src={appointment.doctor?.user.avatar}
             alt={appointment.doctor?.user.fullName}
+            className="size-12"
           />
+
           <div>
             <h3 className="text-base leading-tight font-bold dark:text-white">
               {appointment.doctor?.degree}. {appointment.doctor?.user.fullName}

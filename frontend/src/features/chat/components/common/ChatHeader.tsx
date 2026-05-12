@@ -2,8 +2,9 @@ import { ArrowLeft, Info, Phone, Video } from 'lucide-react'
 
 import type { ChatUser } from '@/features/chat/types'
 
-import { SafeImage } from '@/components/common/SafeImage'
+import { StatusAvatar } from '@/components/common/StatusAvatar'
 import { Button } from '@/components/ui/button'
+import { usePresenceStore } from '@/stores/presence.store'
 
 interface ChatHeaderProps {
   otherParticipant?: ChatUser
@@ -11,6 +12,10 @@ interface ChatHeaderProps {
 }
 
 export const ChatHeader = ({ otherParticipant, onBack }: ChatHeaderProps) => {
+  const isUserOnline = usePresenceStore(
+    (state) => !!state.onlineUsers[otherParticipant?.id ?? 0],
+  )
+
   return (
     <div className="z-50 border-b border-gray-100 bg-white p-2 md:ml-20 lg:ml-0">
       <div className="flex w-full items-center justify-between gap-1">
@@ -23,24 +28,21 @@ export const ChatHeader = ({ otherParticipant, onBack }: ChatHeaderProps) => {
             <ArrowLeft className="size-5" />
           </Button>
 
-          <div className="relative shrink-0">
-            <SafeImage
-              className="size-10 rounded-full bg-cover bg-center"
-              src={otherParticipant?.avatar}
-              alt={otherParticipant?.fullName}
-            />
-            {otherParticipant && (
-              <span className="absolute right-0 bottom-0 size-3 rounded-full border-2 border-white bg-green-500 dark:border-gray-900"></span>
-            )}
-          </div>
+          <StatusAvatar
+            isUserOnline={isUserOnline}
+            src={otherParticipant?.avatar}
+            alt={otherParticipant?.fullName}
+            className="size-10"
+            sizeDot="sm"
+          />
 
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-base font-bold">
               {otherParticipant?.fullName}
             </h2>
-            <p className="text-sm">
-              {otherParticipant ? 'Đang hoạt động' : 'Không hoạt động'}
-            </p>
+            {isUserOnline && (
+              <p className="text-xs text-slate-600">Đang hoạt động</p>
+            )}
           </div>
         </div>
 

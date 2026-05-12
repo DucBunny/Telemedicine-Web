@@ -8,7 +8,10 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 
 import { authApi } from '@/features/auth/api/auth.api'
+import { userApi } from '@/features/users/api/user.api'
 import { selectIsInitialized, useAuthStore } from '@/stores/auth.store'
+import { usePresenceStore } from '@/stores/presence.store'
+import { useSystemSocketStore } from '@/stores/systemSocket.store'
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -43,7 +46,45 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function rootComponent() {
   const isInitialized = useAuthStore(selectIsInitialized)
   const { pathname } = useLocation()
+  const accessToken = useAuthStore((s) => s.accessToken)
+  const { connect, disconnect } = useSystemSocketStore()
+  const { setInitialStatuses } = usePresenceStore()
 
+  // Kết nối socket khi có token và user
+  useEffect(() => {
+    let isMounted = true
+
+    const initializeRealtime = async () => {
+      // Nếu không có token -> Ngắt kết nối và dừng
+      if (!accessToken) {
+        disconnect()
+        return
+      }
+
+      try {
+        const data = await userApi.getMyRelatedUsersPresence()
+        if (isMounted) setInitialStatuses(data)
+      } catch (error) {
+        console.error(
+          '[Root] Error while loading initial online statuses:',
+          error,
+        )
+      } finally {
+        // Bất kể API lỗi hay thành công, luôn mở kết nối Socket sau đó
+        if (isMounted) connect()
+      }
+    }
+
+    initializeRealtime()
+
+    // Ngắt kết nối khi component unmount
+    return () => {
+      isMounted = false
+      disconnect()
+    }
+  }, [accessToken, connect, disconnect, setInitialStatuses])
+
+  // Cuộn lên đầu trang khi thay đổi route
   useEffect(() => {
     const scrollContainer = document.querySelector<HTMLElement>(
       '[data-route-scroll-container="true"]',

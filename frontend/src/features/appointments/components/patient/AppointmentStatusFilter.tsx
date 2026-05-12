@@ -1,5 +1,7 @@
 import { motion } from 'motion/react'
 
+import type { AppointmentStatus } from '@/features/appointments/types'
+
 import { Button } from '@/components/ui/button'
 
 const DISPLAY_OPTIONS = [
@@ -9,8 +11,8 @@ const DISPLAY_OPTIONS = [
 ] as const
 
 interface AppointmentStatusFilterProps {
-  value: string
-  onChange: (value: string) => void
+  value: AppointmentStatus
+  onChange: (value: AppointmentStatus) => void
 }
 
 export const AppointmentStatusFilter = ({

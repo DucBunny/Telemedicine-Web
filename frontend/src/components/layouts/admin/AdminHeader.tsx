@@ -1,7 +1,7 @@
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 import { SafeImage } from '@/components/common/SafeImage'
-import { useAuthStore } from '@/stores/auth.store'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
 
 interface AdminHeaderProps {
   isSidebarCollapsed: boolean
@@ -14,7 +14,7 @@ export const AdminHeader = ({
   setIsSidebarCollapsed,
   activeTab,
 }: AdminHeaderProps) => {
-  const user = useAuthStore((state) => state.user)
+  const user = useAuthStore(selectUser)
 
   return (
     <header className="z-20 flex h-18.25 items-center justify-between border-b border-gray-200 bg-white px-6 py-4">

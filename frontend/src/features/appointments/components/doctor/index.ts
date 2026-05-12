@@ -1,4 +1,6 @@
 export { AppointmentDetailDialog } from './AppointmentDetailDialog'
 export { AppointmentsTable } from './AppointmentsTable'
+export { AppointmentStatusCorrectionDialog } from './AppointmentStatusCorrectionDialog'
 export { CancelAppointmentDialog } from './CancelAppointmentDialog'
+export { DoctorCreateAppointmentDialog } from './DoctorCreateAppointmentDialog'
 export { Filters } from './Filters'

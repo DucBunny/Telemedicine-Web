@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useNavigate } from '@tanstack/react-router'
 import { Check, Ellipsis } from 'lucide-react'
@@ -17,8 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { disconnectSocket, initSocket } from '@/lib/socket'
-import { useAuthStore } from '@/stores/auth.store'
 
 const filterOptions = [
   { id: 'all', label: 'Tất cả' },
@@ -27,7 +25,6 @@ const filterOptions = [
 
 export const NotificationsPage = () => {
   const navigate = useNavigate()
-  const user = useAuthStore((s) => s.user)
 
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
@@ -57,16 +54,6 @@ export const NotificationsPage = () => {
 
   // Flatten all pages into a single list
   const notifications = data?.pages.flatMap((page) => page.data) ?? []
-
-  useEffect(() => {
-    // Khởi tạo socket khi component mount
-    initSocket({ userId: user?.id })
-
-    return () => {
-      // Disconnect khi unmount
-      disconnectSocket()
-    }
-  }, [user!.id])
 
   const handleBack = () => {
     navigate({ to: '/patient' })

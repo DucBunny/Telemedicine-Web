@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   keepPreviousData,
   useInfiniteQuery,
@@ -15,6 +16,10 @@ import type {
 import type { ApiCursorPaginatedResponse } from '@/types/api.type'
 
 import { chatApi } from '@/features/chat/api/chat.api'
+import {
+  addChatMessageListener,
+  addChatReadListener,
+} from '@/stores/chatSocket.store'
 
 export const CHAT_KEYS = {
   all: ['chat'] as const,
@@ -123,18 +128,22 @@ export const useAddMessageToCache = () => {
     >(CHAT_KEYS.messagesListByConversation(conversationId), (oldData) => {
       if (!oldData) return oldData
 
-      // Add message to the first page (newest messages)
+      const hasMessage = oldData.pages.some((page) =>
+        page.data.some((item) => item.id === message.id),
+      )
+      if (hasMessage) return oldData
+
+      const [firstPage, ...restPages] = oldData.pages
+
       return {
         ...oldData,
-        pages: oldData.pages.map((page, index) => {
-          if (index === 0) {
-            return {
-              ...page,
-              data: [...page.data, message],
-            }
-          }
-          return page
-        }),
+        pages: [
+          {
+            ...firstPage,
+            data: [...firstPage.data, message],
+          },
+          ...restPages,
+        ],
       }
     })
 
@@ -162,6 +171,28 @@ export const useMarkAllMessagesAsRead = () => {
       queryClient.invalidateQueries({ queryKey: CHAT_KEYS.conversations() })
     },
   })
+}
+
+/**
+ * Hook to listen for realtime updates that affect chat lists
+ */
+export const useRealtimeChatList = () => {
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    const unsubscribeMessage = addChatMessageListener(() => {
+      queryClient.invalidateQueries({ queryKey: CHAT_KEYS.conversations() })
+    })
+
+    const unsubscribeRead = addChatReadListener(() => {
+      queryClient.invalidateQueries({ queryKey: CHAT_KEYS.conversations() })
+    })
+
+    return () => {
+      unsubscribeMessage()
+      unsubscribeRead()
+    }
+  }, [queryClient])
 }
 
 /**

@@ -4,6 +4,8 @@ import type {
   CreateAppointmentBody,
   GetAvailableSlotsParams,
   GetMyAppointmentsParams,
+  GetPatientAppointmentsParams,
+  PatchAppointmentStatusBody,
 } from '@/features/appointments/types/appointment.dto'
 import type { ApiPaginatedResponse, ApiSuccessResponse } from '@/types/api.type'
 
@@ -66,6 +68,36 @@ export const appointmentApi = {
   confirmAppointment: async (id: number) => {
     const { data } = await apiClient.post<ApiSuccessResponse<Appointment>>(
       `${APPOINTMENT_BASE}/${id}/confirm`,
+    )
+
+    return data
+  },
+
+  /**
+   * Doctor corrects status within allowed window after visit
+   */
+  patchAppointmentStatus: async (
+    id: number,
+    payload: PatchAppointmentStatusBody,
+  ) => {
+    const { data } = await apiClient.patch<ApiSuccessResponse<Appointment>>(
+      `${APPOINTMENT_BASE}/${id}/status`,
+      payload,
+    )
+
+    return data
+  },
+
+  /**
+   * Get appointments by patient ID and current doctor ID
+   */
+  getAppointmentsByPatientIdAndCurrentDoctor: async (
+    patientId: number,
+    params: GetPatientAppointmentsParams,
+  ) => {
+    const { data } = await apiClient.get<ApiPaginatedResponse<Appointment>>(
+      `me/patients/${patientId}/appointments`,
+      { params },
     )
 
     return data

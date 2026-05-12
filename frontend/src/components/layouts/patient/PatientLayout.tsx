@@ -24,17 +24,17 @@ export const PatientLayout = () => {
   const { data: unreadCount = 0 } = useGetUnreadNotificationCount()
 
   return (
-    <SidebarProvider className="fixed h-dvh overflow-hidden font-sans">
+    <SidebarProvider className="fixed h-dvh max-h-dvh overflow-hidden font-sans">
       {/* Sidebar */}
       <PatientSidebar activeTab={activeTab} unreadCount={unreadCount} />
 
       {/* Main Content */}
-      <SidebarInset>
-        <main
+      <SidebarInset className="min-h-0 overflow-hidden">
+        <div
           data-route-scroll-container="true"
-          className="scrollbar-hide h-svh w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
+          className="scrollbar-hide min-h-0 w-full flex-1 overflow-y-auto scroll-smooth bg-gray-50 md:p-6 lg:p-8">
           <Outlet />
-        </main>
+        </div>
 
         {/* Mobile Navigation */}
         {!isHiddenByStaticData && <MobileNav activeTab={activeTab} />}

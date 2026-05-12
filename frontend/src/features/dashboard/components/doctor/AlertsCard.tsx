@@ -1,7 +1,16 @@
 import { AlertOctagon } from 'lucide-react'
 
-import { MOCK_ALERTS } from '@/features/doctor/data/mockData'
 import { Button } from '@/components/ui/button'
+
+const MOCK_ALERTS = [
+  {
+    id: 1,
+    severity: 'critical',
+    message: 'Bệnh nhân có nhiệt độ cao',
+    time: '10:00',
+    patient_name: 'Nguyễn Văn A',
+  },
+]
 
 export const AlertsCard = () => {
   return (

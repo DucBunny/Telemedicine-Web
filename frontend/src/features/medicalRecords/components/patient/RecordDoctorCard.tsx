@@ -1,43 +1,44 @@
-import { MessageSquare } from 'lucide-react'
-
 import type { MedicalRecord } from '@/features/medicalRecords/types'
 
-import { Button } from '@/components/ui/button'
+import { SafeImage } from '@/components/common/SafeImage'
 import { formatShortDate, formatTime } from '@/lib/format-date'
+import { cn } from '@/lib/utils'
+import { usePresenceStore } from '@/stores/presence.store'
 
 interface RecordDoctorCardProps {
   record: MedicalRecord
 }
 
 export const RecordDoctorCard = ({ record }: RecordDoctorCardProps) => {
+  const isUserOnline = usePresenceStore(
+    (state) => !!state.onlineUsers[record.doctor?.userId ?? 0],
+  )
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-4">
         <div className="relative shrink-0">
-          <div
-            className="h-14 w-14 rounded-full bg-cover bg-center"
-            style={{ backgroundImage: `url("${record.doctor?.user.avatar}")` }}
+          <SafeImage
+            className={cn(
+              'size-14 rounded-full border-2 border-white/40 ring-2',
+              isUserOnline ? 'ring-green-500' : 'ring-gray-300',
+            )}
+            src={record.doctor?.user.avatar}
+            alt={record.doctor?.user.fullName}
           />
-          {/* {doctor.isOnline && (
-            <span className="absolute right-0 bottom-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-green-500"></span>
-          )} */}
+          {isUserOnline && (
+            <div className="absolute right-0 bottom-0 size-4 rounded-full border-2 border-white bg-green-500" />
+          )}
         </div>
 
-        <div className="flex-1">
-          <h4 className="text-base font-bold md:text-lg">
+        <div className="min-w-0 flex-1">
+          <h4 className="truncate text-base font-bold md:text-lg">
             {record.doctor?.user.fullName}
           </h4>
-          <p className="text-sm md:text-base">
+          <p className="truncate text-sm text-slate-600 md:text-base">
             {record.doctor?.specialty.name}
           </p>
         </div>
-
-        <Button
-          size="icon-lg"
-          variant="teal_primary"
-          className="flex shrink-0 rounded-full transition-colors">
-          <MessageSquare className="size-4 fill-white" />
-        </Button>
       </div>
 
       <div className="mt-4 flex gap-3 border-t border-gray-100 pt-4">

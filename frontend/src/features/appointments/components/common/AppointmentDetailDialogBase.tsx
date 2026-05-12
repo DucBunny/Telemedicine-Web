@@ -10,7 +10,7 @@ import {
 import type { ReactNode } from 'react'
 import type { Appointment } from '@/features/appointments/types'
 
-import { SafeImage } from '@/components/common/SafeImage'
+import { StatusAvatar } from '@/components/common/StatusAvatar'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { formatLongDate, formatTime } from '@/lib/format-date'
+import { usePresenceStore } from '@/stores/presence.store'
 import { APPOINTMENT_STATUS_FILTERS } from '@/types/constants'
 
 interface AppointmentDetailDialogBaseProps {
@@ -37,13 +38,23 @@ export const AppointmentDetailDialogBase = ({
   role,
   footer,
 }: AppointmentDetailDialogBaseProps) => {
+  const isPatientView = role === 'patient'
+
+  const isUserOnline = usePresenceStore(
+    (state) =>
+      !!state.onlineUsers[
+        (isPatientView
+          ? appointment?.doctor?.userId
+          : appointment?.patient?.userId) ?? 0
+      ],
+  )
+
   if (!appointment) return null
 
   const isOnline = appointment.type === 'online'
   const isCancelled = appointment.status === 'cancelled'
   const statusOption = APPOINTMENT_STATUS_FILTERS[appointment.status]
 
-  const isPatientView = role === 'patient'
   const personAvatar = isPatientView
     ? appointment.doctor?.user.avatar
     : appointment.patient?.user.avatar
@@ -89,11 +100,13 @@ export const AppointmentDetailDialogBase = ({
         <div className="space-y-3 p-5 pt-0 md:space-y-5">
           {/* Patient/Doctor Info */}
           <div className="flex items-center gap-4">
-            <SafeImage
-              className="ring-teal-primary/50 size-14 rounded-full border-2 border-white/40 ring-2"
+            <StatusAvatar
+              isUserOnline={isUserOnline}
               src={personAvatar}
               alt={personName}
+              className="size-14"
             />
+
             <div className="flex-1">
               <h4 className="text-lg leading-tight font-semibold">
                 {personName}

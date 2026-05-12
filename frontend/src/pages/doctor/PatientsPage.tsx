@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { useDebounceValue } from 'usehooks-ts'
 
 import type { BloodTypeOption, GenderOption } from '@/features/patients/types'
@@ -8,6 +9,8 @@ import { useGetMyPatients } from '@/features/patients/hooks/usePatientQueries'
 import { usePagination } from '@/hooks/usePagination'
 
 export const PatientsPage = () => {
+  const navigate = useNavigate()
+
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounceValue(search, 500) // 500ms delay before fetching
 
@@ -50,8 +53,19 @@ export const PatientsPage = () => {
     search: debouncedSearch,
   })
 
+  useEffect(() => {
+    p.reset()
+  }, [debouncedSearch])
+
+  const handleViewDetail = (patientId: number) => {
+    navigate({
+      to: '/doctor/patients/$patientId',
+      params: { patientId: String(patientId) },
+    })
+  }
+
   return (
-    <div className="mx-auto space-y-4 p-4 md:space-y-6">
+    <div className="mx-auto space-y-4 p-4 md:space-y-6 md:p-0">
       <Filters
         search={search}
         setSearch={setSearch}
@@ -67,6 +81,7 @@ export const PatientsPage = () => {
         isLoading={isLoading}
         isError={isError}
         pagination={p}
+        onViewDetail={handleViewDetail}
       />
     </div>
   )

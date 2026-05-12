@@ -41,7 +41,7 @@ export const MessageBubble = ({
       link.click()
       URL.revokeObjectURL(link.href)
     } catch (error) {
-      console.error('Download failed:', error)
+      console.error('[Chat] Download Error:', error)
       toast.error('Tải file thất bại')
     }
   }

@@ -90,7 +90,7 @@ export const CancelAppointmentDialogBase = ({
           payload: { cancelReason },
         })
       } catch (error) {
-        console.error('Cancel failed:', error)
+        console.error('[Appointments] Cancel Appointment Error:', error)
         return
       }
 

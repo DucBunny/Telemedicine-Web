@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { adminApi } from '../api/user.api'
+
 import type { PaginationParams } from '@/types/api.type'
+
+import { adminApi } from '@/features/dashboard/api/admin/user.api'
 
 const ADMIN_KEYS = {
   all: ['admin'] as const,

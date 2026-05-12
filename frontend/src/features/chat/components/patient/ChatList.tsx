@@ -9,7 +9,10 @@ import {
   EmptyChatList,
   RecentUsersList,
 } from '@/features/chat/components/common'
-import { useGetMyConversations } from '@/features/chat/hooks/useChatQueries'
+import {
+  useGetMyConversations,
+  useRealtimeChatList,
+} from '@/features/chat/hooks/useChatQueries'
 import Loader from '@/components/common/Loader'
 import { MainPageHeader } from '@/components/common/PageHeader'
 import { SearchBar } from '@/components/common/SearchBar'
@@ -33,6 +36,8 @@ export const ChatList = ({ activeChatId }: ChatListProps = {}) => {
     fetchNextPage,
     isFetchingNextPage,
   } = useGetMyConversations({ limit: 10, search: debouncedSearch })
+
+  useRealtimeChatList()
 
   // Infinite scroll trigger
   const { ref: loadMoreRef } = useInView({

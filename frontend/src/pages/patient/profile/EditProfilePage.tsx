@@ -111,8 +111,8 @@ export const EditProfilePage = () => {
         await updatePatientProfile(patientSchema.parse(value))
 
         navigate({ to: '/patient/profile' })
-      } catch (error: unknown) {
-        console.error('Lỗi khi lưu thông tin:', error)
+      } catch (error) {
+        console.error('[Settings] Edit Profile Error:', error)
       } finally {
         setIsSubmitting(false)
       }
@@ -256,7 +256,7 @@ export const EditProfilePage = () => {
                 min="0"
                 placeholder="(cm)"
                 field={field}
-                rightIcon={Cake}
+                rightIcon="height"
                 className="h-12"
               />
             )}
@@ -271,7 +271,7 @@ export const EditProfilePage = () => {
                 min="0"
                 placeholder="(kg)"
                 field={field}
-                rightIcon="wc"
+                rightIcon="monitor_weight"
                 className="h-12!"
               />
             )}
@@ -285,7 +285,7 @@ export const EditProfilePage = () => {
                 label="Nhóm máu"
                 placeholder="A+, v.v"
                 field={field}
-                rightIcon="wc"
+                rightIcon="bloodtype"
                 className="h-12!"
               />
             )}

@@ -12,17 +12,25 @@ export interface GetMyAppointmentsParams extends PaginationParams {
   scheduledTo?: string
 }
 
+export type GetPatientAppointmentsParams = GetMyAppointmentsParams
+
 export interface GetAvailableSlotsParams {
   doctorId: number
   date: string
 }
 
 export interface CreateAppointmentBody {
-  doctorId: number
+  doctorId?: number
+  patientId?: number
   scheduledAt: string
   durationMinutes?: 30 | 60
   type: AppointmentType
   reason: string
+}
+
+export interface PatchAppointmentStatusBody {
+  status: 'completed' | 'cancelled'
+  cancelReason?: string
 }
 
 export interface CancelAppointmentBody {

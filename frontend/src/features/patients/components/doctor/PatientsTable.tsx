@@ -28,6 +28,7 @@ interface PatientsTableProps {
   isLoading: boolean
   isError: boolean
   pagination: ReturnType<typeof usePagination>
+  onViewDetail?: (patientId: number) => void
 }
 
 export const PatientsTable = ({
@@ -35,6 +36,7 @@ export const PatientsTable = ({
   isLoading,
   isError,
   pagination,
+  onViewDetail,
 }: PatientsTableProps) => {
   const patients = data?.data ?? []
 
@@ -127,6 +129,7 @@ export const PatientsTable = ({
                         variant="ghost"
                         size="icon-sm"
                         className="hover:text-teal-primary text-gray-400 hover:bg-gray-100"
+                        onClick={() => onViewDetail?.(pat.userId)}
                         aria-label="Xem chi tiết">
                         <Eye className="size-5" />
                       </Button>
