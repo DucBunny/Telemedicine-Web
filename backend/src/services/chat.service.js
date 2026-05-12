@@ -1,5 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
+import { User } from '@/models/sql/index'
 import * as chatRepo from '@/repositories/chat.repo'
+import {
+  emitChatMessageNew,
+  emitChatMessageRead,
+} from '@/sockets/emitters/chat.emitters'
 import ApiError from '@/utils/api-error'
 
 /**
@@ -47,17 +52,47 @@ export const sendMessage = async (senderId, data) => {
     )
   }
 
-  return await chatRepo.createMessage({
+  const message = await chatRepo.createMessage({
     senderId,
     ...data,
   })
+
+  const sender = await User.findByPk(senderId, {
+    attributes: ['id', 'fullName', 'avatar'],
+  })
+
+  emitChatMessageNew(data.conversationId, {
+    id: message._id.toString(),
+    conversationId: data.conversationId,
+    sender: sender
+      ? {
+          id: sender.id,
+          fullName: sender.fullName,
+          avatar: sender.avatar,
+        }
+      : { id: senderId, fullName: 'Unknown', avatar: null },
+    type: message.type,
+    content: message.content,
+    status: message.status,
+    createdAt: message.created_at,
+  })
+
+  return message
 }
 
 /**
  * Mark all messages from a sender as read
  */
 export const markAllMessagesAsRead = async (userId, conversationId) => {
-  return await chatRepo.markAllAsRead(userId, conversationId)
+  const result = await chatRepo.markAllAsRead(userId, conversationId)
+
+  emitChatMessageRead(conversationId, {
+    conversationId,
+    readerId: userId,
+    timestamp: Date.now(),
+  })
+
+  return result
 }
 
 /**

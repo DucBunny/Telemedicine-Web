@@ -9,17 +9,17 @@ const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
   dialectOptions: {
     ssl: {
       require: true,
-      rejectUnauthorized: true
-    }
-  }
+      rejectUnauthorized: true,
+    },
+  },
 })
 
 const connectMySQL = async () => {
   try {
     await sequelize.authenticate()
-    console.log('MySQL connected successfully.')
+    console.log('[MySQL] Connected successfully.')
   } catch (error) {
-    console.error('Unable to connect to MySQL:', error)
+    console.error('[MySQL] Unable to connect to MySQL:', error)
   }
 }
 

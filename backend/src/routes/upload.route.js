@@ -1,10 +1,10 @@
 import express from 'express'
 import * as uploadController from '@/controllers/upload.controller'
 import {
+  handleMulterError,
   uploadAny,
-  uploadImage,
   uploadDocument,
-  handleMulterError
+  uploadImage,
 } from '@/middlewares/upload.middleware'
 
 const router = express.Router()
@@ -23,7 +23,7 @@ router.post(
   '/single',
   uploadAny.single('file'),
   extractModuleName,
-  uploadController.uploadSingle
+  uploadController.uploadSingle,
 )
 
 // Upload nhiều file (tối đa 5)
@@ -31,7 +31,7 @@ router.post(
   '/multiple',
   uploadAny.array('files', 5),
   extractModuleName,
-  uploadController.uploadMultiple
+  uploadController.uploadMultiple,
 )
 
 // Upload ảnh
@@ -39,7 +39,7 @@ router.post(
   '/image',
   uploadImage.single('file'),
   extractModuleName,
-  uploadController.uploadSingle
+  uploadController.uploadSingle,
 )
 
 // Upload avatar (ảnh đại diện)
@@ -50,7 +50,7 @@ router.post(
   '/document',
   uploadDocument.single('file'),
   extractModuleName,
-  uploadController.uploadSingle
+  uploadController.uploadSingle,
 )
 
 // Xoá file

@@ -1,13 +1,13 @@
-import * as userRepo from '@/repositories/user.repo'
-import * as patientRepo from '@/repositories/patient.repo'
-import * as refreshTokenRepo from '@/repositories/refreshToken.repo'
-import { hashPassword, comparePassword } from '@/utils/hash-password'
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '@/utils/api-error'
 import jwt from 'jsonwebtoken'
 import ms from 'ms'
 import { env } from '@/config'
 import { sequelize } from '@/models/sql'
+import * as patientRepo from '@/repositories/patient.repo'
+import * as refreshTokenRepo from '@/repositories/refreshToken.repo'
+import * as userRepo from '@/repositories/user.repo'
+import ApiError from '@/utils/api-error'
+import { comparePassword, hashPassword } from '@/utils/hash-password'
 
 /**
  * Helpers to generate access and refresh tokens
@@ -16,15 +16,15 @@ const generateTokens = async (user, deviceInfo = null) => {
   const payload = {
     sub: user.id,
     email: user.email,
-    role: user.role
+    role: user.role,
   }
 
   const accessToken = jwt.sign(payload, env.JWT_SECRET, {
-    expiresIn: env.JWT_ACCESS_EXPIRE
+    expiresIn: env.JWT_ACCESS_EXPIRE,
   })
 
   const refreshToken = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRE
+    expiresIn: env.JWT_REFRESH_EXPIRE,
   })
 
   const expiresAt = new Date(Date.now() + ms(env.JWT_REFRESH_EXPIRE))
@@ -34,7 +34,7 @@ const generateTokens = async (user, deviceInfo = null) => {
     userId: user.id,
     expiresAt: expiresAt,
     isRevoked: false,
-    deviceInfo: deviceInfo
+    deviceInfo: deviceInfo,
   })
 
   return { accessToken, refreshToken }
@@ -62,7 +62,7 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
     throw new ApiError(
       StatusCodes.CONFLICT,
       'Email already exists',
-      'EMAIL_EXISTS'
+      'EMAIL_EXISTS',
     )
 
   // Kiểm tra số điện thoại tồn tại
@@ -71,7 +71,7 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
     throw new ApiError(
       StatusCodes.CONFLICT,
       'Phone number already exists',
-      'PHONE_NUMBER_EXISTS'
+      'PHONE_NUMBER_EXISTS',
     )
 
   const hashedPassword = await hashPassword(password)
@@ -84,17 +84,17 @@ export const register = async ({ email, password, fullName, phoneNumber }) => {
         password: hashedPassword,
         fullName,
         phoneNumber,
-        role: 'patient'
+        role: 'patient',
       },
-      { transaction: t }
+      { transaction: t },
     )
 
     // Tạo patient profile liên quan
     await patientRepo.create(
       {
-        userId: newUser.id
+        userId: newUser.id,
       },
-      { transaction: t }
+      { transaction: t },
     )
 
     return publicUser(newUser)
@@ -109,7 +109,7 @@ export const login = async ({ username, password, deviceInfo }) => {
     throw new ApiError(
       StatusCodes.UNAUTHORIZED,
       'Invalid credentials',
-      'INVALID_CREDENTIALS'
+      'INVALID_CREDENTIALS',
     )
 
   const isMatch = await comparePassword(password, user.password)
@@ -117,7 +117,7 @@ export const login = async ({ username, password, deviceInfo }) => {
     throw new ApiError(
       StatusCodes.UNAUTHORIZED,
       'Invalid credentials',
-      'INVALID_CREDENTIALS'
+      'INVALID_CREDENTIALS',
     )
 
   // Check profile completion for patient role
@@ -133,7 +133,7 @@ export const login = async ({ username, password, deviceInfo }) => {
   return {
     user: publicUser(user),
     isProfileComplete,
-    ...tokens
+    ...tokens,
   }
 }
 
@@ -147,7 +147,7 @@ export const refreshToken = async ({ requestToken, deviceInfo = null }) => {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
         'Refresh token is invalid',
-        'INVALID_REFRESH_TOKEN'
+        'INVALID_REFRESH_TOKEN',
       )
 
     if (tokenDoc.isRevoked) {
@@ -155,13 +155,13 @@ export const refreshToken = async ({ requestToken, deviceInfo = null }) => {
       // Nếu có deviceInfo, bạn có thể log lại cảnh báo bảo mật kèm thông tin thiết bị đang cố dùng token cũ
       if (deviceInfo) {
         console.warn(
-          `[SECURITY] Suspicious token reuse detected from device: ${deviceInfo}`
+          `[SECURITY] Suspicious token reuse detected from device: ${deviceInfo}`,
         )
       }
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
         'Refresh token has been revoked',
-        'REVOKED_REFRESH_TOKEN'
+        'REVOKED_REFRESH_TOKEN',
       )
     }
 
@@ -170,7 +170,7 @@ export const refreshToken = async ({ requestToken, deviceInfo = null }) => {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
         'User not found',
-        'USER_NOT_FOUND'
+        'USER_NOT_FOUND',
       )
 
     // (Cơ chế Rotation) Hủy token cũ, cấp token mới
@@ -188,14 +188,14 @@ export const refreshToken = async ({ requestToken, deviceInfo = null }) => {
     return {
       ...newTokens,
       user: publicUser(user),
-      isProfileComplete
+      isProfileComplete,
     }
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
         'Refresh token has expired, please log in again',
-        'REFRESH_TOKEN_EXPIRED'
+        'REFRESH_TOKEN_EXPIRED',
       )
     }
     throw error

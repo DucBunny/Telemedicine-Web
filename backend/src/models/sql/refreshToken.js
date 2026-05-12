@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // Refresh Token thuộc về 1 User
       RefreshToken.belongsTo(models.User, {
         foreignKey: 'userId',
-        as: 'user'
+        as: 'user',
       })
     }
   }
@@ -16,29 +16,29 @@ module.exports = (sequelize, DataTypes) => {
     {
       token: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       userId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       expiresAt: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
       },
       isRevoked: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       deviceInfo: {
-        type: DataTypes.STRING
-      }
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,
       tableName: 'refresh_tokens',
-      modelName: 'RefreshToken'
-    }
+      modelName: 'RefreshToken',
+    },
   )
 
   return RefreshToken

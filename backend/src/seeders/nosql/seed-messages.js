@@ -8,7 +8,7 @@ const doctorMessages = [
   'Kết quả siêu âm đã sẵn sàng. Hãy đến phòng khám trong tuần này.',
   'Huyết áp của bạn gần đây như thế nào? Bạn có đo tại nhà không?',
   'Chào bạn, lịch tái khám của bạn sắp đến rồi. Nhớ đặt lịch nhé!',
-  'Tôi đã kê thêm đơn thuốc mới. Bạn có thể lấy tại nhà thuốc.'
+  'Tôi đã kê thêm đơn thuốc mới. Bạn có thể lấy tại nhà thuốc.',
 ]
 
 const patientMessages = [
@@ -18,7 +18,7 @@ const patientMessages = [
   'Đêm qua tôi khó thở một chút, có sao không bác sĩ?',
   'Tôi đã đặt lịch rồi ạ. Cảm ơn bác sĩ nhiều!',
   'Xin bác sĩ cho hỏi: tôi có thể ăn hải sản không ạ?',
-  'Bác sĩ ơi, xét nghiệm máu của tôi có bình thường không ạ?'
+  'Bác sĩ ơi, xét nghiệm máu của tôi có bình thường không ạ?',
 ]
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)]
@@ -45,7 +45,7 @@ export const seedMessages = async (seededConversations) => {
       const senderId = isDoctor ? doctor_id : patient_id
       const text = isDoctor ? rand(doctorMessages) : rand(patientMessages)
       const createdAt = new Date(
-        now - (msgCount - i) * faker.number.int({ min: 60000, max: 600000 })
+        now - (msgCount - i) * faker.number.int({ min: 60000, max: 600000 }),
       )
 
       const message = await Message.create({
@@ -54,7 +54,7 @@ export const seedMessages = async (seededConversations) => {
         type: 'text',
         content: { text },
         status: i < msgCount - 2 ? 'read' : 'sent',
-        created_at: createdAt
+        created_at: createdAt,
       })
 
       lastMessage = message
@@ -70,12 +70,12 @@ export const seedMessages = async (seededConversations) => {
           sender_id: lastMessage.sender_id,
           type: 'text',
           content: lastMessage.content.text,
-          created_at: lastMessage.created_at
+          created_at: lastMessage.created_at,
         },
         unread_counts: new Map([
           [String(patient_id), unreadForPatient],
-          [String(doctor_id), 0]
-        ])
+          [String(doctor_id), 0],
+        ]),
       })
     }
   }

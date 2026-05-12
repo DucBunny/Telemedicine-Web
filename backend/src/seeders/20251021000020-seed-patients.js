@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const patients = await queryInterface.sequelize.query(
       `SELECT id, full_name FROM users WHERE role = 'patient';`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
     const now = new Date()
@@ -14,7 +14,7 @@ module.exports = {
       'Tiền sử bệnh tiểu đường',
       'Dị ứng thuốc kháng sinh',
       'Cao huyết áp mãn tính',
-      'Không có tiền sử bệnh lý đặc biệt'
+      'Không có tiền sử bệnh lý đặc biệt',
     ]
     const blood_types = ['A+', 'O+', 'B+', 'AB+', 'A-', 'O-', 'B-', 'AB-']
 
@@ -29,7 +29,7 @@ module.exports = {
       medical_history: faker.helpers.arrayElement(histories),
       address: generateVNAddress(),
       created_at: now,
-      updated_at: now
+      updated_at: now,
     }))
 
     await queryInterface.bulkInsert('patients', patientsData, {})
@@ -37,7 +37,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('patients', null, {})
-  }
+  },
 }
 
 /**
@@ -77,5 +77,5 @@ const femaleMiddle = [
   'Mai',
   'Thùy',
   'Kim',
-  'Bích'
+  'Bích',
 ]

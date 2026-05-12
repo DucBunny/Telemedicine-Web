@@ -8,43 +8,43 @@ module.exports = {
         primaryKey: true,
         references: {
           model: 'alerts',
-          key: 'id'
+          key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       doctor_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: {
           model: 'doctors',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       is_read: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       is_acknowledged: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       delivered_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        allowNull: false
+        allowNull: false,
       },
       read_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       acknowledged_at: {
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('alert_recipients')
-  }
+  },
 }

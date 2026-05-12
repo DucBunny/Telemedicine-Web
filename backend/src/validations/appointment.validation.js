@@ -58,8 +58,14 @@ export const getAvailableSlotsQuerySchema = z.object({
  * Create appointment body schema
  */
 export const createAppointmentSchema = z.object({
-  doctorId: intIdSchema('Doctor ID is invalid'),
-  scheduledAt: datetimeStringSchema,
+  doctorId: intIdSchema('Doctor ID is invalid').optional(),
+  patientId: intIdSchema('Patient ID is invalid').optional(),
+  scheduledAt: datetimeStringSchema.refine(
+    (val) => new Date(val).getTime() > Date.now(),
+    {
+      message: 'Appointment must be scheduled in the future',
+    },
+  ),
   durationMinutes: z.coerce
     .number()
     .int()
@@ -74,26 +80,20 @@ export const createAppointmentSchema = z.object({
     .max(500, 'Reason cannot exceed 500 characters'),
 })
 
-//-------------------------------------------------------
 /**
- * Update appointment body schema
+ * Patch doctor appointment status body schema
  */
-export const updateAppointmentSchema = z.object({
-  scheduledAt: datetimeStringSchema.optional(),
-  actualEndedAt: datetimeStringSchema.optional(),
-  durationMinutes: z.coerce
-    .number()
-    .int()
-    .refine((v) => [30, 60].includes(v), {
-      message: 'Duration must be 30 or 60 minutes',
-    })
-    .optional(),
-  status: appointmentStatusEnum.optional(),
-  type: appointmentTypeEnum.optional(),
-  meetingLink: z.string().url('Link meeting không hợp lệ').optional(),
-  reason: z.string().max(500).optional(),
-  cancelReason: z
-    .string()
-    .max(500, 'Cancel reason cannot exceed 500 characters')
-    .optional(),
-})
+export const patchDoctorAppointmentStatusSchema = z
+  .object({
+    status: z.enum(['completed', 'cancelled']),
+    cancelReason: z.string().max(500).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.status === 'cancelled' && !data.cancelReason?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Cancel reason is required when cancelling',
+        path: ['cancelReason'],
+      })
+    }
+  })

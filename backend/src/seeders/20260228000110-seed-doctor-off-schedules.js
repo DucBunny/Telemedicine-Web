@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const doctors = await queryInterface.sequelize.query(
       `SELECT user_id FROM doctors;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
     const now = new Date()
@@ -16,7 +16,7 @@ module.exports = {
       'Nghỉ phép cá nhân',
       'Hội nghị chuyên ngành',
       'Đào tạo nâng cao',
-      'Công tác ngoại viện'
+      'Công tác ngoại viện',
     ]
 
     // Mỗi bác sĩ có 1-2 ngày nghỉ trong 30 ngày tới
@@ -37,7 +37,7 @@ module.exports = {
           end_time: isFullDay ? null : '17:00:00',
           reason: faker.helpers.arrayElement(reasons),
           created_at: now,
-          updated_at: now
+          updated_at: now,
         })
       }
     })
@@ -47,5 +47,5 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('doctor_off_schedules', null, {})
-  }
+  },
 }

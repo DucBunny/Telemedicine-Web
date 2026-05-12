@@ -5,7 +5,7 @@ import { Notification, User } from '@/models/sql/index'
  */
 export const getNotifications = async (
   userId,
-  { nextCursor, limit = 10, isRead }
+  { nextCursor, limit = 10, isRead },
 ) => {
   const whereClause = { userId }
 
@@ -19,16 +19,16 @@ export const getNotifications = async (
       {
         model: User,
         as: 'sender',
-        attributes: ['fullName']
-      }
+        attributes: ['fullName'],
+      },
     ],
     order: [
       ['createdAt', 'DESC'],
-      ['id', 'DESC']
+      ['id', 'DESC'],
     ],
     limit,
     after: nextCursor ?? null, // Cursor for pagination
-    raw: false
+    raw: false,
   })
 
   const data = (result.edges || []).map((edge) => edge.node)
@@ -38,8 +38,8 @@ export const getNotifications = async (
     meta: {
       nextCursor: result.pageInfo?.endCursor || null,
       hasMore: result.pageInfo?.hasNextPage || false,
-      count: data.length
-    }
+      count: data.length,
+    },
   }
 }
 
@@ -48,7 +48,7 @@ export const getNotifications = async (
  */
 export const getUnreadCount = async (userId) => {
   return await Notification.count({
-    where: { userId, isRead: false }
+    where: { userId, isRead: false },
   })
 }
 
@@ -61,9 +61,9 @@ export const markAsRead = async (notificationId, userId) => {
   const [updated] = await Notification.update(
     {
       isRead: true,
-      readAt: new Date()
+      readAt: new Date(),
     },
-    { where: { id: notificationId, userId } }
+    { where: { id: notificationId, userId } },
   )
   return updated > 0 ? await Notification.findByPk(notificationId) : null
 }
@@ -75,9 +75,9 @@ export const markAsUnread = async (notificationId, userId) => {
   const [updated] = await Notification.update(
     {
       isRead: false,
-      readAt: null
+      readAt: null,
     },
-    { where: { id: notificationId, userId } }
+    { where: { id: notificationId, userId } },
   )
   return updated > 0 ? await Notification.findByPk(notificationId) : null
 }
@@ -89,9 +89,9 @@ export const markAllAsRead = async (userId) => {
   return await Notification.update(
     {
       isRead: true,
-      readAt: new Date()
+      readAt: new Date(),
     },
-    { where: { userId, isRead: false } }
+    { where: { userId, isRead: false } },
   )
 }
 
@@ -107,6 +107,6 @@ export const create = async (data) => {
  */
 export const deleteNotification = async (notificationId, userId) => {
   return await Notification.destroy({
-    where: { id: notificationId, userId }
+    where: { id: notificationId, userId },
   })
 }

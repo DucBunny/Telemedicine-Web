@@ -8,27 +8,27 @@ module.exports = {
         primaryKey: true,
         references: { model: 'patients', key: 'user_id' },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       doctor_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         references: { model: 'doctors', key: 'user_id' },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       role: {
         type: Sequelize.ENUM('primary', 'consultant', 'on_call'),
-        allowNull: false
+        allowNull: false,
       },
       assigned_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        allowNull: false
-      }
+        allowNull: false,
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('patient_doctors')
-  }
+  },
 }

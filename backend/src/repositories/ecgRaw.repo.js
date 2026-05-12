@@ -13,36 +13,36 @@ export const create = async (data) => {
 export const updateOrCreateByDeviceIdAndBucket = async (
   deviceId,
   bucketStartTime,
-  { patientId, timestamp, ecg, mode }
+  { patientId, timestamp, ecg, mode },
 ) => {
   return await ECGRaw.findOneAndUpdate(
     {
       device_id: deviceId,
-      bucket_start_time: bucketStartTime
+      bucket_start_time: bucketStartTime,
     },
     {
       // Chỉ set khi tạo mới
       $setOnInsert: {
         patient_id: patientId,
-        bucket_start_time: bucketStartTime
+        bucket_start_time: bucketStartTime,
       },
       // Thêm mẫu ECG mới vào mảng samples
       $push: {
         samples: {
           ts: timestamp,
           val: ecg,
-          status: mode
-        }
+          status: mode,
+        },
       },
       // Tăng biến đếm số mẫu
       $inc: {
-        count: 1
-      }
+        count: 1,
+      },
     },
     {
       upsert: true,
-      new: true
-    }
+      new: true,
+    },
   )
 }
 
@@ -52,14 +52,14 @@ export const updateOrCreateByDeviceIdAndBucket = async (
 export const findByDeviceIdAndBucketRange = async (
   deviceId,
   fromDate,
-  toDate
+  toDate,
 ) => {
   return await ECGRaw.find({
     device_id: deviceId,
     bucket_start_time: {
       $gte: new Date(fromDate),
-      $lte: new Date(toDate)
-    }
+      $lte: new Date(toDate),
+    },
   })
     .sort({ bucket_start_time: 1 })
     .lean()

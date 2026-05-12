@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       Device.belongsTo(models.Patient, {
         foreignKey: 'assignedTo',
         targetKey: 'userId',
-        as: 'patient'
+        as: 'patient',
       })
     }
   }
@@ -16,32 +16,32 @@ module.exports = (sequelize, DataTypes) => {
   Device.init(
     {
       name: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       isOnline: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       isAssigned: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       assignedTo: {
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {
           model: 'patients',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
-      }
+        onDelete: 'SET NULL',
+      },
     },
     {
       sequelize,
       tableName: 'devices',
-      modelName: 'Device'
-    }
+      modelName: 'Device',
+    },
   )
 
   return Device

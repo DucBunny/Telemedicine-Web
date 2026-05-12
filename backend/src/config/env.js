@@ -7,6 +7,22 @@ export const env = {
   // Application timezone (IANA format) where the clinic operates
   APP_TIME_ZONE: process.env.APP_TIME_ZONE || 'Asia/Ho_Chi_Minh',
 
+  // Giờ sau khi ca khám kết thúc (scheduledAt + duration): min để BS được sửa trạng thái (mặc định 0 = ngay sau ca).
+  APPOINTMENT_DOCTOR_STATUS_EDIT_MIN_HOURS_AFTER_END: Number(
+    process.env.APPOINTMENT_DOCTOR_STATUS_EDIT_MIN_HOURS_AFTER_END ?? 0,
+  ),
+  // Tối đa sau khi ca kết thúc (giờ). Chặn sửa sau thời điểm này.
+  APPOINTMENT_DOCTOR_STATUS_EDIT_MAX_HOURS_AFTER_END: Number(
+    process.env.APPOINTMENT_DOCTOR_STATUS_EDIT_MAX_HOURS_AFTER_END ?? 48,
+  ),
+  // Không cho xác nhận lịch pending nếu còn ít hơn N phút trước giờ hẹn.
+  APPOINTMENT_CONFIRM_LOCK_MINUTES_BEFORE: Number(
+    process.env.APPOINTMENT_CONFIRM_LOCK_MINUTES_BEFORE ?? 15,
+  ),
+  // Cron expression (node-cron): quét pending quá giờ để auto-cancel
+  APPOINTMENT_PENDING_EXPIRE_CRON:
+    process.env.APPOINTMENT_PENDING_EXPIRE_CRON || '* * * * *',
+
   // TiDB Cloud configuration
   DB_PORT: process.env.DB_PORT || 3306,
   DB_HOST: process.env.DB_HOST || 'localhost',
@@ -54,5 +70,5 @@ export const env = {
   AI_SERVICE_URL: process.env.AI_SERVICE_URL || 'http://localhost:5000',
 
   // Frontend URL
-  BASE_URL_FRONTEND: process.env.BASE_URL_FRONTEND || 'http://localhost:3000'
+  BASE_URL_FRONTEND: process.env.BASE_URL_FRONTEND || 'http://localhost:3000',
 }

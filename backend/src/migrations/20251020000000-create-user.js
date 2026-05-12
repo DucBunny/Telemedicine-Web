@@ -7,53 +7,53 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       full_name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       email: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       role: {
         type: Sequelize.ENUM('admin', 'doctor', 'patient'),
-        defaultValue: 'patient'
+        defaultValue: 'patient',
       },
       avatar: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       phone_number: {
         type: Sequelize.STRING,
-        unique: true
+        unique: true,
       },
       status: {
         type: Sequelize.ENUM('active', 'locked', 'incomplete'),
-        defaultValue: 'incomplete'
+        defaultValue: 'incomplete',
       },
       last_login_at: {
         type: Sequelize.DATE,
-        defaultValue: null
+        defaultValue: null,
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('users')
-  }
+  },
 }

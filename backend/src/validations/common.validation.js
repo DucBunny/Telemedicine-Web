@@ -10,7 +10,7 @@ export const intIdSchema = (errMessage = 'ID is invalid') =>
  * Common MongoDB ObjectId schema (string)
  */
 export const objectIdSchema = (
-  errMessage = 'ID is must be a valid MongoDB ObjectId'
+  errMessage = 'ID is must be a valid MongoDB ObjectId',
 ) => z.string().regex(/^[0-9a-fA-F]{24}$/, errMessage)
 
 /**
@@ -21,7 +21,7 @@ export const paginationQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1),
     nextCursor: z.string(), // Dùng cho cursor-based pagination
-    limit: z.coerce.number().int().min(1).max(100).default(10)
+    limit: z.coerce.number().int().min(1).max(100).default(10),
   })
   .partial() // tất cả trường đều optional
 
@@ -30,7 +30,7 @@ export const paginationQuerySchema = z
  * * Dùng cho các endpoint hỗ trợ search (theo tên, email, v.v.)
  */
 export const searchQuerySchema = z.object({
-  search: z.string().optional()
+  search: z.string().optional(),
 })
 
 /**
@@ -38,7 +38,7 @@ export const searchQuerySchema = z.object({
  * * Dùng cho các endpoint hỗ trợ cả pagination và search
  */
 export const paginationWithSearchSchema = paginationQuerySchema.extend(
-  searchQuerySchema.shape
+  searchQuerySchema.shape,
 )
 
 /**
@@ -83,7 +83,7 @@ export const emptyStringOrArrayToUndefined = (schema) =>
 /**
  * Date string schema
  */
-export const datetimeStringSchema = z.iso.datetime('Date is invalid')
+export const datetimeStringSchema = z.iso.datetime('Datetime is invalid')
 
 /**
  * Phone number schema (Vietnamese format)

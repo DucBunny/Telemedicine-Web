@@ -8,9 +8,9 @@ export const findByDoctorId = async (doctorId) => {
     include: [
       {
         model: Doctor,
-        where: { user_id: doctorId }
-      }
+        where: { user_id: doctorId },
+      },
     ],
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
   })
 }

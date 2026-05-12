@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
       // Thông báo thuộc về 1 user (người nhận)
       Notification.belongsTo(models.User, {
         foreignKey: 'userId',
-        as: 'user'
+        as: 'user',
       })
 
       // Thông báo có thể có người gửi
       Notification.belongsTo(models.User, {
         foreignKey: 'senderId',
-        as: 'sender'
+        as: 'sender',
       })
     }
   }
@@ -23,31 +23,31 @@ module.exports = (sequelize, DataTypes) => {
     {
       userId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       type: {
         type: DataTypes.ENUM('alert', 'appointment', 'message'),
-        allowNull: false
+        allowNull: false,
       },
       title: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       content: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       referenceId: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       senderId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       isRead: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       readAt: {
-        type: DataTypes.DATE
-      }
+        type: DataTypes.DATE,
+      },
     },
     {
       sequelize,
@@ -58,20 +58,20 @@ module.exports = (sequelize, DataTypes) => {
         {
           // Hỗ trợ lọc thông báo của một user cụ thể cực nhanh
           name: 'idx_notifications_user_id',
-          fields: ['user_id']
+          fields: ['user_id'],
         },
         {
           // Hỗ trợ cursorPaginate khi sắp xếp theo mới nhất
           name: 'idx_notifications_cursor',
-          fields: ['created_at', 'id']
+          fields: ['created_at', 'id'],
         },
         {
           // Hỗ trợ lọc thông báo chưa đọc
           name: 'idx_notifications_is_read',
-          fields: ['is_read']
-        }
-      ]
-    }
+          fields: ['is_read'],
+        },
+      ],
+    },
   )
 
   // Thiết lập pagination với cursor

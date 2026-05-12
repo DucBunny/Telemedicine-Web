@@ -6,7 +6,6 @@ import {
   DoctorOffSchedule,
   DoctorWorkingHours,
   Patient,
-  PatientDoctor,
   Sequelize,
   Specialty,
   User,
@@ -110,6 +109,11 @@ export const findByDoctorId = async (
           },
         ],
       },
+      {
+        model: Doctor,
+        as: 'doctor',
+        attributes: ['address'],
+      },
     ],
     page,
     limit,
@@ -150,6 +154,43 @@ export const findByPatientId = async (
     page,
     limit,
     status,
+  })
+}
+
+/**
+ * Find appointments by patient ID and doctor ID
+ */
+export const findByPatientIdAndDoctorId = async (
+  patientId,
+  doctorId,
+  { page = 1, limit = 10, status = [], type, scheduledFrom, scheduledTo },
+) => {
+  return await findByOwner({
+    where: { patientId, doctorId },
+    include: [
+      {
+        model: Patient,
+        as: 'patient',
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['fullName', 'avatar'],
+          },
+        ],
+      },
+      {
+        model: Doctor,
+        as: 'doctor',
+        attributes: ['address'],
+      },
+    ],
+    page,
+    limit,
+    status,
+    type,
+    scheduledFrom,
+    scheduledTo,
   })
 }
 
@@ -216,18 +257,21 @@ export const getBookedAppointments = async (doctorId, date) => {
 }
 
 /**
- * Ensure patient-doctor relationship exists
- * Đảm bảo mối quan hệ bệnh nhân-bác sĩ tồn tại, nếu chưa có thì tạo mới với vai trò 'primary' và ngày gán là ngày hiện tại
+ * Pending appointments whose scheduled start is strictly before `before` (đã quá giờ hẹn).
  */
-export const ensurePatientDoctor = async (patientId, doctorId) => {
-  const [record] = await PatientDoctor.findOrCreate({
-    where: { patientId, doctorId },
-    defaults: {
-      patientId,
-      doctorId,
-      role: 'primary',
-      assignedAt: new Date(),
+export const findPendingScheduledBefore = async (before) => {
+  return await Appointment.findAll({
+    where: {
+      status: 'pending',
+      scheduledAt: { [Op.lt]: before },
     },
+    attributes: [
+      'id',
+      'patientId',
+      'doctorId',
+      'scheduledAt',
+      'durationMinutes',
+      'type',
+    ],
   })
-  return record
 }

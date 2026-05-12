@@ -14,15 +14,15 @@ if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], {
     ...config,
     define: {
-      underscored: true
-    }
+      underscored: true,
+    },
   })
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, {
     ...config,
     define: {
-      underscored: true
-    }
+      underscored: true,
+    },
   })
 }
 
@@ -38,7 +38,7 @@ fs.readdirSync(__dirname)
   .forEach((file) => {
     const model = require(path.join(__dirname, file))(
       sequelize,
-      Sequelize.DataTypes
+      Sequelize.DataTypes,
     )
     db[model.name] = model
   })

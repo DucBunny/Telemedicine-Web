@@ -8,14 +8,14 @@ module.exports = (sequelize, DataTypes) => {
       Appointment.belongsTo(models.Patient, {
         foreignKey: 'patientId',
         targetKey: 'userId',
-        as: 'patient'
+        as: 'patient',
       })
 
       // Lịch hẹn thuộc về 1 Bác sĩ
       Appointment.belongsTo(models.Doctor, {
         foreignKey: 'doctorId',
         targetKey: 'userId',
-        as: 'doctor'
+        as: 'doctor',
       })
     }
   }
@@ -24,46 +24,46 @@ module.exports = (sequelize, DataTypes) => {
     {
       patientId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       doctorId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       scheduledAt: {
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
       },
       actualEndedAt: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       durationMinutes: {
         type: DataTypes.INTEGER,
-        defaultValue: 30
+        defaultValue: 30,
       },
       status: {
         type: DataTypes.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
-        defaultValue: 'pending'
+        defaultValue: 'pending',
       },
       type: {
         type: DataTypes.ENUM('online', 'offline'),
-        defaultValue: 'online'
+        defaultValue: 'online',
       },
       meetingLink: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       reason: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       cancelReason: {
-        type: DataTypes.TEXT
-      }
+        type: DataTypes.TEXT,
+      },
     },
     {
       sequelize,
       tableName: 'appointments',
-      modelName: 'Appointment'
-    }
+      modelName: 'Appointment',
+    },
   )
 
   return Appointment

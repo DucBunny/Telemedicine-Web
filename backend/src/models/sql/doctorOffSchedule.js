@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       DoctorOffSchedule.belongsTo(models.Doctor, {
         foreignKey: 'doctorId',
         targetKey: 'userId',
-        as: 'doctor'
+        as: 'doctor',
       })
     }
   }
@@ -17,31 +17,31 @@ module.exports = (sequelize, DataTypes) => {
     {
       doctorId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       offDate: {
         type: DataTypes.DATEONLY,
-        allowNull: false
+        allowNull: false,
       },
       startTime: {
         type: DataTypes.TIME,
         allowNull: true,
-        comment: 'NULL nếu nghỉ cả ngày'
+        comment: 'NULL nếu nghỉ cả ngày',
       },
       endTime: {
         type: DataTypes.TIME,
         allowNull: true,
-        comment: 'NULL nếu nghỉ cả ngày'
+        comment: 'NULL nếu nghỉ cả ngày',
       },
       reason: {
-        type: DataTypes.STRING
-      }
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,
       tableName: 'doctor_off_schedules',
-      modelName: 'DoctorOffSchedule'
-    }
+      modelName: 'DoctorOffSchedule',
+    },
   )
 
   return DoctorOffSchedule

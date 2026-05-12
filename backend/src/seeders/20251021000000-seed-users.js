@@ -18,7 +18,7 @@ module.exports = {
       phone_number: generateVNPhone(),
       status: 'active',
       created_at: now,
-      updated_at: now
+      updated_at: now,
     })
 
     // 2. Doctors
@@ -32,7 +32,7 @@ module.exports = {
         phone_number: generateVNPhone(),
         status: 'active',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       })
     }
 
@@ -49,10 +49,10 @@ module.exports = {
           'active',
           'active',
           'active',
-          'locked'
+          'locked',
         ]), // Random status với tỉ lệ cao là active
         created_at: now,
-        updated_at: now
+        updated_at: now,
       })
     }
 
@@ -61,7 +61,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('users', null, {})
-  }
+  },
 }
 
 /**
@@ -101,7 +101,7 @@ const maleMiddle = [
   'Minh',
   'Hoàng',
   'Công',
-  'Tuấn'
+  'Tuấn',
 ]
 
 const femaleMiddle = [
@@ -114,5 +114,5 @@ const femaleMiddle = [
   'Mai',
   'Thùy',
   'Kim',
-  'Bích'
+  'Bích',
 ]

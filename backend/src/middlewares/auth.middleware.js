@@ -1,6 +1,7 @@
-import jwt from 'jsonwebtoken'
-import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
+import jwt from 'jsonwebtoken'
+import { env } from '@/config'
+import ApiError from '@/utils/api-error'
 
 export const authMiddleware = (req, res, next) => {
   // Whitelist paths that do not require authentication
@@ -14,16 +15,15 @@ export const authMiddleware = (req, res, next) => {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
         'Missing authentication token',
-        'UNAUTHORIZED'
+        'UNAUTHORIZED',
       )
     }
     const token = auth.substring('Bearer '.length)
-    const payload = jwt.verify(token, process.env.JWT_SECRET)
+    const payload = jwt.verify(token, env.JWT_SECRET)
 
     req.user = {
       id: payload.sub,
-      email: payload.email,
-      role: payload.role
+      role: payload.role,
     }
     return next()
   } catch (err) {
@@ -32,8 +32,8 @@ export const authMiddleware = (req, res, next) => {
       new ApiError(
         StatusCodes.UNAUTHORIZED,
         'Invalid or expired token',
-        'UNAUTHORIZED'
-      )
+        'UNAUTHORIZED',
+      ),
     )
   }
 }

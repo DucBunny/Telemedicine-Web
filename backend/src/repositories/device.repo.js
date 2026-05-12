@@ -21,7 +21,7 @@ export const getAll = async ({ page = 1, limit = 10, status = '' }) => {
   const { rows, count } = await Device.findAndCountAll({
     where: whereClause,
     limit: parseInt(limit),
-    offset: parseInt(offset)
+    offset: parseInt(offset),
   })
 
   return {
@@ -30,8 +30,8 @@ export const getAll = async ({ page = 1, limit = 10, status = '' }) => {
       page: parseInt(page),
       limit: parseInt(limit),
       total: count,
-      totalPages: Math.ceil(count / limit)
-    }
+      totalPages: Math.ceil(count / limit),
+    },
   }
 }
 

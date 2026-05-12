@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const devices = await queryInterface.sequelize.query(
       `SELECT id, assigned_to FROM devices WHERE is_assigned = true;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
     const records = await queryInterface.sequelize.query(
       `
@@ -15,7 +15,7 @@ module.exports = {
       WHERE mr.patient_id 
       IN (SELECT DISTINCT assigned_to FROM devices WHERE is_assigned = true);
       `,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
     const now = new Date()
     const alerts = []
@@ -37,7 +37,7 @@ module.exports = {
             value: faker.number.int({ min: 110, max: 150 }),
             message: 'Cảnh báo: Nhịp tim vượt ngưỡng an toàn',
             severity: 'critical',
-            source: 'device'
+            source: 'device',
           }
         }
       }
@@ -56,7 +56,7 @@ module.exports = {
             value: faker.number.int({ min: 90, max: 93 }),
             message: 'Cảnh báo: Nồng độ oxy trong máu thấp',
             severity: 'critical',
-            source: 'device'
+            source: 'device',
           }
         }
       }
@@ -68,7 +68,7 @@ module.exports = {
           prediction_id: null,
           is_resolved: false,
           created_at: faker.date.recent({ days: 7 }),
-          updated_at: now
+          updated_at: now,
         })
       }
     }
@@ -78,5 +78,5 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('alerts', null, {})
-  }
+  },
 }

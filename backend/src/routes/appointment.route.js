@@ -7,6 +7,7 @@ import {
   createAppointmentSchema,
   getAppointmentByIdParamSchema,
   getAvailableSlotsQuerySchema,
+  patchDoctorAppointmentStatusSchema,
 } from '@/validations/appointment.validation'
 
 const router = express.Router()
@@ -17,7 +18,7 @@ const router = express.Router()
  */
 router.post(
   '/',
-  authorizeRoles(['patient']),
+  authorizeRoles(['patient', 'doctor']),
   validate({ body: createAppointmentSchema }),
   appointmentController.createAppointment,
 )
@@ -28,7 +29,7 @@ router.post(
  */
 router.get(
   '/available-slots',
-  authorizeRoles(['patient']),
+  authorizeRoles(['patient', 'doctor']),
   validate({ query: getAvailableSlotsQuerySchema }),
   appointmentController.getAvailableSlots,
 )
@@ -45,6 +46,20 @@ router.put(
     body: cancelAppointmentSchema,
   }),
   appointmentController.cancelAppointment,
+)
+
+/**
+ * @route PATCH /appointments/:appointmentId/status
+ * @description Doctor corrects appointment status within allowed window
+ */
+router.patch(
+  '/:appointmentId/status',
+  authorizeRoles(['doctor']),
+  validate({
+    params: getAppointmentByIdParamSchema,
+    body: patchDoctorAppointmentStatusSchema,
+  }),
+  appointmentController.patchAppointmentStatusByDoctor,
 )
 
 /**

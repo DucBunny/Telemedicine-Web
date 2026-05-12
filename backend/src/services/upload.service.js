@@ -1,7 +1,7 @@
-import { cloudinary, env } from '@/config'
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '@/utils/api-error'
+import { cloudinary, env } from '@/config'
 import * as userRepo from '@/repositories/user.repo'
+import ApiError from '@/utils/api-error'
 
 /**
  * Upload buffer lên Cloudinary qua upload_stream
@@ -16,7 +16,7 @@ const uploadToCloudinary = (buffer, options = {}) => {
       (error, result) => {
         if (error) return reject(error)
         resolve(result)
-      }
+      },
     )
     stream.end(buffer)
   })
@@ -71,13 +71,13 @@ export const uploadSingle = async (file, options = {}) => {
     resource_type: isImage ? 'image' : 'raw',
     ...(isImage && {
       transformation: [
-        { width: 1200, height: 1200, crop: 'limit', quality: 'auto' }
-      ]
+        { width: 1200, height: 1200, crop: 'limit', quality: 'auto' },
+      ],
     }),
     // Giữ tên file gốc (không có extension) làm public_id
     use_filename: true,
     unique_filename: true,
-    ...options
+    ...options,
   }
 
   const result = await uploadToCloudinary(file.buffer, uploadOptions)
@@ -90,7 +90,7 @@ export const uploadSingle = async (file, options = {}) => {
     resource_type: result.resource_type,
     size: result.bytes,
     width: result.width || null,
-    height: result.height || null
+    height: result.height || null,
   }
 }
 
@@ -110,7 +110,7 @@ export const uploadAvatar = async (userId, file) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'User not found',
-      'USER_NOT_FOUND'
+      'USER_NOT_FOUND',
     )
 
   const oldAvatarUrl = currentUser.avatar
@@ -125,9 +125,9 @@ export const uploadAvatar = async (userId, file) => {
         height: 300,
         crop: 'fill',
         gravity: 'face',
-        quality: 'auto'
-      }
-    ]
+        quality: 'auto',
+      },
+    ],
   })
 
   // Cập nhật avatar mới vào DB
@@ -155,7 +155,7 @@ export const uploadMultiple = async (files, options = {}) => {
   }
 
   const results = await Promise.all(
-    files.map((file) => uploadSingle(file, options))
+    files.map((file) => uploadSingle(file, options)),
   )
 
   return results
@@ -166,14 +166,14 @@ export const uploadMultiple = async (files, options = {}) => {
  */
 export const deleteFile = async (publicId, resourceType = 'image') => {
   const result = await cloudinary.uploader.destroy(publicId, {
-    resource_type: resourceType
+    resource_type: resourceType,
   })
 
   if (result.result !== 'ok' && result.result !== 'not found') {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
       'Failed to delete file.',
-      'DELETE_FAILED'
+      'DELETE_FAILED',
     )
   }
 

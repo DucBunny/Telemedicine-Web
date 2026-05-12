@@ -11,7 +11,7 @@ export const uploadSingle = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -29,7 +29,7 @@ export const uploadAvatar = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -46,7 +46,7 @@ export const uploadMultiple = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: results
+      data: results,
     })
   } catch (error) {
     next(error)
@@ -65,7 +65,7 @@ export const deleteFile = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: { message: 'Xoá file thành công.' }
+      data: { message: 'Xoá file thành công.' },
     })
   } catch (error) {
     next(error)

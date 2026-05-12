@@ -1,5 +1,5 @@
 import { Op } from 'sequelize'
-import { Doctor, Patient, Specialty, User } from '@/models/sql/index'
+import { Doctor, Specialty, User } from '@/models/sql/index'
 import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
@@ -90,19 +90,4 @@ export const update = async (userId, data, options = {}) => {
     ...options,
   })
   return updated > 0 ? await findByUserId(userId, options) : null
-}
-// ------------------------------------------------------------
-
-/**
- * Create new doctor
- */
-export const create = async (data) => {
-  return await Doctor.create(data)
-}
-
-/**
- * Delete doctor
- */
-export const deleteDoctor = async (id) => {
-  return await Doctor.destroy({ where: { id } })
 }

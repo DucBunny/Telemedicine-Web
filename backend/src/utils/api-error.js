@@ -13,7 +13,7 @@ class ApiError extends Error {
     code = 'INTERNAL_SERVER_ERROR',
     details = null,
     isOperational = true,
-    stack = ''
+    stack = '',
   ) {
     super(message)
     this.statusCode = statusCode

@@ -1,11 +1,11 @@
 import { StatusCodes } from 'http-status-codes'
 import * as authService from '@/services/auth.service'
-import {
-  setRefreshTokenCookie,
-  clearRefreshTokenCookie,
-  getRefreshTokenFromCookie
-} from '@/utils/cookie-helper'
 import ApiError from '@/utils/api-error'
+import {
+  clearRefreshTokenCookie,
+  getRefreshTokenFromCookie,
+  setRefreshTokenCookie,
+} from '@/utils/cookie-helper'
 
 /**
  * Helpers to get device info from request
@@ -22,7 +22,7 @@ export const register = async (req, res, next) => {
 
     res.status(StatusCodes.CREATED).json({
       success: true,
-      data: result
+      data: result,
     })
   } catch (error) {
     next(error)
@@ -45,8 +45,8 @@ export const login = async (req, res, next) => {
       data: {
         accessToken: result.accessToken,
         user: result.user,
-        isProfileComplete: result.isProfileComplete
-      }
+        isProfileComplete: result.isProfileComplete,
+      },
     })
   } catch (error) {
     next(error)
@@ -65,12 +65,12 @@ export const refreshToken = async (req, res, next) => {
       throw new ApiError(
         StatusCodes.UNAUTHORIZED,
         'Refresh token not found',
-        'REFRESH_TOKEN_NOT_FOUND'
+        'REFRESH_TOKEN_NOT_FOUND',
       )
 
     const result = await authService.refreshToken({
       requestToken: refreshToken,
-      deviceInfo: deviceInfo
+      deviceInfo: deviceInfo,
     })
 
     // Set refresh token mới trong httpOnly cookie
@@ -82,8 +82,8 @@ export const refreshToken = async (req, res, next) => {
       data: {
         accessToken: result.accessToken,
         user: result.user,
-        isProfileComplete: result.isProfileComplete
-      }
+        isProfileComplete: result.isProfileComplete,
+      },
     })
   } catch (error) {
     // Nếu token bị revoke hoặc invalid, xóa cookie để tránh gửi lại token cũ
@@ -110,13 +110,13 @@ export const logout = async (req, res, next) => {
 
     await authService.logout({
       refreshToken,
-      deviceInfo: deviceInfo
+      deviceInfo: deviceInfo,
     })
 
     clearRefreshTokenCookie(res)
 
     res.status(StatusCodes.OK).json({
-      success: true
+      success: true,
     })
   } catch (error) {
     next(error)

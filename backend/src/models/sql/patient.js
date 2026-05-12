@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // 1-1 với User (Tài khoản bệnh nhân)
       Patient.belongsTo(models.User, {
         foreignKey: 'userId',
-        as: 'user'
+        as: 'user',
       })
 
       // N-N với Doctor (Bác sĩ phụ trách)
@@ -15,42 +15,42 @@ module.exports = (sequelize, DataTypes) => {
         through: models.PatientDoctor,
         foreignKey: 'patientId',
         otherKey: 'doctorId',
-        as: 'doctors'
+        as: 'doctors',
       })
 
       // 1-N với Device (Bệnh nhân có thể có nhiều thiết bị)
       Patient.hasMany(models.Device, {
         foreignKey: 'assignedTo',
         sourceKey: 'userId',
-        as: 'devices'
+        as: 'devices',
       })
 
       // 1-N với Alert (Cảnh báo của bệnh nhân)
       Patient.hasMany(models.Alert, {
         foreignKey: 'patientId',
         sourceKey: 'userId',
-        as: 'alerts'
+        as: 'alerts',
       })
 
       // 1-N với HealthPrediction (Dự đoán sức khỏe của bệnh nhân)
       Patient.hasMany(models.HealthPrediction, {
         foreignKey: 'patientId',
         sourceKey: 'userId',
-        as: 'healthPredictions'
+        as: 'healthPredictions',
       })
 
       // 1-N với MedicalRecord (Hồ sơ bệnh án của bệnh nhân)
       Patient.hasMany(models.MedicalRecord, {
         foreignKey: 'patientId',
         sourceKey: 'userId',
-        as: 'medicalRecords'
+        as: 'medicalRecords',
       })
 
       // 1-N với Appointment (Lịch hẹn của bệnh nhân)
       Patient.hasMany(models.Appointment, {
         foreignKey: 'patientId',
         sourceKey: 'userId',
-        as: 'appointments'
+        as: 'appointments',
       })
     }
   }
@@ -60,46 +60,46 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
       },
       dateOfBirth: {
-        type: DataTypes.DATEONLY
+        type: DataTypes.DATEONLY,
       },
       gender: {
-        type: DataTypes.ENUM('male', 'female', 'other')
+        type: DataTypes.ENUM('male', 'female', 'other'),
       },
       bloodType: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       height: {
-        type: DataTypes.FLOAT
+        type: DataTypes.FLOAT,
       },
       weight: {
-        type: DataTypes.FLOAT
+        type: DataTypes.FLOAT,
       },
       medicalHistory: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       address: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       currentHealthStatus: {
         type: DataTypes.ENUM('stable', 'monitoring', 'critical'),
-        defaultValue: 'stable'
+        defaultValue: 'stable',
       },
       currentIssue: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       lastAlertAt: {
         type: DataTypes.DATE,
-        allowNull: true
-      }
+        allowNull: true,
+      },
     },
     {
       sequelize,
       tableName: 'patients',
-      modelName: 'Patient'
-    }
+      modelName: 'Patient',
+    },
   )
 
   return Patient

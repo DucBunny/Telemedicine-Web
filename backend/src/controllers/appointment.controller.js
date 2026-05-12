@@ -40,16 +40,62 @@ export const getMyAppointments = async (req, res, next) => {
 }
 
 /**
+ * Get patient's appointments for current doctor
+ * GET /me/patients/:patientId/appointments
+ */
+export const getAppointmentByPatientIdAndCurrentDoctor = async (
+  req,
+  res,
+  next,
+) => {
+  try {
+    const doctorId = req.user.id
+    const { patientId } = req.params
+    const {
+      page = 1,
+      limit = 10,
+      type,
+      scheduledFrom,
+      scheduledTo,
+    } = req.validatedQuery
+    const rawStatus =
+      req.validatedQuery.status ?? req.validatedQuery['status[]'] ?? []
+    const normalizedStatus = normalizeQueryArray(rawStatus)
+    const result =
+      await appointmentService.getAppointmentByPatientIdAndDoctorId(
+        patientId,
+        doctorId,
+        {
+          page,
+          limit,
+          status: normalizedStatus,
+          type,
+          scheduledFrom,
+          scheduledTo,
+        },
+      )
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result.data,
+      meta: result.meta,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * Cancel appointment (by doctor or patient)
  */
 export const cancelAppointment = async (req, res, next) => {
   try {
     const { appointmentId } = req.params
-    const { role } = req.user
+    const { id: actorId, role } = req.user
     const { cancelReason } = req.body
     const result = await appointmentService.cancelAppointment(
       appointmentId,
       { cancelReason },
+      actorId,
       role,
     )
     res.status(StatusCodes.OK).json({
@@ -67,7 +113,9 @@ export const cancelAppointment = async (req, res, next) => {
  */
 export const getAvailableSlots = async (req, res, next) => {
   try {
-    const { doctorId, date } = req.validatedQuery
+    const { date } = req.validatedQuery
+    const doctorId =
+      req.user.role === 'doctor' ? req.user.id : req.validatedQuery.doctorId
     const slots = await appointmentService.getAvailableSlots(doctorId, date)
     res.status(StatusCodes.OK).json({
       success: true,
@@ -84,8 +132,10 @@ export const getAvailableSlots = async (req, res, next) => {
  */
 export const createAppointment = async (req, res, next) => {
   try {
-    const patientId = req.user.id
-    const { doctorId, scheduledAt, durationMinutes, type, reason } = req.body
+    const { role } = req.user
+    const patientId = role === 'patient' ? req.user.id : req.body.patientId
+    const doctorId = role === 'doctor' ? req.user.id : req.body.doctorId
+    const { scheduledAt, durationMinutes, type, reason } = req.body
 
     const appointment = await appointmentService.createAppointment({
       patientId,
@@ -94,6 +144,7 @@ export const createAppointment = async (req, res, next) => {
       durationMinutes,
       type,
       reason,
+      initiatedBy: role,
     })
 
     res.status(StatusCodes.CREATED).json({
@@ -111,9 +162,32 @@ export const createAppointment = async (req, res, next) => {
 export const confirmAppointment = async (req, res, next) => {
   try {
     const { appointmentId } = req.params
+    const { id: actorId } = req.user
     const result = await appointmentService.confirmAppointment(
       appointmentId,
-      req.io,
+      actorId,
+    )
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: result,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * PATCH /appointments/:appointmentId/status (Doctor)
+ */
+export const patchAppointmentStatusByDoctor = async (req, res, next) => {
+  try {
+    const { appointmentId } = req.params
+    const doctorId = req.user.id
+    const { status, cancelReason } = req.body
+    const result = await appointmentService.patchAppointmentStatusByDoctor(
+      appointmentId,
+      doctorId,
+      { status, cancelReason },
     )
     res.status(StatusCodes.OK).json({
       success: true,

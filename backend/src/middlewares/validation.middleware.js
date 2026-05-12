@@ -1,6 +1,6 @@
-import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
 import { fromError } from 'zod-validation-error'
+import ApiError from '@/utils/api-error'
 
 /**
  * Formats Zod validation errors into a more readable structure.
@@ -52,8 +52,8 @@ export function validate({ body, params, query }) {
           StatusCodes.BAD_REQUEST,
           message,
           'VALIDATION_ERROR',
-          details
-        )
+          details,
+        ),
       )
     }
   }

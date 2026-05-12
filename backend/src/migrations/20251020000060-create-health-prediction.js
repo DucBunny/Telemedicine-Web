@@ -7,37 +7,37 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       patient_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'patients',
-          key: 'user_id'
+          key: 'user_id',
         },
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       predicted_status: {
-        type: Sequelize.ENUM('normal', 'warning', 'critical')
+        type: Sequelize.ENUM('normal', 'warning', 'critical'),
       },
       confidence: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
       },
       model_version: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       input_window: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('health_predictions')
-  }
+  },
 }

@@ -10,28 +10,28 @@ module.exports = (sequelize, DataTypes) => {
     {
       patientId: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
       },
       doctorId: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
       },
       role: {
         type: DataTypes.ENUM('primary', 'consultant', 'on_call'),
-        allowNull: false
+        allowNull: false,
       },
       assignedAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       sequelize,
       tableName: 'patient_doctors',
       modelName: 'PatientDoctor',
-      timestamps: false
-    }
+      timestamps: false,
+    },
   )
 
   return PatientDoctor

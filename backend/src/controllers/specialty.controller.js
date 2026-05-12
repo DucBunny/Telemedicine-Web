@@ -9,7 +9,7 @@ export const getAllSpecialties = async (req, res, next) => {
     const specialties = await specialtyService.getAllSpecialties()
     res.status(StatusCodes.OK).json({
       success: true,
-      data: specialties
+      data: specialties,
     })
   } catch (error) {
     next(error)
@@ -25,7 +25,7 @@ export const getSpecialtyDetail = async (req, res, next) => {
     const specialty = await specialtyService.getSpecialtyById(specialtyId)
     res.status(StatusCodes.OK).json({
       success: true,
-      data: specialty
+      data: specialty,
     })
   } catch (error) {
     next(error)

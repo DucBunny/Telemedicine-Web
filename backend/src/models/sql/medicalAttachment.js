@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // Tệp đính kèm thuộc về 1 Hồ sơ y tế
       MedicalAttachment.belongsTo(models.MedicalRecord, {
         foreignKey: 'medicalRecordId',
-        as: 'medicalRecord'
+        as: 'medicalRecord',
       })
     }
   }
@@ -16,26 +16,26 @@ module.exports = (sequelize, DataTypes) => {
     {
       medicalRecordId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       fileName: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       fileUrl: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       fileType: {
-        type: DataTypes.STRING
-      }
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,
       tableName: 'medical_attachments',
       modelName: 'MedicalAttachment',
       createdAt: 'uploadedAt',
-      updatedAt: false
-    }
+      updatedAt: false,
+    },
   )
 
   return MedicalAttachment

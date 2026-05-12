@@ -1,5 +1,5 @@
-import { User, Doctor, Patient, Device } from '@/models/sql/index'
 import { Op } from 'sequelize'
+import { Device, Doctor, Patient, User } from '@/models/sql/index'
 
 /**
  * Get all users with pagination (Admin view)
@@ -8,7 +8,7 @@ export const getAllUsers = async ({
   page = 1,
   limit = 10,
   search = '',
-  role = ''
+  role = '',
 }) => {
   const offset = (page - 1) * limit
   const whereClause = {}
@@ -17,7 +17,7 @@ export const getAllUsers = async ({
     whereClause[Op.or] = [
       { fullName: { [Op.like]: `%${search}%` } },
       { email: { [Op.like]: `%${search}%` } },
-      { phoneNumber: { [Op.like]: `%${search}%` } }
+      { phoneNumber: { [Op.like]: `%${search}%` } },
     ]
   }
 
@@ -30,7 +30,7 @@ export const getAllUsers = async ({
     attributes: { exclude: ['password'] },
     limit: parseInt(limit),
     offset: parseInt(offset),
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
   })
 
   return {
@@ -39,8 +39,8 @@ export const getAllUsers = async ({
       page: parseInt(page),
       limit: parseInt(limit),
       total: count,
-      totalPages: Math.ceil(count / limit)
-    }
+      totalPages: Math.ceil(count / limit),
+    },
   }
 }
 
@@ -54,11 +54,11 @@ export const getSystemStats = async () => {
   const totalDevices = await Device.count()
 
   const devicesOnline = await Device.count({
-    where: { status: 'online' }
+    where: { status: 'online' },
   })
 
   const devicesMaintenance = await Device.count({
-    where: { status: 'maintenance' }
+    where: { status: 'maintenance' },
   })
 
   return {
@@ -67,7 +67,7 @@ export const getSystemStats = async () => {
     totalPatients,
     totalDevices,
     devicesOnline,
-    devicesMaintenance
+    devicesMaintenance,
   }
 }
 
@@ -78,7 +78,7 @@ export const getRecentUsers = async (limit = 5) => {
   return await User.findAll({
     attributes: { exclude: ['password'] },
     limit,
-    order: [['createdAt', 'DESC']]
+    order: [['createdAt', 'DESC']],
   })
 }
 
@@ -87,7 +87,7 @@ export const getRecentUsers = async (limit = 5) => {
  */
 export const getUserById = async (id) => {
   return await User.findByPk(id, {
-    attributes: { exclude: ['password'] }
+    attributes: { exclude: ['password'] },
   })
 }
 

@@ -12,6 +12,6 @@ export const caseInsensitiveSearch = (field, searchTerm) => {
   return Sequelize.where(
     Sequelize.fn('lower', Sequelize.col(field)),
     'LIKE',
-    `%${searchTerm.trim().toLowerCase()}%`
+    `%${searchTerm.trim().toLowerCase()}%`,
   )
 }

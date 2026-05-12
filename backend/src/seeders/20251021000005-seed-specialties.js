@@ -12,7 +12,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/tim-mach.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Thần kinh',
@@ -20,7 +20,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/than-kinh.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Nhi khoa',
@@ -28,7 +28,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/nhi-khoa.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Da liễu',
@@ -36,7 +36,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/da-lieu.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Xương khớp',
@@ -45,7 +45,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/xuong-khop.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Mắt',
@@ -54,7 +54,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/mat.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Nội khoa',
@@ -63,7 +63,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/nội-khoa.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Hô hấp',
@@ -72,7 +72,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/hô-hấp.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Nội tiết',
@@ -80,7 +80,7 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/nội-tiết.png',
         created_at: now,
-        updated_at: now
+        updated_at: now,
       },
       {
         name: 'Tai Mũi Họng',
@@ -88,8 +88,8 @@ module.exports = {
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/tai-mui-hong.png',
         created_at: now,
-        updated_at: now
-      }
+        updated_at: now,
+      },
     ]
 
     await queryInterface.bulkInsert('specialties', specialties, {})
@@ -97,5 +97,5 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('specialties', null, {})
-  }
+  },
 }

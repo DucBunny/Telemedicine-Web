@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       DoctorWorkingHours.belongsTo(models.Doctor, {
         foreignKey: 'doctorId',
         targetKey: 'userId',
-        as: 'doctor'
+        as: 'doctor',
       })
     }
   }
@@ -17,27 +17,27 @@ module.exports = (sequelize, DataTypes) => {
     {
       doctorId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       dayOfWeek: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        comment: '0: Chủ nhật, 1: Thứ 2, ..., 6: Thứ 7'
+        comment: '0: Chủ nhật, 1: Thứ 2, ..., 6: Thứ 7',
       },
       startTime: {
         type: DataTypes.TIME,
-        allowNull: false
+        allowNull: false,
       },
       endTime: {
         type: DataTypes.TIME,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     },
     {
       sequelize,
       tableName: 'doctor_working_hours',
-      modelName: 'DoctorWorkingHours'
-    }
+      modelName: 'DoctorWorkingHours',
+    },
   )
 
   return DoctorWorkingHours

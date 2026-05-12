@@ -10,13 +10,13 @@ const ECGRawSchema = new mongoose.Schema(
       {
         ts: { type: Date }, // Timestamp của mẫu ECG
         val: [Number], // Mảng 187 điểm ECG
-        status: String // 'NORMAL', 'DANGER'
-      }
-    ]
+        status: String, // 'NORMAL', 'DANGER'
+      },
+    ],
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 )
 
 // Compound Index để tối ưu truy vấn theo device và thời gian

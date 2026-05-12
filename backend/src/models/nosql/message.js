@@ -1,21 +1,21 @@
-import mongoose from 'mongoose'
 import * as MongoPaging from 'mongo-cursor-pagination'
+import mongoose from 'mongoose'
 
 const MessageSchema = new mongoose.Schema(
   {
     conversation_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Conversation',
-      required: true
+      required: true,
     },
     sender_id: {
       type: mongoose.Schema.Types.Mixed, // user_id từ SQL hoặc 'system'
-      required: true
+      required: true,
     },
     type: {
       type: String,
       enum: ['text', 'image', 'file', 'system_alert'],
-      default: 'text'
+      default: 'text',
     },
     content: {
       text: { type: String },
@@ -27,17 +27,17 @@ const MessageSchema = new mongoose.Schema(
       // Dùng cho type 'system_alert' (cảnh báo từ IoT/AI)
       alert_id: { type: Number },
       severity: { type: String, enum: ['low', 'medium', 'high', 'critical'] },
-      value: { type: String }
+      value: { type: String },
     },
     status: {
       type: String,
       enum: ['sent', 'read'],
-      default: 'sent'
-    }
+      default: 'sent',
+    },
   },
   {
-    timestamps: { createdAt: 'created_at', updatedAt: false }
-  }
+    timestamps: { createdAt: 'created_at', updatedAt: false },
+  },
 )
 
 // Index để tìm nhanh tin nhắn theo conversation_id và sắp xếp theo thời gian tạo

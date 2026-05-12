@@ -4,7 +4,10 @@ import { authorizeRoles } from '@/middlewares/role.middleware'
 
 const router = express.Router()
 
-router.get('/', authorizeRoles(['admin', 'doctor', 'patient']), deviceController.getAllDevices)
-
+router.get(
+  '/',
+  authorizeRoles(['admin', 'doctor', 'patient']),
+  deviceController.getAllDevices,
+)
 
 export default router

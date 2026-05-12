@@ -1,13 +1,13 @@
+import { StatusCodes } from 'http-status-codes'
 import { Specialty } from '@/models/sql/index'
 import ApiError from '@/utils/api-error'
-import { StatusCodes } from 'http-status-codes'
 
 /**
  * Get all specialties
  */
 export const getAllSpecialties = async () => {
   return await Specialty.findAll({
-    order: [['name', 'ASC']]
+    order: [['name', 'ASC']],
   })
 }
 
@@ -20,7 +20,7 @@ export const getSpecialtyById = async (specialtyId) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Specialty not found',
-      'SPECIALTY_NOT_FOUND'
+      'SPECIALTY_NOT_FOUND',
     )
 
   return specialty

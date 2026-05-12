@@ -8,9 +8,9 @@ const mongo_uri = env.MONGODB_CLUSTER
 const connectMongoDB = async () => {
   try {
     await mongoose.connect(mongo_uri)
-    console.log('MongoDB connected successfully.')
+    console.log('[MongoDB] Connected successfully.')
   } catch (error) {
-    console.error(`Unable to connect to MongoDB: ${error.message}`)
+    console.error(`[MongoDB] Unable to connect to MongoDB: ${error.message}`)
     process.exit(1)
   }
 }

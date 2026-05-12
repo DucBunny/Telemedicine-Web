@@ -7,27 +7,27 @@ module.exports = (sequelize, DataTypes) => {
       // 1-1 với User (Tài khoản bác sĩ)
       Doctor.belongsTo(models.User, {
         foreignKey: 'userId',
-        as: 'user'
+        as: 'user',
       })
 
       // N-1 với Specialty
       Doctor.belongsTo(models.Specialty, {
         foreignKey: 'specialtyId',
-        as: 'specialty'
+        as: 'specialty',
       })
 
       // 1-N giờ làm việc
       Doctor.hasMany(models.DoctorWorkingHours, {
         foreignKey: 'doctorId',
         sourceKey: 'userId',
-        as: 'workingHours'
+        as: 'workingHours',
       })
 
       // 1-N lịch nghỉ
       Doctor.hasMany(models.DoctorOffSchedule, {
         foreignKey: 'doctorId',
         sourceKey: 'userId',
-        as: 'offSchedules'
+        as: 'offSchedules',
       })
 
       // N-N với Patient (Bác sĩ phụ trách nhiều bệnh nhân)
@@ -35,19 +35,19 @@ module.exports = (sequelize, DataTypes) => {
         through: models.PatientDoctor,
         foreignKey: 'doctorId',
         otherKey: 'patientId',
-        as: 'patients'
+        as: 'patients',
       })
 
       // 1-N với Appointment (Lịch hẹn của bác sĩ)
       Doctor.hasMany(models.Appointment, {
         foreignKey: 'doctorId',
-        as: 'appointments'
+        as: 'appointments',
       })
 
       // 1-N với MedicalRecord (Các hồ sơ bệnh án do bác sĩ này tạo)
       Doctor.hasMany(models.MedicalRecord, {
         foreignKey: 'doctorId',
-        as: 'medicalRecords'
+        as: 'medicalRecords',
       })
 
       // N-N với Alert (Cảnh báo được gửi đến bác sĩ)
@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
         through: models.AlertRecipient,
         foreignKey: 'doctorId',
         otherKey: 'alertId',
-        as: 'alertRecipients'
+        as: 'alertRecipients',
       })
     }
   }
@@ -65,30 +65,30 @@ module.exports = (sequelize, DataTypes) => {
       userId: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
       },
       specialtyId: {
         type: DataTypes.INTEGER,
-        allowNull: true
+        allowNull: true,
       },
       degree: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       experienceYears: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       bio: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       address: {
-        type: DataTypes.STRING
-      }
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,
       tableName: 'doctors',
-      modelName: 'Doctor'
-    }
+      modelName: 'Doctor',
+    },
   )
 
   return Doctor

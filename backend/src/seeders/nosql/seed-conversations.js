@@ -19,7 +19,7 @@ export const seedConversations = async (pairs) => {
 
     // Tìm conversation với cặp participants này (tìm cả 2 thứ tự)
     let conversation = await Conversation.findOne({
-      participants: { $all: participants }
+      participants: { $all: participants },
     })
 
     // Nếu chưa có, tạo mới
@@ -28,15 +28,15 @@ export const seedConversations = async (pairs) => {
         participants,
         unread_counts: new Map([
           [String(patientId), 0],
-          [String(doctorId), 0]
-        ])
+          [String(doctorId), 0],
+        ]),
       })
     }
 
     seededConversations.push({
       conversation_id: conversation._id,
       patient_id: patientId,
-      doctor_id: doctorId
+      doctor_id: doctorId,
     })
   }
 

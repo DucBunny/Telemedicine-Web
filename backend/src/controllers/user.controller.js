@@ -1,6 +1,8 @@
 import { StatusCodes } from 'http-status-codes'
+import { getMultipleUsersStatus } from '@/cache/presence.cache'
 import * as doctorService from '@/services/doctor.service'
 import * as patientService from '@/services/patient.service'
+import * as patientDoctorService from '@/services/patientDoctor.service'
 import * as userService from '@/services/user.service'
 
 /**
@@ -62,59 +64,21 @@ export const changePassword = async (req, res, next) => {
   }
 }
 
-//---------------------------------------
-
-export const getAllUsers = async (req, res, next) => {
+/**
+ * Get presence status of related users (doctors <-> patients) for logged in user
+ */
+export const getMyRelatedUsersPresence = async (req, res, next) => {
   try {
-    const { page = 1, limit = 10, search = '', role = '' } = req.query
-    const result = await userService.getAllUsers({ page, limit, search, role })
+    const { id: userId, role } = req.user
+    const relatedUserIds = await patientDoctorService.getRelatedUserIds(
+      userId,
+      role,
+    )
+    const statuses = await getMultipleUsersStatus(relatedUserIds)
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result.data,
-      meta: result.meta,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const getUserById = async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const user = await userService.getUserById(id)
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: user,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const updateUserStatus = async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const { status } = req.body
-    const user = await userService.updateUserStatus(id, status)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: user,
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const deleteUser = async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const result = await userService.deleteUser(id)
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: result,
+      data: statuses,
     })
   } catch (error) {
     next(error)

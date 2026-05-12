@@ -9,56 +9,56 @@ module.exports = {
         allowNull: false,
         references: {
           model: 'users',
-          key: 'id'
+          key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       date_of_birth: {
-        type: Sequelize.DATEONLY
+        type: Sequelize.DATEONLY,
       },
       gender: {
-        type: Sequelize.ENUM('male', 'female', 'other')
+        type: Sequelize.ENUM('male', 'female', 'other'),
       },
       blood_type: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       height: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
       },
       weight: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
       },
       medical_history: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       address: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       current_health_status: {
         type: Sequelize.ENUM('stable', 'monitoring', 'critical'),
-        defaultValue: 'stable'
+        defaultValue: 'stable',
       },
       current_issue: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       last_alert_at: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('patients')
-  }
+  },
 }

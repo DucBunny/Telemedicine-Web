@@ -7,13 +7,13 @@ module.exports = (sequelize, DataTypes) => {
       // Người gọi
       CallLog.belongsTo(models.User, {
         foreignKey: 'callerId',
-        as: 'caller'
+        as: 'caller',
       })
 
       // Người nghe
       CallLog.belongsTo(models.User, {
         foreignKey: 'receiverId',
-        as: 'receiver'
+        as: 'receiver',
       })
     }
   }
@@ -21,29 +21,29 @@ module.exports = (sequelize, DataTypes) => {
   CallLog.init(
     {
       callerId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       receiverId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       startTime: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       endTime: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       durationSeconds: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       status: {
-        type: DataTypes.ENUM('missed', 'rejected', 'completed')
-      }
+        type: DataTypes.ENUM('missed', 'rejected', 'completed'),
+      },
     },
     {
       sequelize,
       tableName: 'call_logs',
-      modelName: 'CallLog'
-    }
+      modelName: 'CallLog',
+    },
   )
 
   return CallLog

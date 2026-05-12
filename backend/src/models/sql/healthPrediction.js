@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
       HealthPrediction.belongsTo(models.Patient, {
         foreignKey: 'patientId',
         targetKey: 'userId',
-        as: 'patient'
+        as: 'patient',
       })
 
       // Dự đoán có thể liên quan đến 1 Cảnh báo
       HealthPrediction.hasOne(models.Alert, {
         foreignKey: 'predictionId',
-        as: 'alert'
+        as: 'alert',
       })
     }
   }
@@ -23,27 +23,27 @@ module.exports = (sequelize, DataTypes) => {
     {
       patientId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       predictedStatus: {
-        type: DataTypes.ENUM('normal', 'warning', 'critical')
+        type: DataTypes.ENUM('normal', 'warning', 'critical'),
       },
       confidence: {
-        type: DataTypes.FLOAT
+        type: DataTypes.FLOAT,
       },
       modelVersion: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       inputWindow: {
-        type: DataTypes.INTEGER
-      }
+        type: DataTypes.INTEGER,
+      },
     },
     {
       sequelize,
       tableName: 'health_predictions',
       modelName: 'HealthPrediction',
-      updatedAt: false
-    }
+      updatedAt: false,
+    },
   )
 
   return HealthPrediction

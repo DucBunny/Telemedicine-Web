@@ -6,25 +6,25 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const medicalRecords = await queryInterface.sequelize.query(
       `SELECT id FROM medical_records;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
     const attachmentTemplates = [
       {
         fileType: 'image/jpeg',
         extension: 'jpg',
-        namePrefix: 'xray'
+        namePrefix: 'xray',
       },
       {
         fileType: 'image/png',
         extension: 'png',
-        namePrefix: 'lab-result'
+        namePrefix: 'lab-result',
       },
       {
         fileType: 'application/pdf',
         extension: 'pdf',
-        namePrefix: 'prescription'
-      }
+        namePrefix: 'prescription',
+      },
     ]
 
     const attachments = []
@@ -42,7 +42,7 @@ module.exports = {
           file_name: fileName,
           file_url: `https://res.cloudinary.com/demo/image/upload/v1/medical-records/${uniqueSuffix}-${fileName}`,
           file_type: template.fileType,
-          uploaded_at: faker.date.recent({ days: 30 })
+          uploaded_at: faker.date.recent({ days: 30 }),
         })
       }
     }
@@ -52,5 +52,5 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('medical_attachments', null, {})
-  }
+  },
 }

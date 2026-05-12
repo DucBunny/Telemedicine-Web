@@ -72,44 +72,17 @@ export const updatePatient = async (id, { user: userData, ...data }) => {
 /**
  * Get patients by doctor ID
  */
-export const getPatientsByDoctorId = async (doctorId, { page, limit }) => {
-  return await patientRepo.findByDoctorId(doctorId, { page, limit })
-}
-
-// ---------------------------------------
-
-/**
- * Get all patients with pagination
- */
-export const getAllPatients = async ({ page, limit, search }) => {
-  return await patientRepo.getAll({ page, limit, search })
-}
-
-/**
- * Create new patient
- */
-export const createPatient = async (data) => {
-  return await patientRepo.create(data)
-}
-
-/**
- * Delete patient
- */
-export const deletePatient = async (id) => {
-  const result = await patientRepo.deletePatient(id)
-  if (!result) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Patient not found',
-      'PATIENT_NOT_FOUND',
-    )
-  }
-  return { message: 'Patient deleted successfully' }
-}
-
-/**
- * Get patient's devices
- */
-export const getPatientDevices = async (patientId) => {
-  return await patientRepo.getPatientDevices(patientId)
+export const getPatientsByDoctorId = async (
+  doctorId,
+  { page, limit, search, bloodType, gender, dobFrom, dobTo },
+) => {
+  return await patientRepo.findByDoctorId(doctorId, {
+    page,
+    limit,
+    search,
+    bloodType,
+    gender,
+    dobFrom,
+    dobTo,
+  })
 }

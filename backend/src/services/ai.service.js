@@ -8,8 +8,8 @@ const aiClient = axios.create({
   baseURL: env.AI_SERVICE_URL || 'http://localhost:5000',
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 })
 
 /**
@@ -27,9 +27,9 @@ export const predictHealthStatus = async (healthData) => {
       metrics: {
         bpm,
         spo2,
-        hrv
+        hrv,
       },
-      ecg: ecgData || []
+      ecg: ecgData || [],
     }
 
     console.log(`🤖 Sending to AI service for prediction: ${deviceId}`)
@@ -39,7 +39,7 @@ export const predictHealthStatus = async (healthData) => {
     const prediction = response.data
 
     console.log(
-      `✅ AI prediction received: ${prediction.status} (confidence: ${prediction.confidence})`
+      `✅ AI prediction received: ${prediction.status} (confidence: ${prediction.confidence})`,
     )
 
     return {
@@ -47,7 +47,7 @@ export const predictHealthStatus = async (healthData) => {
       confidence: prediction.confidence || 0.95,
       modelVersion: prediction.model_version || 'v1.0',
       risk_score: prediction.risk_score || 0,
-      recommendations: prediction.recommendations || []
+      recommendations: prediction.recommendations || [],
     }
   } catch (error) {
     console.error('❌ AI service error:', error.message)
@@ -86,7 +86,7 @@ const fallbackPrediction = (healthData) => {
     confidence,
     modelVersion: 'fallback_v1',
     risk_score: riskScore,
-    recommendations: []
+    recommendations: [],
   }
 }
 

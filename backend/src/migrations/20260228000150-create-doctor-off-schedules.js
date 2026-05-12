@@ -7,48 +7,48 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       doctor_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'doctors',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       off_date: {
         type: Sequelize.DATEONLY,
-        allowNull: false
+        allowNull: false,
       },
       start_time: {
         type: Sequelize.TIME,
         allowNull: true,
-        comment: 'NULL if off for the whole day'
+        comment: 'NULL if off for the whole day',
       },
       end_time: {
         type: Sequelize.TIME,
         allowNull: true,
-        comment: 'NULL if off for the whole day'
+        comment: 'NULL if off for the whole day',
       },
       reason: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     })
   },
   async down(queryInterface) {
     await queryInterface.dropTable('doctor_off_schedules')
-  }
+  },
 }

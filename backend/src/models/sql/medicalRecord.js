@@ -7,27 +7,27 @@ module.exports = (sequelize, DataTypes) => {
       // Hồ sơ thuộc về 1 ca khám
       MedicalRecord.belongsTo(models.Appointment, {
         foreignKey: 'appointmentId',
-        as: 'appointment'
+        as: 'appointment',
       })
 
       // Hồ sơ thuộc về bệnh nhân
       MedicalRecord.belongsTo(models.Patient, {
         foreignKey: 'patientId',
         targetKey: 'userId',
-        as: 'patient'
+        as: 'patient',
       })
 
       // Hồ sơ được tạo bởi bác sĩ
       MedicalRecord.belongsTo(models.Doctor, {
         foreignKey: 'doctorId',
         targetKey: 'userId',
-        as: 'doctor'
+        as: 'doctor',
       })
 
       // Hồ sơ có thể có nhiều tệp đính kèm
       MedicalRecord.hasMany(models.MedicalAttachment, {
         foreignKey: 'medicalRecordId',
-        as: 'medicalAttachments'
+        as: 'medicalAttachments',
       })
     }
   }
@@ -36,37 +36,37 @@ module.exports = (sequelize, DataTypes) => {
     {
       appointmentId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       patientId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       doctorId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       symptoms: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       diagnosis: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       treatmentPlan: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       prescription: {
-        type: DataTypes.JSON
+        type: DataTypes.JSON,
       },
       notes: {
-        type: DataTypes.TEXT
-      }
+        type: DataTypes.TEXT,
+      },
     },
     {
       sequelize,
       tableName: 'medical_records',
-      modelName: 'MedicalRecord'
-    }
+      modelName: 'MedicalRecord',
+    },
   )
 
   return MedicalRecord

@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const patients = await queryInterface.sequelize.query(
       `SELECT user_id FROM patients;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
     const now = new Date()
@@ -17,7 +17,7 @@ module.exports = {
       'Đau đầu chóng mặt',
       'Khám định kỳ tháng',
       'Tức ngực khó thở',
-      'Tái khám sau điều trị'
+      'Tái khám sau điều trị',
     ]
 
     patients.forEach((pat) => {
@@ -36,7 +36,7 @@ module.exports = {
           meeting_link: null,
           reason: faker.helpers.arrayElement(reasons),
           created_at: now,
-          updated_at: now
+          updated_at: now,
         })
 
         // 3 Lịch hẹn sắp tới (Đã xác nhận, Chờ duyệt)
@@ -51,7 +51,7 @@ module.exports = {
           meeting_link: 'https://meet.google.com/xxx-yyyy-zzz',
           reason: faker.helpers.arrayElement(reasons),
           created_at: now,
-          updated_at: now
+          updated_at: now,
         })
 
         // 3 Lịch hẹn đã hủy
@@ -65,7 +65,7 @@ module.exports = {
           type: faker.helpers.arrayElement(types),
           cancel_reason: 'Bệnh nhân có việc đột xuất, xin hủy lịch hẹn.',
           created_at: now,
-          updated_at: now
+          updated_at: now,
         })
       }
     })
@@ -75,7 +75,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('appointments', null, {})
-  }
+  },
 }
 
 /**

@@ -3,7 +3,7 @@ import { QueryTypes } from 'sequelize'
 import { connectMongoDB, connectMySQL, sequelize } from '@/config'
 import {
   clearConversations,
-  seedConversations
+  seedConversations,
 } from '@/seeders/nosql/seed-conversations'
 import { clearMessages, seedMessages } from '@/seeders/nosql/seed-messages'
 
@@ -25,14 +25,14 @@ async function main() {
       ORDER BY id ASC
       LIMIT 30;
     `,
-      { type: QueryTypes.SELECT }
+      { type: QueryTypes.SELECT },
     )
 
     let pairs = aptRows
 
     if (aptRows.length === 0) {
       console.warn(
-        'No completed appointments found - seeding with first 30 appointments instead'
+        'No completed appointments found - seeding with first 30 appointments instead',
       )
       pairs = await sequelize.query(
         `
@@ -40,7 +40,7 @@ async function main() {
         FROM appointments
         LIMIT 30;
       `,
-        { type: QueryTypes.SELECT }
+        { type: QueryTypes.SELECT },
       )
     }
 

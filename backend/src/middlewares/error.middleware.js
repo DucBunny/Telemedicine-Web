@@ -1,7 +1,7 @@
-import { BaseError as SequelizeBaseError } from 'sequelize'
-import ApiError from '@/utils/api-error'
 import { StatusCodes } from 'http-status-codes'
+import { BaseError as SequelizeBaseError } from 'sequelize'
 import { env } from '@/config'
+import ApiError from '@/utils/api-error'
 
 /**
  * Middleware to convert any error to an instance of ApiError.
@@ -31,7 +31,7 @@ export const errorConverter = (err, req, res, next) => {
       'INTERNAL_SERVER_ERROR',
       null,
       false,
-      err.stack
+      err.stack,
     )
   }
 
@@ -55,8 +55,8 @@ export const errorHandler = (err, req, res, next) => {
       code,
       message,
       statusCode,
-      details
-    }
+      details,
+    },
   }
 
   if (env.NODE_ENV === 'development') {

@@ -3,9 +3,9 @@ import * as notificationController from '@/controllers/notification.controller'
 import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
 import {
+  deleteNotificationParamSchema,
   markNotificationAsReadParamSchema,
   markNotificationAsUnreadParamSchema,
-  deleteNotificationParamSchema
 } from '@/validations/notification.validation'
 
 const router = express.Router()
@@ -14,14 +14,14 @@ const router = express.Router()
 router.get(
   '/unread-count',
   authorizeRoles(['patient', 'doctor', 'admin']),
-  notificationController.getUnreadCount
+  notificationController.getUnreadCount,
 )
 
 // Mark all notifications as read
 router.put(
   '/read-all',
   authorizeRoles(['patient', 'doctor', 'admin']),
-  notificationController.markAllAsRead
+  notificationController.markAllAsRead,
 )
 
 // Mark 1 notification as read
@@ -29,7 +29,7 @@ router.put(
   '/:notificationId/read',
   authorizeRoles(['patient', 'doctor', 'admin']),
   validate({ params: markNotificationAsReadParamSchema }),
-  notificationController.markAsRead
+  notificationController.markAsRead,
 )
 
 // Mark 1 notification as unread
@@ -37,7 +37,7 @@ router.put(
   '/:notificationId/unread',
   authorizeRoles(['patient', 'doctor', 'admin']),
   validate({ params: markNotificationAsUnreadParamSchema }),
-  notificationController.markAsUnread
+  notificationController.markAsUnread,
 )
 
 // Delete notification
@@ -45,7 +45,7 @@ router.delete(
   '/:notificationId',
   authorizeRoles(['patient', 'doctor', 'admin']),
   validate({ params: deleteNotificationParamSchema }),
-  notificationController.deleteNotification
+  notificationController.deleteNotification,
 )
 
 export default router

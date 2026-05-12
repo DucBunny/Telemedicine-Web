@@ -3,7 +3,7 @@ import {
   intIdSchema,
   objectIdSchema,
   paginationQuerySchema,
-  paginationWithSearchSchema
+  paginationWithSearchSchema,
 } from '@/validations/common.validation'
 
 /**
@@ -20,14 +20,14 @@ export const getMessagesQuerySchema = paginationQuerySchema
  * Get messages param schema (userId)
  */
 export const getMessagesParamSchema = z.object({
-  userId: intIdSchema('User ID is invalid')
+  userId: intIdSchema('User ID is invalid'),
 })
 
 /**
  * Get messages param schema (conversationId)
  */
 export const getConversationIdParamSchema = z.object({
-  conversationId: objectIdSchema('Conversation ID is invalid')
+  conversationId: objectIdSchema('Conversation ID is invalid'),
 })
 
 /**
@@ -42,14 +42,14 @@ export const sendMessageSchema = z
       .optional(),
     type: z.enum(['text', 'image', 'file']).optional(),
     fileUrl: z.string().url('Invalid file URL').optional(),
-    fileName: z.string().max(255).optional()
+    fileName: z.string().max(255).optional(),
   })
   .refine(
     (data) => {
       // Either message or fileUrl must be present
       return data.message || data.fileUrl
     },
-    { message: 'Message or file attachment is required' }
+    { message: 'Message or file attachment is required' },
   )
   .refine(
     (data) => {
@@ -59,5 +59,5 @@ export const sendMessageSchema = z
       }
       return true
     },
-    { message: 'File URL is required for image/file messages' }
+    { message: 'File URL is required for image/file messages' },
   )

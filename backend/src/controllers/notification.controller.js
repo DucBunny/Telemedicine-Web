@@ -12,13 +12,13 @@ export const getNotifications = async (req, res, next) => {
     const result = await notificationService.getNotifications(userId, {
       nextCursor,
       limit,
-      isRead
+      isRead,
     })
 
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)
@@ -36,7 +36,7 @@ export const getUnreadCount = async (req, res, next) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: { count }
+      data: { count },
     })
   } catch (error) {
     next(error)
@@ -53,12 +53,12 @@ export const markAsRead = async (req, res, next) => {
 
     const notification = await notificationService.markAsRead(
       notificationId,
-      userId
+      userId,
     )
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: notification
+      data: notification,
     })
   } catch (error) {
     next(error)
@@ -75,12 +75,12 @@ export const markAsUnread = async (req, res, next) => {
 
     const notification = await notificationService.markAsUnread(
       notificationId,
-      userId
+      userId,
     )
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: notification
+      data: notification,
     })
   } catch (error) {
     next(error)
@@ -97,7 +97,7 @@ export const markAllAsRead = async (req, res, next) => {
     await notificationService.markAllAsRead(userId)
 
     res.status(StatusCodes.OK).json({
-      success: true
+      success: true,
     })
   } catch (error) {
     next(error)
@@ -115,7 +115,7 @@ export const deleteNotification = async (req, res, next) => {
     await notificationService.deleteNotification(notificationId, userId)
 
     res.status(StatusCodes.OK).json({
-      success: true
+      success: true,
     })
   } catch (error) {
     next(error)

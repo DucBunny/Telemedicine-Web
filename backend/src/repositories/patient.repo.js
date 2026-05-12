@@ -1,5 +1,6 @@
 import { Op } from 'sequelize'
-import { Device, Doctor, Patient, Sequelize, User } from '@/models/sql/index'
+import { Doctor, Patient, Sequelize, User } from '@/models/sql/index'
+import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
 
 /**
  * Get patient by user ID
@@ -38,7 +39,10 @@ export const update = async (userId, data, options = {}) => {
 /**
  * Get doctor's patients by doctor ID
  */
-export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
+export const findByDoctorId = async (
+  doctorId,
+  { page = 1, limit = 10, search, bloodType, gender, dobFrom, dobTo },
+) => {
   const offset = (page - 1) * limit
   const statusOrder = `
     CASE
@@ -49,8 +53,28 @@ export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
     END
   `
 
+  const whereClause = {}
+
+  if (search?.trim().toLowerCase()) {
+    whereClause[Op.or] = [caseInsensitiveSearch('user.full_name', search)]
+  }
+
+  if (bloodType) {
+    whereClause.bloodType = bloodType
+  }
+
+  if (gender) {
+    whereClause.gender = gender
+  }
+
+  if (dobFrom || dobTo) {
+    whereClause.dateOfBirth = {}
+    if (dobFrom) whereClause.dateOfBirth[Op.gte] = new Date(dobFrom)
+    if (dobTo) whereClause.dateOfBirth[Op.lte] = new Date(dobTo)
+  }
+
   const { rows, count } = await Patient.findAndCountAll({
-    where: {},
+    where: whereClause,
     include: [
       {
         model: User,
@@ -86,62 +110,4 @@ export const findByDoctorId = async (doctorId, { page = 1, limit = 10 }) => {
       totalPages: Math.ceil(count / limit),
     },
   }
-}
-
-//------------------------------------------------------------
-
-/**
- * Get all patients with pagination
- */
-export const getAll = async ({ page = 1, limit = 10, search = '' }) => {
-  const offset = (page - 1) * limit
-  const whereClause = {}
-
-  if (search) {
-    whereClause[Op.or] = [
-      { '$User.fullName$': { [Op.like]: `%${search}%` } },
-      { '$User.email$': { [Op.like]: `%${search}%` } },
-      { bloodType: { [Op.like]: `%${search}%` } },
-    ]
-  }
-
-  const { rows, count } = await Patient.findAndCountAll({
-    where: whereClause,
-    include: [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['id', 'fullName', 'email', 'phoneNumber', 'role'],
-      },
-    ],
-    limit: parseInt(limit),
-    offset: parseInt(offset),
-    order: [['createdAt', 'DESC']],
-  })
-
-  return {
-    data: rows,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total: count,
-      totalPages: Math.ceil(count / limit),
-    },
-  }
-}
-
-/**
- * Delete patient
- */
-export const deletePatient = async (id) => {
-  return await Patient.destroy({ where: { id } })
-}
-
-/**
- * Get patient's devices
- */
-export const getPatientDevices = async (userId) => {
-  return await Device.findAll({
-    where: { assignedTo: userId },
-  })
 }

@@ -100,6 +100,7 @@ export const findByPatientId = async (
       {
         model: Doctor,
         as: 'doctor',
+        attributes: ['degree'],
         include: [
           {
             model: User,
@@ -112,10 +113,36 @@ export const findByPatientId = async (
             attributes: ['name'],
           },
         ],
-        attributes: ['degree'],
       },
     ],
     attributes: ['id', 'diagnosis', 'symptoms'],
+    page,
+    limit,
+  })
+}
+
+/**
+ * Find medical records by patient ID and doctor ID
+ */
+export const findByPatientIdAndDoctorId = async (
+  patientId,
+  doctorId,
+  { page = 1, limit = 10, createdFrom, createdTo },
+) => {
+  const whereClause = {}
+  if (createdFrom || createdTo) {
+    whereClause.createdAt = {}
+    if (createdFrom) whereClause.createdAt[Op.gte] = new Date(createdFrom)
+    if (createdTo) whereClause.createdAt[Op.lte] = new Date(createdTo)
+  }
+
+  return await findByOwner({
+    where: {
+      patientId,
+      doctorId,
+      ...whereClause,
+    },
+    include: [],
     page,
     limit,
   })
@@ -152,34 +179,17 @@ export const findById = async (recordId) => {
         model: MedicalAttachment,
         as: 'medicalAttachments',
       },
+      {
+        model: Patient,
+        as: 'patient',
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['fullName', 'avatar'],
+          },
+        ],
+      },
     ],
   })
-}
-
-//------------------------------------------------------------
-
-/**
- * Create medical record
- */
-export const create = async (data) => {
-  return await MedicalRecord.create(data)
-}
-
-/**
- * Update medical record
- */
-export const update = async (recordId, data) => {
-  const record = await MedicalRecord.findByPk(recordId)
-  if (!record) return null
-  return await record.update(data)
-}
-
-/**
- * Delete medical record
- */
-export const deleteRecord = async (recordId) => {
-  const record = await MedicalRecord.findByPk(recordId)
-  if (!record) return null
-  await record.destroy()
-  return true
 }

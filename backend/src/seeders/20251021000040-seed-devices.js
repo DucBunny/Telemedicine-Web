@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     const patients = await queryInterface.sequelize.query(
       `SELECT user_id FROM patients;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
     const now = new Date()
     const devices = []
@@ -22,7 +22,7 @@ module.exports = {
         is_assigned: true,
         assigned_to: patients[i].user_id,
         created_at: now,
-        updated_at: now
+        updated_at: now,
       })
     }
 
@@ -37,7 +37,7 @@ module.exports = {
         is_assigned: false,
         assigned_to: null,
         created_at: now,
-        updated_at: now
+        updated_at: now,
       })
     }
 
@@ -46,5 +46,5 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('devices', null, {})
-  }
+  },
 }

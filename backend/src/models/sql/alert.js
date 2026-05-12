@@ -8,19 +8,19 @@ module.exports = (sequelize, DataTypes) => {
       Alert.belongsTo(models.Patient, {
         foreignKey: 'patientId',
         targetKey: 'userId',
-        as: 'patient'
+        as: 'patient',
       })
 
       // Cảnh báo có thể liên quan đến 1 thiết bị y tế
       Alert.belongsTo(models.Device, {
         foreignKey: 'deviceId',
-        as: 'device'
+        as: 'device',
       })
 
       // Cảnh báo có thể liên quan đến 1 dự đoán sức khỏe
       Alert.belongsTo(models.HealthPrediction, {
         foreignKey: 'predictionId',
-        as: 'healthPrediction'
+        as: 'healthPrediction',
       })
 
       // Cảnh báo có nhiều người nhận (bác sĩ)
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         through: models.AlertRecipient,
         foreignKey: 'alertId',
         otherKey: 'doctorId',
-        as: 'alertRecipients'
+        as: 'alertRecipients',
       })
     }
   }
@@ -37,48 +37,48 @@ module.exports = (sequelize, DataTypes) => {
     {
       patientId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       deviceId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       predictionId: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
         // allowNull: false
       },
       type: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       }, // VD: "bpm"
       value: {
-        type: DataTypes.FLOAT
+        type: DataTypes.FLOAT,
       }, // VD: "150"
       message: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       severity: {
         type: DataTypes.ENUM('low', 'medium', 'critical'),
-        defaultValue: 'medium'
+        defaultValue: 'medium',
       },
       source: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       isResolved: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       resolvedAt: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       resolvedBy: {
-        type: DataTypes.INTEGER
-      }
+        type: DataTypes.INTEGER,
+      },
     },
     {
       sequelize,
       tableName: 'alerts',
-      modelName: 'Alert'
-    }
+      modelName: 'Alert',
+    },
   )
 
   return Alert

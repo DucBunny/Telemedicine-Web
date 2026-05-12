@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       // 1-N với Doctor
       Specialty.hasMany(models.Doctor, {
         foreignKey: 'specialtyId',
-        as: 'doctors'
+        as: 'doctors',
       })
     }
   }
@@ -16,20 +16,20 @@ module.exports = (sequelize, DataTypes) => {
     {
       name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       description: {
-        type: DataTypes.TEXT
+        type: DataTypes.TEXT,
       },
       imageUrl: {
-        type: DataTypes.STRING
-      }
+        type: DataTypes.STRING,
+      },
     },
     {
       sequelize,
       tableName: 'specialties',
-      modelName: 'Specialty'
-    }
+      modelName: 'Specialty',
+    },
   )
 
   return Specialty

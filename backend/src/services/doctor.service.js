@@ -76,26 +76,3 @@ export const updateDoctor = async (id, { user: userData, ...data }) => {
     return doctor
   })
 }
-//---------------------------------------
-
-/**
- * Create new doctor
- */
-export const createDoctor = async (data) => {
-  return await doctorRepo.create(data)
-}
-
-/**
- * Delete doctor
- */
-export const deleteDoctor = async (id) => {
-  const result = await doctorRepo.deleteDoctor(id)
-  if (!result) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Doctor not found',
-      'DOCTOR_NOT_FOUND',
-    )
-  }
-  return { message: 'Doctor deleted successfully' }
-}

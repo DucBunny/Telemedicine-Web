@@ -1,12 +1,12 @@
-import * as deviceService from '@/services/device.service'
 import { StatusCodes } from 'http-status-codes'
+import * as deviceService from '@/services/device.service'
 
 export const createDevice = async (req, res, next) => {
   try {
     const device = await deviceService.createDevice(req.body)
     res.status(StatusCodes.CREATED).json({
       success: true,
-      data: device
+      data: device,
     })
   } catch (error) {
     next(error)
@@ -24,7 +24,7 @@ export const getAllDevices = async (req, res, next) => {
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)

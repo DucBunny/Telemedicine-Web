@@ -1,5 +1,5 @@
-import * as medicalRecordRepo from '@/repositories/medicalRecord.repo'
 import { StatusCodes } from 'http-status-codes'
+import * as medicalRecordRepo from '@/repositories/medicalRecord.repo'
 import ApiError from '@/utils/api-error'
 
 /**
@@ -8,18 +8,18 @@ import ApiError from '@/utils/api-error'
 export const getMyMedicalRecords = async (
   userId,
   role,
-  { page, limit, search }
+  { page, limit, search },
 ) => {
   if (role === 'doctor') {
     return await medicalRecordRepo.findByDoctorId(userId, {
       page,
-      limit
+      limit,
     })
   } else if (role === 'patient') {
     return await medicalRecordRepo.findByPatientId(userId, {
       page,
       limit,
-      search
+      search,
     })
   }
 }
@@ -33,38 +33,23 @@ export const getMedicalRecordById = async (recordId) => {
     throw new ApiError(
       StatusCodes.NOT_FOUND,
       'Medical record not found',
-      'RECORD_NOT_FOUND'
+      'RECORD_NOT_FOUND',
     )
   }
   return record
 }
 
-//----------------------------------------
-
-export const createMedicalRecord = async (data) => {
-  return await medicalRecordRepo.create(data)
-}
-
-export const updateMedicalRecord = async (id, data) => {
-  const record = await medicalRecordRepo.update(id, data)
-  if (!record) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Medical record not found',
-      'RECORD_NOT_FOUND'
-    )
-  }
-  return record
-}
-
-export const deleteMedicalRecord = async (id) => {
-  const result = await medicalRecordRepo.deleteRecord(id)
-  if (!result) {
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Medical record not found',
-      'RECORD_NOT_FOUND'
-    )
-  }
-  return { message: 'Medical record deleted successfully' }
+/**
+ * Get medical records by patient ID and doctor ID
+ */
+export const getMedicalRecordByPatientIdAndDoctorId = async (
+  patientId,
+  doctorId,
+  { page, limit, createdFrom, createdTo },
+) => {
+  return await medicalRecordRepo.findByPatientIdAndDoctorId(
+    patientId,
+    doctorId,
+    { page, limit, createdFrom, createdTo },
+  )
 }

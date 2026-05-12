@@ -5,7 +5,6 @@ const config = {
   plugins: ['@ianvs/prettier-plugin-sort-imports'],
   semi: false,
   singleQuote: true,
-  trailingComma: 'all',
   tabWidth: 2,
   printWidth: 80,
   bracketSameLine: true,

@@ -10,8 +10,11 @@ import { validate } from '@/middlewares/validation.middleware'
 import { getAppointmentsQuerySchema } from '@/validations/appointment.validation'
 import { getMedicalRecordsQuerySchema } from '@/validations/medicalRecord.validation'
 import { getNotificationsQuerySchema } from '@/validations/notification.validation'
+import {
+  getPatientByIdParamSchema,
+  getPatientsQuerySchema,
+} from '@/validations/patient.validation'
 import { changePasswordSchema } from '@/validations/user.validation'
-import { getPatientsQuerySchema } from '../validations/patient.validation'
 
 const router = express.Router()
 
@@ -82,11 +85,49 @@ router.get(
   notificationController.getNotifications,
 )
 
+/**
+ * Get current doctor's patients
+ */
 router.get(
   '/patients',
   authorizeRoles(['doctor']),
   validate({ query: getPatientsQuerySchema }),
   patientController.getMyPatients,
+)
+
+/**
+ * Get patient's appointments for current doctor
+ */
+router.get(
+  '/patients/:patientId/appointments',
+  authorizeRoles(['doctor']),
+  validate({
+    query: getAppointmentsQuerySchema,
+    params: getPatientByIdParamSchema,
+  }),
+  appointmentController.getAppointmentByPatientIdAndCurrentDoctor,
+)
+
+/**
+ * Get patient's medical records for current doctor
+ */
+router.get(
+  '/patients/:patientId/medical-records',
+  authorizeRoles(['doctor']),
+  validate({
+    query: getMedicalRecordsQuerySchema,
+    params: getPatientByIdParamSchema,
+  }),
+  medicalRecordController.getMedicalRecordsByPatientIdAndCurrentDoctor,
+)
+
+/**
+ * Get related users' presence status for current user
+ */
+router.get(
+  '/presence',
+  authorizeRoles(['doctor', 'patient']),
+  userController.getMyRelatedUsersPresence,
 )
 
 export default router

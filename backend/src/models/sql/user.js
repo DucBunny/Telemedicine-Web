@@ -7,29 +7,29 @@ module.exports = (sequelize, DataTypes) => {
       // User (Bệnh nhân) có 1 hồ sơ chi tiết
       User.hasOne(models.Patient, {
         foreignKey: 'userId',
-        as: 'patient'
+        as: 'patient',
       })
 
       // User (Bác sĩ) có 1 hồ sơ chi tiết
       User.hasOne(models.Doctor, {
         foreignKey: 'userId',
-        as: 'doctor'
+        as: 'doctor',
       })
 
       // User có nhiều RefreshToken
       User.hasMany(models.RefreshToken, {
         foreignKey: 'userId',
-        as: 'refreshTokens'
+        as: 'refreshTokens',
       })
 
       // Quan hệ với CallLog
       User.hasMany(models.CallLog, {
         foreignKey: 'callerId',
-        as: 'madeCalls'
+        as: 'madeCalls',
       })
       User.hasMany(models.CallLog, {
         foreignKey: 'receiverId',
-        as: 'receivedCalls'
+        as: 'receivedCalls',
       })
     }
   }
@@ -38,37 +38,37 @@ module.exports = (sequelize, DataTypes) => {
     {
       fullName: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate: { isEmail: true }
+        validate: { isEmail: true },
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       role: {
         type: DataTypes.ENUM('admin', 'doctor', 'patient'),
-        defaultValue: 'patient'
+        defaultValue: 'patient',
       },
       avatar: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       phoneNumber: {
         type: DataTypes.STRING,
-        unique: true
+        unique: true,
       },
       status: {
         type: DataTypes.ENUM('active', 'locked', 'incomplete'),
-        defaultValue: 'incomplete'
+        defaultValue: 'incomplete',
       },
       lastLoginAt: {
         type: DataTypes.DATE,
-        defaultValue: null
-      }
+        defaultValue: null,
+      },
     },
     {
       sequelize,
@@ -79,16 +79,16 @@ module.exports = (sequelize, DataTypes) => {
           // Hỗ trợ tìm kiếm user theo email nhanh chóng, đồng thời đảm bảo email không bị trùng lặp
           unique: true,
           name: 'idx_users_email',
-          fields: ['email']
+          fields: ['email'],
         },
         {
           // Hỗ trợ lọc user theo số điện thoại nhanh chóng, đồng thời đảm bảo số điện thoại không bị trùng lặp
           unique: true,
           name: 'idx_users_phone_number',
-          fields: ['phone_number']
-        }
-      ]
-    }
+          fields: ['phone_number'],
+        },
+      ],
+    },
   )
 
   return User

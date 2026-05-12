@@ -10,7 +10,7 @@ const DOCUMENT_MIMES = [
   'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'text/csv',
-  'text/plain'
+  'text/plain',
 ]
 const ALL_ALLOWED_MIMES = [...IMAGE_MIMES, ...DOCUMENT_MIMES]
 
@@ -29,7 +29,7 @@ export const uploadAny = multer({
     } else {
       cb(new Error('Định dạng file không được hỗ trợ.'), false)
     }
-  }
+  },
 })
 
 /**
@@ -44,7 +44,7 @@ export const uploadImage = multer({
     } else {
       cb(new Error('Chỉ chấp nhận file ảnh (jpg, png, gif, webp).'), false)
     }
-  }
+  },
 })
 
 /**
@@ -59,12 +59,12 @@ export const uploadDocument = multer({
     } else {
       cb(
         new Error(
-          'Chỉ chấp nhận tài liệu (pdf, doc, docx, xls, xlsx, csv, txt).'
+          'Chỉ chấp nhận tài liệu (pdf, doc, docx, xls, xlsx, csv, txt).',
         ),
-        false
+        false,
       )
     }
-  }
+  },
 })
 
 /**
@@ -76,7 +76,7 @@ export const handleMulterError = (err, req, res, next) => {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         'File too large. Maximum allowed size is 10MB for documents and 5MB for images.',
-        'FILE_TOO_LARGE'
+        'FILE_TOO_LARGE',
       )
     }
 

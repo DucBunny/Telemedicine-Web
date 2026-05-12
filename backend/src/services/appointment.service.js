@@ -1,4 +1,4 @@
-import { getDay } from 'date-fns'
+import { format, getDay } from 'date-fns'
 import { formatInTimeZone } from 'date-fns-tz'
 import { StatusCodes } from 'http-status-codes'
 import { env } from '@/config/env'
@@ -6,8 +6,13 @@ import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 import * as appointmentRepo from '@/repositories/appointment.repo'
 import * as doctorRepo from '@/repositories/doctor.repo'
-// import * as socketService from '@/services/socket.emitters'
-import * as socketService from '@/services/socket.service'
+import * as patientDoctorRepo from '@/repositories/patientDoctor.repo'
+import * as userRepo from '@/repositories/user.repo'
+import { createAndSendNotification } from '@/services/notification.service'
+import {
+  emitAppointmentNewToUsers,
+  emitAppointmentUpdateToUsers,
+} from '@/sockets/emitters/system.emitters'
 import ApiError from '@/utils/api-error'
 
 /**
@@ -38,11 +43,30 @@ export const getMyAppointments = async (
 }
 
 /**
+ * Get appointment by patient ID and doctor ID
+ */
+export const getAppointmentByPatientIdAndDoctorId = async (
+  patientId,
+  doctorId,
+  { page, limit, status, type, scheduledFrom, scheduledTo },
+) => {
+  return await appointmentRepo.findByPatientIdAndDoctorId(patientId, doctorId, {
+    page,
+    limit,
+    status,
+    type,
+    scheduledFrom,
+    scheduledTo,
+  })
+}
+
+/**
  * Cancel appointment by ID (by doctor or patient)
  */
 export const cancelAppointment = async (
   appointmentId,
   { cancelReason },
+  actorId,
   role,
 ) => {
   const appointment = await appointmentRepo.findById(appointmentId)
@@ -60,11 +84,53 @@ export const cancelAppointment = async (
       'ALREADY_CANCELLED',
     )
 
-  return await appointmentRepo.update(appointmentId, {
-    cancelReason:
-      (role === 'patient' ? 'Bệnh nhân: ' : 'Bác sĩ: ') + cancelReason,
+  const prefix = role === 'doctor' ? 'Bác sĩ' : 'Bệnh nhân'
+  const updated = await appointmentRepo.update(appointmentId, {
+    cancelReason: `${prefix}: ${cancelReason}`,
     status: 'cancelled',
   })
+
+  // Gửi notification cho phía còn lại
+  // Doctor hủy → noti cho bệnh nhân; Patient hủy → noti cho bác sĩ
+  const recipientId =
+    role === 'doctor' ? appointment.patientId : appointment.doctorId
+
+  const notifTitle =
+    role === 'doctor'
+      ? 'Lịch hẹn đã bị hủy bởi bác sĩ'
+      : 'Bệnh nhân đã hủy lịch hẹn'
+
+  const patient = await userRepo.getNameById(appointment.patientId)
+  const doctor = await userRepo.getNameById(appointment.doctorId)
+  try {
+    await createAndSendNotification({
+      recipientId,
+      senderId: actorId,
+      type: 'appointment',
+      title: notifTitle,
+      content: `Lịch hẹn vào lúc ${format(appointment.scheduledAt, 'HH:mm')} ngày ${format(appointment.scheduledAt, 'dd/MM/yyyy')} với ${prefix} ${role === 'doctor' ? patient?.fullName : doctor?.fullName} đã bị hủy. Lý do: ${cancelReason}`,
+      referenceId: String(appointmentId),
+    })
+  } catch (err) {
+    console.error('[cancelAppointment] Failed to send notification:', err)
+  }
+
+  if (updated) {
+    emitAppointmentUpdateToUsers(
+      [appointment.doctorId, appointment.patientId],
+      {
+        id: updated.id,
+        status: updated.status,
+        cancelReason: updated.cancelReason,
+        scheduledAt: updated.scheduledAt,
+        doctorId: updated.doctorId,
+        patientId: updated.patientId,
+        type: updated.type,
+      },
+    )
+  }
+
+  return updated
 }
 
 /**
@@ -148,13 +214,27 @@ export const getAvailableSlots = async (doctorId, date) => {
 
   if (!workingHours.length) return []
 
+  const todayStr = formatInTimeZone(new Date(), env.APP_TIME_ZONE, 'yyyy-MM-dd')
+  if (date < todayStr) return []
+
   const allSlots = workingHours.flatMap((wh) =>
     generateSlots(wh.startTime, wh.endTime, 30),
   )
 
-  return allSlots.filter((slot) =>
+  let slots = allSlots.filter((slot) =>
     isSlotAvailable(slot, 30, offSchedules, bookedAppts),
   )
+
+  // Trong ngày hôm nay (theo múi giờ phòng khám): bỏ slot có giờ bắt đầu đã qua
+  if (date === todayStr) {
+    const now = new Date()
+    const hh = Number(formatInTimeZone(now, env.APP_TIME_ZONE, 'HH'))
+    const mm = Number(formatInTimeZone(now, env.APP_TIME_ZONE, 'mm'))
+    const nowMinutes = hh * 60 + mm
+    slots = slots.filter((slot) => timeToMinutes(slot) > nowMinutes)
+  }
+
+  return slots
 }
 
 /**
@@ -167,6 +247,7 @@ export const createAppointment = async ({
   durationMinutes = 30,
   type,
   reason,
+  initiatedBy,
 }) => {
   // Chuyển scheduledAt về giờ địa phương của phòng khám để kiểm tra slot
   const dateStr = formatInTimeZone(scheduledAt, env.APP_TIME_ZONE, 'yyyy-MM-dd')
@@ -180,22 +261,66 @@ export const createAppointment = async ({
       'SLOT_UNAVAILABLE',
     )
 
-  return await appointmentRepo.create({
+  const createdAppointment = await appointmentRepo.create({
     patientId,
     doctorId,
     scheduledAt,
     durationMinutes,
     type,
     reason,
-    status: 'pending',
+    status: initiatedBy === 'doctor' ? 'confirmed' : 'pending',
   })
+
+  if (initiatedBy === 'patient') {
+    const patient = await userRepo.getNameById(patientId)
+    // Tạo Notification trong DB cho bác sĩ
+    try {
+      await createAndSendNotification({
+        recipientId: doctorId,
+        senderId: patientId,
+        type: 'appointment',
+        title: 'Lịch hẹn mới cần xác nhận',
+        content: `Bạn có một lịch hẹn mới vào lúc ${format(scheduledAt, 'HH:mm')} ngày ${format(scheduledAt, 'dd/MM/yyyy')} với bệnh nhân ${patient?.fullName || ''}. Vui lòng xác nhận lịch hẹn.`,
+        referenceId: String(createdAppointment.id),
+      })
+    } catch (err) {
+      console.error('[createAppointmentBooking] Failed to notify doctor:', err)
+    }
+  } else {
+    const doctor = await userRepo.getNameById(doctorId)
+    // Tạo Notification trong DB cho bệnh nhân
+    try {
+      await createAndSendNotification({
+        recipientId: patientId,
+        senderId: doctorId,
+        type: 'appointment',
+        title: 'Bác sĩ đã tạo lịch hẹn mới',
+        content: `Bác sĩ ${doctor?.fullName || ''} đã tạo lịch hẹn mới vào lúc ${format(scheduledAt, 'HH:mm')} ngày ${format(scheduledAt, 'dd/MM/yyyy')} với bạn. Vui lòng kiểm tra lịch hẹn.`,
+        referenceId: String(createdAppointment.id),
+      })
+    } catch (err) {
+      console.error('[createAppointmentBooking] Failed to notify patient:', err)
+    }
+  }
+
+  if (createdAppointment) {
+    emitAppointmentNewToUsers([doctorId, patientId], {
+      id: createdAppointment.id,
+      status: createdAppointment.status,
+      scheduledAt: createdAppointment.scheduledAt,
+      doctorId: createdAppointment.doctorId,
+      patientId: createdAppointment.patientId,
+      type: createdAppointment.type,
+    })
+  }
+
+  return createdAppointment
 }
 
-//-------------------------------------------------------
 /**
  * Confirm appointment by ID (by doctor)
  */
-export const confirmAppointment = async (appointmentId, io) => {
+export const confirmAppointment = async (appointmentId, actorId) => {
   const appointment = await appointmentRepo.findById(appointmentId)
   if (!appointment)
     throw new ApiError(
@@ -211,20 +336,51 @@ export const confirmAppointment = async (appointmentId, io) => {
       'INVALID_STATUS',
     )
 
-  // 1. Cập nhật status
-  await appointmentRepo.update(appointmentId, { status: 'confirmed' })
+  // Kiểm tra thời gian xác nhận lịch hẹn
+  const startMs = new Date(appointment.scheduledAt).getTime()
+  const now = Date.now()
+  const lockMs = env.APPOINTMENT_CONFIRM_LOCK_MINUTES_BEFORE * 60 * 1000
 
-  // 2. Đảm bảo quan hệ patient-doctor tồn tại
-  await appointmentRepo.ensurePatientDoctor(
-    appointment.patientId,
-    appointment.doctorId,
-  )
+  if (startMs <= now)
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Cannot confirm an appointment that has already started or ended',
+      'APPOINTMENT_ALREADY_STARTED',
+    )
 
-  // 3. Tìm hoặc tạo conversation
+  if (startMs - now < lockMs)
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Too close to appointment time to confirm',
+      'CONFIRM_TOO_CLOSE',
+    )
+
   const { patientId, doctorId } = appointment
+
+  const updatedAppointment = await appointmentRepo.update(appointmentId, {
+    status: 'confirmed',
+  })
+
+  if (updatedAppointment) {
+    emitAppointmentUpdateToUsers([doctorId, patientId], {
+      id: updatedAppointment.id,
+      status: updatedAppointment.status,
+      scheduledAt: updatedAppointment.scheduledAt,
+      doctorId: updatedAppointment.doctorId,
+      patientId: updatedAppointment.patientId,
+      type: updatedAppointment.type,
+    })
+  }
+
+  // Đảm bảo quan hệ patient-doctor tồn tại
+  await patientDoctorRepo.ensurePatientDoctor(patientId, doctorId)
+
+  // Tìm hoặc tạo conversation
   let conversation = await Conversation.findOne({
     participants: { $all: [patientId, doctorId] },
   })
+
+  const conversationExisted = !!conversation
 
   if (!conversation) {
     conversation = await Conversation.create({
@@ -233,45 +389,201 @@ export const confirmAppointment = async (appointmentId, io) => {
     })
   }
 
-  // 4. Tạo tin nhắn hệ thống
-  const systemContent =
-    'Lịch hẹn đã được xác nhận. Bạn có thể trò chuyện với bác sĩ tại đây.'
+  // Chỉ tin nhắn chào hệ thống khi vừa mở chat lần đầu
+  if (!conversationExisted) {
+    const systemContent =
+      'Lịch hẹn đã được xác nhận. Bạn có thể trò chuyện với bác sĩ tại đây.'
 
-  const message = await Message.create({
-    conversation_id: conversation._id,
-    sender_id: doctorId,
-    type: 'system_alert',
-    content: {
-      text: systemContent,
-    },
-    status: 'sent',
-  })
+    const message = await Message.create({
+      conversation_id: conversation._id,
+      sender_id: doctorId,
+      type: 'system_alert',
+      content: {
+        text: systemContent,
+      },
+      status: 'sent',
+    })
 
-  // 5. Cập nhật last_message + unread_counts cho patient
-  const currentUnread = conversation.unread_counts.get(String(patientId)) ?? 0
-  conversation.last_message = {
-    message_id: message._id,
-    sender_id: doctorId,
-    type: 'system_alert',
-    content: systemContent,
-    created_at: message.created_at,
-  }
-  conversation.unread_counts.set(String(patientId), currentUnread + 1)
-  await conversation.save()
-
-  // 6. Emit socket event tới patient
-  try {
-    const ioInstance = io ?? socketService.getIo?.()
-    if (ioInstance) {
-      ioInstance.to(`patient:${patientId}`).emit('appointment:confirmed', {
-        appointmentId,
-        conversationId: conversation._id,
-        message: systemContent,
-      })
+    // Cập nhật last_message + unread_counts cho patient
+    const currentUnread = conversation.unread_counts.get(String(patientId)) ?? 0
+    conversation.last_message = {
+      message_id: message._id,
+      sender_id: doctorId,
+      type: 'system_alert',
+      content: systemContent,
+      created_at: message.created_at,
     }
-  } catch (_) {
-    // Socket không critical, bỏ qua lỗi
+    conversation.unread_counts.set(String(patientId), currentUnread + 1)
+    await conversation.save()
+  }
+
+  // Gửi notification cho bệnh nhân
+  const doctor = await userRepo.getNameById(doctorId)
+  try {
+    await createAndSendNotification({
+      recipientId: patientId,
+      senderId: actorId,
+      type: 'appointment',
+      title: 'Lịch hẹn đã được xác nhận',
+      content: `Lịch hẹn vào lúc ${format(appointment.scheduledAt, 'HH:mm')}, ngày ${format(appointment.scheduledAt, 'dd/MM/yyyy')} của bạn với Bác sĩ ${doctor?.fullName || ''} đã được xác nhận.`,
+      referenceId: String(appointmentId),
+    })
+  } catch (err) {
+    console.error('[confirmAppointment] Failed to send notification:', err)
   }
 
   return await appointmentRepo.findById(appointmentId)
+}
+
+const DOCTOR_STATUS_PATCH_ALLOWED = {
+  confirmed: ['completed', 'cancelled'],
+  cancelled: ['completed'],
+}
+
+/**
+ * Bác sĩ chỉnh trạng thái (đã hết ca và trong cửa sổ thời gian cấu hình).
+ */
+export const patchAppointmentStatusByDoctor = async (
+  appointmentId,
+  doctorId,
+  { status: nextStatus, cancelReason },
+) => {
+  const appointment = await appointmentRepo.findById(appointmentId)
+  if (!appointment)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Appointment not found',
+      'APPOINTMENT_NOT_FOUND',
+    )
+
+  if (appointment.doctorId !== doctorId)
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'You cannot modify this appointment',
+      'FORBIDDEN',
+    )
+
+  const allowedNext = DOCTOR_STATUS_PATCH_ALLOWED[appointment.status]
+  if (!allowedNext?.includes(nextStatus))
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Invalid status transition for correction',
+      'INVALID_STATUS_TRANSITION',
+    )
+
+  const durationMin = appointment.durationMinutes ?? 30
+  const visitEndMs =
+    new Date(appointment.scheduledAt).getTime() + durationMin * 60 * 1000
+  const now = Date.now()
+  const minAllowedMs =
+    visitEndMs +
+    env.APPOINTMENT_DOCTOR_STATUS_EDIT_MIN_HOURS_AFTER_END * 3600000
+  const maxAllowedMs =
+    visitEndMs +
+    env.APPOINTMENT_DOCTOR_STATUS_EDIT_MAX_HOURS_AFTER_END * 3600000
+
+  if (now < minAllowedMs || now > maxAllowedMs)
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Status can only be corrected within the allowed time window after the visit',
+      'STATUS_EDIT_WINDOW_CLOSED',
+    )
+
+  const patch = { status: nextStatus }
+  if (nextStatus === 'cancelled') {
+    if (!cancelReason?.trim())
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Cancel reason is required',
+        'CANCEL_REASON_REQUIRED',
+      )
+    patch.cancelReason = `Bác sĩ (điều chỉnh): ${cancelReason.trim()}`
+  }
+
+  const updated = await appointmentRepo.update(appointmentId, patch)
+  if (updated) {
+    emitAppointmentUpdateToUsers(
+      [appointment.doctorId, appointment.patientId],
+      {
+        id: updated.id,
+        status: updated.status,
+        cancelReason: updated.cancelReason,
+        scheduledAt: updated.scheduledAt,
+        doctorId: updated.doctorId,
+        patientId: updated.patientId,
+        type: updated.type,
+      },
+    )
+  }
+
+  const doctor = await userRepo.getNameById(doctorId)
+  const whenLabel = `${format(appointment.scheduledAt, 'HH:mm')} ngày ${format(appointment.scheduledAt, 'dd/MM/yyyy')}`
+
+  try {
+    if (nextStatus === 'completed') {
+      await createAndSendNotification({
+        recipientId: appointment.patientId,
+        senderId: doctorId,
+        type: 'appointment',
+        title: 'Cập nhật trạng thái lịch hẹn',
+        content: `Bác sĩ ${doctor?.fullName || ''} đã cập nhật lịch hẹn ${whenLabel} với bạn sang trạng thái đã hoàn thành.`,
+        referenceId: String(appointmentId),
+      })
+    } else if (nextStatus === 'cancelled') {
+      await createAndSendNotification({
+        recipientId: appointment.patientId,
+        senderId: doctorId,
+        type: 'appointment',
+        title: 'Lịch hẹn được đánh dấu hủy',
+        content: `Lịch hẹn ${whenLabel} đã được cập nhật sang đã hủy. Lý do: ${cancelReason.trim()}`,
+        referenceId: String(appointmentId),
+      })
+    }
+  } catch (err) {
+    console.error('[patchAppointmentStatusByDoctor] Failed to notify:', err)
+  }
+
+  return updated
+}
+
+/**
+ * Cron: pending đã quá giờ hẹn → cancelled + thông báo BN.
+ */
+export const expireStalePendingAppointments = async () => {
+  const rows = await appointmentRepo.findPendingScheduledBefore(new Date())
+  const cancelReason =
+    'Hệ thống: Lịch hẹn đã quá giờ mà chưa được bác sĩ xác nhận, đã tự động hủy bởi hệ thống.'
+
+  for (const appt of rows) {
+    const updated = await appointmentRepo.update(appt.id, {
+      status: 'cancelled',
+      cancelReason,
+    })
+    if (!updated) continue
+
+    try {
+      await createAndSendNotification({
+        recipientId: appt.patientId,
+        senderId: appt.doctorId,
+        type: 'appointment',
+        title: 'Lịch hẹn đã bị hủy tự động',
+        content: `Lịch hẹn vào lúc ${format(appt.scheduledAt, 'HH:mm')} ngày ${format(appt.scheduledAt, 'dd/MM/yyyy')} đã bị hủy do không được xác nhận đúng hạn.`,
+        referenceId: String(appt.id),
+      })
+    } catch (err) {
+      console.error('[expireStalePendingAppointments] Failed to notify:', err)
+    }
+
+    emitAppointmentUpdateToUsers([appt.doctorId, appt.patientId], {
+      id: appt.id,
+      status: 'cancelled',
+      cancelReason,
+      scheduledAt: appt.scheduledAt,
+      doctorId: appt.doctorId,
+      patientId: appt.patientId,
+      type: appt.type,
+    })
+  }
+
+  return rows.length
 }

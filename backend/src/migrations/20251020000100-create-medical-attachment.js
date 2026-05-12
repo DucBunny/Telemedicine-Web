@@ -7,36 +7,36 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       medical_record_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'medical_records',
-          key: 'id'
+          key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       file_name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       file_url: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       file_type: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       uploaded_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-        allowNull: false
-      }
+        allowNull: false,
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('medical_attachments')
-  }
+  },
 }

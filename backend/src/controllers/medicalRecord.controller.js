@@ -1,6 +1,9 @@
-import * as medicalRecordService from '@/services/medicalRecord.service'
 import { StatusCodes } from 'http-status-codes'
+import * as medicalRecordService from '@/services/medicalRecord.service'
 
+/**
+ * Get medical records for the logged-in user (patient or doctor)
+ */
 export const getMyMedicalRecords = async (req, res, next) => {
   try {
     const { id: userId, role } = req.user // from JWT token
@@ -11,66 +14,58 @@ export const getMyMedicalRecords = async (req, res, next) => {
       {
         page,
         limit,
-        search
-      }
+        search,
+      },
     )
     res.status(StatusCodes.OK).json({
       success: true,
       data: result.data,
-      meta: result.meta
+      meta: result.meta,
     })
   } catch (error) {
     next(error)
   }
 }
 
+/**
+ * Get medical record detail by record ID
+ */
 export const getMedicalRecordDetail = async (req, res, next) => {
   try {
     const { recordId } = req.params
     const record = await medicalRecordService.getMedicalRecordById(recordId)
     res.status(StatusCodes.OK).json({
       success: true,
-      data: record
+      data: record,
     })
   } catch (error) {
     next(error)
   }
 }
 
-//-----------------------------------------
-
-export const createMedicalRecord = async (req, res, next) => {
+/**
+ * Get medical records by patient ID and current doctor ID
+ * GET /me/patients/:patientId/medical-records
+ */
+export const getMedicalRecordsByPatientIdAndCurrentDoctor = async (
+  req,
+  res,
+  next,
+) => {
   try {
-    const record = await medicalRecordService.createMedicalRecord(req.body)
-    res.status(StatusCodes.CREATED).json({
-      success: true,
-      data: record
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const updateMedicalRecord = async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const record = await medicalRecordService.updateMedicalRecord(id, req.body)
+    const doctorId = req.user.id // from JWT token
+    const { patientId } = req.params
+    const { page = 1, limit = 10, createdFrom, createdTo } = req.validatedQuery
+    const result =
+      await medicalRecordService.getMedicalRecordByPatientIdAndDoctorId(
+        patientId,
+        doctorId,
+        { page, limit, createdFrom, createdTo },
+      )
     res.status(StatusCodes.OK).json({
       success: true,
-      data: record
-    })
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const deleteMedicalRecord = async (req, res, next) => {
-  try {
-    const { id } = req.params
-    const result = await medicalRecordService.deleteMedicalRecord(id)
-    res.status(StatusCodes.OK).json({
-      success: true,
-      data: result
+      data: result.data,
+      meta: result.meta,
     })
   } catch (error) {
     next(error)

@@ -10,34 +10,34 @@ module.exports = (sequelize, DataTypes) => {
     {
       alertId: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
       },
       doctorId: {
         type: DataTypes.INTEGER,
-        primaryKey: true
+        primaryKey: true,
       },
       isRead: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       isAcknowledged: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       readAt: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       acknowledgedAt: {
-        type: DataTypes.DATE
-      }
+        type: DataTypes.DATE,
+      },
     },
     {
       sequelize,
       tableName: 'alert_recipients',
       modelName: 'AlertRecipient',
       createdAt: 'deliveredAt',
-      updatedAt: false
-    }
+      updatedAt: false,
+    },
   )
 
   return AlertRecipient

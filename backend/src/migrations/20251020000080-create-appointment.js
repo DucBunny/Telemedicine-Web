@@ -7,68 +7,68 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       patient_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'patients',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       doctor_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'doctors',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       scheduled_at: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       actual_ended_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       duration_minutes: {
         type: Sequelize.INTEGER,
         defaultValue: 30,
-        comment: '30 or 60 minutes'
+        comment: '30 or 60 minutes',
       },
       status: {
         type: Sequelize.ENUM('pending', 'confirmed', 'completed', 'cancelled'),
-        defaultValue: 'pending'
+        defaultValue: 'pending',
       },
       type: {
         type: Sequelize.ENUM('online', 'offline'),
-        defaultValue: 'online'
+        defaultValue: 'online',
       },
       meeting_link: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       reason: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       cancel_reason: {
-        type: Sequelize.TEXT
+        type: Sequelize.TEXT,
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('appointments')
-  }
+  },
 }

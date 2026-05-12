@@ -7,85 +7,85 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       patient_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'patients',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       device_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'devices',
-          key: 'id'
+          key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       prediction_id: {
         type: Sequelize.INTEGER,
         // allowNull: false,
         references: {
           model: 'health_predictions',
-          key: 'id'
+          key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       type: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       value: {
-        type: Sequelize.FLOAT
+        type: Sequelize.FLOAT,
       },
       message: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       severity: {
         type: Sequelize.ENUM('low', 'medium', 'critical'),
-        defaultValue: 'medium'
+        defaultValue: 'medium',
       },
       source: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       is_resolved: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       resolved_at: {
         type: Sequelize.DATE,
-        allowNull: true
+        allowNull: true,
       },
       resolved_by: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
           model: 'doctors',
-          key: 'user_id'
+          key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL'
+        onDelete: 'SET NULL',
       },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
     })
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('alerts')
-  }
+  },
 }

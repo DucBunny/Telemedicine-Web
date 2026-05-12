@@ -6,15 +6,15 @@ module.exports = {
   async up(queryInterface) {
     const patients = await queryInterface.sequelize.query(
       `SELECT user_id FROM patients;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
     const doctors = await queryInterface.sequelize.query(
       `SELECT user_id FROM doctors;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
     const appointments = await queryInterface.sequelize.query(
       `SELECT id, patient_id, doctor_id FROM appointments LIMIT 300;`,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
     const now = new Date()
@@ -36,7 +36,7 @@ module.exports = {
     try {
       const alerts = await queryInterface.sequelize.query(
         `SELECT ar.id as recipient_id, ar.patient_id FROM alert_recipients ar LIMIT 300;`,
-        { type: queryInterface.sequelize.QueryTypes.SELECT }
+        { type: queryInterface.sequelize.QueryTypes.SELECT },
       )
       for (const a of alerts) {
         if (!alertByPatient[a.patient_id]) alertByPatient[a.patient_id] = []
@@ -49,27 +49,27 @@ module.exports = {
     const apptTitles = [
       'Lịch hẹn sắp tới',
       'Lịch hẹn đã được xác nhận',
-      'Nhắc nhở lịch hẹn'
+      'Nhắc nhở lịch hẹn',
     ]
     const apptContents = [
       'Bạn có lịch hẹn khám sắp tới. Vui lòng đến đúng giờ.',
       'Lịch khám của bạn đã được bác sĩ xác nhận.',
-      'Nhắc nhở: Lịch hẹn của bạn còn 2 tiếng nữa.'
+      'Nhắc nhở: Lịch hẹn của bạn còn 2 tiếng nữa.',
     ]
     const alertTitles = [
       'Cảnh báo nhịp tim bất thường',
       'Chỉ số SpO₂ thấp',
-      'Huyết áp cao cần chú ý'
+      'Huyết áp cao cần chú ý',
     ]
     const alertContents = [
       'Nhịp tim của bạn đo được 115 bpm — cao hơn ngưỡng bình thường.',
       'SpO₂ của bạn đo được 91% — dưới ngưỡng an toàn 95%.',
-      'Huyết áp tâm thu đạt 145 mmHg — vui lòng kiểm tra lại.'
+      'Huyết áp tâm thu đạt 145 mmHg — vui lòng kiểm tra lại.',
     ]
     const msgTitles = ['Tin nhắn từ bác sĩ', 'Bác sĩ đã trả lời']
     const msgContents = [
       'Bác sĩ vừa gửi cho bạn một tin nhắn mới.',
-      'Bác sĩ đã phản hồi câu hỏi của bạn. Hãy kiểm tra.'
+      'Bác sĩ đã phản hồi câu hỏi của bạn. Hãy kiểm tra.',
     ]
 
     const rand = (arr) => arr[Math.floor(Math.random() * arr.length)]
@@ -94,13 +94,13 @@ module.exports = {
           is_read: isRead,
           read_at: isRead
             ? new Date(
-                now.getTime() - faker.number.int({ min: 60000, max: 86400000 })
+                now.getTime() - faker.number.int({ min: 60000, max: 86400000 }),
               )
             : null,
           created_at: new Date(
-            now.getTime() - faker.number.int({ min: 3600000, max: 604800000 })
+            now.getTime() - faker.number.int({ min: 3600000, max: 604800000 }),
           ),
-          updated_at: now
+          updated_at: now,
         })
       }
 
@@ -117,13 +117,13 @@ module.exports = {
           is_read: isRead,
           read_at: isRead
             ? new Date(
-                now.getTime() - faker.number.int({ min: 60000, max: 86400000 })
+                now.getTime() - faker.number.int({ min: 60000, max: 86400000 }),
               )
             : null,
           created_at: new Date(
-            now.getTime() - faker.number.int({ min: 3600000, max: 259200000 })
+            now.getTime() - faker.number.int({ min: 3600000, max: 259200000 }),
           ),
-          updated_at: now
+          updated_at: now,
         })
       }
 
@@ -141,13 +141,13 @@ module.exports = {
           is_read: isRead,
           read_at: isRead
             ? new Date(
-                now.getTime() - faker.number.int({ min: 60000, max: 43200000 })
+                now.getTime() - faker.number.int({ min: 60000, max: 43200000 }),
               )
             : null,
           created_at: new Date(
-            now.getTime() - faker.number.int({ min: 60000, max: 172800000 })
+            now.getTime() - faker.number.int({ min: 60000, max: 172800000 }),
           ),
-          updated_at: now
+          updated_at: now,
         })
       }
     }
@@ -155,20 +155,20 @@ module.exports = {
     const doctorApptTitles = [
       'Lịch hẹn mới từ bệnh nhân',
       'Nhắc lịch khám sắp tới',
-      'Lịch hẹn đã được cập nhật'
+      'Lịch hẹn đã được cập nhật',
     ]
     const doctorApptContents = [
       'Bạn có lịch hẹn mới với bệnh nhân. Vui lòng kiểm tra chi tiết.',
       'Lịch khám với bệnh nhân sắp diễn ra trong thời gian tới.',
-      'Thông tin lịch hẹn với bệnh nhân vừa được cập nhật.'
+      'Thông tin lịch hẹn với bệnh nhân vừa được cập nhật.',
     ]
     const doctorMsgTitles = [
       'Tin nhắn mới từ bệnh nhân',
-      'Bệnh nhân đã phản hồi'
+      'Bệnh nhân đã phản hồi',
     ]
     const doctorMsgContents = [
       'Bạn vừa nhận được tin nhắn mới từ bệnh nhân.',
-      'Bệnh nhân đã phản hồi cuộc trò chuyện của bạn.'
+      'Bệnh nhân đã phản hồi cuộc trò chuyện của bạn.',
     ]
 
     for (const doctor of doctors) {
@@ -189,19 +189,19 @@ module.exports = {
           is_read: isRead,
           read_at: isRead
             ? new Date(
-                now.getTime() - faker.number.int({ min: 60000, max: 86400000 })
+                now.getTime() - faker.number.int({ min: 60000, max: 86400000 }),
               )
             : null,
           created_at: new Date(
-            now.getTime() - faker.number.int({ min: 3600000, max: 604800000 })
+            now.getTime() - faker.number.int({ min: 3600000, max: 604800000 }),
           ),
-          updated_at: now
+          updated_at: now,
         })
       }
 
       // 1–3 message notifications (from patients they have seen)
       const msgPatients = [
-        ...new Set(myApts.slice(0, 3).map((a) => a.patient_id))
+        ...new Set(myApts.slice(0, 3).map((a) => a.patient_id)),
       ]
       for (const patientId of msgPatients) {
         const isRead = randBool(0.4)
@@ -215,13 +215,13 @@ module.exports = {
           is_read: isRead,
           read_at: isRead
             ? new Date(
-                now.getTime() - faker.number.int({ min: 60000, max: 43200000 })
+                now.getTime() - faker.number.int({ min: 60000, max: 43200000 }),
               )
             : null,
           created_at: new Date(
-            now.getTime() - faker.number.int({ min: 60000, max: 172800000 })
+            now.getTime() - faker.number.int({ min: 60000, max: 172800000 }),
           ),
-          updated_at: now
+          updated_at: now,
         })
       }
     }
@@ -231,5 +231,5 @@ module.exports = {
 
   async down(queryInterface) {
     await queryInterface.bulkDelete('notifications', null, {})
-  }
+  },
 }
