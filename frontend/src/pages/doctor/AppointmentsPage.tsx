@@ -8,7 +8,7 @@ import type {
 
 import {
   AppointmentsTable,
-  DoctorCreateAppointmentDialog,
+  CreateAppointmentDialog,
   Filters,
 } from '@/features/appointments/components/doctor'
 import {
@@ -90,7 +90,7 @@ export const AppointmentsPage = () => {
         isError={isError}
       />
 
-      <DoctorCreateAppointmentDialog
+      <CreateAppointmentDialog
         open={createAppointmentOpen}
         onOpenChange={setCreateAppointmentOpen}
       />

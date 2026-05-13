@@ -35,7 +35,7 @@ export const ChatList = ({ activeChatId }: ChatListProps = {}) => {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useGetMyConversations({ limit: 10, search: debouncedSearch })
+  } = useGetMyConversations({ limit: 55, search: debouncedSearch })
 
   useRealtimeChatList()
 

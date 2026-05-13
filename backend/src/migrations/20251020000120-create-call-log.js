@@ -27,25 +27,14 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
       },
-      start_time: {
-        type: Sequelize.DATE,
-      },
-      end_time: {
-        type: Sequelize.DATE,
-      },
       duration_seconds: {
         type: Sequelize.INTEGER,
+        defaultValue: 0,
       },
       status: {
         type: Sequelize.ENUM('missed', 'rejected', 'completed'),
-        defaultValue: 'missed',
       },
       created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),

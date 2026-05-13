@@ -39,21 +39,26 @@ export const seedMessages = async (seededConversations) => {
     const msgCount = faker.number.int({ min: 5, max: 10 })
     const now = Date.now()
     let lastMessage = null
+    let minCreatedAt =
+      now -
+      faker.number.int({ min: 2 * 60 * 60 * 1000, max: 24 * 60 * 60 * 1000 }) // 2 hours to 24 hours ago
 
     for (let i = 0; i < msgCount; i++) {
       const isDoctor = i % 2 === 1
       const senderId = isDoctor ? doctor_id : patient_id
       const text = isDoctor ? rand(doctorMessages) : rand(patientMessages)
       const createdAt = new Date(
-        now - (msgCount - i) * faker.number.int({ min: 60000, max: 600000 }),
+        minCreatedAt +
+          faker.number.int({ min: 60 * 1000, max: 10 * 60 * 1000 }), // 1 minute to 10 minutes
       )
+      minCreatedAt = Math.max(minCreatedAt, createdAt)
 
       const message = await Message.create({
         conversation_id,
         sender_id: senderId,
         type: 'text',
         content: { text },
-        status: i < msgCount - 2 ? 'read' : 'sent',
+        status: i < msgCount - 1 ? 'read' : 'sent',
         created_at: createdAt,
       })
 
@@ -62,7 +67,9 @@ export const seedMessages = async (seededConversations) => {
     }
 
     if (lastMessage) {
-      const unreadForPatient = 1 + Math.floor(Math.random() * 2)
+      const lastSenderIsDoctor = Number(lastMessage.sender_id) === doctor_id
+      const unreadForPatient = lastSenderIsDoctor ? 1 : 0
+      const unreadForDoctor = lastSenderIsDoctor ? 0 : 1
 
       await Conversation.findByIdAndUpdate(conversation_id, {
         last_message: {
@@ -74,7 +81,7 @@ export const seedMessages = async (seededConversations) => {
         },
         unread_counts: new Map([
           [String(patient_id), unreadForPatient],
-          [String(doctor_id), 0],
+          [String(doctor_id), unreadForDoctor],
         ]),
       })
     }

@@ -10,9 +10,8 @@ import { clearMessages, seedMessages } from '@/seeders/nosql/seed-messages'
 async function main() {
   console.log('Starting NoSQL seeders...\n')
 
-  await connectMongoDB()
-  await connectMySQL()
-  console.log('Connected MongoDB and MySQL\n')
+  connectMongoDB()
+  connectMySQL()
 
   try {
     console.log('Seeding conversations...')
@@ -21,9 +20,8 @@ async function main() {
       `
       SELECT DISTINCT id, patient_id, doctor_id
       FROM appointments
-      WHERE status = 'completed'
-      ORDER BY id ASC
-      LIMIT 30;
+      WHERE status = 'confirmed' OR status = 'completed'
+      ORDER BY id ASC;
     `,
       { type: QueryTypes.SELECT },
     )
@@ -67,14 +65,15 @@ async function main() {
     await seedMessages(seededConversations)
 
     console.log('\nAll NoSQL seeders completed successfully!')
+  } catch (error) {
+    console.error('NoSQL seeder failed:', error)
+    process.exit(1)
   } finally {
     await sequelize.close()
     await mongoose.disconnect()
     console.log('Connections closed.')
+    process.exit(0)
   }
 }
 
-main().catch((err) => {
-  console.error('NoSQL seeder failed:', err)
-  process.exit(1)
-})
+main()

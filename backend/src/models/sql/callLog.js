@@ -26,14 +26,9 @@ module.exports = (sequelize, DataTypes) => {
       receiverId: {
         type: DataTypes.INTEGER,
       },
-      startTime: {
-        type: DataTypes.DATE,
-      },
-      endTime: {
-        type: DataTypes.DATE,
-      },
       durationSeconds: {
         type: DataTypes.INTEGER,
+        defaultValue: 0,
       },
       status: {
         type: DataTypes.ENUM('missed', 'rejected', 'completed'),
@@ -43,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       tableName: 'call_logs',
       modelName: 'CallLog',
+      updatedAt: false,
     },
   )
 

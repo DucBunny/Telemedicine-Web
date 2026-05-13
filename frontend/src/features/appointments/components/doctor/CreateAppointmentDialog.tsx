@@ -41,15 +41,15 @@ import { formatDateForApi, toUtcIsoFromVietnamLocal } from '@/lib/format-date'
 import { useAuthStore } from '@/stores/auth.store'
 import { BASE_AFTERNOON_SLOTS, BASE_MORNING_SLOTS } from '@/types/constants'
 
-interface DoctorCreateAppointmentDialogProps {
+interface CreateAppointmentDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export function DoctorCreateAppointmentDialog({
+export const CreateAppointmentDialog = ({
   open,
   onOpenChange,
-}: DoctorCreateAppointmentDialogProps) {
+}: CreateAppointmentDialogProps) => {
   const user = useAuthStore((s) => s.user)
   const doctorId = user?.id
 

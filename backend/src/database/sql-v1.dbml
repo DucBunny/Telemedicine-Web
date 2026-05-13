@@ -323,14 +323,11 @@ Table call_logs {
   caller_id int [ref: > users.id]           // Người gọi
   receiver_id int [ref: > users.id]         // Người nhận
 
-  start_time timestamp                      // Thời điểm bắt đầu
-  end_time timestamp                        // Thời điểm kết thúc
   duration_seconds int                      // Thời lượng cuộc gọi (giây)
 
   status call_status                        // Trạng thái cuộc gọi
 
   created_at timestamp [default: `now()`] 
-  updated_at timestamp [default: `now()`]
 }
 
 Table notifications {
@@ -402,16 +399,16 @@ Table notifications {
 //     conversation_id: {
 //       type: mongoose.Schema.Types.ObjectId,
 //       ref: 'Conversation',
-//       required: true
+//       required: true,
 //     },
 //     sender_id: {
-//       type: mongoose.Schema.Types.Mixed, // user_id từ SQL hoặc 'system'
-//       required: true
+//       type: mongoose.Schema.Types.Number, // user_id từ SQL
+//       required: true,
 //     },
 //     type: {
 //       type: String,
-//       enum: ['text', 'image', 'file', 'system_alert'],
-//       default: 'text'
+//       enum: ['text', 'image', 'file', 'call', 'system_alert'],
+//       default: 'text',
 //     },
 //     content: {
 //       text: { type: String },
@@ -420,20 +417,25 @@ Table notifications {
 //       file_url: { type: String },
 //       file_name: { type: String },
 
+//       // Dùng cho type 'call'
+//       call_id: { type: Number },
+//       call_status: { type: String, enum: ['missed', 'rejected', 'completed'] },
+//       call_duration: { type: Number },
+
 //       // Dùng cho type 'system_alert' (cảnh báo từ IoT/AI)
 //       alert_id: { type: Number },
 //       severity: { type: String, enum: ['low', 'medium', 'high', 'critical'] },
-//       value: { type: String }
+//       value: { type: String },
 //     },
 //     status: {
 //       type: String,
-//       enum: ['sent', 'delivered', 'read'],
-//       default: 'sent'
-//     }
+//       enum: ['sent', 'read'],
+//       default: 'sent',
+//     },
 //   },
 //   {
-//     timestamps: { createdAt: 'created_at', updatedAt: false }
-//   }
+//     timestamps: { createdAt: 'created_at', updatedAt: false },
+//   },
 // )
 //
 // const ConversationSchema = new mongoose.Schema(

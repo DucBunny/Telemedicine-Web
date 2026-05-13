@@ -9,12 +9,12 @@ const MessageSchema = new mongoose.Schema(
       required: true,
     },
     sender_id: {
-      type: mongoose.Schema.Types.Mixed, // user_id từ SQL hoặc 'system'
+      type: mongoose.Schema.Types.Number, // user_id từ SQL
       required: true,
     },
     type: {
       type: String,
-      enum: ['text', 'image', 'file', 'system_alert'],
+      enum: ['text', 'image', 'file', 'call', 'system_alert'],
       default: 'text',
     },
     content: {
@@ -23,6 +23,11 @@ const MessageSchema = new mongoose.Schema(
       // Dùng cho type 'image' hoặc 'file'
       file_url: { type: String },
       file_name: { type: String },
+
+      // Dùng cho type 'call'
+      call_id: { type: Number },
+      call_status: { type: String, enum: ['missed', 'rejected', 'completed'] },
+      call_duration: { type: Number },
 
       // Dùng cho type 'system_alert' (cảnh báo từ IoT/AI)
       alert_id: { type: Number },

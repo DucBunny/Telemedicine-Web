@@ -5,7 +5,7 @@ const { fakerVI: faker } = require('@faker-js/faker')
 module.exports = {
   async up(queryInterface, Sequelize) {
     const appointments = await queryInterface.sequelize.query(
-      `SELECT DISTINCT patient_id, doctor_id FROM appointments WHERE status != 'pending';`,
+      `SELECT DISTINCT patient_id, doctor_id FROM appointments WHERE status = 'confirmed' OR status = 'completed';`,
       { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
