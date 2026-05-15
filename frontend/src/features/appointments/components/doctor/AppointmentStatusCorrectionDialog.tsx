@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -92,7 +91,7 @@ export const AppointmentStatusCorrectionDialog = ({
             cấu hình máy chủ, thường trong vòng 48 giờ).
           </p>
         ) : (
-          <div className="space-y-4 text-left">
+          <div className="space-y-3 text-left">
             <div className="text-sm text-gray-700">
               <span className="font-semibold">
                 {appointment.patient?.user.fullName ?? 'Bệnh nhân'}
@@ -103,13 +102,13 @@ export const AppointmentStatusCorrectionDialog = ({
             </div>
 
             <div>
-              <Label className="text-xs">Trạng thái mới</Label>
+              <div className="text-sm">Trạng thái mới</div>
               <Select
                 value={targetStatus}
                 onValueChange={(v) =>
                   setTargetStatus(v as 'completed' | 'cancelled')
                 }>
-                <SelectTrigger className="mt-2 h-10! w-full rounded-xl">
+                <SelectTrigger className="mt-1 h-10! w-full rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent position="popper">
@@ -123,12 +122,12 @@ export const AppointmentStatusCorrectionDialog = ({
             </div>
 
             {targetStatus === 'cancelled' && (
-              <div className="space-y-2">
-                <Label className="text-xs">Lý do hủy</Label>
+              <div>
+                <div className="text-sm">Lý do hủy</div>
                 <Textarea
                   value={cancelReason}
                   onChange={(e) => setCancelReason(e.target.value)}
-                  className="min-h-[72px] rounded-xl"
+                  className="mt-1 min-h-[72px] rounded-xl"
                   placeholder="Bắt buộc khi chọn hủy"
                   maxLength={500}
                 />

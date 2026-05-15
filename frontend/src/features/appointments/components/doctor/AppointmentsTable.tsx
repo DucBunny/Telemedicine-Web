@@ -19,10 +19,12 @@ import {
   CancelAppointmentDialog,
 } from '@/features/appointments/components/doctor'
 import { useConfirmAppointment } from '@/features/appointments/hooks/useAppointmentQueries'
+import { useStartVideoCallFromAppointment } from '@/features/appointments/hooks/useStartVideoCallFromAppointment'
 import {
   canDoctorPatchAppointmentStatus,
   isAppointmentConfirmLockedByTime,
 } from '@/features/appointments/utils/doctor-appointment-rules'
+import { isAppointmentVideoCallButtonVisible } from '@/features/calls/utils/appointment-video-call-button-visible'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import LoaderScreen from '@/components/common/Loader'
 import { PaginationControls } from '@/components/common/PaginationControls'
@@ -59,6 +61,9 @@ export const AppointmentsTable = ({
   isLoading,
   isError,
 }: AppointmentsTableProps) => {
+  const { startVideoCallFromAppointment } =
+    useStartVideoCallFromAppointment('doctor')
+
   const appointments = data?.data ?? []
 
   // Dialog states
@@ -109,6 +114,13 @@ export const AppointmentsTable = ({
                 appt.status === 'pending' &&
                 isAppointmentConfirmLockedByTime(appt.scheduledAt)
               const canStatusPatch = canDoctorPatchAppointmentStatus(appt)
+              const isShowAppointmentVideoCall =
+                appt.type === 'online' &&
+                appt.status === 'confirmed' &&
+                isAppointmentVideoCallButtonVisible(
+                  appt.scheduledAt,
+                  appt.durationMinutes,
+                )
 
               return (
                 <TableRow
@@ -127,7 +139,7 @@ export const AppointmentsTable = ({
                           {appt.patient?.user.fullName}
                         </p>
                         <p className="truncate text-xs text-slate-500">
-                          Hồ sơ #{appt.id}
+                          Lịch hẹn #{appt.id}
                         </p>
                       </div>
                     </div>
@@ -172,6 +184,7 @@ export const AppointmentsTable = ({
                   {/* Cột hành động */}
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end">
+                      {/* Xác nhận lịch hẹn */}
                       {appt.status === 'pending' && (
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -200,12 +213,14 @@ export const AppointmentsTable = ({
                         </Tooltip>
                       )}
 
+                      {/* Hủy lịch hẹn */}
                       {['pending', 'confirmed'].includes(appt.status) && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon-sm"
+                              hidden={canStatusPatch}
                               className="text-red-600 hover:bg-red-50 hover:text-red-700"
                               onClick={() => {
                                 setSelectedAppointment(appt)
@@ -218,6 +233,7 @@ export const AppointmentsTable = ({
                         </Tooltip>
                       )}
 
+                      {/* Đổi trạng thái sau ca (Hoàn thành/Hủy) */}
                       {['confirmed', 'cancelled'].includes(appt.status) && (
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -225,13 +241,8 @@ export const AppointmentsTable = ({
                               variant="ghost"
                               size="icon-sm"
                               hidden={!canStatusPatch}
-                              className={cn(
-                                'text-amber-600 hover:bg-amber-50 hover:text-amber-800',
-                                !canStatusPatch &&
-                                  'opacity-40 hover:bg-transparent hover:text-amber-600',
-                              )}
+                              className="text-amber-600 hover:bg-amber-50 hover:text-amber-700"
                               onClick={() => {
-                                if (!canStatusPatch) return
                                 setSelectedAppointment(appt)
                                 setStatusCorrectionOpen(true)
                               }}>
@@ -245,6 +256,24 @@ export const AppointmentsTable = ({
                         </Tooltip>
                       )}
 
+                      {/* Gọi video (khám online) */}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            hidden={!isShowAppointmentVideoCall}
+                            className="text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                            onClick={() => startVideoCallFromAppointment(appt)}>
+                            <Video className="size-5" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          Gọi video (khám online)
+                        </TooltipContent>
+                      </Tooltip>
+
+                      {/* Xem chi tiết lịch hẹn */}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button

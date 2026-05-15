@@ -2,6 +2,7 @@ import express from 'express'
 import { authMiddleware } from '@/middlewares/auth.middleware'
 import appointmentRouter from '@/routes/appointment.route'
 import authRouter from '@/routes/auth.route'
+import callRouter from '@/routes/call.route'
 import chatRouter from '@/routes/chat.route'
 import deviceRouter from '@/routes/device.route'
 import doctorRouter from '@/routes/doctor.route'
@@ -32,6 +33,7 @@ router.use('/me', meRouter)
 
 // Main API routes
 router.use('/appointments', appointmentRouter)
+router.use('/calls', callRouter)
 router.use('/chat', chatRouter)
 router.use('/devices', deviceRouter)
 router.use('/doctors', doctorRouter)

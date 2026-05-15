@@ -53,12 +53,11 @@ router.put(
 
 // Legacy route for clients still using userId; resolves to the conversation lookup endpoint internally.
 router.get(
-  '/users/:userId/messages',
+  '/users/:userId/conversations',
   validate({
     params: getMessagesParamSchema,
-    query: getMessagesQuerySchema,
   }),
-  chatController.getMessagesByUserIds,
+  chatController.getConversationByUserIds,
 )
 
 export default router

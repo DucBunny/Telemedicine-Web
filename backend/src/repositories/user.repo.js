@@ -51,7 +51,7 @@ export const findByPhoneNumber = async (phoneNumber) => {
  */
 export const getNameById = async (id) => {
   return await User.findByPk(id, {
-    attributes: { include: ['fullName'] },
+    attributes: ['fullName'],
   })
 }
 

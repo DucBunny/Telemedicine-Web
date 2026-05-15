@@ -9,9 +9,14 @@ import { usePresenceStore } from '@/stores/presence.store'
 interface ChatHeaderProps {
   otherParticipant?: ChatUser
   onBack: () => void
+  onVideoCall?: () => void
 }
 
-export const ChatHeader = ({ otherParticipant, onBack }: ChatHeaderProps) => {
+export const ChatHeader = ({
+  otherParticipant,
+  onBack,
+  onVideoCall,
+}: ChatHeaderProps) => {
   const isUserOnline = usePresenceStore(
     (state) => !!state.onlineUsers[otherParticipant?.id ?? 0],
   )
@@ -50,9 +55,17 @@ export const ChatHeader = ({ otherParticipant, onBack }: ChatHeaderProps) => {
           <Button variant="ghost" size="icon" className="rounded-full">
             <Phone className="text-teal-primary size-5 fill-current" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            disabled={!otherParticipant?.id || !onVideoCall}
+            onClick={() => onVideoCall?.()}>
             <Video className="text-teal-primary size-6 fill-current" />
           </Button>
+
           <Button variant="ghost" size="icon" className="rounded-full">
             <Info className="fill-teal-primary size-6 text-white" />
           </Button>

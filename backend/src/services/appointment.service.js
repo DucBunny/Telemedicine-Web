@@ -43,6 +43,60 @@ export const getMyAppointments = async (
 }
 
 /**
+ * Lịch phải thuộc đúng cặp bác sĩ–bệnh nhân đang gọi
+ */
+export const assertAppointmentLinkedToCall = async (
+  appointmentId,
+  userIdA,
+  userIdB,
+) => {
+  const appointment = await appointmentRepo.findById(appointmentId)
+  if (!appointment)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Appointment not found',
+      'APPOINTMENT_NOT_FOUND',
+    )
+
+  const a = Number(userIdA)
+  const b = Number(userIdB)
+  const participants = new Set([
+    Number(appointment.patientId),
+    Number(appointment.doctorId),
+  ])
+
+  if (!participants.has(a) || !participants.has(b))
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'Appointment does not match call participants',
+      'APPOINTMENT_CALL_MISMATCH',
+    )
+
+  return appointment
+}
+
+/**
+ * Chi tiết lịch — chỉ bác sĩ/bệnh nhân của ca đó.
+ */
+export const getMyAppointmentById = async (userId, role, appointmentId) => {
+  const appointment = await appointmentRepo.findByIdWithRelations(appointmentId)
+  if (!appointment)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Appointment not found',
+      'APPOINTMENT_NOT_FOUND',
+    )
+
+  if (role === 'doctor' && Number(appointment.doctorId) !== Number(userId))
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Access denied', 'FORBIDDEN')
+
+  if (role === 'patient' && Number(appointment.patientId) !== Number(userId))
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Access denied', 'FORBIDDEN')
+
+  return appointment
+}
+
+/**
  * Get appointment by patient ID and doctor ID
  */
 export const getAppointmentByPatientIdAndDoctorId = async (

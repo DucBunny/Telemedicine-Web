@@ -71,3 +71,48 @@ export const getMedicalRecordsByPatientIdAndCurrentDoctor = async (
     next(error)
   }
 }
+
+/**
+ * Create new medical record
+ */
+export const createMedicalRecord = async (req, res, next) => {
+  try {
+    const doctorId = req.user.id // from JWT token
+    const data = req.body
+    const record = await medicalRecordService.createMedicalRecord({
+      ...data,
+      doctorId,
+    })
+
+    res.status(StatusCodes.CREATED).json({
+      success: true,
+      data: record,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * Update medical record by ID
+ */
+export const updateMedicalRecord = async (req, res, next) => {
+  try {
+    const doctorId = req.user.id // from JWT token
+    const { recordId } = req.params
+    const data = req.body
+    const updatedRecord = await medicalRecordService.updateMedicalRecord(
+      recordId,
+      {
+        ...data,
+        doctorId,
+      },
+    )
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: updatedRecord,
+    })
+  } catch (error) {
+    next(error)
+  }
+}

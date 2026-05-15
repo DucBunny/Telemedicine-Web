@@ -60,17 +60,6 @@ export const recordApi = {
   },
 
   /**
-   * Delete a medical record (admin only)
-   */
-  deleteRecord: async (id: number) => {
-    const { data } = await apiClient.delete<
-      ApiSuccessResponse<{ message: string }>
-    >(`${RECORD_BASE}/${id}`)
-
-    return data.data
-  },
-
-  /**
    * Get medical records by patient ID and current doctor ID
    */
   getRecordsByPatientIdAndCurrentDoctor: async (

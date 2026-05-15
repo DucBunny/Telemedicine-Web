@@ -96,37 +96,18 @@ export const useUpdateRecord = () => {
 }
 
 /**
- * Hook to delete a medical record (admin only)
- */
-export const useDeleteRecord = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (id: number) => recordApi.deleteRecord(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: RECORD_KEYS.lists() })
-      toast.success('Xoá hồ sơ thành công!')
-    },
-    onError: (error) => {
-      const errorMessage = getErrorMessage(error)
-      toast.error(errorMessage || 'Xoá hồ sơ thất bại')
-    },
-    retry: false,
-  })
-}
-
-/**
  * Hook to get medical records by patient ID and current doctor ID
  */
 export const useGetRecordsByPatientIdAndCurrentDoctor = (
   patientId: number,
   params: GetPatientMedicalRecordsParams,
+  options?: { enabled?: boolean },
 ) => {
   return useQuery({
     queryKey: RECORD_KEYS.listByPatientId(patientId, params),
     queryFn: () =>
       recordApi.getRecordsByPatientIdAndCurrentDoctor(patientId, params),
-    enabled: !!patientId,
+    enabled: (options?.enabled ?? true) && !!patientId,
     placeholderData: keepPreviousData,
   })
 }

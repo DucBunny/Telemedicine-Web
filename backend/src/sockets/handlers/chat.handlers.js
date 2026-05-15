@@ -1,6 +1,23 @@
 import * as chatService from '@/services/chat.service'
 import { CHAT_EVENTS, SOCKET_ROOMS } from '@/sockets/socket.constants'
 
+const CONVERSATION_ROOM_PREFIX = 'conversation:'
+
+/**
+ * Parse conversation room name
+ * @param {string} roomName
+ * @returns {Object} { conversationId }
+ */
+const parseConversationRoom = (roomName) => {
+  if (
+    typeof roomName !== 'string' ||
+    !roomName.startsWith(CONVERSATION_ROOM_PREFIX)
+  )
+    return null
+
+  return { conversationId: roomName.slice(CONVERSATION_ROOM_PREFIX.length) }
+}
+
 export const registerChatHandler = (io) => {
   const chatNamespace = io.of('/chat')
 
@@ -8,10 +25,32 @@ export const registerChatHandler = (io) => {
     const userId = socket.user?.id
     console.log(`[Chat] Socket ${socket.id} (User: ${userId}) connected.`)
 
-    // Xin vào phòng chat (Conversation Room)
-    socket.on(CHAT_EVENTS.ROOM_JOIN, (roomName) => {
-      socket.join(roomName)
-      console.log(`User ${userId} joined chat room: ${roomName}`)
+    // Xử lý join room
+    socket.on(CHAT_EVENTS.ROOM_JOIN, async (roomName) => {
+      // Kiểm tra room name có đúng format không
+      const parsed = parseConversationRoom(roomName)
+      if (!parsed) {
+        socket.emit(CHAT_EVENTS.ROOM_JOIN_REJECTED, {
+          roomName,
+          reason: 'INVALID_ROOM',
+        })
+        return
+      }
+
+      try {
+        // Đảm bảo user là participant của conversation
+        await chatService.ensureConversationParticipant(
+          userId,
+          parsed.conversationId,
+        )
+        socket.join(roomName)
+        console.log(`User ${userId} joined chat room: ${roomName}`)
+      } catch {
+        socket.emit(CHAT_EVENTS.ROOM_JOIN_REJECTED, {
+          conversationId: parsed.conversationId,
+          reason: 'NOT_PARTICIPANT',
+        })
+      }
     })
 
     // Rời khỏi phòng chat
@@ -22,14 +61,9 @@ export const registerChatHandler = (io) => {
 
     // Xử lý gửi tin nhắn
     socket.on(CHAT_EVENTS.MESSAGE_SEND, async (payload) => {
-      // payload = { conversationId, text, ... }
-
-      // (Tùy chọn) Bạn có thể gọi Service lưu tin nhắn vào MongoDB ở đây
-      // const savedMessage = await ChatMessageService.save(payload);
-
       const roomName = SOCKET_ROOMS.CHAT.CONVERSATION(payload.conversationId)
 
-      // Broadcast tin nhắn cho tat ca trong phong (bao gom tab khac)
+      // Broadcast tin nhắn cho tất cả trong phòng (bao gồm tab khác)
       chatNamespace.to(roomName).emit(CHAT_EVENTS.MESSAGE_NEW, payload)
     })
 

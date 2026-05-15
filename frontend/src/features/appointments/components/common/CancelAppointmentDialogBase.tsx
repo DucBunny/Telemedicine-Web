@@ -131,6 +131,7 @@ export const CancelAppointmentDialogBase = ({
               {(field) => (
                 <>
                   <RadioGroup
+                    className="gap-2"
                     value={field.state.value}
                     onValueChange={field.handleChange}>
                     {reasons.map((reason) => {
@@ -139,7 +140,7 @@ export const CancelAppointmentDialogBase = ({
                       return (
                         <Label
                           key={reason.id}
-                          className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 transition-colors ${
+                          className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3! transition-colors ${
                             isChecked
                               ? 'border-teal-primary bg-teal-50'
                               : 'border-gray-200 hover:bg-gray-50'

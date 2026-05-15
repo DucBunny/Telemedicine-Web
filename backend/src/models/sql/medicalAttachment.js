@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       medicalRecordId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        unique: true,
       },
       fileName: {
         type: DataTypes.STRING,

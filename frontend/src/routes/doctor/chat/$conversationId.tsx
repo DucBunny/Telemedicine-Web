@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { z } from 'zod'
 
 import type { InfiniteData } from '@tanstack/react-query'
 import type { ChatConversation } from '@/features/chat/types'
@@ -9,6 +10,9 @@ import { CHAT_KEYS } from '@/features/chat/hooks/useChatQueries'
 import { ChatPage } from '@/pages/doctor/ChatPage'
 
 export const Route = createFileRoute('/doctor/chat/$conversationId')({
+  validateSearch: z.object({
+    startVideo: z.boolean().optional(), // Bắt đầu cuộc gọi video từ bảng lịch hẹn
+  }),
   loader: async ({ params, context }) => {
     if (!params.conversationId) return
 

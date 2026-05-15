@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Download, FileText, FileX } from 'lucide-react'
+import { Download, FileText, FileX, Video } from 'lucide-react'
 import { toast } from 'sonner'
 
 import type { ChatMessage } from '@/features/chat/types'
@@ -14,6 +14,12 @@ interface MessageBubbleProps {
   message: ChatMessage
   isFirst?: boolean
   isLast?: boolean
+}
+
+const CALL_STATUS_LABELS = {
+  rejected: 'Cuộc gọi video - Từ chối',
+  missed: 'Cuộc gọi video - Nhỡ máy',
+  completed: 'Cuộc gọi video - Đã kết thúc',
 }
 
 export const MessageBubble = ({
@@ -48,17 +54,17 @@ export const MessageBubble = ({
 
   // Render image message
   const renderImageContent = (fileUrl: string) => (
-    <div className="max-w-xs">
+    <div className="max-w-xs rounded-2xl shadow-sm">
       {!imageError ? (
         <img
           src={fileUrl}
           alt={message.content.file_name || 'image'}
-          className="cursor-pointer rounded-sm"
+          className="cursor-pointer rounded-2xl"
           onClick={() => handleImageClick(fileUrl)}
           onError={() => setImageError(true)}
         />
       ) : (
-        <div className="flex items-center gap-2 rounded-sm border border-gray-300 bg-gray-100 p-3">
+        <div className="flex items-center gap-2 rounded-2xl bg-gray-100 p-3">
           <FileX className="size-5 text-gray-500" />
           <span className="text-sm text-gray-600">Không thể tải ảnh</span>
         </div>
@@ -70,15 +76,54 @@ export const MessageBubble = ({
   const renderFileContent = (fileUrl: string, fileName?: string) => {
     const displayName = fileName || 'file'
     return (
-      <div className="text-teal-primary flex items-center gap-2 rounded-sm border border-gray-300 bg-white px-3 py-1.5">
+      <div
+        className={cn(
+          'flex items-center gap-2 rounded-2xl px-3 py-1.5',
+          isSelf ? 'bg-teal-primary text-white' : 'text-teal-primary bg-white',
+        )}>
         <FileText className="size-6 shrink-0" />
         <p className="truncate text-sm font-medium">{displayName}</p>
         <Button
-          variant="ghost"
+          variant={isSelf ? 'teal_primary' : 'ghost'}
           size="icon"
           onClick={() => handleDownload(fileUrl, displayName)}>
-          <Download className="text-teal-primary size-4" />
+          <Download
+            className={cn(
+              'size-4',
+              isSelf ? 'text-white' : 'text-teal-primary',
+            )}
+          />
         </Button>
+      </div>
+    )
+  }
+
+  // Render call message
+  const renderCallContent = (
+    callStatus: 'missed' | 'rejected' | 'completed',
+    callDuration?: number,
+  ) => {
+    return (
+      <div
+        className={cn(
+          'flex items-center gap-2 rounded-2xl p-3',
+          isSelf ? 'bg-teal-primary text-white' : 'text-teal-primary bg-white',
+        )}>
+        <div
+          className={cn(
+            'flex size-10 items-center justify-center rounded-full border-2',
+            isSelf ? 'border-white' : 'border-teal-primary',
+          )}>
+          <Video className="size-6 shrink-0" fill="white" />
+        </div>
+        <div>
+          <p className="truncate text-sm font-medium">
+            {CALL_STATUS_LABELS[callStatus]}
+          </p>
+          {callDuration != null && callDuration > 0 && (
+            <p className="truncate text-sm font-medium">{callDuration} giây</p>
+          )}
+        </div>
       </div>
     )
   }
@@ -113,23 +158,27 @@ export const MessageBubble = ({
             : 'rounded-l-sm border border-gray-300 bg-white',
           isLast && 'rounded-bl-2xl',
           isFirst && 'rounded-tl-2xl',
-          isSelf && isLast && 'rounded-br-2xl',
-          isSelf && isFirst && 'rounded-tr-2xl',
+          isSelf && isLast && 'rounded-br-2xl!',
+          isSelf && isFirst && 'rounded-tr-2xl!',
         )}>
-        {message.type === 'image' && message.content.file_url && (
-          <div>{renderImageContent(message.content.file_url)}</div>
-        )}
+        {message.type === 'image' &&
+          message.content.file_url &&
+          renderImageContent(message.content.file_url)}
 
-        {message.type === 'file' && message.content.file_url && (
-          <div>
-            {renderFileContent(
-              message.content.file_url,
-              message.content.file_name,
-            )}
-          </div>
-        )}
+        {message.type === 'file' &&
+          message.content.file_url &&
+          renderFileContent(
+            message.content.file_url,
+            message.content.file_name,
+          )}
 
-        {message.content.text && (
+        {message.type === 'call' &&
+          renderCallContent(
+            message.content.call_status ?? 'missed',
+            message.content.call_duration ?? 0,
+          )}
+
+        {message.type === 'text' && message.content.text && (
           <p className="px-3 py-2 text-base leading-tight">
             {message.content.text}
           </p>

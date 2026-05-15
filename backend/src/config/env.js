@@ -19,6 +19,7 @@ export const env = {
   APPOINTMENT_CONFIRM_LOCK_MINUTES_BEFORE: Number(
     process.env.APPOINTMENT_CONFIRM_LOCK_MINUTES_BEFORE ?? 15,
   ),
+
   // Cron expression (node-cron): quét pending quá giờ để auto-cancel
   APPOINTMENT_PENDING_EXPIRE_CRON:
     process.env.APPOINTMENT_PENDING_EXPIRE_CRON || '* * * * *',
@@ -65,6 +66,10 @@ export const env = {
   REDIS_URL: process.env.REDIS_URL, // Upstash or other managed Redis URL
   REDIS_HOST: process.env.REDIS_HOST || 'localhost',
   REDIS_PORT: process.env.REDIS_PORT || 6379,
+
+  // ZEGOCLOUD configuration
+  ZEGO_APP_ID: process.env.ZEGO_APP_ID,
+  ZEGO_SERVER_SECRET: process.env.ZEGO_SERVER_SECRET,
 
   // AI Service configuration
   AI_SERVICE_URL: process.env.AI_SERVICE_URL || 'http://localhost:5000',

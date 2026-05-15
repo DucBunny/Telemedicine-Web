@@ -202,6 +202,44 @@ export const findById = async (appointmentId) => {
 }
 
 /**
+ * Find appointment by ID with patient + doctor (for telehealth visit panel).
+ */
+export const findByIdWithRelations = async (appointmentId) => {
+  return await Appointment.findByPk(appointmentId, {
+    include: [
+      {
+        model: Patient,
+        as: 'patient',
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'fullName', 'avatar'],
+          },
+        ],
+      },
+      {
+        model: Doctor,
+        as: 'doctor',
+        attributes: ['userId', 'degree', 'address'],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'fullName', 'avatar'],
+          },
+          {
+            model: Specialty,
+            as: 'specialty',
+            attributes: ['name'],
+          },
+        ],
+      },
+    ],
+  })
+}
+
+/**
  * Create a new appointment
  */
 export const create = async (data) => {

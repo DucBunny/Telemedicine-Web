@@ -4,7 +4,6 @@ import express from 'express'
 import { Server } from 'socket.io'
 import { env, redis } from '@/config'
 import {
-  registerCallHandler,
   registerChatHandler,
   registerMonitorHandler,
   registerSystemHandler,
@@ -36,22 +35,10 @@ setIo(io)
 io.of('/system').use(socketAuthMiddleware)
 io.of('/monitor').use(socketAuthMiddleware)
 io.of('/chat').use(socketAuthMiddleware)
-io.of('/call').use(socketAuthMiddleware)
 
 // Khởi chạy Handlers
 registerSystemHandler(io)
 registerChatHandler(io)
 registerMonitorHandler(io)
-registerCallHandler(io)
-
-// io.on('connection', (socket) => {
-//   console.log(`[Socket] Client connected: ${socket.id}, user:${socket.user.id}`)
-
-//   socket.on('disconnect', () => {
-//     console.log(
-//       `[Socket] Client disconnected: ${socket.id}, user:${socket.user.id}`,
-//     )
-//   })
-// })
 
 export { io, app, socketServer }

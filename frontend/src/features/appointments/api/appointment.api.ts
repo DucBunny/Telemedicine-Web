@@ -27,6 +27,16 @@ export const appointmentApi = {
   },
 
   /**
+   * Get appointment detail for current user
+   */
+  getMyAppointmentById: async (appointmentId: number) => {
+    const { data } = await apiClient.get<ApiSuccessResponse<Appointment>>(
+      `me/appointments/${appointmentId}`,
+    )
+    return data.data
+  },
+
+  /**
    * Get available slots for a doctor on a specific date
    */
   getAvailableSlots: async (params: GetAvailableSlotsParams) => {

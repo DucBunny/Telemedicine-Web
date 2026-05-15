@@ -8,6 +8,7 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 
 import { authApi } from '@/features/auth/api/auth.api'
+import { GlobalTelehealthCallLayer } from '@/features/calls/components/GlobalTelehealthCallLayer'
 import { userApi } from '@/features/users/api/user.api'
 import { selectIsInitialized, useAuthStore } from '@/stores/auth.store'
 import { usePresenceStore } from '@/stores/presence.store'
@@ -109,5 +110,10 @@ function rootComponent() {
     )
   }
 
-  return <Outlet />
+  return (
+    <>
+      <GlobalTelehealthCallLayer />
+      <Outlet />
+    </>
+  )
 }

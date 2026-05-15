@@ -1,6 +1,6 @@
 /**
  * Socket rooms (Rooms)
- * - Mỗi namespace (/system, /chat, /monitor, /call) có thể có nhiều rooms
+ * - Mỗi namespace (/system, /chat, /monitor) có thể có nhiều rooms
  * - Mỗi room có thể có nhiều users
  */
 export const SOCKET_ROOMS = {
@@ -30,12 +30,6 @@ export const SOCKET_ROOMS = {
     // (Tương lai) Kỹ thuật viên xem trạng thái thiết bị -> Ví dụ: monitor:device:DEV_001
     DEVICE: (deviceId) => `monitor:device:${deviceId}`,
   },
-
-  // NAMESPACE: /call
-  CALL: {
-    // Phòng gọi điện WebRTC -> Ví dụ: call:1024
-    SESSION: (callId) => `call:${callId}`,
-  },
 }
 
 /**
@@ -59,10 +53,17 @@ export const SYSTEM_EVENTS = {
   NOTIFICATION_NEW: 'notification:new',
   NOTIFICATION_READ: 'notification:read',
   NOTIFICATION_UNREAD_COUNT_UPDATE: 'notification:unread_count_update',
+
+  CALL_INVITE: 'call:invite', // Người gọi gửi cuộc gọi
+  CALL_INCOMING: 'call:incoming', // Có cuộc gọi đến
+  CALL_ACCEPT: 'call:accept', // Chấp nhận cuộc gọi
+  CALL_REJECT: 'call:reject', // Từ chối cuộc gọi
+  CALL_END: 'call:end', // Cuộc gọi đã kết thúc
 }
 
 export const CHAT_EVENTS = {
   ROOM_JOIN: 'room:join',
+  ROOM_JOIN_REJECTED: 'room:join_rejected',
   ROOM_LEAVE: 'room:leave',
 
   MESSAGE_SEND: 'message:send',

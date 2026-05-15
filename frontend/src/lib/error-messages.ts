@@ -56,6 +56,17 @@ export const ERROR_MESSAGES: Record<string, string> = {
   NO_FILE: 'Không có file nào được tải lên',
   FILE_TOO_LARGE: 'Kích thước file vượt quá giới hạn',
 
+  // Video call / ZEGO
+  ZEGO_NOT_CONFIGURED:
+    'Chưa cấu hình video: thiếu ZEGO_APP_ID hoặc ZEGO_SERVER_SECRET trên server',
+  ZEGO_TOKEN_ERROR: 'Không tạo được token Zego (kiểm tra Server Secret)',
+  CALL_NOT_ACCEPTED: 'Cần chấp nhận cuộc gọi trước khi vào phòng',
+  CALL_NOT_JOINABLE: 'Cuộc gọi đã kết thúc hoặc không còn hợp lệ',
+  CALL_NOT_FOUND: 'Không tìm thấy cuộc gọi',
+  CALL_FORBIDDEN: 'Bạn không tham gia cuộc gọi này',
+  CALL_PEER_NOT_FOUND: 'Không tìm thấy đối phương trong cuộc trò chuyện',
+  CHAT_NOT_PARTICIPANT: 'Bạn không có trong cuộc trò chuyện này',
+
   // Server errors
   INTERNAL_SERVER_ERROR: 'Lỗi hệ thống, vui lòng thử lại sau',
   //   DATABASE_ERROR: 'Lỗi cơ sở dữ liệu',

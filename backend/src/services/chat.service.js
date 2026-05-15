@@ -8,6 +8,23 @@ import {
 import ApiError from '@/utils/api-error'
 
 /**
+ * Đảm bảo user là participant của conversation
+ */
+export const ensureConversationParticipant = async (userId, conversationId) => {
+  const isParticipant = await chatRepo.isConversationParticipant(
+    userId,
+    conversationId,
+  )
+
+  if (!isParticipant)
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'You are not a participant in this conversation',
+      'CHAT_NOT_PARTICIPANT',
+    )
+}
+
+/**
  * Get conversations for logged in user
  */
 export const getConversations = async (userId, { cursor, limit, search }) => {
@@ -22,7 +39,7 @@ export const getMessagesByConversationId = async (
   conversationId,
   { cursor, limit },
 ) => {
-  return await chatRepo.getMessagesByConversationId(
+  const result = await chatRepo.getMessagesByConversationId(
     currentUserId,
     conversationId,
     {
@@ -30,13 +47,34 @@ export const getMessagesByConversationId = async (
       limit,
     },
   )
+
+  if (!result)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND',
+    )
+
+  return result
 }
 
 /**
  * Get conversation detail
  */
 export const getConversationDetail = async (currentUserId, conversationId) => {
-  return await chatRepo.getConversationDetail(currentUserId, conversationId)
+  const conversation = await chatRepo.getConversationDetail(
+    currentUserId,
+    conversationId,
+  )
+
+  if (!conversation)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND',
+    )
+
+  return conversation
 }
 
 /**
@@ -56,6 +94,13 @@ export const sendMessage = async (senderId, data) => {
     senderId,
     ...data,
   })
+
+  if (!message)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Failed to send message',
+      'MESSAGE_SEND_FAILED',
+    )
 
   const sender = await User.findByPk(senderId, {
     attributes: ['id', 'fullName', 'avatar'],
@@ -86,6 +131,13 @@ export const sendMessage = async (senderId, data) => {
 export const markAllMessagesAsRead = async (userId, conversationId) => {
   const result = await chatRepo.markAllAsRead(userId, conversationId)
 
+  if (!result)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND',
+    )
+
   emitChatMessageRead(conversationId, {
     conversationId,
     readerId: userId,
@@ -96,15 +148,21 @@ export const markAllMessagesAsRead = async (userId, conversationId) => {
 }
 
 /**
- * Get messages between current user and another user
+ * Get conversation between current user and another user
  */
-export const getMessagesByUserIds = async (
-  currentUserId,
-  otherUserId,
-  { cursor, limit },
-) => {
-  return await chatRepo.getMessagesByUserIds(currentUserId, otherUserId, {
-    cursor,
-    limit,
-  })
+export const getConversationByUserIds = async (currentUserId, otherUserId) => {
+  const conversation = await chatRepo.getConversationByUserIds(
+    currentUserId,
+    otherUserId,
+  )
+
+  if (!conversation) {
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Conversation not found',
+      'CONVERSATION_NOT_FOUND',
+    )
+  }
+
+  return conversation
 }

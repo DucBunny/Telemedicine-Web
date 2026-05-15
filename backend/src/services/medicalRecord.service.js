@@ -53,3 +53,26 @@ export const getMedicalRecordByPatientIdAndDoctorId = async (
     { page, limit, createdFrom, createdTo },
   )
 }
+
+/**
+ * Create new medical record
+ */
+export const createMedicalRecord = async (data) => {
+  return await medicalRecordRepo.create(data)
+}
+
+/**
+ * Update medical record by ID
+ */
+export const updateMedicalRecord = async (recordId, data) => {
+  const record = await medicalRecordRepo.findById(recordId)
+
+  if (!record)
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Medical record not found',
+      'RECORD_NOT_FOUND',
+    )
+
+  return await medicalRecordRepo.update(recordId, data)
+}

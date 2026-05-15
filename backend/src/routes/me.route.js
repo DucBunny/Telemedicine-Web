@@ -7,7 +7,10 @@ import * as statsController from '@/controllers/stats.controller'
 import * as userController from '@/controllers/user.controller'
 import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
-import { getAppointmentsQuerySchema } from '@/validations/appointment.validation'
+import {
+  getAppointmentByIdParamSchema,
+  getAppointmentsQuerySchema,
+} from '@/validations/appointment.validation'
 import { getMedicalRecordsQuerySchema } from '@/validations/medicalRecord.validation'
 import { getNotificationsQuerySchema } from '@/validations/notification.validation'
 import {
@@ -35,6 +38,16 @@ router.get(
   authorizeRoles(['doctor', 'patient']),
   validate({ query: getAppointmentsQuerySchema }),
   appointmentController.getMyAppointments,
+)
+
+/**
+ * GET appointment detail for current user
+ */
+router.get(
+  '/appointments/:appointmentId',
+  authorizeRoles(['doctor', 'patient']),
+  validate({ params: getAppointmentByIdParamSchema }),
+  appointmentController.getMyAppointmentById,
 )
 
 /**

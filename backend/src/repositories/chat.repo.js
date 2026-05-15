@@ -1,10 +1,38 @@
-import { StatusCodes } from 'http-status-codes'
 import { Op } from 'sequelize'
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 import { User } from '@/models/sql/index'
-import ApiError from '@/utils/api-error'
 import { caseInsensitiveSearch } from '@/utils/search-case-insensitive'
+
+/**
+ * Kiểm tra user có trong conversation (1–1) hay không
+ */
+export const isConversationParticipant = async (userId, conversationId) => {
+  const doc = await Conversation.findOne({
+    _id: conversationId,
+    participants: userId,
+  })
+    .select('_id')
+    .lean()
+
+  return !!doc
+}
+
+/**
+ * userId là participant → trả về userId đối phương (1–1); không thì null
+ */
+export const getPeerUserIdIfParticipant = async (userId, conversationId) => {
+  const conversation = await Conversation.findOne({
+    _id: conversationId,
+    participants: userId,
+  })
+    .select('participants')
+    .lean()
+
+  if (!conversation) return null
+  const peer = conversation.participants.find((id) => id !== userId)
+  return peer != null ? Number(peer) : null
+}
 
 /**
  * Get all conversations for a user (cursor-based pagination)
@@ -147,12 +175,7 @@ export const getMessagesByConversationId = async (
     participants: currentUserId,
   }).lean()
 
-  if (!conversation)
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Conversation not found',
-      'CONVERSATION_NOT_FOUND',
-    )
+  if (!conversation) return null
 
   const pagingResult = await Message.paginate({
     query: { conversation_id: conversation._id },
@@ -206,7 +229,7 @@ export const getMessagesByConversationId = async (
 }
 
 /**
- * Get conversations by user ID (for doctor or patient)
+ * Get conversation detail by conversationId
  */
 export const getConversationDetail = async (currentUserId, conversationId) => {
   const conversation = await Conversation.findOne({
@@ -214,30 +237,14 @@ export const getConversationDetail = async (currentUserId, conversationId) => {
     participants: currentUserId,
   }).lean()
 
-  if (!conversation)
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Conversation not found',
-      'CONVERSATION_NOT_FOUND',
-    )
+  if (!conversation) return null
 
   const otherUserId = conversation.participants.find(
     (id) => id !== currentUserId,
   )
 
-  const users = await User.findAll({
-    where: { id: conversation.participants },
+  const otherUser = await User.findByPk(otherUserId, {
     attributes: ['id', 'fullName', 'avatar'],
-  })
-
-  const userMap = {}
-  users.forEach((user) => {
-    userMap[user.id] = {
-      id: user.id,
-      name: user.fullName,
-      fullName: user.fullName,
-      avatar: user.avatar,
-    }
   })
 
   const unreadCounts = conversation.unread_counts || {}
@@ -247,7 +254,7 @@ export const getConversationDetail = async (currentUserId, conversationId) => {
   return {
     id: conversation._id.toString(),
     participants: conversation.participants,
-    user: userMap[otherUserId] || null,
+    user: otherUser || null,
     lastMessage: conversation.last_message
       ? {
           message: conversation.last_message.content,
@@ -270,6 +277,9 @@ export const createMessage = async (data) => {
     type = 'text',
     fileUrl,
     fileName,
+    callId,
+    callStatus,
+    callDuration,
   } = data
 
   // Find or create conversation
@@ -278,12 +288,7 @@ export const createMessage = async (data) => {
     participants: senderId,
   })
 
-  if (!conversation)
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Conversation not found',
-      'CONVERSATION_NOT_FOUND',
-    )
+  if (!conversation) return null
 
   const otherUserId = conversation.participants.find((id) => id !== senderId)
 
@@ -296,6 +301,12 @@ export const createMessage = async (data) => {
     if (fileName) {
       messageContent.file_name = fileName
     }
+  }
+
+  if (type === 'call') {
+    messageContent.call_id = callId
+    messageContent.call_status = callStatus
+    if (callDuration != null) messageContent.call_duration = callDuration
   }
 
   // Create message
@@ -313,6 +324,14 @@ export const createMessage = async (data) => {
     lastMessageContent = 'Đã gửi một ảnh'
   } else if (type === 'file') {
     lastMessageContent = `${fileName || 'Đã gửi file'}`
+  } else if (type === 'call') {
+    if (callStatus === 'rejected') {
+      lastMessageContent = 'Cuộc gọi video - Từ chối'
+    } else if (callStatus === 'missed') {
+      lastMessageContent = 'Cuộc gọi video - Nhỡ máy'
+    } else if (callStatus === 'completed') {
+      lastMessageContent = 'Cuộc gọi video - Đã kết thúc'
+    }
   }
 
   await Conversation.updateOne(
@@ -346,12 +365,7 @@ export const markAllAsRead = async (userId, conversationId) => {
     participants: userId,
   })
 
-  if (!conversation)
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Conversation not found',
-      'CONVERSATION_NOT_FOUND',
-    )
+  if (!conversation) return null
 
   const otherUserId = conversation.participants.find((id) => id !== userId)
 
@@ -377,70 +391,34 @@ export const markAllAsRead = async (userId, conversationId) => {
 }
 
 /**
- * Get messages between two users (cursor-based pagination)
- * Cursor dựa trên _id của message
+ * Get conversation between two users (1–1)
  */
-export const getMessagesByUserIds = async (
-  currentUserId,
-  otherUserId,
-  { cursor, limit = 20 },
-) => {
-  // Find conversation
+export const getConversationByUserIds = async (currentUserId, otherUserId) => {
   const conversation = await Conversation.findOne({
     participants: { $all: [currentUserId, otherUserId] },
   }).lean()
 
-  if (!conversation)
-    throw new ApiError(
-      StatusCodes.NOT_FOUND,
-      'Conversation not found',
-      'CONVERSATION_NOT_FOUND',
-    )
+  if (!conversation) return null
 
-  const pagingResult = await Message.paginate({
-    query: { conversation_id: conversation._id },
-    limit,
-    next: cursor,
-    fields: {
-      _id: 1,
-      sender_id: 1,
-      type: 1,
-      content: 1,
-      status: 1,
-      created_at: 1,
-    },
-  })
-
-  const messages = pagingResult.results
-
-  // Get user details from SQL
-  const users = await User.findAll({
-    where: { id: [currentUserId, otherUserId] },
+  const otherUser = await User.findByPk(otherUserId, {
     attributes: ['id', 'fullName', 'avatar'],
   })
 
-  const currentUser = users.find((user) => user.id === currentUserId)
-  const otherUser = users.find((user) => user.id === otherUserId)
-
-  // Format messages with user details and reverse for chronological order
-  const data = messages
-    .map((msg) => ({
-      id: msg._id.toString(),
-      sender: msg.sender_id === currentUserId ? currentUser : otherUser,
-      receiver: msg.sender_id === currentUserId ? otherUser : currentUser,
-      type: msg.type,
-      content: msg.content,
-      status: msg.status,
-      createdAt: msg.created_at,
-    }))
-    .reverse()
-
   return {
-    data,
-    meta: {
-      nextCursor: pagingResult?.next || null,
-      hasMore: pagingResult?.hasNext || false,
-      count: data.length,
-    },
+    id: conversation._id.toString(),
+    participants: conversation.participants,
+    user: otherUser || null,
+    lastMessage: conversation.last_message
+      ? {
+          message: conversation.last_message.content,
+          createdAt: conversation.last_message.created_at,
+          type: conversation.last_message.type,
+        }
+      : null,
+    unreadCount: conversation.unread_counts
+      ? conversation.unread_counts[currentUserId.toString()] ||
+        conversation.unread_counts[currentUserId] ||
+        0
+      : 0,
   }
 }

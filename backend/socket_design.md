@@ -9,7 +9,6 @@ Hệ thống sử dụng Multiplexing chia làm 4 Namespaces độc lập:
 - `/system`: Quản lý trạng thái Online/Offline, Cảnh báo AI (Alerts), Lịch hẹn (Appointments) và Thông báo chung (Notifications). Nóng vai trò là "Global Hub".
 - `/chat`: Quản lý luồng tin nhắn giữa các User (Dữ liệu lưu MongoDB).
 - `/monitor`: Truyền phát (Stream) dữ liệu sinh tồn từ thiết bị IoT.
-- `/call`: Tín hiệu WebRTC cho các cuộc gọi Telemedicine.
 
 ---
 
@@ -25,7 +24,6 @@ Cú pháp: `[phân_loại]:[ID_tuỳ_chọn]`
 | `/system`  | `GLOBAL`                | `system:global`        | `system:global`       | Báo bảo trì server cho tất cả mọi người.                 |
 | `/chat`    | `CONVERSATION`          | `conversation:{id}`    | `conversation:abc`    | Gửi tin nhắn trong 1 cuộc hội thoại.                     |
 | `/monitor` | `PATIENT`               | `monitor:patient:{id}` | `monitor:patient:789` | Stream ECG/SpO2 của bệnh nhân 789.                       |
-| `/call`    | `SESSION`               | `call:{id}`            | `call:1024`           | Kênh WebRTC của cuộc gọi.                                |
 
 ---
 
@@ -38,18 +36,24 @@ Sử dụng định dạng: `[đối_tượng]:[hành_động]` (Snake case, to�
 
 ### 3.1. Namespace: `/system`
 
-| Event Name                   | Người Gửi | Mô tả / Payload                                  |
-| :--------------------------- | :-------- | :----------------------------------------------- |
-| `room:join`                  | Client    | Yêu cầu join vào personal room khi vừa connect.  |
-| `presence:online`            | Server    | User đã kết nối (Bắn cho các user khác biết).    |
-| `presence:offline`           | Server    | User đã ngắt kết nối hoàn toàn.                  |
-| `alert:critical`             | Server    | Cảnh báo y tế khẩn cấp đỏ.                       |
-| `alert:warning`              | Server    | Cảnh báo y tế mức vàng.                          |
-| `alert:acknowledge`          | Client    | Bác sĩ xác nhận đang xử lý cảnh báo.             |
-| `appointment:created`        | Server    | Có lịch hẹn mới chờ duyệt.                       |
-| `appointment:status_changed` | Server    | Lịch hẹn chuyển trạng thái.                      |
-| `notification:new`           | Server    | Thông báo hệ thống chung.                        |
-| `notification:unread_update` | Server    | Bắn số lượng thông báo chưa đọc để update badge. |
+| Event Name                         | Người Gửi | Mô tả / Payload                                  |
+| :--------------------------------- | :-------- | :----------------------------------------------- |
+| `room:join`                        | Client    | Yêu cầu join vào personal room khi vừa connect.  |
+| `presence:online`                  | Server    | User đã kết nối (Bắn cho các user khác biết).    |
+| `presence:offline`                 | Server    | User đã ngắt kết nối hoàn toàn.                  |
+| `alert:critical`                   | Server    | Cảnh báo y tế khẩn cấp đỏ.                       |
+| `alert:warning`                    | Server    | Cảnh báo y tế mức vàng.                          |
+| `alert:acknowledge`                | Client    | Bác sĩ xác nhận đang xử lý cảnh báo.             |
+| `appointment:created`              | Server    | Có lịch hẹn mới chờ duyệt.                       |
+| `appointment:updated`              | Server    | Lịch hẹn cập nhật.                               |
+| `notification:new`                 | Server    | Thông báo hệ thống chung.                        |
+| `notification:read`                | Client    | Đánh dấu đã đọc thông báo.                       |
+| `notification:unread_count_update` | Server    | Bắn số lượng thông báo chưa đọc để update badge. |
+| `call:invite`                      | Server    | Gửi cuộc gọi đến người nhận.                     |
+| `call:incoming`                    | Server    | Có cuộc gọi đến người nhận.                      |
+| `call:accept`                      | Client    | Chấp nhận cuộc gọi.                              |
+| `call:reject`                      | Client    | Từ chối cuộc gọi.                                |
+| `call:end`                         | Server    | Cuộc gọi đã kết thúc.                            |
 
 ### 3.2. Namespace: `/chat`
 
@@ -71,17 +75,6 @@ Sử dụng định dạng: `[đối_tượng]:[hành_động]` (Snake case, to�
 | `room:leave`       | Client     | Bác sĩ ngừng xem stream.                 |
 | `sensor:push_data` | Client/IoT | Thiết bị đẩy dữ liệu ECG/BPM lên Server. |
 | `sensor:data_sync` | Server     | Server phân phối data cho Bác sĩ xem.    |
-
-### 3.4. Namespace: `/call`
-
-| Event Name             | Người Gửi | Mô tả / Payload                 |
-| :--------------------- | :-------- | :------------------------------ |
-| `room:join`            | Client    | Join vào phòng gọi.             |
-| `webrtc:offer`         | Client    | Gửi SDP Offer.                  |
-| `webrtc:answer`        | Client    | Gửi SDP Answer.                 |
-| `webrtc:ice_candidate` | Client    | Gửi ICE Candidate.              |
-| `call:end`             | Client    | Yêu cầu kết thúc cuộc gọi.      |
-| `call:ended`           | Server    | Thông báo cuộc gọi đã kết thúc. |
 
 ---
 

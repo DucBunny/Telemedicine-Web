@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useParams } from '@tanstack/react-router'
+import { useMediaQuery } from 'usehooks-ts'
 
 import { ChatDesktopLayout } from '@/features/chat/components/common/ChatDesktopLayout'
 import { ChatEmptyState } from '@/features/chat/components/common/ChatEmptyState'
@@ -14,6 +15,8 @@ export const ChatPage = () => {
   const { connect, disconnect } = useChatSocketStore()
   const accessToken = useAuthStore((s) => s.accessToken)
 
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
+
   useEffect(() => {
     if (!accessToken) {
       disconnect()
@@ -24,18 +27,19 @@ export const ChatPage = () => {
     return () => disconnect()
   }, [accessToken, connect, disconnect])
 
-  return (
-    <>
-      {/* Mobile/md: Show ChatPage on index, ChatRoomPage on conversationId route */}
-      <div className="h-full pt-4 md:pt-0 lg:hidden">
-        {conversationId ? <ChatRoom /> : <ChatList />}
-      </div>
-
-      {/* lg: 2-column layout */}
+  // Desktop: Show ChatDesktopLayout
+  if (isDesktop)
+    return (
       <ChatDesktopLayout
         leftPanel={<ChatList activeChatId={conversationId} />}
         rightPanel={conversationId ? <ChatRoom /> : <ChatEmptyState />}
       />
-    </>
+    )
+
+  // Mobile: Show ChatList on index, ChatRoom on conversationId route
+  return (
+    <div className="h-full pt-4 md:pt-0">
+      {conversationId ? <ChatRoom /> : <ChatList />}
+    </div>
   )
 }

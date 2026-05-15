@@ -109,24 +109,21 @@ export const markAllMessagesAsRead = async (req, res, next) => {
 }
 
 /**
- * Get messages between current user and another user (cursor-based)
+ * Get conversation between current user and another user
  */
-export const getMessagesByUserIds = async (req, res, next) => {
+export const getConversationByUserIds = async (req, res, next) => {
   try {
     const currentUserId = req.user.id // from JWT token
     const { userId: otherUserId } = req.params
-    const { nextCursor, limit = 20 } = req.validatedQuery
 
-    const result = await chatService.getMessagesByUserIds(
+    const conversation = await chatService.getConversationByUserIds(
       currentUserId,
       otherUserId,
-      { cursor: nextCursor, limit },
     )
 
     res.status(StatusCodes.OK).json({
       success: true,
-      data: result.data,
-      meta: result.meta,
+      data: conversation,
     })
   } catch (error) {
     next(error)

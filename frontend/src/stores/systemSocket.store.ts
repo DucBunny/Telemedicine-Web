@@ -4,6 +4,10 @@ import { create } from 'zustand'
 import type { Socket } from 'socket.io-client'
 import type { Appointment } from '@/features/appointments/types'
 import type { Notification } from '@/features/notifications/types'
+import type {
+  CallIncomingPayload,
+  CallPeerPayload,
+} from '@/sockets/socket.types'
 
 import { SYSTEM_EVENTS } from '@/sockets/socket.constants'
 import { useAuthStore } from '@/stores/auth.store'
@@ -17,6 +21,8 @@ type AppointmentPayload = Pick<
   'id' | 'status' | 'scheduledAt' | 'doctorId' | 'patientId' | 'type'
 >
 type AppointmentCallback = (payload: AppointmentPayload) => void
+type CallIncomingCallback = (payload: CallIncomingPayload) => void
+type CallPeerCallback = (payload: CallPeerPayload) => void
 
 /**
  * Tập hợp các callback lắng nghe notification mới từ systemSocket.
@@ -27,6 +33,9 @@ const notificationReadSubscribers = new Set<NotificationReadCallback>()
 const unreadCountSubscribers = new Set<UnreadCountCallback>()
 const appointmentNewSubscribers = new Set<AppointmentCallback>()
 const appointmentUpdateSubscribers = new Set<AppointmentCallback>()
+const callIncomingSubscribers = new Set<CallIncomingCallback>()
+const callPeerRejectedSubscribers = new Set<CallPeerCallback>()
+const callPeerEndedSubscribers = new Set<CallPeerCallback>()
 
 export const addNotificationListener = (cb: NotificationCallback) => {
   notificationSubscribers.add(cb)
@@ -53,11 +62,38 @@ export const addAppointmentUpdateListener = (cb: AppointmentCallback) => {
   return () => appointmentUpdateSubscribers.delete(cb)
 }
 
+export const addCallIncomingListener = (cb: CallIncomingCallback) => {
+  callIncomingSubscribers.add(cb)
+  return () => callIncomingSubscribers.delete(cb)
+}
+
+export const addCallPeerRejectedListener = (cb: CallPeerCallback) => {
+  callPeerRejectedSubscribers.add(cb)
+  return () => callPeerRejectedSubscribers.delete(cb)
+}
+
+export const addCallPeerEndedListener = (cb: CallPeerCallback) => {
+  callPeerEndedSubscribers.add(cb)
+  return () => callPeerEndedSubscribers.delete(cb)
+}
+
 interface SystemSocketStore {
   socket: Socket | null
   isConnected: boolean
   connect: () => void
   disconnect: () => void
+  emitCallInvite: (
+    conversationId: string,
+    callLogId: number,
+    appointmentId?: number,
+  ) => void
+  emitCallAccept: (conversationId: string, callLogId: number) => void
+  emitCallReject: (conversationId: string, callLogId: number) => void
+  emitCallEnd: (
+    conversationId: string,
+    callLogId: number,
+    durationSeconds?: number,
+  ) => void
 }
 
 /**
@@ -73,18 +109,27 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
   connect: () => {
     const { accessToken, user } = useAuthStore.getState()
 
-    // Đảm bảo có token và user thì mới connect
-    if (!accessToken || !user || get().socket?.connected) return
+    if (!accessToken || !user) return
+
+    // Xử lý kết nối socket
+    const prev = get().socket
+    if (prev?.connected) return
+    if (prev) {
+      prev.disconnect()
+      set({ socket: null, isConnected: false })
+    }
 
     const socket = io(`${import.meta.env.VITE_SOCKET_URL}/system`, {
       auth: { token: accessToken },
       transports: ['websocket'],
     })
 
-    // Kết nối socket thành công
+    // Gán socket sớm để emit (kể cả trước khi `connect`) không bị `get().socket === null`
+    set({ socket, isConnected: false })
+
     socket.on('connect', () => {
       console.log('[System Socket] Connected')
-      set({ isConnected: true, socket })
+      set({ isConnected: true })
     })
 
     // Nhận sự kiện user online
@@ -115,16 +160,33 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
       },
     )
 
+    // Nhận sự kiện lịch hẹn mới → broadcast đến tất cả subscribers
     socket.on(SYSTEM_EVENTS.APPOINTMENT_NEW, (payload: AppointmentPayload) => {
       appointmentNewSubscribers.forEach((cb) => cb(payload))
     })
 
+    // Nhận sự kiện lịch hẹn cập nhật → broadcast đến tất cả subscribers
     socket.on(
       SYSTEM_EVENTS.APPOINTMENT_UPDATE,
       (payload: AppointmentPayload) => {
         appointmentUpdateSubscribers.forEach((cb) => cb(payload))
       },
     )
+
+    // Nhận sự kiện cuộc gọi đến → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.CALL_INCOMING, (payload: CallIncomingPayload) => {
+      callIncomingSubscribers.forEach((cb) => cb(payload))
+    })
+
+    // Nhận sự kiện từ chối cuộc gọi → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.CALL_REJECT, (payload: CallPeerPayload) => {
+      callPeerRejectedSubscribers.forEach((cb) => cb(payload))
+    })
+
+    // Nhận sự kiện kết thúc cuộc gọi → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.CALL_END, (payload: CallPeerPayload) => {
+      callPeerEndedSubscribers.forEach((cb) => cb(payload))
+    })
 
     // Ngắt kết nối socket thành công hoặc do lỗi (người dùng đóng tab, mất kết nối)
     socket.on('disconnect', () => {
@@ -140,5 +202,45 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
       socket.disconnect()
       set({ socket: null, isConnected: false })
     }
+  },
+
+  // Gửi sự kiện gửi cuộc gọi
+  emitCallInvite: (conversationId, callLogId, appointmentId) => {
+    const { socket } = get()
+    if (!socket) return
+    const payload: {
+      conversationId: string
+      callLogId: number
+      appointmentId?: number
+    } = { conversationId, callLogId }
+    if (appointmentId != null && Number.isFinite(appointmentId)) {
+      payload.appointmentId = appointmentId
+    }
+    socket.emit(SYSTEM_EVENTS.CALL_INVITE, payload)
+  },
+
+  // Gửi sự kiện chấp nhận cuộc gọi
+  emitCallAccept: (conversationId, callLogId) => {
+    const { socket } = get()
+    if (socket)
+      socket.emit(SYSTEM_EVENTS.CALL_ACCEPT, { conversationId, callLogId })
+  },
+
+  // Gửi sự kiện từ chối cuộc gọi
+  emitCallReject: (conversationId, callLogId) => {
+    const { socket } = get()
+    if (socket)
+      socket.emit(SYSTEM_EVENTS.CALL_REJECT, { conversationId, callLogId })
+  },
+
+  // Gửi sự kiện kết thúc cuộc gọi
+  emitCallEnd: (conversationId, callLogId, durationSeconds = 0) => {
+    const { socket } = get()
+    if (socket)
+      socket.emit(SYSTEM_EVENTS.CALL_END, {
+        conversationId,
+        callLogId,
+        durationSeconds,
+      })
   },
 }))

@@ -193,3 +193,21 @@ export const findById = async (recordId) => {
     ],
   })
 }
+
+/**
+ * Create new medical record
+ */
+export const create = async (data) => {
+  return await MedicalRecord.create(data)
+}
+
+/**
+ * Update medical record by ID
+ */
+export const update = async (recordId, data) => {
+  const [updated] = await MedicalRecord.update(data, {
+    where: { id: recordId },
+  })
+
+  return updated > 0 ? await MedicalRecord.findByPk(recordId) : null
+}

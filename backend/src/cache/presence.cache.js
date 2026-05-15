@@ -1,7 +1,27 @@
 import { redis } from '@/config'
 
 const PREFIX = 'presence:user:'
-const TTL_SECONDS = 86400 // 24 giờ - Tự động dọn rác nếu server crash
+
+// TTL key presence; zombie keys sau crash/mất disconnect được Redis xóa sau khoảng này.
+export const PRESENCE_TTL_SECONDS = 180 // 3 minutes
+
+// Gia hạn TTL trên server trong lúc socket còn sống; nên ≤ ~TTL/3.
+export const PRESENCE_REFRESH_INTERVAL_MS = 60 * 1000 // 60 seconds = 1 minute
+
+/**
+ * Gia hạn TTL khi user vẫn đang kết nối (gọi định kỳ từ system socket handler)
+ */
+export const refreshTtl = async (userId) => {
+  try {
+    const key = `${PREFIX}${userId}`
+    await redis.expire(key, PRESENCE_TTL_SECONDS)
+  } catch (error) {
+    console.error(
+      `[Redis Presence] Error refreshing TTL for user ${userId}:`,
+      error,
+    )
+  }
+}
 
 /**
  * Cập nhật socketId mới vào set của user
@@ -12,7 +32,7 @@ export const addSocket = async (userId, socketId) => {
     await redis.sadd(key, socketId)
 
     // Đặt TTL để tự động xóa key nếu không còn socket nào hoạt động (phòng trường hợp server crash)
-    await redis.expire(key, TTL_SECONDS)
+    await redis.expire(key, PRESENCE_TTL_SECONDS)
   } catch (error) {
     console.error(
       `[Redis Presence] Error adding socket for user ${userId}:`,

@@ -18,6 +18,7 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
+        unique: true,
       },
       patient_id: {
         type: Sequelize.INTEGER,

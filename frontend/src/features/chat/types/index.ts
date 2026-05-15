@@ -1,6 +1,6 @@
 export type MessageStatus = 'sent' | 'read'
 
-export type MessageType = 'text' | 'image' | 'file' | 'system_alert'
+export type MessageType = 'text' | 'image' | 'file' | 'system_alert' | 'call'
 
 export interface ChatUser {
   id: number
@@ -12,6 +12,9 @@ export interface ChatMessageContent {
   text?: string
   file_url?: string
   file_name?: string
+  call_id?: number
+  call_status?: 'missed' | 'rejected' | 'completed'
+  call_duration?: number
 }
 
 export interface ChatMessage {

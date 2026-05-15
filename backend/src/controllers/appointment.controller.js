@@ -40,6 +40,29 @@ export const getMyAppointments = async (req, res, next) => {
 }
 
 /**
+ * GET /me/appointments/:appointmentId — chi tiết lịch
+ */
+export const getMyAppointmentById = async (req, res, next) => {
+  try {
+    const { id: userId, role } = req.user
+    const { appointmentId } = req.params
+
+    const appointment = await appointmentService.getMyAppointmentById(
+      userId,
+      role,
+      appointmentId,
+    )
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      data: appointment,
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * Get patient's appointments for current doctor
  * GET /me/patients/:patientId/appointments
  */

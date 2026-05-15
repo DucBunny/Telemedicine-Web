@@ -7,9 +7,16 @@ import {
   AppointmentDetailDialog,
   CancelAppointmentDialog,
 } from '@/features/appointments/components/patient'
+import { useStartVideoCallFromAppointment } from '@/features/appointments/hooks/useStartVideoCallFromAppointment'
+import { isAppointmentVideoCallButtonVisible } from '@/features/calls/utils/appointment-video-call-button-visible'
 import { StatusAvatar } from '@/components/common/StatusAvatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { formatLongDate, formatTime } from '@/lib/format-date'
 import { usePresenceStore } from '@/stores/presence.store'
 import { APPOINTMENT_STATUS_FILTERS } from '@/types/constants'
@@ -27,6 +34,17 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
   const statusOption = APPOINTMENT_STATUS_FILTERS[appointment.status]
   const isShowCancelButton =
     appointment.status === 'cancelled' || appointment.status === 'completed'
+
+  const isShowVideoCallButton =
+    appointment.type === 'online' &&
+    appointment.status === 'confirmed' &&
+    isAppointmentVideoCallButtonVisible(
+      appointment.scheduledAt,
+      appointment.durationMinutes,
+    )
+
+  const { startVideoCallFromAppointment, isStartingVideoCall } =
+    useStartVideoCallFromAppointment('patient')
 
   // Dialog states
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
@@ -96,21 +114,39 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
           <Button
             variant="outline"
             size="lg"
-            className="flex-1 rounded-xl text-sm"
+            className="min-w-0 flex-1 rounded-xl text-sm"
             onClick={() => setIsCancelDialogOpen(true)}>
             Hủy lịch
           </Button>
         )}
+
         <Button
           variant={isShowCancelButton ? 'secondary' : 'teal_primary'}
           size="lg"
-          className="flex-1 rounded-xl text-sm"
+          className="min-w-0 flex-1 rounded-xl text-sm"
           onClick={() => {
             setSelectedAppointment(appointment)
             setIsDetailDialogOpen(true)
           }}>
           {isShowCancelButton ? 'Xem chi tiết' : 'Chi tiết'}
         </Button>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon-lg"
+              hidden={!isShowVideoCallButton}
+              disabled={isStartingVideoCall}
+              className="min-w-0 rounded-xl text-sky-700 hover:bg-sky-50 hover:text-sky-800"
+              onClick={() => startVideoCallFromAppointment(appointment)}>
+              <Video className="size-4 shrink-0" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-24.5">
+            Gọi video (khám online)
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       <AppointmentDetailDialog

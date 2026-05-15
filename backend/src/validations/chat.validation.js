@@ -24,7 +24,7 @@ export const getMessagesParamSchema = z.object({
 })
 
 /**
- * Get messages param schema (conversationId)
+ * Get conversationId param schema
  */
 export const getConversationIdParamSchema = z.object({
   conversationId: objectIdSchema('Conversation ID is invalid'),

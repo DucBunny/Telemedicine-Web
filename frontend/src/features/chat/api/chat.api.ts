@@ -69,12 +69,12 @@ export const chatApi = {
   },
 
   /**
-   * Get messages with a specific user (cursor-based) - legacy by userId
+   * Get conversation with a specific user
    */
-  getMessagesByUserIds: async (userId: number, params?: PaginationParams) => {
-    const { data } = await apiClient.get<
-      ApiCursorPaginatedResponse<ChatMessage>
-    >(`${CHAT_BASE}/users/${userId}/messages`, { params })
-    return data
+  getConversationByUserIds: async (userId: number) => {
+    const { data } = await apiClient.get<ApiSuccessResponse<ChatConversation>>(
+      `${CHAT_BASE}/users/${userId}/conversations`,
+    )
+    return data.data
   },
 }

@@ -84,7 +84,7 @@ export const PatientsTable = ({
                         {pat.user.fullName}
                       </p>
                       <p className="truncate text-xs text-slate-500">
-                        Hồ sơ #{pat.userId}
+                        Bệnh nhân #{pat.userId}
                       </p>
                     </div>
                   </div>

@@ -10,7 +10,7 @@ export const ChatDesktopLayout = ({
   rightPanel,
 }: ChatDesktopLayoutProps) => {
   return (
-    <div className="hidden h-full min-h-0 lg:block">
+    <div className="h-full min-h-0">
       <div className="grid h-full min-h-0 grid-cols-12 overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm">
         <div className="col-span-5 min-h-0 overflow-y-auto border-r border-gray-200 pt-4 xl:col-span-4">
           {leftPanel}

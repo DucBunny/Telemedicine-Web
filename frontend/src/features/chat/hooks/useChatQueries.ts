@@ -33,8 +33,6 @@ export const CHAT_KEYS = {
   messages: () => [...CHAT_KEYS.all, 'messages'] as const,
   messagesListByConversation: (conversationId: string) =>
     [...CHAT_KEYS.messages(), 'conversation', conversationId] as const,
-  messagesListByUser: (userId: number) =>
-    [...CHAT_KEYS.messages(), 'user', userId] as const,
 }
 
 /**
@@ -193,28 +191,4 @@ export const useRealtimeChatList = () => {
       unsubscribeRead()
     }
   }, [queryClient])
-}
-
-/**
- * Hook to get messages with a specific user with infinite scroll (cursor-based)
- * Messages load từ mới nhất -> cũ nhất khi scroll lên
- */
-export const useGetMessagesByUserIds = ({
-  userId,
-  limit = 15,
-}: {
-  userId: number
-  limit?: number
-}) => {
-  return useInfiniteQuery({
-    queryKey: CHAT_KEYS.messagesListByUser(userId),
-    queryFn: ({ pageParam }) =>
-      chatApi.getMessagesByUserIds(userId, { nextCursor: pageParam, limit }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) =>
-      lastPage.meta.hasMore
-        ? (lastPage.meta.nextCursor ?? undefined)
-        : undefined,
-    enabled: !!userId,
-  })
 }

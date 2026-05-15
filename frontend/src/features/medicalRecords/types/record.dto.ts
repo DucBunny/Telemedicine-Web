@@ -15,12 +15,11 @@ export interface CreateRecordBody {
   appointmentId: number
   patientId: number
   doctorId: number
-  symptoms?: string
+  symptoms: string
   diagnosis: string
   treatmentPlan?: string
   prescription?: Array<PrescriptionItem>
   notes?: string
-  followUpDate?: string
 }
 
 export interface UpdateRecordBody {
@@ -29,5 +28,4 @@ export interface UpdateRecordBody {
   treatmentPlan?: string
   prescription?: Array<PrescriptionItem>
   notes?: string
-  followUpDate?: string
 }

@@ -1,12 +1,16 @@
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useQueryClient } from '@tanstack/react-query'
 import { isSameDay } from 'date-fns'
 import { toast } from 'sonner'
 
+import type { Appointment } from '@/features/appointments/types'
 import type { ChatMessage, MessageType } from '@/features/chat/types'
 import type { SocketChatMessage } from '@/sockets/socket.types'
 
+import { appointmentMatchesChatPeer } from '@/features/appointments/utils/appointment-video-call-peer'
+import { callApi } from '@/features/calls/api/call.api'
+import { TelehealthVideoCallDialog } from '@/features/calls/components/TelehealthVideoCallDialog'
 import {
   ChatHeader,
   ChatInput,
@@ -24,14 +28,20 @@ import {
 import { uploadApi } from '@/features/uploads/api/upload.api'
 import Loader, { LoaderItem } from '@/components/common/Loader'
 import { selectUser, useAuthStore } from '@/stores/auth.store'
-// import { useChatSocket } from '@/sockets/socket.hooks'
 import {
   addChatMessageListener,
   addChatReadListener,
+  addChatRoomJoinRejectedListener,
   addChatTypingStartListener,
   addChatTypingStopListener,
   useChatSocketStore,
 } from '@/stores/chatSocket.store'
+import {
+  addCallPeerEndedListener,
+  addCallPeerRejectedListener,
+  useSystemSocketStore,
+} from '@/stores/systemSocket.store'
+import { useTelehealthCallStore } from '@/stores/telehealthCall.store'
 
 interface MessageGroup {
   date: Date
@@ -41,9 +51,17 @@ interface MessageGroup {
 interface ChatRoomBaseProps {
   conversationId: string
   onBack: () => void
+  /** `?startVideo=true` sau khi bấm gọi từ lịch (bác sĩ / bệnh nhân) */
+  autoStartVideoFromAppointment?: boolean
+  onAutoStartVideoSearchConsumed?: () => void
 }
 
-export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
+export const ChatRoomBase = ({
+  conversationId,
+  onBack,
+  autoStartVideoFromAppointment = false,
+  onAutoStartVideoSearchConsumed,
+}: ChatRoomBaseProps) => {
   const currentUser = useAuthStore(selectUser)
 
   const [inputValue, setInputValue] = useState('')
@@ -53,10 +71,24 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
   } | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
+  const [videoCallOpen, setVideoCallOpen] = useState(false)
+  const [zegoMountVersion, setZegoMountVersion] = useState(0)
+  const [outgoingCallLogId, setOutgoingCallLogId] = useState<number | null>(
+    null,
+  )
+
+  const activeVisitAppointment = useTelehealthCallStore(
+    (s) => s.activeVisitAppointment,
+  )
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const previousScrollHeightRef = useRef(0)
+  const videoCallOpenRef = useRef(false)
+  const skipTelehealthEndEmitRef = useRef(false)
+  const callEndSentRef = useRef(false)
+  const activeCallLogIdRef = useRef<number | null>(null)
+  const autoStartConsumedRef = useRef(false)
   const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true)
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -78,15 +110,170 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
   const { addMessage } = useAddMessageToCache()
   const queryClient = useQueryClient()
   const {
-    joinConversation,
-    leaveConversation,
-    sendTypingStart,
-    sendTypingStop,
-    sendReadEvent,
+    emitJoinConversation: joinConversation,
+    emitLeaveConversation: leaveConversation,
+    emitTypingStart: sendTypingStart,
+    emitTypingStop: sendTypingStop,
+    emitReadEvent: sendReadEvent,
   } = useChatSocketStore()
 
   const allMessages = messagesData?.pages.flatMap((page) => page.data) || []
   const otherParticipant = conversationDetail?.user
+
+  useEffect(() => {
+    activeCallLogIdRef.current = outgoingCallLogId
+  }, [outgoingCallLogId])
+
+  useEffect(() => {
+    videoCallOpenRef.current = videoCallOpen
+  }, [videoCallOpen])
+
+  const markSkipNextTelehealthEndEmit = () => {
+    skipTelehealthEndEmitRef.current = true
+    queueMicrotask(() => {
+      skipTelehealthEndEmitRef.current = false
+    })
+  }
+
+  const handleCallSessionFinalize = (durationSeconds: number) => {
+    if (skipTelehealthEndEmitRef.current) return
+    if (callEndSentRef.current) return
+    const id = activeCallLogIdRef.current
+    if (id == null) return
+    callEndSentRef.current = true
+    useSystemSocketStore
+      .getState()
+      .emitCallEnd(conversationId, id, durationSeconds)
+  }
+
+  const handleVideoOpenChange = (open: boolean) => {
+    if (!open) {
+      if (!skipTelehealthEndEmitRef.current && !callEndSentRef.current) {
+        const id = activeCallLogIdRef.current
+        if (id != null) {
+          callEndSentRef.current = true
+          useSystemSocketStore.getState().emitCallEnd(conversationId, id, 0)
+        }
+      }
+      videoCallOpenRef.current = false
+      setVideoCallOpen(false)
+      setOutgoingCallLogId(null)
+      useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+    } else {
+      videoCallOpenRef.current = true
+      setVideoCallOpen(true)
+    }
+  }
+
+  const startOutgoingVideoCall = useCallback(
+    async (opts?: { visitAppointment?: Appointment | null }) => {
+      callEndSentRef.current = false
+      useTelehealthCallStore
+        .getState()
+        .setActiveVisitAppointment(opts?.visitAppointment ?? null)
+      try {
+        const { callLogId } = await callApi.startVideoCall(conversationId)
+        activeCallLogIdRef.current = callLogId
+        setOutgoingCallLogId(callLogId)
+        setZegoMountVersion((v) => v + 1)
+        videoCallOpenRef.current = true
+        useSystemSocketStore
+          .getState()
+          .emitCallInvite(
+            conversationId,
+            callLogId,
+            opts?.visitAppointment?.id,
+          )
+        setVideoCallOpen(true)
+      } catch (e) {
+        console.error('[Chat] startVideoCall', e)
+        useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+        toast.error('Không thể bắt đầu cuộc gọi. Thử lại sau.')
+      }
+    },
+    [conversationId],
+  )
+
+  useEffect(() => {
+    autoStartConsumedRef.current = false
+  }, [conversationId, autoStartVideoFromAppointment])
+
+  useEffect(() => {
+    if (!autoStartVideoFromAppointment) return
+    if (autoStartConsumedRef.current) return
+    if (!otherParticipant?.id) return
+
+    const appt = useTelehealthCallStore.getState().pendingAppointmentForCall
+
+    const consumeSearch = () => {
+      autoStartConsumedRef.current = true
+      onAutoStartVideoSearchConsumed?.()
+    }
+
+    if (!appt) {
+      consumeSearch()
+      return
+    }
+
+    const role = currentUser?.role
+    if (role !== 'doctor' && role !== 'patient') {
+      consumeSearch()
+      return
+    }
+
+    if (!appointmentMatchesChatPeer(appt, otherParticipant.id, role)) {
+      toast.error('Lịch hẹn không khớp cuộc trò chuyện này.')
+      useTelehealthCallStore.getState().setPendingAppointmentForCall(null)
+      consumeSearch()
+      return
+    }
+
+    autoStartConsumedRef.current = true
+    useTelehealthCallStore.getState().setPendingAppointmentForCall(null)
+    consumeSearch()
+    void startOutgoingVideoCall({ visitAppointment: appt })
+  }, [
+    autoStartVideoFromAppointment,
+    otherParticipant?.id,
+    conversationId,
+    onAutoStartVideoSearchConsumed,
+    startOutgoingVideoCall,
+    currentUser?.role,
+  ])
+
+  useEffect(() => {
+    const unsubReject = addChatRoomJoinRejectedListener((p) => {
+      if (p.reason !== 'NOT_PARTICIPANT') return
+      if (p.conversationId && p.conversationId !== conversationId) return
+      toast.error('Bạn không có quyền vào cuộc trò chuyện này.')
+      onBack()
+    })
+    const unsubDeclined = addCallPeerRejectedListener((p) => {
+      if (p.conversationId !== conversationId) return
+      if (!videoCallOpenRef.current) return
+      markSkipNextTelehealthEndEmit()
+      videoCallOpenRef.current = false
+      setVideoCallOpen(false)
+      setOutgoingCallLogId(null)
+      useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+      toast.message('Đối phương đã từ chối cuộc gọi.')
+    })
+    const unsubEnded = addCallPeerEndedListener((p) => {
+      if (p.conversationId !== conversationId) return
+      if (!videoCallOpenRef.current) return
+      markSkipNextTelehealthEndEmit()
+      videoCallOpenRef.current = false
+      setVideoCallOpen(false)
+      setOutgoingCallLogId(null)
+      useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+      toast.message('Cuộc gọi đã kết thúc.')
+    })
+    return () => {
+      unsubReject()
+      unsubDeclined()
+      unsubEnded()
+    }
+  }, [conversationId, onBack, currentUser?.id])
 
   // Khi vào conversation: join room + gửi read event ngay lập tức
   useEffect(() => {
@@ -114,7 +301,7 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
             fullName: message.sender.fullName,
             avatar: message.sender.avatar ?? undefined,
           },
-          type: message.type,
+          type: message.type as ChatMessage['type'],
           content: message.content,
           status: message.status === 'read' ? 'read' : 'sent',
           createdAt: message.createdAt,
@@ -319,9 +506,25 @@ export const ChatRoomBase = ({ conversationId, onBack }: ChatRoomBaseProps) => {
 
   return (
     <div className="fixed inset-0 flex flex-col md:inset-x-0 lg:static lg:h-full">
+      <TelehealthVideoCallDialog
+        open={videoCallOpen}
+        onOpenChange={handleVideoOpenChange}
+        conversationId={conversationId}
+        peerUser={otherParticipant}
+        zegoCallLogId={outgoingCallLogId ?? undefined}
+        zegoMountVersion={zegoMountVersion}
+        onCallSessionFinalize={handleCallSessionFinalize}
+        visitContextAppointment={activeVisitAppointment}
+      />
       {/* Header */}
       <div className="z-10 shrink-0 bg-white">
-        <ChatHeader otherParticipant={otherParticipant} onBack={onBack} />
+        <ChatHeader
+          otherParticipant={otherParticipant}
+          onBack={onBack}
+          onVideoCall={
+            videoCallOpen ? undefined : () => startOutgoingVideoCall()
+          }
+        />
       </div>
 
       {/* Messages Area */}
