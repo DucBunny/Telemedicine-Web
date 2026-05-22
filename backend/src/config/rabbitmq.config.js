@@ -1,6 +1,5 @@
 import amqp from 'amqplib'
 import { env } from '@/config'
-import { EXCHANGES, QUEUES } from '@/queues/queues'
 
 // Build RabbitMQ URL: prefer full URL from env, else compose from host/port
 const getRabbitUrl = () =>
@@ -24,23 +23,23 @@ export const connectRabbitMQ = async () => {
     channel = await connection.createChannel()
 
     // Assert exchange
-    await channel.assertExchange(EXCHANGES.HEALTH, 'topic', { durable: true })
+    // await channel.assertExchange(EXCHANGES.HEALTH, 'topic', { durable: true })
 
     // Assert queues
-    await channel.assertQueue(QUEUES.HEALTH_DATA, { durable: true })
-    await channel.assertQueue(QUEUES.HEALTH_ALERT, { durable: true })
+    // await channel.assertQueue(QUEUES.HEALTH_DATA, { durable: true })
+    // await channel.assertQueue(QUEUES.HEALTH_ALERT, { durable: true })
 
     // Bind queues to exchange
-    await channel.bindQueue(
-      QUEUES.HEALTH_DATA,
-      EXCHANGES.HEALTH,
-      'health.data.*',
-    )
-    await channel.bindQueue(
-      QUEUES.HEALTH_ALERT,
-      EXCHANGES.HEALTH,
-      'health.alert.*',
-    )
+    // await channel.bindQueue(
+    //   QUEUES.HEALTH_DATA,
+    //   EXCHANGES.HEALTH,
+    //   'health.data.*',
+    // )
+    // await channel.bindQueue(
+    //   QUEUES.HEALTH_ALERT,
+    //   EXCHANGES.HEALTH,
+    //   'health.alert.*',
+    // )
 
     channel.prefetch(10) // Chống overload
 

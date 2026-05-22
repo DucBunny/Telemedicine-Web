@@ -1,4 +1,4 @@
-export interface Notification {
+export interface NotificationPayload {
   id: number
   type: string
   title: string

@@ -9,14 +9,14 @@ import type {
   AlertFlashPayload,
   CallIncomingPayload,
   CallPeerPayload,
-  Notification,
+  NotificationPayload,
 } from '@/sockets/socket.types'
 
 import { SYSTEM_EVENTS } from '@/sockets/socket.constants'
 import { useAuthStore } from '@/stores/auth.store'
 import { usePresenceStore } from '@/stores/presence.store'
 
-type NotificationCallback = (notification: Notification) => void
+type NotificationCallback = (notification: NotificationPayload) => void
 type NotificationReadCallback = (payload: { id: number }) => void
 type UnreadCountCallback = (payload: { count: number }) => void
 type AppointmentPayload = Pick<
@@ -175,9 +175,12 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
     })
 
     // Nhận thông báo mới từ server → broadcast đến tất cả subscribers
-    socket.on(SYSTEM_EVENTS.NOTIFICATION_NEW, (notification: Notification) => {
-      notificationSubscribers.forEach((cb) => cb(notification))
-    })
+    socket.on(
+      SYSTEM_EVENTS.NOTIFICATION_NEW,
+      (notification: NotificationPayload) => {
+        notificationSubscribers.forEach((cb) => cb(notification))
+      },
+    )
 
     // Nhận sự kiện notification đã đọc → broadcast đến tất cả subscribers
     socket.on(SYSTEM_EVENTS.NOTIFICATION_READ, (payload: { id: number }) => {

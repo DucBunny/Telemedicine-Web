@@ -4,7 +4,6 @@ import type { LucideIcon } from 'lucide-react'
 import type { Patient } from '@/features/patients/types'
 
 import { StatusAvatar } from '@/components/common/StatusAvatar'
-import { Badge } from '@/components/ui/badge'
 import { calculateAge, formatShortDate } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
 import { usePresenceStore } from '@/stores/presence.store'

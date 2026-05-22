@@ -1,10 +1,12 @@
 import { Link } from '@tanstack/react-router'
 
-import type { HealthData } from '@/features/health/hooks/useHealthData'
-
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
+type HealthData = {
+  bpm: number
+  spo2: number
+}
 interface VitalCardsProps {
   latestData: HealthData | null
 }

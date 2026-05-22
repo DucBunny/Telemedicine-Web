@@ -8,8 +8,8 @@ import {
 import { BellRing } from 'lucide-react'
 import { toast } from 'sonner'
 
-import type { Notification } from '@/features/notifications/types'
 import type { GetMyNotificationsParams } from '@/features/notifications/types/notification.dto'
+import type { NotificationPayload } from '@/sockets/socket.types'
 
 import { notificationApi } from '@/features/notifications/api/notification.api'
 import {
@@ -141,7 +141,7 @@ export const useRealtimeNotifications = () => {
 
   useEffect(() => {
     const unsubscribe = addNotificationListener(
-      (notification: Notification) => {
+      (notification: NotificationPayload) => {
         // Hiển thị toast ngay lập tức (ưu tiên hàng đầu)
         toast('Thông báo mới', {
           description: notification.title,
