@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Check, Ellipsis } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
-import { NotificationItem } from '@/features/notifications/components/common'
+import { NotificationItem } from '@/features/notifications/components/common/NotificationItem'
 import {
   useGetMyNotifications,
   useMarkAllNotificationsAsRead,

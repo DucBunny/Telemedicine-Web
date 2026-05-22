@@ -6,19 +6,19 @@ import viteReact from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
-    devtools(),
+    mode === 'development' ? devtools() : undefined,
     tanstackRouter({
       target: 'react',
-      autoCodeSplitting: true,
+      autoCodeSplitting: false,
     }),
     viteReact(),
     tailwindcss(),
-  ],
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-})
+}))

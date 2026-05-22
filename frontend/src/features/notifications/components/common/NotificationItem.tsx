@@ -3,7 +3,6 @@ import { Clock, Ellipsis } from 'lucide-react'
 
 import type { Notification } from '@/features/notifications/types'
 
-import { NotificationDetailDialog } from '@/features/notifications/components/common'
 import {
   useDeleteNotification,
   useMarkNotificationAsRead,
@@ -25,6 +24,7 @@ import {
 } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
 import { NOTIFICATION_TYPE_FILTERS } from '@/types/constants'
+import { NotificationDetailDialog } from './NotificationDetailDialog'
 
 interface NotificationItemProps {
   notification: Notification

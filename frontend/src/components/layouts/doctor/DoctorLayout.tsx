@@ -77,22 +77,17 @@ export const DoctorLayout = () => {
 
   const matches = useMatches()
 
-  const isDesktop = useMediaQuery('(min-width: 1024px)')
+  const isDesktop = useMediaQuery('(min-width: 1024px)', {
+    initializeWithValue: true,
+  })
 
-  // Lấy thông tin từ staticData của route hiện tại
-  // reverse để ưu tiên lấy thông tin từ route con trước, sau đó mới đến route cha
-  const {
-    hideMobileNav: isHiddenMobileNav,
-    hideHeader: isHiddenHeader,
-    title,
-  } = matches
+  const isHiddenMobileNav = matches.some(
+    (match) => match.staticData.hideMobileNav,
+  )
+  const isHiddenHeader = matches.some((match) => match.staticData.hideHeader)
+  const title = [...matches]
     .reverse()
-    .find(
-      (match) =>
-        match.staticData.title ||
-        match.staticData.hideMobileNav ||
-        match.staticData.hideHeader,
-    )?.staticData || {}
+    .find((match) => match.staticData.title)?.staticData.title
 
   const pageTitle =
     title ||
