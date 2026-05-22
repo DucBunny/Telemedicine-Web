@@ -197,8 +197,8 @@ export const findByPatientIdAndDoctorId = async (
 /**
  * Find appointment by ID
  */
-export const findById = async (appointmentId) => {
-  return await Appointment.findByPk(appointmentId)
+export const findById = async (appointmentId, options = {}) => {
+  return await Appointment.findByPk(appointmentId, options)
 }
 
 /**
@@ -249,11 +249,13 @@ export const create = async (data) => {
 /**
  * Update an existing appointment
  */
-export const update = async (appointmentId, data) => {
+export const update = async (appointmentId, data, options = {}) => {
   const [updated] = await Appointment.update(data, {
     where: { id: appointmentId },
+    ...options,
   })
-  return updated > 0 ? await Appointment.findByPk(appointmentId) : null
+
+  return updated > 0 ? await findById(appointmentId, options) : null
 }
 
 /**

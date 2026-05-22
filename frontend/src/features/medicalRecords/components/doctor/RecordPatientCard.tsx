@@ -69,15 +69,15 @@ export const RecordPatientCard = ({ record }: RecordPatientCardProps) => {
 
       <div className="mt-4 flex gap-3 border-t border-gray-100 pt-4">
         <div className="flex-1">
-          <p className="text-xs md:text-sm">Ngày khám</p>
+          <p className="text-xs md:text-sm">Ngày tạo</p>
           <p className="text-sm font-semibold md:text-base">
-            {formatShortDate(record.appointment?.scheduledAt || '')}
+            {formatShortDate(record.createdAt)}
           </p>
         </div>
         <div className="flex-1 text-end">
-          <p className="text-xs md:text-sm">Giờ khám</p>
+          <p className="text-xs md:text-sm">Giờ tạo</p>
           <p className="text-sm font-semibold md:text-base">
-            {formatTime(record.appointment?.scheduledAt || '')}
+            {formatTime(record.createdAt)}
           </p>
         </div>
       </div>

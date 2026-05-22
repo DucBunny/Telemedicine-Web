@@ -1,10 +1,11 @@
 import type { BadgeVariant } from '@/components/ui/badge'
-import type { TimeSlot } from '@/features/appointments/types'
+import type { AlertStatus } from '@/features/alerts/types'
+import type { AppointmentStatus, TimeSlot } from '@/features/appointments/types'
 import type { NotificationType } from '@/features/notifications/types'
 import type { BloodTypeOption, GenderOption } from '@/features/patients/types'
 
 export const APPOINTMENT_STATUS_FILTERS: Record<
-  string,
+  AppointmentStatus | 'upcoming',
   { label: string; color: string; variant?: BadgeVariant }
 > = {
   confirmed: {
@@ -56,6 +57,24 @@ export const GENDER_OPTIONS: Array<{
   { value: 'female', label: 'Nữ' },
   { value: 'other', label: 'Khác' },
 ] as const
+
+export const ALERT_STATUS_FILTERS: Record<
+  AlertStatus,
+  { label: string; variant?: BadgeVariant }
+> = {
+  pending: {
+    label: 'Đang chờ',
+    variant: 'red_blur',
+  },
+  handling: {
+    label: 'Đang xử lý',
+    variant: 'blue_blur',
+  },
+  resolved: {
+    label: 'Đã xử lý',
+    variant: 'green_blur',
+  },
+} as const
 
 export const NOTIFICATION_TYPE_FILTERS: Record<
   NotificationType,

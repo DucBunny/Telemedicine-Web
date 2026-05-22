@@ -22,9 +22,6 @@ export interface Patient {
   weight: number
   medicalHistory: string
   address: string
-  currentHealthStatus: string
-  currentIssue: string | null
-  lastAlertAt: string | null
   createdAt: string
   updatedAt: string
   user: User

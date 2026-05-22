@@ -19,7 +19,6 @@ export interface Appointment {
   durationMinutes: number
   status: AppointmentStatus
   type: AppointmentType
-  meetingLink: string
   reason: string
   cancelReason: string | null
   createdAt: string

@@ -92,9 +92,12 @@ export const useChatSocketStore = create<ChatSocketStore>((set, get) => ({
       transports: ['websocket'],
     })
 
+    // Gán socket sớm để emit (kể cả trước khi `connect`) không bị `get().socket === null`
+    set({ socket, isConnected: false })
+
     // Kết nối socket thành công
     socket.on('connect', () => {
-      set({ isConnected: true, socket })
+      set({ isConnected: true })
 
       const { activeConversationId } = get()
       if (activeConversationId) {

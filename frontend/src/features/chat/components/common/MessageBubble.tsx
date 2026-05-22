@@ -103,6 +103,16 @@ export const MessageBubble = ({
     callStatus: 'missed' | 'rejected' | 'completed',
     callDuration?: number,
   ) => {
+    const duration = callDuration != null && callDuration > 0 ? callDuration : 0
+    const hours = Math.floor(duration / 3600)
+    const minutes = Math.floor((duration % 3600) / 60)
+    const seconds = duration % 60
+
+    const hoursString = hours !== 0 ? `${hours} giờ` : ''
+    const minutesString = minutes !== 0 ? `${minutes} phút` : ''
+    const secondsString = seconds !== 0 ? `${seconds} giây` : ''
+    const durationString = `${hoursString} ${minutesString} ${secondsString}`
+
     return (
       <div
         className={cn(
@@ -120,8 +130,8 @@ export const MessageBubble = ({
           <p className="truncate text-sm font-medium">
             {CALL_STATUS_LABELS[callStatus]}
           </p>
-          {callDuration != null && callDuration > 0 && (
-            <p className="truncate text-sm font-medium">{callDuration} giây</p>
+          {durationString && (
+            <p className="truncate text-sm font-medium">{durationString}</p>
           )}
         </div>
       </div>
@@ -178,7 +188,7 @@ export const MessageBubble = ({
             message.content.call_duration ?? 0,
           )}
 
-        {message.type === 'text' && message.content.text && (
+        {message.content.text && (
           <p className="px-3 py-2 text-base leading-tight">
             {message.content.text}
           </p>

@@ -149,6 +149,22 @@ export function toUtcIsoFromVietnamLocal(date: string | Date, time: string) {
 }
 
 /**
+ * Get today's UTC ISO range in Vietnam local time.
+ * @returns Today's UTC ISO range in Vietnam local time (e.g., "2024-01-01T00:00:00.000Z" - "2024-01-01T23:59:59.999Z")
+ * @example getVietnamTodayUtcRange() => { scheduledFrom: "2024-01-01T00:00:00.000Z", scheduledTo: "2024-01-01T23:59:59.999Z" }
+ */
+export function getVietnamTodayUtcRange() {
+  const today = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+  }).format(new Date())
+
+  return {
+    scheduledFrom: toUtcIsoFromVietnamLocal(today, '00:00'),
+    scheduledTo: toUtcIsoFromVietnamLocal(today, '23:59'),
+  }
+}
+
+/**
  * Format a date to "MMMM yyyy" format in Vietnamese locale.
  * @param date
  * @returns Formatted month and year string in Vietnamese locale (e.g., "Tháng 1 2024")

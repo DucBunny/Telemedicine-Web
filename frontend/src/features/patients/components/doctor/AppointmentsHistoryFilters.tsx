@@ -28,11 +28,6 @@ export const AppointmentsHistoryFilters = ({
   scheduledTo,
   onApplyFilters,
 }: AppointmentsHistoryFiltersProps) => {
-  const hasActiveFilters =
-    statusFilter !== 'all' ||
-    typeFilter !== 'all' ||
-    Boolean(scheduledFrom || scheduledTo)
-
   const activeFilterCount = [
     statusFilter !== 'all',
     typeFilter !== 'all',
@@ -48,12 +43,12 @@ export const AppointmentsHistoryFilters = ({
       scheduledTo={scheduledTo}
       onApplyFilters={onApplyFilters}>
       <Button
-        variant={hasActiveFilters ? 'teal_primary' : 'outline'}
+        variant={activeFilterCount > 0 ? 'teal_primary' : 'outline'}
         size="sm"
         type="button">
         <Filter className="size-4" />
         <span className="hidden md:block">Bộ lọc</span>
-        {hasActiveFilters && (
+        {activeFilterCount > 0 && (
           <span className="text-teal-primary flex size-4 items-center justify-center rounded-full bg-white text-xs">
             {activeFilterCount}
           </span>

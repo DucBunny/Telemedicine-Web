@@ -11,7 +11,8 @@ import { ChatPage } from '@/pages/doctor/ChatPage'
 
 export const Route = createFileRoute('/doctor/chat/$conversationId')({
   validateSearch: z.object({
-    startVideo: z.boolean().optional(), // Bắt đầu cuộc gọi video từ bảng lịch hẹn
+    startVideo: z.boolean().optional(),
+    fromAlert: z.boolean().optional(),
   }),
   loader: async ({ params, context }) => {
     if (!params.conversationId) return

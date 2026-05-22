@@ -14,8 +14,6 @@ import {
   StatCards,
   VitalCards,
 } from '@/features/dashboard/components/patient'
-import { useHealthAlerts } from '@/features/health/hooks/useHealthAlerts'
-import { useHealthData } from '@/features/health/hooks/useHealthData'
 import { useGetUnreadNotificationCount } from '@/features/notifications/hooks/useNotificationQueries'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
 import { Button } from '@/components/ui/button'
@@ -25,15 +23,13 @@ export const HomePage = () => {
   const { data: profileData } = useGetProfile<Patient>()
   const { data: appointmentsData } = useGetMyAppointments({
     page: 1,
-    limit: 5,
+    limit: 3,
     status: ['confirmed'],
   })
   useRealtimeAppointments()
   const { data: unreadCount } = useGetUnreadNotificationCount()
 
   const user = useAuthStore(selectUser)
-  const { healthData, latestData } = useHealthData(user!.id)
-  const { alerts } = useHealthAlerts()
 
   return (
     <div className="px-4">
@@ -46,10 +42,10 @@ export const HomePage = () => {
           <StatCards profileData={profileData} />
 
           {/* Các thẻ chỉ số sức khỏe */}
-          <VitalCards latestData={latestData} />
+          <VitalCards latestData={null} />
 
           {/* Biểu đồ ECG */}
-          <ECGChart />
+          <ECGChart patientId={user!.id} />
         </div>
 
         {/* Cột phải */}
@@ -66,7 +62,7 @@ export const HomePage = () => {
           <h3 className="text-lg font-bold text-slate-900">Lịch hẹn sắp tới</h3>
 
           <div className="space-y-3 md:space-y-4">
-            {appointmentsData?.data && appointmentsData.data.length > 0 ? (
+            {appointmentsData && appointmentsData.data.length > 0 ? (
               appointmentsData.data
                 .slice(0, 3)
                 .map((appt) => (

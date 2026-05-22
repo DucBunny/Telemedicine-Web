@@ -47,9 +47,6 @@ module.exports = {
         type: Sequelize.ENUM('online', 'offline'),
         defaultValue: 'online',
       },
-      meeting_link: {
-        type: Sequelize.STRING,
-      },
       reason: {
         type: Sequelize.TEXT,
       },

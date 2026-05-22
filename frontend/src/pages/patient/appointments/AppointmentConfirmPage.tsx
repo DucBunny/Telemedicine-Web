@@ -150,7 +150,7 @@ export const AppointmentConfirmPage = () => {
           <section>
             <label
               htmlFor="reason"
-              className="mb-3 block text-xl font-bold tracking-tight text-slate-900">
+              className="block text-xl! font-bold! tracking-tight text-slate-900!">
               Lý do khám
               <span className="ml-1 text-red-500">*</span>
             </label>
@@ -165,7 +165,7 @@ export const AppointmentConfirmPage = () => {
                 maxLength={maxReasonLength}
                 placeholder="Mô tả ngắn gọn triệu chứng của bạn..."
                 rows={4}
-                className={`resize-none rounded-xl border bg-white p-4 text-slate-900 transition-all placeholder:text-slate-400 focus-visible:ring-teal-500 ${
+                className={`mt-3 resize-none rounded-xl border bg-white p-4 text-slate-900 transition-all placeholder:text-slate-400 focus-visible:ring-teal-500 ${
                   reasonError
                     ? 'border-red-400 focus-visible:border-red-400 focus-visible:ring-red-300'
                     : 'border-slate-200 focus-visible:border-teal-300'

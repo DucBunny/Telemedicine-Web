@@ -1,4 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
+import { sequelize } from '@/models/sql'
+import * as appointmentRepo from '@/repositories/appointment.repo'
 import * as medicalRecordRepo from '@/repositories/medicalRecord.repo'
 import ApiError from '@/utils/api-error'
 
@@ -55,9 +57,91 @@ export const getMedicalRecordByPatientIdAndDoctorId = async (
 }
 
 /**
- * Create new medical record
+ * Create medical record linked to an appointment (transaction).
+ */
+export const createMedicalRecordForAppointment = async (doctorId, data) => {
+  const { appointmentId, patientId, ...recordFields } = data
+
+  const result = await sequelize.transaction(async (t) => {
+    const appointment = await appointmentRepo.findById(appointmentId, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    })
+
+    if (!appointment) return { type: 'APPOINTMENT_NOT_FOUND' }
+
+    if (Number(appointment.doctorId) !== Number(doctorId))
+      return { type: 'FORBIDDEN' }
+
+    if (Number(appointment.patientId) !== Number(patientId))
+      return { type: 'PATIENT_MISMATCH' }
+
+    if (appointment.status !== 'confirmed') return { type: 'INVALID_STATUS' }
+
+    const existingRecord = await medicalRecordRepo.findByAppointmentId(
+      appointmentId,
+      { transaction: t },
+    )
+    if (existingRecord) return { type: 'RECORD_EXISTS' }
+
+    const medicalRecord = await medicalRecordRepo.create(
+      {
+        appointmentId,
+        patientId,
+        doctorId,
+        ...recordFields,
+      },
+      { transaction: t },
+    )
+
+    return { type: 'SUCCESS', medicalRecord }
+  })
+
+  if (result.type === 'APPOINTMENT_NOT_FOUND')
+    throw new ApiError(
+      StatusCodes.NOT_FOUND,
+      'Appointment not found',
+      'APPOINTMENT_NOT_FOUND',
+    )
+
+  if (result.type === 'FORBIDDEN')
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'You cannot create a record for this appointment',
+      'FORBIDDEN',
+    )
+
+  if (result.type === 'PATIENT_MISMATCH')
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Patient does not match appointment',
+      'PATIENT_MISMATCH',
+    )
+
+  if (result.type === 'INVALID_STATUS')
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Medical record can only be created for confirmed appointments',
+      'INVALID_APPOINTMENT_STATUS',
+    )
+
+  if (result.type === 'RECORD_EXISTS')
+    throw new ApiError(
+      StatusCodes.CONFLICT,
+      'Medical record for this appointment already exists',
+      'MEDICAL_RECORD_EXISTS',
+    )
+
+  return result.medicalRecord
+}
+
+/**
+ * Create new medical record (appointment-linked uses transaction path).
  */
 export const createMedicalRecord = async (data) => {
+  if (data.appointmentId != null)
+    return await createMedicalRecordForAppointment(data.doctorId, data)
+
   return await medicalRecordRepo.create(data)
 }
 
@@ -74,5 +158,16 @@ export const updateMedicalRecord = async (recordId, data) => {
       'RECORD_NOT_FOUND',
     )
 
-  return await medicalRecordRepo.update(recordId, data)
+  if (
+    data.doctorId != null &&
+    Number(record.doctorId) !== Number(data.doctorId)
+  )
+    throw new ApiError(
+      StatusCodes.FORBIDDEN,
+      'You cannot update this medical record',
+      'FORBIDDEN',
+    )
+
+  const { doctorId: _doctorId, ...patch } = data
+  return await medicalRecordRepo.update(recordId, patch)
 }

@@ -1,17 +1,13 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
-import { connectMongoDB, connectMySQL, env } from '@/config'
+import { connectMailer, connectMongoDB, connectMySQL, env } from '@/config'
 import { connectRabbitMQ } from '@/config/rabbitmq.config'
 import { schedulePendingAppointmentExpiryJob } from '@/jobs/pendingAppointments.job'
 import { errorConverter, errorHandler } from '@/middlewares/error.middleware'
-import {
-  startAlertConsumer,
-  startHealthConsumer,
-} from '@/modules/health/health.consumer'
 import { connectMQTT } from '@/mqtt/mqtt.client'
 import router from '@/routes/api'
-import { app, io, socketServer } from '@/sockets'
+import { app, socketServer } from '@/sockets'
 
 const port = env.PORT
 app.use(
@@ -28,12 +24,6 @@ app.use(cookieParser())
 connectMySQL()
 connectMongoDB()
 
-// Make io available in routes
-// app.use((req, res, next) => {
-//   req.io = io
-//   next()
-// })
-
 app.use('/api-v1', router)
 
 // Convert error to ApiError, if needed
@@ -48,9 +38,8 @@ socketServer.listen(port, async () => {
   // Khởi động RabbitMQ
   await connectRabbitMQ()
 
-  // Khởi động consumers
-  // await startHealthConsumer()
-  // await startAlertConsumer()
+  // Khởi động Mailer
+  connectMailer()
 
   // Khởi động MQTT client
   connectMQTT()

@@ -1,3 +1,4 @@
+import type { Alert } from '@/features/alerts/types'
 import type { Appointment } from '@/features/appointments/types'
 import type { Doctor } from '@/features/doctors/types'
 import type { Patient } from '@/features/patients/types'
@@ -6,7 +7,8 @@ export interface MedicalRecord {
   id: number
   patientId: number
   doctorId: number
-  appointmentId: number
+  appointmentId?: number
+  alertId?: number
   symptoms: string
   diagnosis: string
   treatmentPlan?: string
@@ -18,6 +20,7 @@ export interface MedicalRecord {
   doctor?: Doctor
   patient?: Patient
   appointment?: Appointment
+  alert?: Alert
   medicalAttachments?: Array<MedicalAttachment>
 }
 

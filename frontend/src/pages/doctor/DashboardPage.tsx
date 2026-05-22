@@ -10,7 +10,6 @@ import {
 } from '@/features/appointments/hooks/useAppointmentQueries'
 import {
   AlertsCard,
-  // PatientsTable,
   StatCards,
   UpcomingAppointments,
 } from '@/features/dashboard/components/doctor'
@@ -18,6 +17,7 @@ import { useGetDashboardStats } from '@/features/dashboard/hooks/useGetStats'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
 import LoaderScreen from '@/components/common/Loader'
 import { Button } from '@/components/ui/button'
+import { getVietnamTodayUtcRange } from '@/lib/format-date'
 
 export const DashboardPage = () => {
   const { data: doctorProfile } = useGetProfile<Doctor>()
@@ -25,6 +25,8 @@ export const DashboardPage = () => {
     page: 1,
     limit: 5,
     status: ['confirmed'],
+    scheduledFrom: getVietnamTodayUtcRange().scheduledFrom,
+    scheduledTo: getVietnamTodayUtcRange().scheduledTo,
   })
   useRealtimeAppointments()
   const { data: statsData, isLoading: isStatsLoading } =

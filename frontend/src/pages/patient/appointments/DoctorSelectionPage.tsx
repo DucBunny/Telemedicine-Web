@@ -34,7 +34,7 @@ export const DoctorSelectionPage = () => {
   // Fetch doctors from API
   const { data: doctorsData, isLoading } = useGetDoctors({
     page: 1,
-    limit: 10,
+    limit: 50,
     specialtyId: specialtyId!,
     search: debouncedSearch,
   })

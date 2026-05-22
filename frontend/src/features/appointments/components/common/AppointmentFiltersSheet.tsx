@@ -152,38 +152,43 @@ export const AppointmentFiltersSheet = ({
         </SheetHeader>
 
         <div className="grid flex-1 auto-rows-min gap-3">
-          <div className="grid gap-3">
-            <Label className="text-sm font-medium">Thời gian hẹn</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="w-full justify-start gap-2 font-normal">
-                  <CalendarDays className="size-4 text-gray-500" />
-                  <span className="line-clamp-2 text-sm text-gray-700">
-                    {formatDateRangeLabel(draftDateRange, emptyDateRangeLabel)}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="max-w-sm p-0 sm:max-w-md"
-                align="start">
-                <Calendar
-                  mode="range"
-                  selected={draftDateRange}
-                  onSelect={setDraftDateRange}
-                  captionLayout="dropdown"
-                  locale={vi}
-                  className="w-full"
-                />
-              </PopoverContent>
-            </Popover>
+          <div>
+            <div>
+              <Label className="text-sm! font-medium!">Thời gian hẹn</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full justify-start gap-2 font-normal">
+                    <CalendarDays className="size-4 text-gray-500" />
+                    <span className="line-clamp-2 text-sm text-gray-700">
+                      {formatDateRangeLabel(
+                        draftDateRange,
+                        emptyDateRangeLabel,
+                      )}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="max-w-sm p-0 sm:max-w-md"
+                  align="start">
+                  <Calendar
+                    mode="range"
+                    selected={draftDateRange}
+                    onSelect={setDraftDateRange}
+                    captionLayout="dropdown"
+                    locale={vi}
+                    className="w-full"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label className="text-xs font-medium text-gray-500">Từ</Label>
+              <div>
+                <Label className="font-medium! text-gray-500!">Từ</Label>
                 <Input
                   type="time"
                   value={draftStartTime}
@@ -191,8 +196,8 @@ export const AppointmentFiltersSheet = ({
                   className="shadow-xs"
                 />
               </div>
-              <div className="grid gap-2">
-                <Label className="text-xs font-medium text-gray-500">Đến</Label>
+              <div>
+                <Label className="font-medium! text-gray-500!">Đến</Label>
                 <Input
                   type="time"
                   value={draftEndTime}
@@ -203,8 +208,8 @@ export const AppointmentFiltersSheet = ({
             </div>
           </div>
 
-          <div className="grid gap-3">
-            <Label className="text-sm font-medium">Loại khám</Label>
+          <div>
+            <Label className="text-sm! font-medium!">Loại khám</Label>
             <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
               {APPOINTMENT_FILTER_TYPE_OPTIONS.map((filter) => (
                 <Button
@@ -222,8 +227,8 @@ export const AppointmentFiltersSheet = ({
             </div>
           </div>
 
-          <div className="grid gap-3">
-            <Label className="text-sm font-medium">Trạng thái</Label>
+          <div>
+            <Label className="text-sm! font-medium!">Trạng thái</Label>
             <div className="grid grid-cols-2 gap-2 sm:flex sm:gap-3">
               {APPOINTMENT_FILTER_STATUS_OPTIONS.map((filter) => (
                 <Button
@@ -244,7 +249,7 @@ export const AppointmentFiltersSheet = ({
           <Button
             type="button"
             variant="secondary"
-            className="w-full sm:flex-1"
+            className="w-full text-sm sm:flex-1"
             size="lg"
             onClick={handleReset}>
             Đặt lại
@@ -253,7 +258,7 @@ export const AppointmentFiltersSheet = ({
             type="button"
             variant="teal_primary"
             size="lg"
-            className="w-full sm:flex-1"
+            className="w-full text-sm sm:flex-1"
             onClick={handleApply}
             disabled={isApplyDisabled}>
             Áp dụng

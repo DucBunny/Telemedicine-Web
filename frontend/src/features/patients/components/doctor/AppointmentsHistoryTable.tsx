@@ -4,6 +4,7 @@ import {
   CheckCircle,
   Hospital,
   Info,
+  RefreshCw,
   Video,
   X,
 } from 'lucide-react'
@@ -18,9 +19,16 @@ import type { ApiPaginatedResponse } from '@/types/api.type'
 
 import {
   AppointmentDetailDialog,
+  AppointmentStatusCorrectionDialog,
   CancelAppointmentDialog,
 } from '@/features/appointments/components/doctor'
 import { useConfirmAppointment } from '@/features/appointments/hooks/useAppointmentQueries'
+import { useStartVideoCallFromAppointment } from '@/features/appointments/hooks/useStartVideoCallFromAppointment'
+import {
+  canDoctorPatchAppointmentStatus,
+  isAppointmentConfirmLockedByTime,
+} from '@/features/appointments/utils/doctor-appointment-rules'
+import { isAppointmentVideoCallButtonVisible } from '@/features/calls/utils/appointment-video-call-button-visible'
 import { AppointmentsHistoryFilters } from '@/features/patients/components/doctor'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { PaginationControls } from '@/components/common/PaginationControls'
@@ -40,6 +48,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatShortDate, formatTime } from '@/lib/format-date'
+import { cn } from '@/lib/utils'
 import { APPOINTMENT_STATUS_FILTERS } from '@/types/constants'
 
 interface AppointmentsHistoryTableProps {
@@ -70,6 +79,9 @@ export const AppointmentsHistoryTable = ({
   onApplyFilters,
   pagination,
 }: AppointmentsHistoryTableProps) => {
+  const { startVideoCallFromAppointment } =
+    useStartVideoCallFromAppointment('doctor')
+
   const appointments = data?.data ?? []
 
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
@@ -77,7 +89,13 @@ export const AppointmentsHistoryTable = ({
     useState<Appointment | null>(null)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false)
+  const [statusCorrectionOpen, setStatusCorrectionOpen] = useState(false)
+
   const { mutateAsync: confirmAppointment } = useConfirmAppointment()
+
+  const confirmTimeLocked = selectedAppointment
+    ? isAppointmentConfirmLockedByTime(selectedAppointment.scheduledAt)
+    : false
 
   return (
     <>
@@ -158,6 +176,18 @@ export const AppointmentsHistoryTable = ({
                 const statusOption =
                   APPOINTMENT_STATUS_FILTERS[appointment.status]
                 const isCancelled = appointment.status === 'cancelled'
+                const confirmLocked =
+                  appointment.status === 'pending' &&
+                  isAppointmentConfirmLockedByTime(appointment.scheduledAt)
+                const canStatusPatch =
+                  canDoctorPatchAppointmentStatus(appointment)
+                const isShowAppointmentVideoCall =
+                  appointment.type === 'online' &&
+                  appointment.status === 'confirmed' &&
+                  isAppointmentVideoCallButtonVisible(
+                    appointment.scheduledAt,
+                    appointment.durationMinutes,
+                  )
 
                 return (
                   <TableRow key={appointment.id}>
@@ -202,24 +232,36 @@ export const AppointmentsHistoryTable = ({
                     {/* Cột Hành động */}
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end">
+                        {/* Xác nhận lịch hẹn */}
                         {appointment.status === 'pending' && (
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
-                                className="text-green-600 hover:bg-green-50 hover:text-green-700"
+                                disabled={confirmLocked}
+                                className={cn(
+                                  'text-green-600 hover:bg-green-50 hover:text-green-700',
+                                  confirmLocked &&
+                                    'opacity-40 hover:bg-transparent hover:text-green-600',
+                                )}
                                 onClick={() => {
+                                  if (confirmLocked) return
                                   setSelectedAppointment(appointment)
                                   setIsConfirmDialogOpen(true)
                                 }}>
                                 <CheckCircle className="size-5" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="top">Xác nhận</TooltipContent>
+                            <TooltipContent side="top">
+                              {confirmLocked
+                                ? 'Không thể xác nhận trong vòng 15 phút trước giờ hẹn'
+                                : 'Xác nhận'}
+                            </TooltipContent>
                           </Tooltip>
                         )}
 
+                        {/* Hủy lịch hẹn */}
                         {['pending', 'confirmed'].includes(
                           appointment.status,
                         ) && (
@@ -228,6 +270,7 @@ export const AppointmentsHistoryTable = ({
                               <Button
                                 variant="ghost"
                                 size="icon-sm"
+                                hidden={canStatusPatch}
                                 className="text-red-600 hover:bg-red-50 hover:text-red-700"
                                 onClick={() => {
                                   setSelectedAppointment(appointment)
@@ -240,6 +283,51 @@ export const AppointmentsHistoryTable = ({
                           </Tooltip>
                         )}
 
+                        {/* Đổi trạng thái sau ca (Hoàn thành/Hủy) */}
+                        {['confirmed', 'cancelled'].includes(
+                          appointment.status,
+                        ) && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                hidden={!canStatusPatch}
+                                className="text-amber-600 hover:bg-amber-50 hover:text-amber-700"
+                                onClick={() => {
+                                  setSelectedAppointment(appointment)
+                                  setStatusCorrectionOpen(true)
+                                }}>
+                                <RefreshCw className="size-5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-34">
+                              Đổi trạng thái sau ca (Hoàn thành/Hủy) trong vòng
+                              48 giờ sau khi kết thúc ca
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+
+                        {/* Gọi video (khám online) */}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              hidden={!isShowAppointmentVideoCall}
+                              className="text-sky-600 hover:bg-sky-50 hover:text-sky-700"
+                              onClick={() =>
+                                startVideoCallFromAppointment(appointment)
+                              }>
+                              <Video className="size-5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            Gọi video (khám online)
+                          </TooltipContent>
+                        </Tooltip>
+
+                        {/* Xem chi tiết lịch hẹn */}
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
@@ -287,6 +375,12 @@ export const AppointmentsHistoryTable = ({
         appointment={selectedAppointment}
       />
 
+      <AppointmentStatusCorrectionDialog
+        open={statusCorrectionOpen}
+        onOpenChange={() => setStatusCorrectionOpen(false)}
+        appointment={selectedAppointment}
+      />
+
       <CancelAppointmentDialog
         isOpen={isCancelDialogOpen}
         onOpenChange={() => setIsCancelDialogOpen(false)}
@@ -298,7 +392,7 @@ export const AppointmentsHistoryTable = ({
         onOpenChange={setIsConfirmDialogOpen}
         title="Xác nhận lịch hẹn"
         description={
-          <p>
+          <>
             Bạn có chắc chắn muốn xác nhận lịch hẹn với bệnh nhân{' '}
             <span className="text-teal-primary font-semibold">
               {selectedAppointment?.patient?.user.fullName ?? 'Chưa xác định'}
@@ -312,7 +406,13 @@ export const AppointmentsHistoryTable = ({
               {formatShortDate(selectedAppointment?.scheduledAt ?? new Date())}
             </span>{' '}
             không?
-          </p>
+            {confirmTimeLocked && (
+              <span className="mt-2 inline-block text-sm text-amber-700">
+                Không thể xác nhận khi đã quá gần hoặc đã qua giờ hẹn (trước giờ
+                khám dưới 15 phút).
+              </span>
+            )}
+          </>
         }
         cancelButton={
           <Button

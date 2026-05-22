@@ -1,6 +1,11 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useMatches } from '@tanstack/react-router'
 import { useMediaQuery } from 'usehooks-ts'
 
+import type { DoctorStats } from '@/features/dashboard/types'
+
+import { useRealtimeAlerts } from '@/features/alerts/hooks/useAlertQueries'
+import { useGetDashboardStats } from '@/features/dashboard/hooks/useGetStats'
 import {
   useGetUnreadNotificationCount,
   useRealtimeNotifications,
@@ -16,7 +21,57 @@ import { DOCTOR_NAVIGATION_ITEMS } from '@/types/navigation'
 
 import './styles.css'
 
+const FLASH_DURATION_MS = 1200
+const FLASH_COOLDOWN_MS = 3000
+
 export const DoctorLayout = () => {
+  const [alertFlash, setAlertFlash] = useState(false)
+
+  /** Chỉ chặn nháy sau khi handling hoặc resolved — không chặn khi ECG normal */
+  const suppressedAlertIdsRef = useRef(new Set<number>()) // Set chứa các alertId đã bị chặn
+  const flashCooldownRef = useRef(new Map<number, number>()) // Map chứa các alertId và timestamp nháy gần nhất
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null) // Timer để chặn nháy
+
+  /** Dừng nháy hẳn khi alert được claim hoặc resolved */
+  const stopAlertFlash = useCallback((alertId: number) => {
+    suppressedAlertIdsRef.current.add(alertId)
+    flashCooldownRef.current.delete(alertId)
+    if (flashTimerRef.current) {
+      clearTimeout(flashTimerRef.current)
+      flashTimerRef.current = null
+    }
+    setAlertFlash(false)
+  }, [])
+
+  /** Reset cooldown khi alert được claim hoặc resolved */
+  const resetFlashCooldown = useCallback((alertId: number) => {
+    flashCooldownRef.current.delete(alertId)
+  }, [])
+
+  /** Trigger nháy khi alert được tạo */
+  const triggerAlertFlash = useCallback((payload: { alertId: number }) => {
+    const { alertId } = payload
+    if (suppressedAlertIdsRef.current.has(alertId)) return
+
+    const lastAt = flashCooldownRef.current.get(alertId) ?? 0
+    if (Date.now() - lastAt < FLASH_COOLDOWN_MS) return
+    flashCooldownRef.current.set(alertId, Date.now())
+
+    if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+    setAlertFlash(true)
+    flashTimerRef.current = setTimeout(() => {
+      setAlertFlash(false)
+      flashTimerRef.current = null
+    }, FLASH_DURATION_MS)
+  }, [])
+
+  // Clear timer khi component unmount
+  useEffect(() => {
+    return () => {
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current)
+    }
+  }, [])
+
   const { pathname } = useLocation()
   const activeTab = routeToActiveTab(pathname)
 
@@ -44,21 +99,40 @@ export const DoctorLayout = () => {
     DOCTOR_NAVIGATION_ITEMS.find((item) => item.id === activeTab)?.label ||
     ''
 
-  // Listen for realtime notifications (sockets)
   useRealtimeNotifications()
+  useRealtimeAlerts({
+    onAlertFlash: triggerAlertFlash,
+    onAlertCalm: resetFlashCooldown,
+    onStopAlertFlash: stopAlertFlash,
+  })
 
   // Lấy số lượng thông báo chưa đọc từ API
-  const { data: unreadCount = 0 } = useGetUnreadNotificationCount()
+  const { data: unreadNotificationCount = 0 } = useGetUnreadNotificationCount()
+  const { data: statsData = { totalAlertsPending: 0 } } =
+    useGetDashboardStats<DoctorStats>()
 
   return (
     <SidebarProvider className="fixed h-dvh max-h-dvh overflow-hidden font-sans">
-      {/* Sidebar */}
-      <DoctorSidebar activeTab={activeTab} unreadCount={unreadCount} />
+      {alertFlash ? (
+        <div
+          className="pointer-events-none fixed inset-0 z-100 animate-pulse bg-red-500/25"
+          aria-hidden
+        />
+      ) : null}
+      <DoctorSidebar
+        activeTab={activeTab}
+        unreadNotificationCount={unreadNotificationCount}
+        pendingAlertCount={statsData.totalAlertsPending}
+      />
 
       {/* Main Content */}
       <SidebarInset className="min-h-0 overflow-hidden">
         {(isDesktop || !isHiddenHeader) && (
-          <DoctorHeader unreadCount={unreadCount} title={pageTitle} />
+          <DoctorHeader
+            unreadNotificationCount={unreadNotificationCount}
+            pendingAlertCount={statsData.totalAlertsPending}
+            title={pageTitle}
+          />
         )}
 
         <div

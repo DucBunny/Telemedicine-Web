@@ -17,7 +17,7 @@ export const RecordCard = ({ record, onClick }: RecordCardProps) => {
         <h4 className="text-lg font-bold">{record.diagnosis}</h4>
 
         <div className="mt-1 flex items-center gap-1 text-sm">
-          {formatShortDate(record.appointment?.scheduledAt || '')}
+          {formatShortDate(record.createdAt)}
         </div>
       </div>
 

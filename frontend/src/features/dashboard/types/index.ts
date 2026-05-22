@@ -8,8 +8,8 @@ export interface SystemStats {
 }
 
 export interface DoctorStats {
-  totalPatients: number
-  totalAppointments: number
-  totalAlerts: number
+  totalAppointmentsConfirmedToday: number
+  totalAppointmentsPending: number
+  totalAlertsPending: number
   totalUnreadConversations: number
 }

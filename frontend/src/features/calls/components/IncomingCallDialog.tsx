@@ -32,7 +32,7 @@ export const IncomingCallDialog = ({
         showCloseButton={false}
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="z-100 gap-8 rounded-3xl min-[392px]:max-w-90!">
+        className="scrollbar-hide z-100 max-h-[80vh] gap-8 overflow-y-auto rounded-3xl min-[392px]:max-w-90! lg:max-h-[90vh]">
         <DialogHeader className="items-center gap-2">
           <DialogTitle>Cuộc gọi video đến</DialogTitle>
           <DialogDescription />

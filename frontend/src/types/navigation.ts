@@ -1,7 +1,9 @@
 import {
+  AlertTriangle,
   Bell,
   CalendarDays,
   FileText,
+  HeartPulse,
   Home,
   LayoutDashboard,
   MessageSquare,
@@ -44,17 +46,23 @@ export const PATIENT_NAVIGATION_ITEMS: Array<NavItem> = [
     icon: FileText,
   },
   {
-    id: 'notifications',
-    label: 'Thông báo',
-    href: '/patient/notifications',
-    icon: Bell,
-  },
-  {
     id: 'chat',
     label: 'Chat với bác sĩ',
     mobileLabel: 'Chat',
     href: '/patient/chat',
     icon: MessageSquare,
+  },
+  {
+    id: 'health-history',
+    label: 'Lịch sử sức khỏe',
+    href: '/patient/health-history',
+    icon: HeartPulse,
+  },
+  {
+    id: 'notifications',
+    label: 'Thông báo',
+    href: '/patient/notifications',
+    icon: Bell,
   },
   {
     id: 'profile',
@@ -73,6 +81,13 @@ export const DOCTOR_NAVIGATION_ITEMS: Array<NavItem> = [
     href: '/doctor',
     icon: LayoutDashboard,
     group: 'main',
+  },
+  {
+    id: 'alerts',
+    label: 'Cảnh báo',
+    href: '/doctor/alerts',
+    icon: AlertTriangle,
+    group: 'system',
   },
   {
     id: 'appointments',

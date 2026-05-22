@@ -26,7 +26,7 @@ export function PatientVisitInfoPanel({
   }
 
   return (
-    <div className="space-y-1 bg-white p-4">
+    <div className="space-y-1 bg-white">
       <p className="text-lg font-semibold">Khám trực tuyến</p>
       {doctorName ? (
         <p className="text-base font-medium text-slate-700">

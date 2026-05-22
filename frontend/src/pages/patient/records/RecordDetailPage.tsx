@@ -8,7 +8,7 @@ import {
   RecordDoctorCard,
 } from '@/features/medicalRecords/components/patient'
 import { useGetRecordById } from '@/features/medicalRecords/hooks/useRecordQueries'
-import Loader from '@/components/common/Loader'
+import LoaderScreen from '@/components/common/Loader'
 import { ChildPageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
 
@@ -25,7 +25,7 @@ export const RecordDetailPage = () => {
 
   const attachments = record?.medicalAttachments ?? []
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <LoaderScreen />
 
   if (isError || !record) {
     return (

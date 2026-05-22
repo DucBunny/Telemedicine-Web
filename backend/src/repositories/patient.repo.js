@@ -44,14 +44,6 @@ export const findByDoctorId = async (
   { page = 1, limit = 10, search, bloodType, gender, dobFrom, dobTo },
 ) => {
   const offset = (page - 1) * limit
-  const statusOrder = `
-    CASE
-      WHEN current_health_status = 'critical' THEN 1
-      WHEN current_health_status = 'monitoring' THEN 2
-      WHEN current_health_status = 'stable' THEN 3
-      ELSE 4
-    END
-  `
 
   const whereClause = {}
 
@@ -94,11 +86,7 @@ export const findByDoctorId = async (
     subQuery: false, // To fix incorrect LIMIT with include
     distinct: true, // To get correct count when using include
     col: 'user_id', // To ensure correct counting
-    order: [
-      [Sequelize.literal(statusOrder), 'ASC'],
-      ['last_alert_at', 'DESC'],
-      ['user_id', 'ASC'],
-    ],
+    order: [['user_id', 'ASC']],
   })
 
   return {

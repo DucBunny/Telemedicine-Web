@@ -13,7 +13,6 @@ import {
   ECGChart,
   VitalCardsGrid,
 } from '@/features/dashboard/components/patient'
-import { useHealthData } from '@/features/health/hooks/useHealthData'
 import { useGetRecordsByPatientIdAndCurrentDoctor } from '@/features/medicalRecords/hooks/useRecordQueries'
 import {
   AppointmentsHistoryTable,
@@ -66,8 +65,6 @@ export const PatientDetailPage = () => {
   // Fetch patient detail
   const { data: patient, isLoading: isLoadingPatient } =
     useGetPatientDetail(patientId)
-
-  const { latestData } = useHealthData(patientId)
 
   // Fetch appointments
   const {
@@ -149,9 +146,9 @@ export const PatientDetailPage = () => {
       <PatientInfoCard patient={patient} />
 
       {/* Vital Signs Cards */}
-      <VitalCardsGrid latestData={latestData} />
+      <VitalCardsGrid latestData={null} />
 
-      <ECGChart />
+      <ECGChart patientId={patientId} />
 
       {/* Filter Tabs */}
       <div className="flex gap-2 border-b border-slate-200 pb-4">

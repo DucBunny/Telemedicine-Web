@@ -60,7 +60,16 @@ export const env = {
   // MQTT configuration
   MQTT_BROKER: process.env.MQTT_BROKER || 'mqtt://broker.emqx.io',
   MQTT_PORT: process.env.MQTT_PORT || 1883,
-  MQTT_TOPIC: process.env.MQTT_TOPIC || 'health/+/telemetry',
+  MQTT_TOPIC: process.env.MQTT_TOPIC,
+  ALERT_THROTTLE_TTL_SEC: Number(process.env.ALERT_THROTTLE_TTL_SEC ?? 30 * 60), // 30 minutes
+
+  // SMTP (nodemailer) configuration
+  SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
+  SMTP_PORT: Number(process.env.SMTP_PORT || 587),
+  SMTP_SECURE: process.env.SMTP_SECURE || true,
+  SMTP_USER: process.env.SMTP_USER,
+  SMTP_PASS: process.env.SMTP_PASS,
+  SMTP_FROM: process.env.SMTP_FROM || 'MedCare <noreply@medcare.com>',
 
   // Redis configuration
   REDIS_URL: process.env.REDIS_URL, // Upstash or other managed Redis URL
@@ -70,9 +79,6 @@ export const env = {
   // ZEGOCLOUD configuration
   ZEGO_APP_ID: process.env.ZEGO_APP_ID,
   ZEGO_SERVER_SECRET: process.env.ZEGO_SERVER_SECRET,
-
-  // AI Service configuration
-  AI_SERVICE_URL: process.env.AI_SERVICE_URL || 'http://localhost:5000',
 
   // Frontend URL
   BASE_URL_FRONTEND: process.env.BASE_URL_FRONTEND || 'http://localhost:3000',

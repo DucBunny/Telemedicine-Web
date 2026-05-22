@@ -1,6 +1,8 @@
+import { endOfDay, startOfDay } from 'date-fns'
+import { Op } from 'sequelize'
 import Conversation from '@/models/nosql/conversation'
 import {
-  AlertRecipient,
+  Alert,
   Appointment,
   Device,
   Doctor,
@@ -43,24 +45,46 @@ export const getDoctorStats = async (doctorId) => {
   const totalPatients = await PatientDoctor.count({
     where: { doctorId },
   })
-  const totalAppointments = await Appointment.count({
-    where: { doctorId },
-  })
-  const totalAlerts = await AlertRecipient.count({
+
+  const totalAppointmentsConfirmedToday = await Appointment.count({
     where: {
       doctorId,
-      isAcknowledged: false,
+      status: 'confirmed',
+      scheduledAt: {
+        [Op.between]: [startOfDay(new Date()), endOfDay(new Date())],
+      },
     },
   })
+
+  const totalAppointmentsPending = await Appointment.count({
+    where: {
+      doctorId,
+      status: 'pending',
+    },
+  })
+
+  const totalAlertsPending = await Alert.count({
+    where: { status: 'pending' },
+    include: [
+      {
+        model: Doctor,
+        as: 'alertRecipients',
+        attributes: [],
+        where: { user_id: doctorId },
+        required: true, // Inner join to filter alerts by doctor
+      },
+    ],
+  })
+
   const totalUnreadConversations = await Conversation.countDocuments({
     participants: doctorId,
     [`unread_counts.${doctorId.toString()}`]: { $gt: 0 },
   })
 
   return {
-    totalPatients,
-    totalAppointments,
-    totalAlerts,
+    totalAppointmentsConfirmedToday,
+    totalAppointmentsPending,
+    totalAlertsPending,
     totalUnreadConversations,
   }
 }

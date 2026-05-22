@@ -109,7 +109,7 @@ export const CancelAppointmentDialogBase = ({
     <>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent
-          className="rounded-3xl bg-white p-6"
+          className="scrollbar-hide max-h-[80vh] overflow-y-auto rounded-3xl bg-white p-6 lg:max-h-[90vh]"
           showCloseButton={false}>
           <DialogHeader>
             <DialogTitle className="text-center text-xl font-bold">

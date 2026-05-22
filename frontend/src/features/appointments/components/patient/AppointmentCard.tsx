@@ -66,10 +66,16 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
 
           <div>
             <h3 className="text-base leading-tight font-bold dark:text-white">
-              {appointment.doctor?.degree}. {appointment.doctor?.user.fullName}
+              {appointment.doctor?.user.fullName
+                ? [appointment.doctor.degree, appointment.doctor.user.fullName]
+                    .filter(Boolean)
+                    .join('. ')
+                : 'Bác sĩ'}
             </h3>
             <p className="text-sm text-gray-600">
-              {appointment.doctor?.specialty.name}
+              {appointment.doctor?.specialty
+                ? appointment.doctor.specialty.name
+                : '—'}
             </p>
           </div>
         </div>

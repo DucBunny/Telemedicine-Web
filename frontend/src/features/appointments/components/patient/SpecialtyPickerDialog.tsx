@@ -34,7 +34,9 @@ export const SpecialtyPickerDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="rounded-3xl p-4 md:p-6" showCloseButton={false}>
+      <DialogContent
+        className="scrollbar-hide max-h-[80vh] overflow-y-auto rounded-3xl p-4 md:p-6 lg:max-h-[90vh]"
+        showCloseButton={false}>
         {/* Header */}
         <DialogHeader>
           <DialogTitle className="text-center text-xl font-bold">

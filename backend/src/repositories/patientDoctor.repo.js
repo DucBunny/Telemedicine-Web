@@ -36,3 +36,14 @@ export const getDoctorIdsByPatientId = async (patientId) => {
     attributes: ['doctorId'],
   })
 }
+
+/**
+ * Kiểm tra bác sĩ có quan hệ với bệnh nhân không
+ */
+export const hasRelation = async (patientId, doctorId) => {
+  const row = await PatientDoctor.findOne({
+    where: { patientId, doctorId },
+    attributes: ['patientId'],
+  })
+  return !!row
+}

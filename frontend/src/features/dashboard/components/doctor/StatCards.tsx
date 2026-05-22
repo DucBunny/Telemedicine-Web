@@ -1,10 +1,23 @@
-import { AlertTriangle, CalendarDays, MessageSquare, Users } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
+import {
+  AlertTriangle,
+  CalendarCheck2,
+  CalendarClock,
+  MessageSquare,
+} from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import type { LucideIcon } from 'lucide-react'
 import type { DoctorStats } from '@/features/dashboard/types'
 
+import { getVietnamTodayUtcRange } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
+
+type AppointmentsSearch = {
+  status?: 'confirmed' | 'pending'
+  scheduledFrom?: string
+  scheduledTo?: string
+}
 
 interface StatInfo {
   label: string
@@ -13,6 +26,8 @@ interface StatInfo {
   icon: LucideIcon
   color: string
   bg: string
+  navigateTo: '/doctor/appointments' | '/doctor/alerts' | '/doctor/chat'
+  search?: AppointmentsSearch
 }
 
 interface StatCardsProps {
@@ -25,7 +40,10 @@ const StatCard = ({ stat }: { stat: StatInfo }) => {
   )
 
   return (
-    <div className="flex items-center gap-3.5 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm md:justify-between md:p-4 lg:py-7 xl:p-5">
+    <Link
+      to={stat.navigateTo}
+      search={stat.search}
+      className="flex items-center gap-3.5 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-0.5 md:justify-between md:p-4 lg:py-7 xl:p-5">
       <div className="order-last md:order-first">
         <p className="mb-0.5 text-xs font-medium text-gray-500 md:text-sm">
           {isMobileLabel ? stat.mobileLabel : stat.label}
@@ -45,35 +63,47 @@ const StatCard = ({ stat }: { stat: StatInfo }) => {
           strokeWidth="2.5"
         />
       </div>
-    </div>
+    </Link>
   )
 }
 
 export const StatCards = ({ stats }: StatCardsProps) => {
+  const { scheduledFrom, scheduledTo } = getVietnamTodayUtcRange()
+
   const DOCTOR_DASHBOARD_STATS: Array<StatInfo> = [
     {
-      label: 'Tổng bệnh nhân',
-      mobileLabel: 'Bệnh nhân',
-      value: stats ? stats.totalPatients : 'N/A',
-      icon: Users,
+      label: 'Lịch hẹn hôm nay',
+      mobileLabel: 'Lịch hôm nay',
+      value: stats ? stats.totalAppointmentsConfirmedToday : 'N/A',
+      icon: CalendarCheck2,
       color: 'text-blue-500',
       bg: 'bg-blue-500/10',
+      navigateTo: '/doctor/appointments',
+      search: {
+        status: 'confirmed',
+        scheduledFrom,
+        scheduledTo,
+      },
     },
     {
-      label: 'Tổng lịch hẹn',
-      mobileLabel: 'Lịch hẹn',
-      value: stats ? stats.totalAppointments : 'N/A',
-      icon: CalendarDays,
+      label: 'Lịch hẹn chờ duyệt',
+      mobileLabel: 'Lịch chờ duyệt',
+      value: stats ? stats.totalAppointmentsPending : 'N/A',
+      icon: CalendarClock,
       color: 'text-teal-500',
       bg: 'bg-teal-500/10',
+      navigateTo: '/doctor/appointments',
+      search: { status: 'pending' },
     },
     {
       label: 'Cảnh báo chưa xử lý',
       mobileLabel: 'Cảnh báo',
-      value: stats ? stats.totalAlerts : 'N/A',
+      value: stats ? stats.totalAlertsPending : 'N/A',
       icon: AlertTriangle,
       color: 'text-red-500',
       bg: 'bg-red-500/10',
+      navigateTo: '/doctor/alerts',
+      search: { status: 'pending' },
     },
     {
       label: 'Tin nhắn chưa đọc',
@@ -82,6 +112,7 @@ export const StatCards = ({ stats }: StatCardsProps) => {
       icon: MessageSquare,
       color: 'text-purple-500',
       bg: 'bg-purple-500/10',
+      navigateTo: '/doctor/chat',
     },
   ]
 

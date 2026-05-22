@@ -16,19 +16,30 @@ import {
   useRealtimeAppointments,
 } from '@/features/appointments/hooks/useAppointmentQueries'
 import { usePagination } from '@/hooks/usePagination'
+import { Route } from '@/routes/doctor/appointments'
 
 export const AppointmentsPage = () => {
+  const {
+    status: statusFromSearch,
+    scheduledFrom: scheduledFromFromSearch,
+    scheduledTo: scheduledToFromSearch,
+  } = Route.useSearch()
+
   const [createAppointmentOpen, setCreateAppointmentOpen] = useState(false)
 
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounceValue(search, 500) // 500ms delay before fetching
 
   const [statusFilter, setStatusFilter] = useState<'all' | AppointmentStatus>(
-    'all',
+    () => statusFromSearch ?? 'all',
   )
   const [typeFilter, setTypeFilter] = useState<'all' | AppointmentType>('all')
-  const [scheduledFrom, setScheduledFrom] = useState<string | undefined>()
-  const [scheduledTo, setScheduledTo] = useState<string | undefined>()
+  const [scheduledFrom, setScheduledFrom] = useState<string | undefined>(
+    scheduledFromFromSearch,
+  )
+  const [scheduledTo, setScheduledTo] = useState<string | undefined>(
+    scheduledToFromSearch,
+  )
   const p = usePagination({
     initialPage: 1,
     initialLimit: 5,

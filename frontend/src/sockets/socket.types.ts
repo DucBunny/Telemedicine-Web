@@ -2,12 +2,45 @@ export interface Notification {
   id: number
   type: string
   title: string
-  message: string
+  content: string
+  referenceId: string
+  senderId?: number
+  isRead: boolean
   createdAt: string
 }
 
-// ============== CHAT TYPES ==============
+// ============== CALL TYPES ==============
+export interface CallIncomingPayload {
+  conversationId: string
+  zegoRoomId: string
+  callLogId: number
+  initiatorUserId: number
+  appointmentId?: number
+  fromAlert?: boolean
+}
 
+export interface CallPeerPayload {
+  conversationId: string
+  callLogId: number
+  fromUserId: number
+}
+
+// ============== ALERT TYPES ==============
+export interface AlertFlashPayload {
+  alertId: number
+  patientId: number
+  type: string
+  anomalyCount: number
+  lastDetectedAt: string
+}
+
+export interface AlertCalmPayload {
+  alertId: number
+  patientId: number
+  type: string
+}
+
+// ============== CHAT TYPES ==============
 export interface ChatUser {
   id: number
   fullName: string
@@ -51,17 +84,18 @@ export interface ChatRoomJoinRejectedPayload {
   reason: string
 }
 
-// ============== CALL TYPES ==============
-export interface CallIncomingPayload {
-  conversationId: string
-  zegoRoomId: string
-  callLogId: number
-  initiatorUserId: number
-  appointmentId?: number
+// ============== MONITOR TYPES ==============
+export interface MonitorEcgSyncPayload {
+  patientId: number
+  deviceId: number
+  packetEcg: Array<number>
+  classInference: string
+  timeInference: number | null
+  timestamp: string
 }
 
-export interface CallPeerPayload {
-  conversationId: string
-  callLogId: number
-  fromUserId: number
+export type MonitorJoinRejectedPayload = {
+  roomName?: string
+  patientId?: number
+  reason: 'INVALID_ROOM' | 'FORBIDDEN' | 'SERVER_ERROR'
 }

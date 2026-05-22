@@ -46,6 +46,12 @@ export const Filters = ({
   onApplyFilters,
   onOpenCreateAppointment,
 }: FiltersProps) => {
+  const activeFilterCount = [
+    statusFilter !== 'all',
+    typeFilter !== 'all',
+    Boolean(scheduledFrom || scheduledTo),
+  ].filter(Boolean).length
+
   return (
     <div className="min-w-0 rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
       <div className="relative w-full min-w-0">
@@ -69,8 +75,16 @@ export const Filters = ({
             scheduledFrom={scheduledFrom}
             scheduledTo={scheduledTo}
             onApplyFilters={onApplyFilters}>
-            <Button variant="outline" size="icon-sm" type="button">
+            <Button
+              variant={activeFilterCount > 0 ? 'teal_primary' : 'outline'}
+              size="sm"
+              type="button">
               <Filter className="size-4" />
+              {activeFilterCount > 0 && (
+                <span className="text-teal-primary flex size-4 items-center justify-center rounded-full bg-white text-xs">
+                  {activeFilterCount}
+                </span>
+              )}
             </Button>
           </AppointmentFiltersSheet>
         </div>

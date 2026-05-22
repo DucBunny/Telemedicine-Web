@@ -17,18 +17,25 @@ module.exports = (sequelize, DataTypes) => {
         as: 'device',
       })
 
-      // Cảnh báo có thể liên quan đến 1 dự đoán sức khỏe
-      Alert.belongsTo(models.HealthPrediction, {
-        foreignKey: 'predictionId',
-        as: 'healthPrediction',
-      })
-
       // Cảnh báo có nhiều người nhận (bác sĩ)
       Alert.belongsToMany(models.Doctor, {
         through: models.AlertRecipient,
         foreignKey: 'alertId',
         otherKey: 'doctorId',
         as: 'alertRecipients',
+      })
+
+      // Cảnh báo có thể liên quan đến 1 bác sĩ
+      Alert.belongsTo(models.Doctor, {
+        foreignKey: 'handledBy',
+        targetKey: 'userId',
+        as: 'handledByDoctor',
+      })
+
+      // Cảnh báo có thể liên quan đến 1 hồ sơ bệnh án
+      Alert.hasOne(models.MedicalRecord, {
+        foreignKey: 'alertId',
+        as: 'medicalRecord',
       })
     }
   }
@@ -43,10 +50,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      predictionId: {
-        type: DataTypes.INTEGER,
-        // allowNull: false
-      },
       type: {
         type: DataTypes.STRING,
       }, // VD: "bpm"
@@ -56,22 +59,29 @@ module.exports = (sequelize, DataTypes) => {
       message: {
         type: DataTypes.STRING,
       },
-      severity: {
-        type: DataTypes.ENUM('low', 'medium', 'critical'),
-        defaultValue: 'medium',
+      triggerTimestamp: {
+        type: DataTypes.DATE,
+        allowNull: false,
       },
-      source: {
-        type: DataTypes.STRING,
+      lastDetectedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
-      isResolved: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+      anomalyCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
+      },
+      status: {
+        type: DataTypes.ENUM('pending', 'handling', 'resolved'),
+        defaultValue: 'pending',
+      },
+      handledBy: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       resolvedAt: {
         type: DataTypes.DATE,
-      },
-      resolvedBy: {
-        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

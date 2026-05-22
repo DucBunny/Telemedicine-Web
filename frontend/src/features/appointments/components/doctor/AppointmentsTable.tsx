@@ -344,7 +344,7 @@ export const AppointmentsTable = ({
         onOpenChange={setIsConfirmDialogOpen}
         title="Xác nhận lịch hẹn"
         description={
-          <p>
+          <>
             Bạn có chắc chắn muốn xác nhận lịch hẹn với bệnh nhân{' '}
             <span className="text-teal-primary font-semibold">
               {selectedAppointment?.patient?.user.fullName ?? 'Chưa xác định'}
@@ -359,12 +359,12 @@ export const AppointmentsTable = ({
             </span>{' '}
             không?{' '}
             {confirmTimeLocked && (
-              <span className="text-sm text-amber-700">
+              <span className="mt-2 inline-block text-sm text-amber-700">
                 Không thể xác nhận khi đã quá gần hoặc đã qua giờ hẹn (trước giờ
                 khám dưới 15 phút).
               </span>
             )}
-          </p>
+          </>
         }
         cancelButton={
           <Button

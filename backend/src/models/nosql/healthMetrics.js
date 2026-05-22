@@ -4,19 +4,18 @@ const HealthMetricSchema = new mongoose.Schema(
   {
     timestamp: { type: Date, required: true },
     metadata: {
-      patient_id: Number,
-      device_id: String,
+      patient_id: { type: Number, required: true },
+      device_id: { type: Number, required: true },
     },
     bpm: Number,
     spo2: Number,
-    hrv: Number,
-    status: String, // 'NORMAL', 'DANGER'
+    status: { type: String, enum: ['NORMAL', 'ABNORMAL'], default: 'NORMAL' },
   },
   {
     timeseries: {
       timeField: 'timestamp',
       metaField: 'metadata',
-      granularity: 'seconds',
+      granularity: 'seconds', // Vì thiết bị bắn liên tục theo từng giây
     },
     expireAfterSeconds: 2592000, // Tự động xóa sau 30 ngày (TTL Index)
   },

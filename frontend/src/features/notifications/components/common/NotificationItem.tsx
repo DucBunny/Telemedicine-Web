@@ -122,7 +122,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
         onConfirm={() => deleteNotification(notification.id)}
         title="Xóa thông báo"
         description={
-          <p>
+          <>
             Bạn có chắc chắn muốn xóa thông báo{' '}
             <span className="text-teal-primary font-semibold">
               {notification.title}
@@ -136,7 +136,7 @@ export const NotificationItem = ({ notification }: NotificationItemProps) => {
               {formatShortDate(notification.createdAt)}
             </span>{' '}
             không?
-          </p>
+          </>
         }
         confirmLabel="Xóa"
       />

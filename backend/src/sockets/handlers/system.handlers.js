@@ -1,5 +1,5 @@
 import * as presenceCache from '@/cache/presence.cache'
-import { CallLog } from '@/models/sql/index'
+import { Alert, CallLog } from '@/models/sql/index'
 import * as chatRepo from '@/repositories/chat.repo'
 import * as appointmentService from '@/services/appointment.service'
 import * as callService from '@/services/call.service'
@@ -99,6 +99,19 @@ export const registerSystemHandler = (io) => {
         }
       }
 
+      // Cuộc gọi từ luồng cảnh báo: chỉ gửi cờ cho bệnh nhân (panel text tĩnh)
+      let fromAlert = false
+      if (payload?.fromAlert === true) {
+        // Kiểm tra alertId từ payload, nếu tồn tại thì gửi cờ cho bệnh nhân
+        const parsedAlertId = Number(payload?.alertId)
+        if (Number.isFinite(parsedAlertId) && parsedAlertId > 0) {
+          const alert = await Alert.findByPk(parsedAlertId)
+          if (alert && Number(alert.patientId) === Number(peerUserId)) {
+            fromAlert = true
+          }
+        }
+      }
+
       // Phát event đến phòng cá nhân của đối phương (người nhận cuộc gọi)
       systemNamespace
         .to(SOCKET_ROOMS.SYSTEM.PERSONAL(Number(peerUserId)))
@@ -108,6 +121,7 @@ export const registerSystemHandler = (io) => {
           callLogId: Number(callLogId),
           initiatorUserId: user.id,
           ...(appointmentId != null ? { appointmentId } : {}),
+          ...(fromAlert ? { fromAlert: true } : {}),
         })
     })
 
@@ -187,6 +201,27 @@ export const registerSystemHandler = (io) => {
         )
       } catch {
         return
+      }
+
+      // Kiểm tra xem lịch hẹn đã hoàn thành chưa
+      const rawAppointmentId = payload?.appointmentId
+      if (rawAppointmentId != null) {
+        const parsed = Number(rawAppointmentId)
+        if (Number.isFinite(parsed) && parsed > 0) {
+          const peerUserId =
+            Number(callLog.callerId) === Number(user.id)
+              ? Number(callLog.receiverId)
+              : Number(callLog.callerId)
+          try {
+            await appointmentService.tryCompleteAppointmentAfterTelehealthCall(
+              parsed,
+              user.id,
+              peerUserId,
+            )
+          } catch {
+            // Không chặn kết thúc cuộc gọi nếu hoàn tất lịch thất bại
+          }
+        }
       }
 
       const notifyUserId =

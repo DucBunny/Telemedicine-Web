@@ -1,26 +1,57 @@
 import { useEffect, useRef, useState } from 'react'
 
-import ecgChunks from './ecg_lead_II_187_chunks.json'
+import { useMonitorEcgStream } from '@/features/dashboard/hooks/useMonitorEcgStream'
 
-export const ECGChart = () => {
+interface ECGChartProps {
+  patientId?: number
+}
+
+export const ECGChart = ({ patientId }: ECGChartProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   const dataQueue = useRef<Array<number>>([]) // Hàng đợi chứa mảng các con số
   const isPlaying = useRef<boolean>(false) // Cờ
   const scanX = useRef<number>(0) // Tọa độ X hiện tại của nét vẽ
   const prevY = useRef<number>(0) // Tọa độ Y của điểm dữ liệu trước đó (để vẽ đường liên tục)
+  const bufferEmptyTimeRef = useRef<number>(0) // Thời điểm buffer bắt đầu cạn
 
-  // Biến đếm để tuần tự lấy từng chunk trong file JSON
-  const chunkIndexRef = useRef<number>(0)
+  const [status, setStatus] = useState<string>(
+    patientId ? 'Đang kết nối...' : 'Không có dữ liệu',
+  )
+  const [classInference, setClassInference] = useState<string>('—')
+  const [timeInference, setTimeInference] = useState<number | null>(null)
 
-  const [queueCount, setQueueCount] = useState<number>(0)
-  const [status, setStatus] = useState<string>('Đang chờ Preload...')
-
-  const BUFFER_THRESHOLD = 300
+  const useLiveStream = Boolean(patientId)
+  /** Preload 2 gói MQTT (2 × 187 = 374 điểm) để chống network jitter */
+  const BUFFER_THRESHOLD = 187 * 2
   const POINTS_PER_FRAME = 3
+  const BUFFER_EMPTY_THRESHOLD_MS = 1000 // Đợi 1s trước khi báo "Mạng chậm"
+
+  const { isConnected, joinError } = useMonitorEcgStream({
+    patientId,
+    enabled: useLiveStream,
+    onPacket: ({ packetEcg, classInference: cls, timeInference: infMs }) => {
+      dataQueue.current.push(...packetEcg)
+      setClassInference(cls)
+      setTimeInference(infMs)
+      if (!isPlaying.current && dataQueue.current.length >= BUFFER_THRESHOLD) {
+        setStatus('Đang chạy Real-time')
+      }
+    },
+  })
+
   // Giới hạn giá trị ECG (0-255 cho dữ liệu 8-bit)
   const MIN_ECG = 0
   const MAX_ECG = 255
+
+  useEffect(() => {
+    if (!useLiveStream) return
+    if (isConnected) {
+      setStatus('Đã kết nối — chờ dữ liệu...')
+    } else {
+      setStatus('Đang kết nối...')
+    }
+  }, [useLiveStream, isConnected])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -58,10 +89,19 @@ export const ECGChart = () => {
         prevY.current = getScaledY(dataQueue.current[0])
       }
 
-      // Logic Khựng (Buffer cạn)
+      // Logic Khựng (Buffer cạn) - Debounce để tránh giật
       if (isPlaying.current && dataQueue.current.length === 0) {
-        isPlaying.current = false
-        setStatus('Mạng chậm, đang chờ Preload lại...')
+        if (bufferEmptyTimeRef.current === 0) {
+          bufferEmptyTimeRef.current = Date.now()
+        } else if (
+          Date.now() - bufferEmptyTimeRef.current >
+          BUFFER_EMPTY_THRESHOLD_MS
+        ) {
+          isPlaying.current = false
+          setStatus('Mạng chậm, đang chờ gói ECG tiếp theo...')
+        }
+      } else if (dataQueue.current.length > 0) {
+        bufferEmptyTimeRef.current = 0
       }
 
       // Logic Vẽ (Sweep Trace)
@@ -102,58 +142,15 @@ export const ECGChart = () => {
     return () => cancelAnimationFrame(animationFrameId)
   }, [])
 
-  // Mock dữ liệu ECG từ MQTT (Đọc từ file JSON)
-  useEffect(() => {
-    // Ép kiểu dữ liệu import từ JSON
-    const allChunks: Array<Array<number>> = ecgChunks
-
-    const mqttInterval = window.setInterval(() => {
-      // Lấy chunk hiện tại
-      const currentChunk = allChunks[chunkIndexRef.current]
-
-      // Bỏ qua nếu chunk rỗng hoặc thiếu điểm (ví dụ chunk lẻ ở cuối file)
-      if (currentChunk.length === 187) {
-        dataQueue.current.push(...currentChunk)
-      }
-
-      // Tăng index, nếu chạy hết file JSON thì quay lại từ đầu để lặp vô tận
-      chunkIndexRef.current = (chunkIndexRef.current + 1) % allChunks.length
-    }, 1000)
-
-    const uiInterval = window.setInterval(() => {
-      setQueueCount(dataQueue.current.length)
-    }, 200)
-
-    return () => {
-      window.clearInterval(mqttInterval)
-      window.clearInterval(uiInterval)
-    }
-  }, [])
-
   return (
     <div className="flex grid-cols-11 flex-col gap-3 md:gap-4 xl:grid xl:gap-3">
       {/* Left */}
       <div className="order-last col-span-9 rounded-2xl border border-gray-100 bg-white p-3 text-white shadow-sm xl:order-first">
-        {/* <div className="mb-4 flex gap-6 rounded-md border border-gray-700 bg-gray-800 p-3 text-sm">
-        <p className="flex items-center gap-2">
-          <span className="text-gray-400">Trạng thái kết nối:</span>
-          <span
-            className={`font-semibold ${isPlaying.current ? 'text-green-500' : 'animate-pulse text-orange-400'}`}>
-            {status}
-          </span>
-        </p>
-        <div className="w-px bg-gray-700"></div>
-        <p className="flex items-center gap-2">
-          <span className="text-gray-400">Hàng đợi Queue:</span>
-          <span className="rounded bg-black px-2 py-1 font-mono text-blue-300">
-            {queueCount} pts
-          </span>
-        </p>
-      </div> */}
+        <p className="mb-1 text-xs text-slate-500">{joinError ?? status}</p>
 
         {/* Container của Canvas với lưới y tế (Grid background) bằng Tailwind */}
         <div
-          className="relative h-full overflow-hidden rounded-xl border-2 border-gray-700 bg-black"
+          className="relative h-[calc(100%-20px)] overflow-hidden rounded-xl border-2 border-gray-700 bg-black"
           style={{
             // Tạo hiệu ứng lưới Monitor y tế bằng CSS Gradient
             backgroundImage: `
@@ -181,16 +178,25 @@ export const ECGChart = () => {
           <h3 className="text-sm font-medium text-slate-500 md:text-base">
             Phân loại
           </h3>
-          <p className="text-center text-xl font-bold text-slate-900">N</p>
+          <p className="text-center text-xl font-bold text-slate-900">
+            {classInference}
+          </p>
         </div>
 
         {/* Card 2: Thời gian Inference */}
         <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm">
           <h3 className="text-sm font-medium text-slate-500 md:text-base">
-            Độ chính xác
+            Thời gian AI
           </h3>
           <p className="text-xl font-bold text-slate-900">
-            98.5 <span className="text-sm font-normal text-slate-400">%</span>
+            {timeInference != null ? (
+              <>
+                {timeInference}{' '}
+                <span className="text-sm font-normal text-slate-400">ms</span>
+              </>
+            ) : (
+              '—'
+            )}
           </p>
         </div>
       </div>

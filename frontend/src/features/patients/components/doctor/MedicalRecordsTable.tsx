@@ -118,12 +118,12 @@ export const MedicalRecordsTable = ({
               <TableRow key={record.id}>
                 {/* Cột Ngày tạo */}
                 <TableCell className="font-medium">
-                  {formatShortDate(record.appointment?.scheduledAt || '')}
+                  {formatShortDate(record.createdAt)}
                 </TableCell>
 
                 {/* Cột Thời gian */}
                 <TableCell className="text-center text-slate-600">
-                  {formatTime(record.appointment?.scheduledAt || '')}
+                  {formatTime(record.createdAt)}
                 </TableCell>
 
                 {/* Cột Chẩn đoán */}

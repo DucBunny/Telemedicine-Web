@@ -13,7 +13,7 @@ import {
   useGetMyConversations,
   useRealtimeChatList,
 } from '@/features/chat/hooks/useChatQueries'
-import Loader from '@/components/common/Loader'
+import LoaderScreen from '@/components/common/Loader'
 import { MainPageHeader } from '@/components/common/PageHeader'
 import { SearchBar } from '@/components/common/SearchBar'
 import { Button } from '@/components/ui/button'
@@ -61,7 +61,7 @@ export const ChatList = ({ activeChatId }: ChatListProps = {}) => {
   // Recent doctors from first 10 conversations
   const recentDoctors = conversations.slice(0, 10)
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <LoaderScreen />
 
   if (isError) {
     return (

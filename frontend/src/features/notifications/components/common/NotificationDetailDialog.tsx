@@ -29,7 +29,7 @@ export const NotificationDetailDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="overflow-hidden rounded-4xl bg-white p-0 shadow-2xl md:max-w-lg"
+        className="scrollbar-hide max-h-[80vh] overflow-y-auto rounded-4xl bg-white p-0 shadow-2xl md:max-w-lg lg:max-h-[90vh]"
         showCloseButton={false}>
         <DialogHeader className="border-b border-gray-100 p-3 md:p-5 md:pb-4">
           <DialogTitle className="text-lg font-bold">

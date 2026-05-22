@@ -39,12 +39,12 @@ module.exports = {
     ]
 
     // Seed Doctors
-    const doctorsData = doctors.map((doc, index) => ({
+    const doctorsData = doctors.map((doc) => ({
       user_id: doc.id,
       specialty_id:
-        specialties.length > 0
-          ? specialties[index % specialties.length].id
-          : null,
+        specialties.length > 0 && doc.id !== 2
+          ? faker.number.int({ min: 1, max: 2 })
+          : null, // 1: Tim mạch, 2: Hô hấp, nếu là bot system (id = 2) thì không có specialty
       degree: faker.helpers.arrayElement(degrees),
       experience_years: faker.number.int({ min: 3, max: 20 }),
       bio: `Bác sĩ có nhiều năm kinh nghiệm tại các bệnh viện lớn. Tốt nghiệp loại giỏi tại ${faker.helpers.arrayElement(

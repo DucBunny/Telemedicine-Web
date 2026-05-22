@@ -36,7 +36,7 @@ export const RecordsTable = ({
       <Table className="min-w-0 table-fixed">
         <TableHeader className="bg-teal-50">
           <TableRow className="border-gray-100 hover:bg-teal-50">
-            <TableHead className="w-30">Ngày khám</TableHead>
+            <TableHead className="w-30">Ngày tạo</TableHead>
             <TableHead>Bác sĩ</TableHead>
             <TableHead className="w-30">Chuyên khoa</TableHead>
             <TableHead>Chẩn đoán</TableHead>
@@ -54,10 +54,10 @@ export const RecordsTable = ({
                 {/* Cột Ngày & Giờ */}
                 <TableCell>
                   <div className="text-sm font-medium">
-                    {formatShortDate(record.appointment?.scheduledAt || '')}
+                    {formatShortDate(record.createdAt)}
                   </div>
                   <div className="text-xs text-slate-500">
-                    {formatTime(record.appointment?.scheduledAt || '')}
+                    {formatTime(record.createdAt)}
                   </div>
                 </TableCell>
 

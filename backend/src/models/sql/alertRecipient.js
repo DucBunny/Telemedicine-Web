@@ -20,14 +20,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      isAcknowledged: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-      },
       readAt: {
-        type: DataTypes.DATE,
-      },
-      acknowledgedAt: {
         type: DataTypes.DATE,
       },
     },

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Bell, LogOut } from 'lucide-react'
+import { AlertTriangle, Bell, LogOut } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import type { NavItem } from '@/types/navigation'
@@ -25,10 +25,15 @@ import { DOCTOR_NAVIGATION_ITEMS } from '@/types/navigation'
 
 interface SidebarProps {
   activeTab: string
-  unreadCount: number
+  unreadNotificationCount: number
+  pendingAlertCount: number
 }
 
-export const DoctorSidebar = ({ activeTab, unreadCount }: SidebarProps) => {
+export const DoctorSidebar = ({
+  activeTab,
+  unreadNotificationCount,
+  pendingAlertCount,
+}: SidebarProps) => {
   const { mutate: logout } = useLogoutMutation()
   const { setOpen } = useSidebar()
   const isTablet = useMediaQuery('(768px <= width < 1024px)')
@@ -66,14 +71,26 @@ export const DoctorSidebar = ({ activeTab, unreadCount }: SidebarProps) => {
                 )}>
                 {label}
               </span>
-              {Icon === Bell && unreadCount > 0 && (
+
+              {Icon === Bell && unreadNotificationCount > 0 && (
                 <Badge
                   variant="destructive"
                   className={cn(
                     'rounded-full bg-red-600',
                     'group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:text-[10px]!',
                   )}>
-                  {unreadCount}
+                  {unreadNotificationCount}
+                </Badge>
+              )}
+
+              {Icon === AlertTriangle && pendingAlertCount > 0 && (
+                <Badge
+                  variant="destructive"
+                  className={cn(
+                    'rounded-full bg-red-600',
+                    'group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:text-[10px]!',
+                  )}>
+                  {pendingAlertCount}
                 </Badge>
               )}
             </Link>

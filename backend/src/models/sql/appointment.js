@@ -49,9 +49,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM('online', 'offline'),
         defaultValue: 'online',
       },
-      meetingLink: {
-        type: DataTypes.STRING,
-      },
       reason: {
         type: DataTypes.TEXT,
       },

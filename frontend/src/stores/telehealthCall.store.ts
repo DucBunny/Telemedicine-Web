@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 
+import type { Alert } from '@/features/alerts/types'
 import type { Appointment } from '@/features/appointments/types'
 
 interface TelehealthCallStore {
@@ -9,12 +10,24 @@ interface TelehealthCallStore {
   pendingAppointmentForCall: Appointment | null
 
   /**
-   * Panel visit trên trình duyệt hiện tại (chỉ trình duyệt caller)
+   * Panel visit trên trình duyệt hiện tại (caller và receiver đều có)
    */
   activeVisitAppointment: Appointment | null
 
+  /** Chờ consume khi mở chat từ cảnh báo sức khỏe */
+  pendingAlertForCall: Alert | null
+
+  /** Alert đầy đủ — bác sĩ (panel bệnh án / chốt ca) */
+  activeAlertForVisit: Alert | null
+
+  /** Cờ nhẹ — bệnh nhân (panel text tĩnh, set từ socket fromAlert) */
+  activeVisitFromAlert: boolean
+
   setPendingAppointmentForCall: (appointment: Appointment | null) => void
   setActiveVisitAppointment: (appointment: Appointment | null) => void
+  setPendingAlertForCall: (alert: Alert | null) => void
+  setActiveAlertForVisit: (alert: Alert | null) => void
+  setActiveVisitFromAlert: (fromAlert: boolean) => void
 }
 
 /**
@@ -27,10 +40,19 @@ interface TelehealthCallStore {
 export const useTelehealthCallStore = create<TelehealthCallStore>((set) => ({
   pendingAppointmentForCall: null,
   activeVisitAppointment: null,
+  pendingAlertForCall: null,
+  activeAlertForVisit: null,
+  activeVisitFromAlert: false,
 
   setPendingAppointmentForCall: (appointment) =>
     set({ pendingAppointmentForCall: appointment }),
 
   setActiveVisitAppointment: (appointment) =>
     set({ activeVisitAppointment: appointment }),
+
+  setPendingAlertForCall: (alert) => set({ pendingAlertForCall: alert }),
+
+  setActiveAlertForVisit: (alert) => set({ activeAlertForVisit: alert }),
+
+  setActiveVisitFromAlert: (fromAlert) => set({ activeVisitFromAlert: fromAlert }),
 }))

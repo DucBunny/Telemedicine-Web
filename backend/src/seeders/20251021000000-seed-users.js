@@ -9,7 +9,7 @@ module.exports = {
     const now = new Date()
     const usersData = []
 
-    // 1. Admin
+    // 1. 1 Admin
     usersData.push({
       full_name: 'Quản trị viên',
       email: 'admin@gmail.com',
@@ -21,11 +21,22 @@ module.exports = {
       updated_at: now,
     })
 
-    // 2. Doctors
-    for (let i = 0; i < 50; i++) {
+    // 2. Bot System
+    usersData.push({
+      full_name: 'Hệ thống tự động',
+      email: 'system@gmail.com',
+      password: bcrypt.hashSync(faker.string.uuid(), 10),
+      role: 'doctor',
+      status: 'locked',
+      created_at: now,
+      updated_at: now,
+    })
+
+    // 2. 50 Doctors => email: doctor3@gmail.com - doctor52@gmail.com
+    for (let i = 3; i < 53; i++) {
       usersData.push({
         full_name: generateVNName(),
-        email: `doctor${i + 1}@gmail.com`,
+        email: `doctor${i}@gmail.com`,
         password: passwordHash,
         role: 'doctor',
         avatar: faker.image.avatar(),
@@ -36,11 +47,11 @@ module.exports = {
       })
     }
 
-    // 3. Patients
-    for (let i = 0; i < 50; i++) {
+    // 3. 50 Patients => email: patient53@gmail.com - patient102@gmail.com
+    for (let i = 53; i < 103; i++) {
       usersData.push({
         full_name: generateVNName(),
-        email: `patient${i + 1}@gmail.com`,
+        email: `patient${i}@gmail.com`,
         password: passwordHash,
         role: 'patient',
         avatar: faker.image.avatar(),

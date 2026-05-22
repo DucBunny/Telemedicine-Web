@@ -32,13 +32,6 @@ module.exports = (sequelize, DataTypes) => {
         as: 'alerts',
       })
 
-      // 1-N với HealthPrediction (Dự đoán sức khỏe của bệnh nhân)
-      Patient.hasMany(models.HealthPrediction, {
-        foreignKey: 'patientId',
-        sourceKey: 'userId',
-        as: 'healthPredictions',
-      })
-
       // 1-N với MedicalRecord (Hồ sơ bệnh án của bệnh nhân)
       Patient.hasMany(models.MedicalRecord, {
         foreignKey: 'patientId',
@@ -82,17 +75,6 @@ module.exports = (sequelize, DataTypes) => {
       },
       address: {
         type: DataTypes.STRING,
-      },
-      currentHealthStatus: {
-        type: DataTypes.ENUM('stable', 'monitoring', 'critical'),
-        defaultValue: 'stable',
-      },
-      currentIssue: {
-        type: DataTypes.TEXT,
-      },
-      lastAlertAt: {
-        type: DataTypes.DATE,
-        allowNull: true,
       },
     },
     {

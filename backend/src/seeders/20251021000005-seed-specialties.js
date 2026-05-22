@@ -15,6 +15,15 @@ module.exports = {
         updated_at: now,
       },
       {
+        name: 'Hô hấp',
+        description:
+          'Chuyên điều trị hen suyễn, viêm phổi và các bệnh đường thở.',
+        image_url:
+          'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/hô-hấp.png',
+        created_at: now,
+        updated_at: now,
+      },
+      {
         name: 'Thần kinh',
         description: 'Chuyên khoa về não bộ, tủy sống và hệ thống thần kinh.',
         image_url:
@@ -62,15 +71,6 @@ module.exports = {
           'Khám sức khỏe định kỳ và điều trị các bệnh nội khoa cơ bản.',
         image_url:
           'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/nội-khoa.png',
-        created_at: now,
-        updated_at: now,
-      },
-      {
-        name: 'Hô hấp',
-        description:
-          'Chuyên điều trị hen suyễn, viêm phổi và các bệnh đường thở.',
-        image_url:
-          'https://res.cloudinary.com/de9s3pney/image/upload/telemedicine-hust/system/specialties/hô-hấp.png',
         created_at: now,
         updated_at: now,
       },

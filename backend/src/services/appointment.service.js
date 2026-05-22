@@ -4,8 +4,10 @@ import { StatusCodes } from 'http-status-codes'
 import { env } from '@/config/env'
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
+import { sequelize } from '@/models/sql'
 import * as appointmentRepo from '@/repositories/appointment.repo'
 import * as doctorRepo from '@/repositories/doctor.repo'
+import * as medicalRecordRepo from '@/repositories/medicalRecord.repo'
 import * as patientDoctorRepo from '@/repositories/patientDoctor.repo'
 import * as userRepo from '@/repositories/user.repo'
 import { createAndSendNotification } from '@/services/notification.service'
@@ -73,6 +75,56 @@ export const assertAppointmentLinkedToCall = async (
     )
 
   return appointment
+}
+
+/**
+ * Kết thúc ca khám online sau cuộc gọi — chỉ khi đã có hồ sơ bệnh án lưu cho lịch đó.
+ */
+export const tryCompleteAppointmentAfterTelehealthCall = async (
+  appointmentId,
+  userIdA,
+  userIdB,
+) => {
+  await assertAppointmentLinkedToCall(appointmentId, userIdA, userIdB)
+
+  const completed = await sequelize.transaction(async (t) => {
+    // Tìm lịch hẹn đã được xác nhận và khóa để tránh race condition
+    const locked = await appointmentRepo.findById(appointmentId, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    })
+    if (!locked || locked.status !== 'confirmed') return null
+
+    // Kiểm tra xem hồ sơ bệnh án đã lưu cho lịch hẹn đó chưa
+    const record = await medicalRecordRepo.findByAppointmentId(appointmentId, {
+      transaction: t,
+    })
+    if (!record) return null
+
+    // Cập nhật trạng thái lịch hẹn thành 'completed' và thời gian kết thúc nếu đã có hồ sơ bệnh án lưu cho lịch hẹn
+    return await appointmentRepo.update(
+      appointmentId,
+      {
+        status: 'completed',
+        actualEndedAt: new Date(),
+      },
+      { transaction: t },
+    )
+  })
+
+  if (!completed) return null
+
+  emitAppointmentUpdateToUsers([completed.doctorId, completed.patientId], {
+    id: completed.id,
+    status: completed.status,
+    actualEndedAt: completed.actualEndedAt,
+    scheduledAt: completed.scheduledAt,
+    doctorId: completed.doctorId,
+    patientId: completed.patientId,
+    type: completed.type,
+  })
+
+  return completed
 }
 
 /**

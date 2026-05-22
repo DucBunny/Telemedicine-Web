@@ -1,5 +1,6 @@
 import express from 'express'
 import { authMiddleware } from '@/middlewares/auth.middleware'
+import alertRouter from '@/routes/alert.route'
 import appointmentRouter from '@/routes/appointment.route'
 import authRouter from '@/routes/auth.route'
 import callRouter from '@/routes/call.route'
@@ -32,6 +33,7 @@ router.use(authMiddleware)
 router.use('/me', meRouter)
 
 // Main API routes
+router.use('/alerts', alertRouter)
 router.use('/appointments', appointmentRouter)
 router.use('/calls', callRouter)
 router.use('/chat', chatRouter)

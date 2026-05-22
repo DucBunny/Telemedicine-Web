@@ -28,7 +28,11 @@ export const UpcomingAppointments = ({
           <Clock className="text-teal-primary mr-2 h-4 w-4 md:h-5 md:w-5" />
           Lịch hẹn sắp tới
         </h2>
-        <Link to="/doctor/appointments">
+        <Link
+          to="/doctor/appointments"
+          search={{
+            status: 'confirmed',
+          }}>
           <Button
             variant="link"
             className="text-teal-primary h-auto p-0 text-xs md:text-sm">
@@ -38,7 +42,7 @@ export const UpcomingAppointments = ({
       </div>
 
       <div className="divide-y divide-gray-100">
-        {appointments?.slice(0, 3).map((appt) => {
+        {appointments?.map((appt) => {
           const isOnline = appt.type === 'online'
 
           return (

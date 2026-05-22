@@ -1,13 +1,16 @@
 'use strict'
-const { fakerVI: faker, de } = require('@faker-js/faker')
+const { fakerVI: faker } = require('@faker-js/faker')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Lấy danh sách thiết bị đã được gán cho bệnh nhân
     const devices = await queryInterface.sequelize.query(
       `SELECT id, assigned_to FROM devices WHERE is_assigned = true;`,
       { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
+
+    // Lấy danh sách bệnh án theo bệnh nhân đã được gán thiết bị
     const records = await queryInterface.sequelize.query(
       `
       SELECT mr.patient_id, mr.diagnosis 
@@ -17,13 +20,54 @@ module.exports = {
       `,
       { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
+
+    // Lấy danh sách quan hệ patient-doctor
+    const patientDoctors = await queryInterface.sequelize.query(
+      `SELECT patient_id, doctor_id FROM patient_doctors;`,
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
+    )
+
+    // Tạo Map để dễ tra cứu doctors của mỗi patient
+    const patientDoctorMap = {}
+    patientDoctors.forEach((pd) => {
+      if (!patientDoctorMap[pd.patient_id]) {
+        patientDoctorMap[pd.patient_id] = []
+      }
+      patientDoctorMap[pd.patient_id].push(pd.doctor_id)
+    })
+
     const now = new Date()
     const alerts = []
 
     // Duyệt qua từng hồ sơ bệnh án để xem có cần tạo cảnh báo không
     for (const record of records) {
+      if (!record.diagnosis) continue
+
       const diag = record.diagnosis.toLowerCase()
       let alertData = null
+
+      // Lấy danh sách bác sĩ có quan hệ với bệnh nhân này
+      const assignedDoctors = patientDoctorMap[record.patient_id] || []
+
+      // Nếu không có doctor nào được gán, bỏ qua alert này
+      if (assignedDoctors.length === 0) continue
+
+      const status = faker.helpers.arrayElement([
+        'pending',
+        'handling',
+        'resolved',
+        'resolved',
+        'resolved',
+        'resolved',
+        'resolved',
+      ]) // 70% đã xử lý
+      const createdAt = faker.date.recent({ days: 7 })
+      const resolvedAt = faker.date.between({
+        from: createdAt,
+        to: new Date(
+          Math.min(now.getTime(), createdAt.getTime() + 30 * 60 * 1000),
+        ),
+      }) // Xử lý trong vòng 30 phút sau khi cảnh báo
 
       // Nếu bệnh án là Tim mạch -> Tạo cảnh báo nhịp tim (BPM)
       if (diag.includes('nhịp tim') || diag.includes('huyết áp')) {
@@ -31,13 +75,22 @@ module.exports = {
         if (Math.random() > 0.3) {
           alertData = {
             patient_id: record.patient_id,
-            device_id: devices.find((d) => d.assigned_to === record.patient_id)
+            device_id: devices.find((d) => d.assigned_to == record.patient_id)
               ?.id,
             type: 'bpm',
-            value: faker.number.int({ min: 110, max: 150 }),
-            message: 'Cảnh báo: Nhịp tim vượt ngưỡng an toàn',
-            severity: 'critical',
-            source: 'device',
+            value: faker.number.int({ min: 120, max: 150 }),
+            message: 'Nhịp tim tăng cao vượt ngưỡng an toàn',
+            trigger_timestamp: createdAt,
+            last_detected_at: createdAt,
+            anomaly_count: faker.number.int({ min: 1, max: 10 }),
+            status: status,
+            handled_by:
+              status !== 'pending'
+                ? faker.helpers.arrayElement(assignedDoctors)
+                : null,
+            resolved_at: status === 'resolved' ? resolvedAt : null,
+            created_at: createdAt,
+            updated_at: status === 'resolved' ? resolvedAt : createdAt,
           }
         }
       }
@@ -50,25 +103,30 @@ module.exports = {
         if (Math.random() > 0.3) {
           alertData = {
             patient_id: record.patient_id,
-            device_id: devices.find((d) => d.assigned_to === record.patient_id)
+            device_id: devices.find((d) => d.assigned_to == record.patient_id)
               ?.id,
             type: 'spo2',
             value: faker.number.int({ min: 90, max: 93 }),
-            message: 'Cảnh báo: Nồng độ oxy trong máu thấp',
-            severity: 'critical',
-            source: 'device',
+            message: 'Nồng độ oxy trong máu thấp vượt ngưỡng an toàn',
+            trigger_timestamp: createdAt,
+            last_detected_at: createdAt,
+            anomaly_count: faker.number.int({ min: 1, max: 10 }),
+            status: status,
+            handled_by:
+              status !== 'pending'
+                ? faker.helpers.arrayElement(assignedDoctors)
+                : null,
+            resolved_at: status === 'resolved' ? resolvedAt : null,
+            created_at: createdAt,
+            updated_at: status === 'resolved' ? resolvedAt : createdAt,
           }
         }
       }
 
-      // Nếu khớp kịch bản thì push vào mảng
-      if (alertData) {
+      // Nếu khớp kịch bản thì push vào mảng (bỏ qua nếu không có thiết bị)
+      if (alertData?.device_id) {
         alerts.push({
           ...alertData,
-          prediction_id: null,
-          is_resolved: false,
-          created_at: faker.date.recent({ days: 7 }),
-          updated_at: now,
         })
       }
     }

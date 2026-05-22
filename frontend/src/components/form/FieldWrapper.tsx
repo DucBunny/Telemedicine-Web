@@ -58,7 +58,9 @@ export const FieldWrapper = ({
   return (
     <div className="w-full">
       {label && (
-        <Label className="text-slate-700" htmlFor={fieldName}>
+        <Label
+          className="text-sm! font-medium! text-slate-700!"
+          htmlFor={fieldName}>
           {label}
         </Label>
       )}

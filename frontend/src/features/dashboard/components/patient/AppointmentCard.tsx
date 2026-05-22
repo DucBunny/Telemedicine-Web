@@ -25,7 +25,11 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
         {/* Name & Time */}
         <div className="flex items-center justify-between gap-2">
           <h4 className="font-bold text-gray-900">
-            {appointment.doctor?.degree}. {appointment.doctor?.user.fullName}
+            {appointment.doctor?.user
+              ? [appointment.doctor.degree, appointment.doctor.user.fullName]
+                  .filter(Boolean)
+                  .join('. ')
+              : 'Bác sĩ'}
           </h4>
           <div className="flex items-center gap-1 text-xs text-gray-600">
             <Clock size={16} className="text-teal-primary" />
@@ -35,7 +39,11 @@ export const AppointmentCard = ({ appointment }: AppointmentCardProps) => {
 
         {/* Specialty & Date */}
         <div className="flex items-center justify-between text-gray-600">
-          <p className="text-sm">{appointment.doctor?.specialty.name}</p>
+          <p className="text-sm">
+            {appointment.doctor?.specialty
+              ? appointment.doctor.specialty.name
+              : '—'}
+          </p>
           <div className="flex items-center gap-1 text-xs">
             <CalendarDays size={16} className="text-teal-primary" />
             {formatShortDate(appointment.scheduledAt)}

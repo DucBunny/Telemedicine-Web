@@ -11,9 +11,18 @@ module.exports = {
       },
       appointment_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         references: {
           model: 'appointments',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+        unique: true,
+      },
+      alert_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'alerts',
           key: 'id',
         },
         onUpdate: 'CASCADE',

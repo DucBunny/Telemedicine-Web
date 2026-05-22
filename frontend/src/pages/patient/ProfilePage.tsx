@@ -1,4 +1,4 @@
-import { Loader, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 
 import type { Patient } from '@/features/patients/types'
 
@@ -9,6 +9,7 @@ import {
 } from '@/features/profile/components/common'
 import { ProfileDetailCard } from '@/features/profile/components/patient'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
+import LoaderScreen from '@/components/common/Loader'
 import { MainPageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
 
@@ -16,7 +17,7 @@ export const ProfilePage = () => {
   const { mutate: logout } = useLogoutMutation()
   const { data: patientProfile, isLoading, isError } = useGetProfile<Patient>()
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <LoaderScreen />
 
   if (isError)
     return (
@@ -40,7 +41,7 @@ export const ProfilePage = () => {
 
         <div className="w-full space-y-3 md:space-y-6 lg:mb-0 lg:w-2/3 xl:w-3/4">
           <ProfileDetailCard patient={patientProfile} />
-          <SettingCard routeBase="/patient/profile" />
+          <SettingCard routeBase="/profile" role="patient" />
         </div>
 
         <Button

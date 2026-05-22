@@ -124,9 +124,9 @@ export const MedicalRecordsFiltersSheet = ({
           <SheetDescription />
         </SheetHeader>
 
-        <div className="grid flex-1 auto-rows-min gap-3">
-          <div className="grid gap-3">
-            <Label className="text-sm font-medium">Thời gian tạo</Label>
+        <div className="grid flex-1 auto-rows-min">
+          <div>
+            <Label className="text-sm! font-medium!">Thời gian tạo</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -153,26 +153,26 @@ export const MedicalRecordsFiltersSheet = ({
                 />
               </PopoverContent>
             </Popover>
+          </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label className="text-xs font-medium text-gray-500">Từ</Label>
-                <Input
-                  type="time"
-                  value={draftStartTime}
-                  onChange={(event) => setDraftStartTime(event.target.value)}
-                  className="shadow-xs"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label className="text-xs font-medium text-gray-500">Đến</Label>
-                <Input
-                  type="time"
-                  value={draftEndTime}
-                  onChange={(event) => setDraftEndTime(event.target.value)}
-                  className="shadow-xs"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="font-medium! text-gray-500!">Từ</Label>
+              <Input
+                type="time"
+                value={draftStartTime}
+                onChange={(event) => setDraftStartTime(event.target.value)}
+                className="shadow-xs"
+              />
+            </div>
+            <div>
+              <Label className="font-medium! text-gray-500!">Đến</Label>
+              <Input
+                type="time"
+                value={draftEndTime}
+                onChange={(event) => setDraftEndTime(event.target.value)}
+                className="shadow-xs"
+              />
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@ export const MedicalRecordsFiltersSheet = ({
           <Button
             type="button"
             variant="secondary"
-            className="w-full sm:flex-1"
+            className="w-full text-sm sm:flex-1"
             size="lg"
             onClick={handleReset}>
             Đặt lại
@@ -190,7 +190,7 @@ export const MedicalRecordsFiltersSheet = ({
             type="button"
             variant="teal_primary"
             size="lg"
-            className="w-full sm:flex-1"
+            className="w-full text-sm sm:flex-1"
             onClick={handleApply}
             disabled={isApplyDisabled}>
             Áp dụng

@@ -74,17 +74,6 @@ export const PatientInfoCard = ({ patient }: PatientInfoCardProps) => {
             </span>
           </div>
         </div>
-        <Badge
-          variant={
-            patient.currentHealthStatus === 'good'
-              ? 'green_outline'
-              : 'orange_outline'
-          }
-          className="hidden h-fit lg:block">
-          {patient.currentHealthStatus === 'good'
-            ? 'Khỏe mạnh'
-            : 'Cần theo dõi'}
-        </Badge>
       </div>
 
       {/* Patient Details Grid */}

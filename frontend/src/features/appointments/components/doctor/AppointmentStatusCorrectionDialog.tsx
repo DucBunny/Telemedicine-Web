@@ -76,7 +76,7 @@ export const AppointmentStatusCorrectionDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="rounded-4xl"
+        className="scrollbar-hide max-h-[80vh] overflow-y-auto rounded-4xl lg:max-h-[90vh]"
         showCloseButton={false}
         aria-describedby={undefined}>
         <DialogHeader>
@@ -153,7 +153,7 @@ export const AppointmentStatusCorrectionDialog = ({
                 isPending ||
                 (targetStatus === 'cancelled' && !cancelReason.trim())
               }
-              onClick={() => void handleSubmit()}>
+              onClick={() => handleSubmit()}>
               {isPending ? 'Đang lưu...' : 'Xác nhận'}
             </Button>
           ) : null}

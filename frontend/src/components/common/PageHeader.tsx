@@ -35,7 +35,7 @@ export const ChildPageHeader = ({
         <ArrowLeft className="size-5" />
       </Button>
     ) : (
-      <div className="w-10" />
+      <div className="size-10" />
     )}
 
     <h1 className="flex-1 text-center text-xl font-bold tracking-tight text-slate-900 lg:text-start lg:text-2xl">

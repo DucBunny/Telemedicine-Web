@@ -1,5 +1,5 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Bell, Search } from 'lucide-react'
+import { AlertTriangle, Bell } from 'lucide-react'
 
 import type { Doctor } from '@/features/doctors/types'
 
@@ -7,15 +7,19 @@ import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 
 interface DoctorHeaderProps {
-  unreadCount: number
+  unreadNotificationCount: number
+  pendingAlertCount: number
   title: string
 }
 
-export const DoctorHeader = ({ unreadCount, title }: DoctorHeaderProps) => {
+export const DoctorHeader = ({
+  unreadNotificationCount,
+  pendingAlertCount,
+  title,
+}: DoctorHeaderProps) => {
   const { data: doctorProfile } = useGetProfile<Doctor>()
   const navigate = useNavigate()
 
@@ -33,14 +37,29 @@ export const DoctorHeader = ({ unreadCount, title }: DoctorHeaderProps) => {
         <Button
           variant="ghost"
           size="icon-lg"
-          className="relative me-2 size-12 rounded-lg text-gray-500 hover:bg-gray-100 sm:me-0"
-          onClick={() => navigate({ to: '/doctor/notifications' })}>
-          <Bell className="size-5" />
-          {unreadCount > 0 && (
+          className="relative size-12 rounded-lg text-gray-500 hover:bg-gray-100 sm:me-0"
+          onClick={() => navigate({ to: '/doctor/alerts' })}>
+          <AlertTriangle className="size-5" />
+          {pendingAlertCount > 0 && (
             <Badge
               variant="destructive"
               className="absolute top-0.5 right-0.5 rounded-full bg-red-600 px-1 text-[10px]!">
-              {unreadCount}
+              {pendingAlertCount}
+            </Badge>
+          )}
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          className="relative me-2 size-12 rounded-lg text-gray-500 hover:bg-gray-100 sm:me-0"
+          onClick={() => navigate({ to: '/doctor/notifications' })}>
+          <Bell className="size-5" />
+          {unreadNotificationCount > 0 && (
+            <Badge
+              variant="destructive"
+              className="absolute top-0.5 right-0.5 rounded-full bg-red-600 px-1 text-[10px]!">
+              {unreadNotificationCount}
             </Badge>
           )}
         </Button>
@@ -55,10 +74,11 @@ export const DoctorHeader = ({ unreadCount, title }: DoctorHeaderProps) => {
             </Avatar>
             <div className="ml-2 hidden text-left sm:block">
               <p className="text-sm leading-none font-medium text-gray-900">
-                BS. {doctorProfile?.user.fullName}
+                BS. {doctorProfile?.user ? doctorProfile.user.fullName : '—'}
               </p>
               <p className="text-teal-primary mt-1 text-xs leading-none">
-                Khoa {doctorProfile?.specialty.name}
+                Khoa{' '}
+                {doctorProfile?.specialty ? doctorProfile.specialty.name : '—'}
               </p>
             </div>
           </div>

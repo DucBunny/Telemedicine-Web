@@ -7,6 +7,7 @@ import type { ApiPaginatedResponse } from '@/types/api.type'
 import LoaderScreen from '@/components/common/Loader'
 import { PaginationControls } from '@/components/common/PaginationControls'
 import { SafeImage } from '@/components/common/SafeImage'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Table,
@@ -106,9 +107,7 @@ export const PatientsTable = ({
 
                 {/* Cột nhóm máu */}
                 <TableCell className="text-center">
-                  <span className="inline-block rounded bg-gray-100 px-2 py-1 text-xs font-semibold text-gray-600">
-                    {pat.bloodType}
-                  </span>
+                  <Badge variant="gray_blur">{pat.bloodType}</Badge>
                 </TableCell>
 
                 {/* Cột chiều cao/cân nặng */}

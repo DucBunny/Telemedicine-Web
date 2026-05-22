@@ -1,3 +1,4 @@
+import { Op } from 'sequelize'
 import { StatusCodes } from 'http-status-codes'
 import { env } from '@/config/env'
 import { generateToken04 } from '@/lib/zego/zegoServerAssistant'
@@ -92,10 +93,26 @@ export const assertUserCanUseCallLog = async (
 }
 
 /**
- * Tạo call log mới (đang chờ, status null)
+ * Tìm cuộc gọi chưa kết thúc (status null) giữa hai user
+ */
+const findActiveCallLogBetweenUsers = async (userIdA, userIdB) => {
+  return await CallLog.findOne({
+    where: {
+      status: null,
+      [Op.or]: [
+        { callerId: userIdA, receiverId: userIdB },
+        { callerId: userIdB, receiverId: userIdA },
+      ],
+    },
+    order: [['createdAt', 'DESC']],
+  })
+}
+
+/**
+ * Tạo call log mới (đang chờ, status null), hoặc tái sử dụng cuộc gọi đang active
  * @param {number} callerId
  * @param {string} conversationId
- * @returns {Promise<{ callLogId: number }>} Call log ID
+ * @returns {Promise<{ callLogId: number, reused?: boolean }>}
  */
 export const createOutgoingCallLog = async (callerId, conversationId) => {
   const peerUserId = await chatRepo.getPeerUserIdIfParticipant(
@@ -109,6 +126,11 @@ export const createOutgoingCallLog = async (callerId, conversationId) => {
       'CALL_PEER_NOT_FOUND',
     )
 
+  const existing = await findActiveCallLogBetweenUsers(callerId, peerUserId)
+  if (existing) {
+    return { callLogId: existing.id, reused: true }
+  }
+
   const callLog = await CallLog.create({
     callerId,
     receiverId: peerUserId,
@@ -116,7 +138,7 @@ export const createOutgoingCallLog = async (callerId, conversationId) => {
     durationSeconds: 0,
   })
 
-  return { callLogId: callLog.id }
+  return { callLogId: callLog.id, reused: false }
 }
 
 /**

@@ -1,5 +1,9 @@
 import { redis } from '@/config'
 
+/**
+ * Cache Presence (Online/Offline) lưu trữ trạng thái online/offline của user
+ */
+
 const PREFIX = 'presence:user:'
 
 // TTL key presence; zombie keys sau crash/mất disconnect được Redis xóa sau khoảng này.

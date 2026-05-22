@@ -28,11 +28,6 @@ const MessageSchema = new mongoose.Schema(
       call_id: { type: Number },
       call_status: { type: String, enum: ['missed', 'rejected', 'completed'] },
       call_duration: { type: Number },
-
-      // Dùng cho type 'system_alert' (cảnh báo từ IoT/AI)
-      alert_id: { type: Number },
-      severity: { type: String, enum: ['low', 'medium', 'high', 'critical'] },
-      value: { type: String },
     },
     status: {
       type: String,

@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     // Lấy tất cả lịch hẹn đã hoàn thành (mỗi record gắn với 1 appointment)
     const appointments = await queryInterface.sequelize.query(
-      `SELECT id, patient_id, doctor_id FROM appointments WHERE status = 'completed';`,
+      `SELECT id, patient_id, doctor_id, actual_ended_at, scheduled_at FROM appointments WHERE status = 'completed';`,
       { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
@@ -27,8 +27,14 @@ module.exports = {
           faker.helpers.arrayElement(scenario.prescriptions),
         ),
         notes: scenario.getNotes(),
-        created_at: now,
-        updated_at: now,
+        created_at: faker.date.between({
+          from: appt.scheduled_at,
+          to: appt.actual_ended_at,
+        }),
+        updated_at: faker.date.between({
+          from: appt.scheduled_at,
+          to: appt.actual_ended_at,
+        }),
       })
     })
 

@@ -2,11 +2,14 @@ import { io } from 'socket.io-client'
 import { create } from 'zustand'
 
 import type { Socket } from 'socket.io-client'
+import type { Alert } from '@/features/alerts/types'
 import type { Appointment } from '@/features/appointments/types'
-import type { Notification } from '@/features/notifications/types'
 import type {
+  AlertCalmPayload,
+  AlertFlashPayload,
   CallIncomingPayload,
   CallPeerPayload,
+  Notification,
 } from '@/sockets/socket.types'
 
 import { SYSTEM_EVENTS } from '@/sockets/socket.constants'
@@ -21,6 +24,9 @@ type AppointmentPayload = Pick<
   'id' | 'status' | 'scheduledAt' | 'doctorId' | 'patientId' | 'type'
 >
 type AppointmentCallback = (payload: AppointmentPayload) => void
+type AlertCallback = (payload: Alert) => void
+type AlertFlashCallback = (payload: AlertFlashPayload) => void
+type AlertCalmCallback = (payload: AlertCalmPayload) => void
 type CallIncomingCallback = (payload: CallIncomingPayload) => void
 type CallPeerCallback = (payload: CallPeerPayload) => void
 
@@ -33,6 +39,10 @@ const notificationReadSubscribers = new Set<NotificationReadCallback>()
 const unreadCountSubscribers = new Set<UnreadCountCallback>()
 const appointmentNewSubscribers = new Set<AppointmentCallback>()
 const appointmentUpdateSubscribers = new Set<AppointmentCallback>()
+const alertNewSubscribers = new Set<AlertCallback>()
+const alertUpdateSubscribers = new Set<AlertCallback>()
+const alertFlashSubscribers = new Set<AlertFlashCallback>()
+const alertCalmSubscribers = new Set<AlertCalmCallback>()
 const callIncomingSubscribers = new Set<CallIncomingCallback>()
 const callPeerRejectedSubscribers = new Set<CallPeerCallback>()
 const callPeerEndedSubscribers = new Set<CallPeerCallback>()
@@ -62,6 +72,26 @@ export const addAppointmentUpdateListener = (cb: AppointmentCallback) => {
   return () => appointmentUpdateSubscribers.delete(cb)
 }
 
+export const addAlertNewListener = (cb: AlertCallback) => {
+  alertNewSubscribers.add(cb)
+  return () => alertNewSubscribers.delete(cb)
+}
+
+export const addAlertUpdateListener = (cb: AlertCallback) => {
+  alertUpdateSubscribers.add(cb)
+  return () => alertUpdateSubscribers.delete(cb)
+}
+
+export const addAlertFlashListener = (cb: AlertFlashCallback) => {
+  alertFlashSubscribers.add(cb)
+  return () => alertFlashSubscribers.delete(cb)
+}
+
+export const addAlertCalmListener = (cb: AlertCalmCallback) => {
+  alertCalmSubscribers.add(cb)
+  return () => alertCalmSubscribers.delete(cb)
+}
+
 export const addCallIncomingListener = (cb: CallIncomingCallback) => {
   callIncomingSubscribers.add(cb)
   return () => callIncomingSubscribers.delete(cb)
@@ -86,6 +116,8 @@ interface SystemSocketStore {
     conversationId: string,
     callLogId: number,
     appointmentId?: number,
+    fromAlert?: boolean,
+    alertIdForValidation?: number, // Chỉ dùng khi fromAlert = true, kiểm tra alertId tồn tại
   ) => void
   emitCallAccept: (conversationId: string, callLogId: number) => void
   emitCallReject: (conversationId: string, callLogId: number) => void
@@ -93,6 +125,7 @@ interface SystemSocketStore {
     conversationId: string,
     callLogId: number,
     durationSeconds?: number,
+    appointmentId?: number,
   ) => void
 }
 
@@ -128,7 +161,6 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
     set({ socket, isConnected: false })
 
     socket.on('connect', () => {
-      console.log('[System Socket] Connected')
       set({ isConnected: true })
     })
 
@@ -173,6 +205,26 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
       },
     )
 
+    // Nhận sự kiện cảnh báo mới → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.ALERT_NEW, (payload: Alert) => {
+      alertNewSubscribers.forEach((cb) => cb(payload))
+    })
+
+    // Nhận sự kiện cảnh báo cập nhật → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.ALERT_UPDATE, (payload: Alert) => {
+      alertUpdateSubscribers.forEach((cb) => cb(payload))
+    })
+
+    // Nhận sự kiện cảnh báo chớp đỏ → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.ALERT_FLASH, (payload: AlertFlashPayload) => {
+      alertFlashSubscribers.forEach((cb) => cb(payload))
+    })
+
+    // Nhận sự kiện cảnh báo ECG về normal → broadcast đến tất cả subscribers
+    socket.on(SYSTEM_EVENTS.ALERT_CALM, (payload: AlertCalmPayload) => {
+      alertCalmSubscribers.forEach((cb) => cb(payload))
+    })
+
     // Nhận sự kiện cuộc gọi đến → broadcast đến tất cả subscribers
     socket.on(SYSTEM_EVENTS.CALL_INCOMING, (payload: CallIncomingPayload) => {
       callIncomingSubscribers.forEach((cb) => cb(payload))
@@ -205,16 +257,33 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
   },
 
   // Gửi sự kiện gửi cuộc gọi
-  emitCallInvite: (conversationId, callLogId, appointmentId) => {
+  emitCallInvite: (
+    conversationId,
+    callLogId,
+    appointmentId,
+    fromAlert,
+    alertIdForValidation,
+  ) => {
     const { socket } = get()
     if (!socket) return
     const payload: {
       conversationId: string
       callLogId: number
       appointmentId?: number
+      fromAlert?: boolean
+      alertId?: number
     } = { conversationId, callLogId }
     if (appointmentId != null && Number.isFinite(appointmentId)) {
       payload.appointmentId = appointmentId
+    }
+    if (fromAlert) {
+      payload.fromAlert = true
+      if (
+        alertIdForValidation != null &&
+        Number.isFinite(alertIdForValidation)
+      ) {
+        payload.alertId = alertIdForValidation // Chỉ dùng khi fromAlert = true, kiểm tra alertId tồn tại
+      }
     }
     socket.emit(SYSTEM_EVENTS.CALL_INVITE, payload)
   },
@@ -234,13 +303,23 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
   },
 
   // Gửi sự kiện kết thúc cuộc gọi
-  emitCallEnd: (conversationId, callLogId, durationSeconds = 0) => {
+  emitCallEnd: (
+    conversationId,
+    callLogId,
+    durationSeconds = 0,
+    appointmentId,
+  ) => {
     const { socket } = get()
-    if (socket)
-      socket.emit(SYSTEM_EVENTS.CALL_END, {
-        conversationId,
-        callLogId,
-        durationSeconds,
-      })
+    if (!socket) return
+    const payload: {
+      conversationId: string
+      callLogId: number
+      durationSeconds: number
+      appointmentId?: number
+    } = { conversationId, callLogId, durationSeconds }
+    if (appointmentId != null && Number.isFinite(appointmentId)) {
+      payload.appointmentId = appointmentId
+    }
+    socket.emit(SYSTEM_EVENTS.CALL_END, payload)
   },
 }))

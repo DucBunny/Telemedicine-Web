@@ -9,3 +9,4 @@ export async function loadVisitAppointmentForCall(appointmentId: number) {
   useTelehealthCallStore.getState().setActiveVisitAppointment(appointment)
   return appointment
 }
+

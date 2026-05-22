@@ -32,7 +32,7 @@ import {
 } from '@/components/ui/sheet'
 import {
   formatDateForApi,
-  formatShortDate,
+  formatDateRangeLabel,
   parseDateInput,
 } from '@/lib/format-date'
 import { BLOOD_TYPE_OPTIONS, GENDER_OPTIONS } from '@/types/constants'
@@ -52,12 +52,6 @@ interface FiltersProps {
   }) => void
 }
 
-const formatDateRangeLabel = (range?: DateRange) => {
-  if (!range?.from && !range?.to) return 'Chọn khoảng ngày sinh'
-
-  return `${formatShortDate(range.from || '')} - ${formatShortDate(range.to || '')}`
-}
-
 export const Filters = ({
   search,
   setSearch,
@@ -67,6 +61,12 @@ export const Filters = ({
   dobTo,
   onApplyFilters,
 }: FiltersProps) => {
+  const activeFilterCount = [
+    bloodTypeFilter !== 'all',
+    genderFilter !== 'all',
+    Boolean(dobFrom || dobTo),
+  ].filter(Boolean).length
+
   const [isSheetOpen, setIsSheetOpen] = useState(false)
   const [draftBloodType, setDraftBloodType] = useState<'all' | BloodTypeOption>(
     bloodTypeFilter,
@@ -125,10 +125,15 @@ export const Filters = ({
       <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
         <SheetTrigger asChild>
           <Button
-            variant="outline"
-            className="h-9 border-gray-200 bg-white text-gray-600 shadow-sm hover:bg-gray-50">
+            variant={activeFilterCount > 0 ? 'teal_primary' : 'outline'}
+            type="button">
             <Filter className="size-4" />
             <span className="hidden md:block">Bộ lọc</span>
+            {activeFilterCount > 0 && (
+              <span className="text-teal-primary flex size-4 items-center justify-center rounded-full bg-white text-xs">
+                {activeFilterCount}
+              </span>
+            )}
           </Button>
         </SheetTrigger>
 
@@ -143,8 +148,8 @@ export const Filters = ({
           </SheetHeader>
 
           <div className="grid flex-1 auto-rows-min gap-4">
-            <div className="grid gap-2">
-              <Label className="text-sm font-medium">Ngày sinh</Label>
+            <div>
+              <Label className="text-sm! font-medium!">Ngày sinh</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -154,7 +159,10 @@ export const Filters = ({
                     className="w-full justify-start gap-2 font-normal">
                     <CalendarDays className="size-4 text-gray-500" />
                     <span className="line-clamp-2 text-sm text-gray-700">
-                      {formatDateRangeLabel(draftDobRange)}
+                      {formatDateRangeLabel(
+                        draftDobRange,
+                        'Chọn khoảng ngày sinh',
+                      )}
                     </span>
                   </Button>
                 </PopoverTrigger>
@@ -174,8 +182,8 @@ export const Filters = ({
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="grid gap-2">
-                <Label className="text-sm font-medium">Giới tính</Label>
+              <div>
+                <Label className="text-sm! font-medium!">Giới tính</Label>
                 <Select
                   value={draftGender}
                   onValueChange={(value) =>
@@ -195,8 +203,8 @@ export const Filters = ({
                 </Select>
               </div>
 
-              <div className="grid gap-2">
-                <Label className="text-sm font-medium">Nhóm máu</Label>
+              <div>
+                <Label className="text-sm! font-medium!">Nhóm máu</Label>
                 <Select
                   value={draftBloodType}
                   onValueChange={(value) =>
@@ -222,7 +230,7 @@ export const Filters = ({
             <Button
               type="button"
               variant="secondary"
-              className="w-full sm:flex-1"
+              className="w-full text-sm sm:flex-1"
               size="lg"
               onClick={handleReset}>
               Đặt lại
@@ -231,7 +239,7 @@ export const Filters = ({
               type="button"
               variant="teal_primary"
               size="lg"
-              className="w-full sm:flex-1"
+              className="w-full text-sm sm:flex-1"
               onClick={handleApply}>
               Áp dụng
             </Button>

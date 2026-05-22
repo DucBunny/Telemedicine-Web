@@ -120,7 +120,9 @@ export function DoctorVisitRecordPanel({
             {appointment.durationMinutes} phút
           </p>
           {appointment.reason ? (
-            <p className="text-sm text-slate-700">{appointment.reason}</p>
+            <p className="text-sm text-slate-700">
+              Lý do: {appointment.reason}
+            </p>
           ) : null}
         </div>
 

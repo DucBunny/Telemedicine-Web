@@ -44,7 +44,7 @@ export const registerChatHandler = (io) => {
           parsed.conversationId,
         )
         socket.join(roomName)
-        console.log(`User ${userId} joined chat room: ${roomName}`)
+        console.log(`[Chat] User ${userId} joined chat room: ${roomName}`)
       } catch {
         socket.emit(CHAT_EVENTS.ROOM_JOIN_REJECTED, {
           conversationId: parsed.conversationId,
@@ -56,7 +56,7 @@ export const registerChatHandler = (io) => {
     // Rời khỏi phòng chat
     socket.on(CHAT_EVENTS.ROOM_LEAVE, (roomName) => {
       socket.leave(roomName)
-      console.log(`User ${userId} left chat room: ${roomName}`)
+      console.log(`[Chat] User ${userId} left chat room: ${roomName}`)
     })
 
     // Xử lý gửi tin nhắn
@@ -95,6 +95,7 @@ export const registerChatHandler = (io) => {
         .emit(CHAT_EVENTS.TYPING_STOP, { userId, conversationId })
     })
 
+    // Xử lý Disconnect
     socket.on('disconnect', () => {
       console.log(`[Chat] Socket ${socket.id} disconnected.`)
     })

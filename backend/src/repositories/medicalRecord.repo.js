@@ -1,5 +1,6 @@
 import { Op } from 'sequelize'
 import {
+  Alert,
   Appointment,
   Doctor,
   MedicalAttachment,
@@ -22,14 +23,7 @@ const findByOwner = async ({
 }) => {
   const offset = (page - 1) * limit
 
-  const includeOptions = [
-    ...include,
-    {
-      model: Appointment,
-      as: 'appointment',
-      attributes: ['id', 'scheduledAt'],
-    },
-  ]
+  const includeOptions = [...include]
 
   const { rows, count } = await MedicalRecord.findAndCountAll({
     where,
@@ -37,7 +31,7 @@ const findByOwner = async ({
     attributes,
     limit: parseInt(limit),
     offset: parseInt(offset),
-    order: [['appointment', 'scheduledAt', 'DESC']],
+    order: [['createdAt', 'DESC']],
     subQuery: false,
     distinct: true,
     col: 'id',
@@ -115,7 +109,6 @@ export const findByPatientId = async (
         ],
       },
     ],
-    attributes: ['id', 'diagnosis', 'symptoms'],
     page,
     limit,
   })
@@ -176,6 +169,11 @@ export const findById = async (recordId) => {
         attributes: ['id', 'scheduledAt'],
       },
       {
+        model: Alert,
+        as: 'alert',
+        attributes: ['id', 'resolvedAt'],
+      },
+      {
         model: MedicalAttachment,
         as: 'medicalAttachments',
       },
@@ -195,10 +193,30 @@ export const findById = async (recordId) => {
 }
 
 /**
+ * Find medical record by alert ID
+ */
+export const findByAlertId = async (alertId, options = {}) => {
+  return await MedicalRecord.findOne({
+    where: { alertId },
+    ...options,
+  })
+}
+
+/**
+ * Find medical record by appointment ID
+ */
+export const findByAppointmentId = async (appointmentId, options = {}) => {
+  return await MedicalRecord.findOne({
+    where: { appointmentId },
+    ...options,
+  })
+}
+
+/**
  * Create new medical record
  */
-export const create = async (data) => {
-  return await MedicalRecord.create(data)
+export const create = async (data, options = {}) => {
+  return await MedicalRecord.create(data, options)
 }
 
 /**

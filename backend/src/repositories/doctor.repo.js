@@ -91,3 +91,26 @@ export const update = async (userId, data, options = {}) => {
   })
   return updated > 0 ? await findByUserId(userId, options) : null
 }
+
+/**
+ * Lấy email bác sĩ theo user_id
+ */
+export const findDoctorEmailsByUserIds = async (doctorUserIds) => {
+  if (!doctorUserIds?.length) return []
+  const rows = await Doctor.findAll({
+    where: { userId: { [Op.in]: doctorUserIds } },
+    attributes: ['userId'],
+    include: [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['email', 'fullName'],
+      },
+    ],
+  })
+  return rows.map((d) => ({
+    doctorId: d.userId,
+    email: d.user?.email,
+    fullName: d.user?.fullName,
+  }))
+}

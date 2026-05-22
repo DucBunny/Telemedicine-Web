@@ -1,4 +1,4 @@
-import { Loader, LogOut } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 
 import type { Doctor } from '@/features/doctors/types'
 
@@ -9,13 +9,14 @@ import {
 } from '@/features/profile/components/common'
 import { ProfileDetailCard } from '@/features/profile/components/doctor'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
+import LoaderScreen from '@/components/common/Loader'
 import { Button } from '@/components/ui/button'
 
 export const SettingsPage = () => {
   const { mutate: logout } = useLogoutMutation()
   const { data: doctorProfile, isLoading, isError } = useGetProfile<Doctor>()
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <LoaderScreen />
 
   if (isError)
     return (
@@ -36,7 +37,7 @@ export const SettingsPage = () => {
 
         <div className="w-full space-y-3 md:space-y-6 lg:mb-0 lg:w-2/3 xl:w-3/4">
           <ProfileDetailCard doctor={doctorProfile} />
-          <SettingCard routeBase="/doctor/settings" />
+          <SettingCard routeBase="/settings" role="doctor" />
         </div>
 
         <Button

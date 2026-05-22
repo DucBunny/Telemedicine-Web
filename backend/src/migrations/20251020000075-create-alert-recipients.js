@@ -27,20 +27,13 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      is_acknowledged: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
+      read_at: {
+        type: Sequelize.DATE,
       },
       delivered_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
         allowNull: false,
-      },
-      read_at: {
-        type: Sequelize.DATE,
-      },
-      acknowledged_at: {
-        type: Sequelize.DATE,
       },
     })
   },

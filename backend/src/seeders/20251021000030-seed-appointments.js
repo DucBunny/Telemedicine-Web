@@ -27,13 +27,12 @@ module.exports = {
         // 3 Lịch sử khám (Đã xong)
         appointments.push({
           patient_id: pat.user_id,
-          doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
+          doctor_id: faker.number.int({ min: 3, max: 7 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
           scheduled_at: scheduled_at,
           actual_ended_at: new Date(scheduled_at.getTime() + 30 * 60 * 1000),
           duration_minutes: 30,
           status: 'completed',
           type: faker.helpers.arrayElement(types),
-          meeting_link: null,
           reason: faker.helpers.arrayElement(reasons),
           created_at: now,
           updated_at: now,
@@ -42,13 +41,12 @@ module.exports = {
         // 3 Lịch hẹn sắp tới (Đã xác nhận, Chờ duyệt)
         appointments.push({
           patient_id: pat.user_id,
-          doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
+          doctor_id: faker.number.int({ min: 3, max: 7 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
           scheduled_at: generateTime(faker.date.soon({ days: 7 })),
           actual_ended_at: null,
           duration_minutes: 30,
           status: faker.helpers.arrayElement(['pending', 'confirmed']),
           type: faker.helpers.arrayElement(types),
-          meeting_link: 'https://meet.google.com/xxx-yyyy-zzz',
           reason: faker.helpers.arrayElement(reasons),
           created_at: now,
           updated_at: now,
@@ -57,7 +55,7 @@ module.exports = {
         // 3 Lịch hẹn đã hủy
         appointments.push({
           patient_id: pat.user_id,
-          doctor_id: faker.number.int({ min: 2, max: 6 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
+          doctor_id: faker.number.int({ min: 3, max: 7 }), // Chỉ gán cho 5 bác sĩ đầu tiên để đảm bảo mỗi bác sĩ có nhiều bệnh nhân
           scheduled_at: generateTime(faker.date.recent({ days: 7 })),
           actual_ended_at: null,
           duration_minutes: 30,

@@ -45,9 +45,10 @@ export const SYSTEM_EVENTS = {
   PRESENCE_ONLINE: 'presence:online',
   PRESENCE_OFFLINE: 'presence:offline',
 
-  ALERT_CRITICAL: 'alert:critical',
-  ALERT_WARNING: 'alert:warning',
-  ALERT_ACKNOWLEDGE: 'alert:acknowledge',
+  ALERT_NEW: 'alert:warning',
+  ALERT_UPDATE: 'alert:updated',
+  ALERT_FLASH: 'alert:flash', // Chớp đỏ — gói abnormal lặp lại (alert pending, không tạo bản ghi mới)
+  ALERT_CALM: 'alert:calm', // ECG về normal — reset cool down nháy (alert pending vẫn mở)
 
   APPOINTMENT_NEW: 'appointment:created',
   APPOINTMENT_UPDATE: 'appointment:updated',
@@ -74,4 +75,11 @@ export const CHAT_EVENTS = {
 
   TYPING_START: 'typing:start',
   TYPING_STOP: 'typing:stop',
+} as const
+
+export const MONITOR_EVENTS = {
+  ROOM_JOIN: 'room:join',
+  ROOM_LEAVE: 'room:leave',
+  ROOM_JOIN_REJECTED: 'room:join_rejected',
+  SENSOR_DATA_SYNC: 'sensor:sync',
 } as const

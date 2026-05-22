@@ -29,16 +29,6 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
-      prediction_id: {
-        type: Sequelize.INTEGER,
-        // allowNull: false,
-        references: {
-          model: 'health_predictions',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
       type: {
         type: Sequelize.STRING,
       },
@@ -48,22 +38,23 @@ module.exports = {
       message: {
         type: Sequelize.STRING,
       },
-      severity: {
-        type: Sequelize.ENUM('low', 'medium', 'critical'),
-        defaultValue: 'medium',
+      trigger_timestamp: {
+        type: Sequelize.DATE,
+        allowNull: false,
       },
-      source: {
-        type: Sequelize.STRING,
-      },
-      is_resolved: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
-      resolved_at: {
+      last_detected_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      resolved_by: {
+      anomaly_count: {
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
+      },
+      status: {
+        type: Sequelize.ENUM('pending', 'handling', 'resolved'),
+        defaultValue: 'pending',
+      },
+      handled_by: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
@@ -71,7 +62,11 @@ module.exports = {
           key: 'user_id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
+        onDelete: 'CASCADE',
+      },
+      resolved_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
       created_at: {
         allowNull: false,

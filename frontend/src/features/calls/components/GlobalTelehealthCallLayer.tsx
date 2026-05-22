@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 
 import type { CallIncomingPayload } from '@/sockets/socket.types'
 
+import { finalizeAlertVisitOnCallEnd } from '@/features/alerts/utils/release-alert-on-call-end'
 import { callApi } from '@/features/calls/api/call.api'
 import { IncomingCallDialog } from '@/features/calls/components/IncomingCallDialog'
 import { TelehealthVideoCallDialog } from '@/features/calls/components/TelehealthVideoCallDialog'
@@ -30,6 +31,12 @@ export function GlobalTelehealthCallLayer() {
 
   const activeVisitAppointment = useTelehealthCallStore(
     (s) => s.activeVisitAppointment,
+  )
+  const activeAlertForVisit = useTelehealthCallStore(
+    (s) => s.activeAlertForVisit,
+  )
+  const activeVisitFromAlert = useTelehealthCallStore(
+    (s) => s.activeVisitFromAlert,
   )
 
   const incomingRef = useRef(incoming)
@@ -75,29 +82,22 @@ export function GlobalTelehealthCallLayer() {
     if (id == null) return
 
     callEndSentRef.current = true
-    useSystemSocketStore.getState().emitCallEnd(convId, id, durationSeconds)
+    const visitAppointmentId =
+      useTelehealthCallStore.getState().activeVisitAppointment?.id
+    useSystemSocketStore
+      .getState()
+      .emitCallEnd(convId, id, durationSeconds, visitAppointmentId)
+    finalizeAlertVisitOnCallEnd()
   }
 
   const handleVideoOpenChange = (open: boolean) => {
-    const convId = callConversationIdRef.current
-
     if (!open) {
-      if (
-        convId &&
-        !skipTelehealthEndEmitRef.current &&
-        !callEndSentRef.current
-      ) {
-        const id = activeCallLogIdRef.current
-        if (id != null) {
-          callEndSentRef.current = true
-          useSystemSocketStore.getState().emitCallEnd(convId, id, 0)
-        }
-      }
-
+      finalizeAlertVisitOnCallEnd()
       setVideoOpen(false)
       setCallConversationId(null)
       setActiveCallLogId(null)
       useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+      useTelehealthCallStore.getState().setActiveVisitFromAlert(false)
     } else {
       setVideoOpen(true)
     }
@@ -124,6 +124,8 @@ export function GlobalTelehealthCallLayer() {
         setCallConversationId(null)
         setActiveCallLogId(null)
         useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+        useTelehealthCallStore.getState().setActiveVisitFromAlert(false)
+        finalizeAlertVisitOnCallEnd()
         toast.message('Đối phương đã từ chối cuộc gọi.')
       }
     })
@@ -139,6 +141,8 @@ export function GlobalTelehealthCallLayer() {
         setCallConversationId(null)
         setActiveCallLogId(null)
         useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+        useTelehealthCallStore.getState().setActiveVisitFromAlert(false)
+        finalizeAlertVisitOnCallEnd()
         toast.message('Cuộc gọi đã kết thúc.')
       }
     })
@@ -182,8 +186,12 @@ export function GlobalTelehealthCallLayer() {
               useTelehealthCallStore.getState().setActiveVisitAppointment(null)
               toast.message('Không tải được thông tin lịch khám.')
             }
+          } else if (incoming.fromAlert) {
+            useTelehealthCallStore.getState().setActiveVisitFromAlert(true)
+            useTelehealthCallStore.getState().setActiveVisitAppointment(null)
           } else {
             useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+            useTelehealthCallStore.getState().setActiveVisitFromAlert(false)
           }
 
           setIncoming(null)
@@ -211,6 +219,8 @@ export function GlobalTelehealthCallLayer() {
         zegoMountVersion={zegoMountVersion}
         onCallSessionFinalize={handleCallSessionFinalize}
         visitContextAppointment={activeVisitAppointment}
+        visitContextAlert={activeAlertForVisit}
+        visitFromAlert={activeVisitFromAlert}
       />
     </>
   )

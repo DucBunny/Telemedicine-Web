@@ -8,7 +8,7 @@ import {
   StatCard,
 } from '@/features/medicalRecords/components/patient'
 import { useGetMyRecords } from '@/features/medicalRecords/hooks/useRecordQueries'
-import Loader from '@/components/common/Loader'
+import LoaderScreen from '@/components/common/Loader'
 import { MainPageHeader } from '@/components/common/PageHeader'
 import { SearchBar } from '@/components/common/SearchBar'
 import { usePagination } from '@/hooks/usePagination'
@@ -56,14 +56,14 @@ export const RecordsPage = () => {
       label: 'Lần khám cuối',
       value:
         allRecords.length > 0
-          ? formatShortDate(allRecords[0]?.appointment?.scheduledAt ?? '')
+          ? formatShortDate(allRecords[0]?.createdAt ?? '')
           : '—',
       icon: 'calendar_month',
       iconBgClass: 'bg-teal-primary/15 text-teal-primary',
     },
   ]
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <LoaderScreen />
 
   if (isError) {
     return (

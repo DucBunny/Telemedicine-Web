@@ -4,10 +4,12 @@ import { useQueryClient } from '@tanstack/react-query'
 import { isSameDay } from 'date-fns'
 import { toast } from 'sonner'
 
+import type { Alert } from '@/features/alerts/types'
 import type { Appointment } from '@/features/appointments/types'
 import type { ChatMessage, MessageType } from '@/features/chat/types'
 import type { SocketChatMessage } from '@/sockets/socket.types'
 
+import { finalizeAlertVisitOnCallEnd } from '@/features/alerts/utils/release-alert-on-call-end'
 import { appointmentMatchesChatPeer } from '@/features/appointments/utils/appointment-video-call-peer'
 import { callApi } from '@/features/calls/api/call.api'
 import { TelehealthVideoCallDialog } from '@/features/calls/components/TelehealthVideoCallDialog'
@@ -26,7 +28,7 @@ import {
   useSendMessage,
 } from '@/features/chat/hooks/useChatQueries'
 import { uploadApi } from '@/features/uploads/api/upload.api'
-import Loader, { LoaderItem } from '@/components/common/Loader'
+import LoaderScreen, { LoaderItem } from '@/components/common/Loader'
 import { selectUser, useAuthStore } from '@/stores/auth.store'
 import {
   addChatMessageListener,
@@ -53,6 +55,8 @@ interface ChatRoomBaseProps {
   onBack: () => void
   /** `?startVideo=true` sau khi bấm gọi từ lịch (bác sĩ / bệnh nhân) */
   autoStartVideoFromAppointment?: boolean
+  /** `?startVideo=true&fromAlert=true` sau khi bấm xử lý cảnh báo */
+  autoStartVideoFromAlert?: boolean
   onAutoStartVideoSearchConsumed?: () => void
 }
 
@@ -60,6 +64,7 @@ export const ChatRoomBase = ({
   conversationId,
   onBack,
   autoStartVideoFromAppointment = false,
+  autoStartVideoFromAlert = false,
   onAutoStartVideoSearchConsumed,
 }: ChatRoomBaseProps) => {
   const currentUser = useAuthStore(selectUser)
@@ -79,6 +84,12 @@ export const ChatRoomBase = ({
 
   const activeVisitAppointment = useTelehealthCallStore(
     (s) => s.activeVisitAppointment,
+  )
+  const activeAlertForVisit = useTelehealthCallStore(
+    (s) => s.activeAlertForVisit,
+  )
+  const activeVisitFromAlert = useTelehealthCallStore(
+    (s) => s.activeVisitFromAlert,
   )
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -141,24 +152,22 @@ export const ChatRoomBase = ({
     const id = activeCallLogIdRef.current
     if (id == null) return
     callEndSentRef.current = true
+    const visitAppointmentId =
+      useTelehealthCallStore.getState().activeVisitAppointment?.id
     useSystemSocketStore
       .getState()
-      .emitCallEnd(conversationId, id, durationSeconds)
+      .emitCallEnd(conversationId, id, durationSeconds, visitAppointmentId)
+    finalizeAlertVisitOnCallEnd()
   }
 
   const handleVideoOpenChange = (open: boolean) => {
     if (!open) {
-      if (!skipTelehealthEndEmitRef.current && !callEndSentRef.current) {
-        const id = activeCallLogIdRef.current
-        if (id != null) {
-          callEndSentRef.current = true
-          useSystemSocketStore.getState().emitCallEnd(conversationId, id, 0)
-        }
-      }
+      finalizeAlertVisitOnCallEnd()
       videoCallOpenRef.current = false
       setVideoCallOpen(false)
       setOutgoingCallLogId(null)
       useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+      useTelehealthCallStore.getState().setActiveVisitFromAlert(false)
     } else {
       videoCallOpenRef.current = true
       setVideoCallOpen(true)
@@ -166,11 +175,17 @@ export const ChatRoomBase = ({
   }
 
   const startOutgoingVideoCall = useCallback(
-    async (opts?: { visitAppointment?: Appointment | null }) => {
+    async (opts?: {
+      visitAppointment?: Appointment | null
+      visitAlert?: Alert | null
+    }) => {
       callEndSentRef.current = false
       useTelehealthCallStore
         .getState()
         .setActiveVisitAppointment(opts?.visitAppointment ?? null)
+      useTelehealthCallStore
+        .getState()
+        .setActiveAlertForVisit(opts?.visitAlert ?? null)
       try {
         const { callLogId } = await callApi.startVideoCall(conversationId)
         activeCallLogIdRef.current = callLogId
@@ -183,11 +198,15 @@ export const ChatRoomBase = ({
             conversationId,
             callLogId,
             opts?.visitAppointment?.id,
+            !!opts?.visitAlert,
+            opts?.visitAlert?.id,
           )
         setVideoCallOpen(true)
       } catch (e) {
         console.error('[Chat] startVideoCall', e)
         useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+        useTelehealthCallStore.getState().setActiveAlertForVisit(null)
+        useTelehealthCallStore.getState().setActiveVisitFromAlert(false)
         toast.error('Không thể bắt đầu cuộc gọi. Thử lại sau.')
       }
     },
@@ -196,7 +215,7 @@ export const ChatRoomBase = ({
 
   useEffect(() => {
     autoStartConsumedRef.current = false
-  }, [conversationId, autoStartVideoFromAppointment])
+  }, [conversationId, autoStartVideoFromAppointment, autoStartVideoFromAlert])
 
   useEffect(() => {
     if (!autoStartVideoFromAppointment) return
@@ -231,7 +250,7 @@ export const ChatRoomBase = ({
     autoStartConsumedRef.current = true
     useTelehealthCallStore.getState().setPendingAppointmentForCall(null)
     consumeSearch()
-    void startOutgoingVideoCall({ visitAppointment: appt })
+    startOutgoingVideoCall({ visitAppointment: appt })
   }, [
     autoStartVideoFromAppointment,
     otherParticipant?.id,
@@ -239,6 +258,43 @@ export const ChatRoomBase = ({
     onAutoStartVideoSearchConsumed,
     startOutgoingVideoCall,
     currentUser?.role,
+  ])
+
+  useEffect(() => {
+    if (!autoStartVideoFromAlert) return
+    if (autoStartConsumedRef.current) return
+    if (!otherParticipant?.id) return
+
+    const alertCtx = useTelehealthCallStore.getState().pendingAlertForCall
+
+    const consumeSearch = () => {
+      autoStartConsumedRef.current = true
+      onAutoStartVideoSearchConsumed?.()
+    }
+
+    if (!alertCtx) {
+      consumeSearch()
+      return
+    }
+
+    const patientUserId = alertCtx.patient?.userId ?? alertCtx.patientId
+    if (patientUserId !== otherParticipant.id) {
+      toast.error('Cảnh báo không khớp cuộc trò chuyện này.')
+      useTelehealthCallStore.getState().setPendingAlertForCall(null)
+      consumeSearch()
+      return
+    }
+
+    autoStartConsumedRef.current = true
+    useTelehealthCallStore.getState().setPendingAlertForCall(null)
+    consumeSearch()
+    startOutgoingVideoCall({ visitAlert: alertCtx })
+  }, [
+    autoStartVideoFromAlert,
+    otherParticipant?.id,
+    conversationId,
+    onAutoStartVideoSearchConsumed,
+    startOutgoingVideoCall,
   ])
 
   useEffect(() => {
@@ -256,6 +312,7 @@ export const ChatRoomBase = ({
       setVideoCallOpen(false)
       setOutgoingCallLogId(null)
       useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+      finalizeAlertVisitOnCallEnd()
       toast.message('Đối phương đã từ chối cuộc gọi.')
     })
     const unsubEnded = addCallPeerEndedListener((p) => {
@@ -266,6 +323,7 @@ export const ChatRoomBase = ({
       setVideoCallOpen(false)
       setOutgoingCallLogId(null)
       useTelehealthCallStore.getState().setActiveVisitAppointment(null)
+      finalizeAlertVisitOnCallEnd()
       toast.message('Cuộc gọi đã kết thúc.')
     })
     return () => {
@@ -494,7 +552,7 @@ export const ChatRoomBase = ({
     }
   }, [allMessages.length, isTyping, shouldScrollToBottom])
 
-  if (isLoading) return <Loader />
+  if (isLoading) return <LoaderScreen />
 
   if (isError) {
     return (
@@ -515,6 +573,8 @@ export const ChatRoomBase = ({
         zegoMountVersion={zegoMountVersion}
         onCallSessionFinalize={handleCallSessionFinalize}
         visitContextAppointment={activeVisitAppointment}
+        visitContextAlert={activeAlertForVisit}
+        visitFromAlert={activeVisitFromAlert}
       />
       {/* Header */}
       <div className="z-10 shrink-0 bg-white">

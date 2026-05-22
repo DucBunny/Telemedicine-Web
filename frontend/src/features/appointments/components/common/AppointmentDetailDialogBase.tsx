@@ -65,7 +65,7 @@ export const AppointmentDetailDialogBase = ({
     : appointment.patient?.user.fullName
   const personSubtitle = isPatientView
     ? appointment.doctor?.specialty.name
-    : 'Bệnh nhân'
+    : 'Bệnh nhân #' + appointment.patient?.userId
   const locationText = isOnline
     ? 'Online'
     : appointment.doctor?.address || 'Địa điểm chưa xác định'
@@ -73,7 +73,7 @@ export const AppointmentDetailDialogBase = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="rounded-4xl bg-white p-0"
+        className="scrollbar-hide max-h-[80vh] overflow-y-auto rounded-4xl bg-white p-0 lg:max-h-[90vh]"
         showCloseButton={false}>
         {/* Header */}
         {isCancelled ? (

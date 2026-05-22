@@ -24,6 +24,12 @@ module.exports = (sequelize, DataTypes) => {
         as: 'doctor',
       })
 
+      // Hồ sơ thuộc về 1 alert
+      MedicalRecord.belongsTo(models.Alert, {
+        foreignKey: 'alertId',
+        as: 'alert',
+      })
+
       // Hồ sơ có thể có nhiều tệp đính kèm
       MedicalRecord.hasMany(models.MedicalAttachment, {
         foreignKey: 'medicalRecordId',
@@ -36,7 +42,11 @@ module.exports = (sequelize, DataTypes) => {
     {
       appointmentId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        unique: true,
+      },
+      alertId: {
+        type: DataTypes.INTEGER,
+        unique: true,
       },
       patientId: {
         type: DataTypes.INTEGER,

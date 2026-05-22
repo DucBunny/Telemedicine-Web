@@ -184,7 +184,7 @@ export const CreateAppointmentDialog = ({
         onOpenChange(next)
       }}>
       <DialogContent
-        className="scrollbar-hide max-h-[90vh] overflow-y-auto rounded-4xl bg-white p-0"
+        className="scrollbar-hide max-h-[80vh] overflow-y-auto rounded-4xl bg-white p-0 lg:max-h-[90vh]"
         showCloseButton={false}>
         {/* Header */}
         <DialogHeader className="border-b border-gray-100 p-3 md:p-5 md:pb-4">
@@ -197,7 +197,9 @@ export const CreateAppointmentDialog = ({
         <div className="space-y-3 overflow-y-auto p-5 pt-0">
           {/* Patient */}
           <div>
-            <Label htmlFor="patient-combobox-input" className="text-slate-700">
+            <Label
+              htmlFor="patient-combobox-input"
+              className="text-sm! font-medium! text-slate-700!">
               Bệnh nhân
             </Label>
             <Combobox
@@ -236,7 +238,9 @@ export const CreateAppointmentDialog = ({
 
           {/* Visit Type */}
           <div>
-            <Label htmlFor="visit-type" className="text-slate-700">
+            <Label
+              htmlFor="visit-type"
+              className="text-sm! font-medium! text-slate-700!">
               Loại khám
             </Label>
             <Select
@@ -287,7 +291,9 @@ export const CreateAppointmentDialog = ({
           />
 
           <div>
-            <Label htmlFor="reason" className="text-slate-700">
+            <Label
+              htmlFor="reason"
+              className="text-sm! font-medium! text-slate-700!">
               Lý do
             </Label>
             <Textarea
@@ -307,7 +313,7 @@ export const CreateAppointmentDialog = ({
               variant="teal_primary"
               className="w-full rounded-full text-sm"
               disabled={isPending || !doctorId}
-              onClick={() => void handleSubmit()}>
+              onClick={() => handleSubmit()}>
               {isPending ? 'Đang tạo...' : 'Tạo lịch'}
             </Button>
             <Button

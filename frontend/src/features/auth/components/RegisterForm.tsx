@@ -161,10 +161,10 @@ export const RegisterForm = () => {
           <form.Field
             name="terms"
             children={(field) => (
-              <div className="text-center">
-                <label className="mt-2 flex cursor-pointer items-center justify-center">
+              <div>
+                <label className="flex cursor-pointer items-start justify-center min-[410px]:items-center">
                   <Checkbox
-                    className="data-[state=checked]:border-teal-primary data-[state=checked]:bg-teal-primary border-gray-300"
+                    className="data-[state=checked]:border-teal-primary data-[state=checked]:bg-teal-primary mt-0.5 border-gray-300 min-[410px]:mt-0"
                     checked={field.state.value}
                     onCheckedChange={(checked) => {
                       field.handleChange(checked === true)

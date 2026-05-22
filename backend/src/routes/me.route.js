@@ -1,4 +1,5 @@
 import express from 'express'
+import * as alertController from '@/controllers/alert.controller'
 import * as appointmentController from '@/controllers/appointment.controller'
 import * as medicalRecordController from '@/controllers/medicalRecord.controller'
 import * as notificationController from '@/controllers/notification.controller'
@@ -7,6 +8,7 @@ import * as statsController from '@/controllers/stats.controller'
 import * as userController from '@/controllers/user.controller'
 import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
+import { getAlertsQuerySchema } from '@/validations/alert.validation'
 import {
   getAppointmentByIdParamSchema,
   getAppointmentsQuerySchema,
@@ -141,6 +143,26 @@ router.get(
   '/presence',
   authorizeRoles(['doctor', 'patient']),
   userController.getMyRelatedUsersPresence,
+)
+
+/**
+ * Get alerts for current user
+ */
+router.get(
+  '/alerts',
+  authorizeRoles(['doctor']),
+  validate({ query: getAlertsQuerySchema }),
+  alertController.getMyAlerts,
+)
+
+/**
+ * Get patient's health history
+ */
+router.get(
+  '/health-history',
+  authorizeRoles(['patient']),
+  validate({ query: getAlertsQuerySchema }),
+  alertController.getMyHealthHistory,
 )
 
 export default router
