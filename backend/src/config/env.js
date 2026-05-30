@@ -46,13 +46,9 @@ export const env = {
   MQTT_PORT: process.env.MQTT_PORT || 1883,
   MQTT_TOPIC: process.env.MQTT_TOPIC,
 
-  // SMTP (nodemailer) configuration
-  SMTP_HOST: process.env.SMTP_HOST || 'smtp.gmail.com',
-  SMTP_PORT: Number(process.env.SMTP_PORT || 587),
-  SMTP_SECURE: process.env.SMTP_SECURE === 'true',
-  SMTP_USER: process.env.SMTP_USER,
-  SMTP_PASS: process.env.SMTP_PASS,
-  SMTP_FROM: process.env.SMTP_FROM || 'MedCare <noreply@medcare.com>',
+  // Resend (email) configuration
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_FROM: process.env.RESEND_FROM || 'MedCare <onboarding@resend.dev>',
 
   // Redis configuration
   REDIS_HOST: process.env.REDIS_HOST || 'localhost',

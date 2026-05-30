@@ -66,8 +66,6 @@ export const useMonitorEcgStream = ({
         return
       }
 
-      console.log('payload', payload.packetEcg.length, ecgPacketSize)
-
       onPacketRef.current?.({
         packetEcg: payload.packetEcg,
         classInference: payload.classInference,

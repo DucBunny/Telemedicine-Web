@@ -95,6 +95,21 @@ const flattenStripPackets = (packets) =>
     Array.isArray(packet.ecg_packet) ? packet.ecg_packet : [],
   )
 
+// Loại bỏ packet trùng timestamp (vd. nhiều backend cùng subscribe MQTT)
+const dedupePacketsByTimestamp = (packets) => {
+  const byTimestamp = new Map()
+
+  for (const packet of packets) {
+    const timestampMs = new Date(packet.timestamp).getTime()
+    if (!Number.isFinite(timestampMs)) continue
+    if (!byTimestamp.has(timestampMs)) byTimestamp.set(timestampMs, packet)
+  }
+
+  return [...byTimestamp.values()].sort(
+    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+  )
+}
+
 // Lấy các class bất thường từ packets
 const extractDetectedClasses = (packets, alertType) => {
   const classes = [
@@ -132,12 +147,20 @@ const buildStripDocument = async ({
     windowEnd,
   )
 
-  if (!rawPackets.length)
+  const uniquePackets = dedupePacketsByTimestamp(rawPackets)
+
+  if (rawPackets.length !== uniquePackets.length) {
+    console.warn(
+      `[BullMQ] Deduped ECG packets for alert ${alertId} (${label}): ${rawPackets.length} → ${uniquePackets.length} (check for multiple backend instances on same MQTT)`,
+    )
+  }
+
+  if (!uniquePackets.length)
     throw new Error(
       `No ECG raw packets found for alert ${alertId} around ${label} window`,
     )
 
-  const ecgData = flattenStripPackets(rawPackets)
+  const ecgData = flattenStripPackets(uniquePackets)
   if (!ecgData.length)
     throw new Error(
       `Flattened ECG strip is empty for alert ${alertId} (${label})`,
@@ -152,7 +175,7 @@ const buildStripDocument = async ({
     window_end: windowEnd,
     duration_seconds: ECG_STRIP_DURATION_SEC,
     ecg_data: ecgData,
-    detected_classes: extractDetectedClasses(rawPackets, alertType),
+    detected_classes: extractDetectedClasses(uniquePackets, alertType),
   }
 }
 

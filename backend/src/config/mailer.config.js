@@ -1,38 +1,49 @@
-import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 import { env } from '@/config'
 
-const transporter = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_SECURE, // use STARTTLS (upgrade connection to TLS after connecting)
-  auth: {
-    user: env.SMTP_USER,
-    pass: env.SMTP_PASS,
-  },
-})
+const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null
 
 const connectMailer = async () => {
-  try {
-    await transporter.verify()
-    console.log('[Mailer] Connected successfully.')
-  } catch (error) {
-    console.error('[Mailer] Failed to connect to SMTP server:', error)
+  if (!resend) {
+    console.warn('[Mailer] RESEND_API_KEY is not set — email sending disabled.')
+    return
   }
+  console.log('[Mailer] Resend connected successfully.')
 }
 
 const sendEmail = async (to, subject, text, html) => {
+  if (!resend) {
+    console.error('[Mailer] RESEND_API_KEY is not set — cannot send email.')
+    return false
+  }
+
   try {
-    await transporter.sendMail({
-      from: env.SMTP_FROM || env.SMTP_USER,
+    const { data, error } = await resend.emails.send({
+      from: env.RESEND_FROM,
       to,
       subject,
       text,
       html,
     })
-    console.log('[Mailer] Email sent successfully.')
+
+    if (error) {
+      console.error('[Mailer] Failed to send email:', error)
+      return
+
+      // console.error('[Mailer] Failed to send email:', {
+      //   to,
+      //   statusCode: error.statusCode,
+      //   message: error.message,
+      // })
+      // return false
+    }
+
+    console.log('[Mailer] Email sent successfully.', { to, id: data?.id })
+    return true
   } catch (error) {
-    console.error('[Mailer] Failed to send email:', error)
+    console.error('[Mailer] Failed to send email:', { to, error })
+    return false
   }
 }
 
-export { transporter, connectMailer, sendEmail }
+export { connectMailer, sendEmail }

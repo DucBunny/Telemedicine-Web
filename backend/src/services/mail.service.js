@@ -32,9 +32,14 @@ export const sendAlertEmailToDoctors = async ({
     <p><a href="${env.BASE_URL_FRONTEND}/doctor/alerts">Xem chi tiết</a></p>
   `
 
+  const recipients = doctors.filter((d) => d.email)
+
+  if (recipients.length === 0) {
+    console.warn('[Mail] No doctor emails to send alert notification.')
+    return
+  }
+
   await Promise.all(
-    doctors
-      .filter((d) => d.email)
-      .map((doctor) => sendEmail(doctor.email, subject, text, html)),
+    recipients.map((doctor) => sendEmail(doctor.email, subject, text, html)),
   )
 }
