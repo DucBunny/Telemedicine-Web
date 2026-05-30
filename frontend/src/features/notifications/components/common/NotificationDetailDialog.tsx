@@ -19,12 +19,24 @@ interface NotificationDetailDialogProps {
   notification: Notification | null
 }
 
+const extractFirstUrl = (value: string) => {
+  const match = value.match(/https?:\/\/\S+/)
+  return match?.[0]
+}
+
 export const NotificationDetailDialog = ({
   isOpen,
   onOpenChange,
   notification,
 }: NotificationDetailDialogProps) => {
   if (!notification) return null
+
+  let [content, url, reportUrl] = [notification.content, '', '']
+
+  if (notification.content.includes('Mở tại:')) {
+    ;[content, url] = notification.content.split('Mở tại:') as [string, string]
+    reportUrl = extractFirstUrl(url) ?? ''
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -60,16 +72,36 @@ export const NotificationDetailDialog = ({
           </h3>
 
           <p className="text-sm leading-relaxed text-slate-600">
-            {notification.content}
+            {content}{' '}
+            {url && (
+              <span className="text-teal-primary underline">
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  Mở liên kết tại đây
+                </a>
+              </span>
+            )}
           </p>
 
-          <Button
-            type="button"
-            variant="teal_primary"
-            onClick={() => onOpenChange(false)}
-            className="mt-2 w-full rounded-full text-sm active:scale-[0.98]">
-            Đóng
-          </Button>
+          <div className="flex flex-col gap-2">
+            {reportUrl && (
+              <Button
+                asChild
+                variant="outline"
+                className="w-full rounded-full text-sm">
+                <a href={reportUrl} target="_blank" rel="noopener noreferrer">
+                  Mở liên kết tải xuống
+                </a>
+              </Button>
+            )}
+
+            <Button
+              type="button"
+              variant="teal_primary"
+              onClick={() => onOpenChange(false)}
+              className="w-full rounded-full text-sm active:scale-[0.98]">
+              Đóng
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

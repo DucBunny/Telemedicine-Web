@@ -1,14 +1,22 @@
 import { useNavigate, useParams } from '@tanstack/react-router'
+import { Download, Loader2 } from 'lucide-react'
 
-import { RecordPatientCard } from '@/features/medicalRecords/components/doctor'
 import {
   AttachmentsSection,
   ClinicalInfoSection,
   PrescriptionTableSection,
-} from '@/features/medicalRecords/components/patient'
-import { useGetRecordById } from '@/features/medicalRecords/hooks/useRecordQueries'
+} from '@/features/medicalRecords/components/common'
+import {
+  EcgStripsSection,
+  RecordPatientCard,
+} from '@/features/medicalRecords/components/doctor'
+import {
+  useExportRecordReport,
+  useGetRecordById,
+} from '@/features/medicalRecords/hooks/useRecordQueries'
 import LoaderScreen from '@/components/common/Loader'
 import { ChildPageHeader } from '@/components/common/PageHeader'
+import { Button } from '@/components/ui/button'
 
 export const RecordDetailPage = () => {
   const navigate = useNavigate()
@@ -19,6 +27,8 @@ export const RecordDetailPage = () => {
   const patientId = params.patientId
 
   const { data: record, isLoading, isError } = useGetRecordById(recordId)
+  const { mutate: exportReport, isPending: isExportingReport } =
+    useExportRecordReport()
 
   const handleBack = () => {
     navigate({
@@ -28,6 +38,7 @@ export const RecordDetailPage = () => {
   }
 
   const attachments = record?.medicalAttachments ?? []
+  const ecgAbnormalStrips = record?.ecgAbnormalStrips ?? []
 
   if (isLoading) return <LoaderScreen />
 
@@ -50,11 +61,24 @@ export const RecordDetailPage = () => {
         className="lg:hidden"
       />
 
-      <div className="space-y-3 pb-4 md:space-y-4 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0">
+      <div className="space-y-3 pb-25 md:space-y-4 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0 lg:pb-0">
         <div className="flex items-center justify-between lg:col-span-12">
           <h2 className="text-3xl leading-tight font-bold">
-            {record.diagnosis}
+            {record.diagnosis || 'Chi tiết hồ sơ'}
           </h2>
+
+          <Button
+            variant="teal_primary"
+            disabled={isExportingReport}
+            onClick={() => exportReport({ medicalRecordId: record.id })}
+            className="hidden h-12 rounded-full text-base font-bold active:scale-[0.98] lg:inline-flex">
+            {isExportingReport ? (
+              <Loader2 className="size-5 animate-spin" strokeWidth="2.5" />
+            ) : (
+              <Download className="size-5" strokeWidth="2.5" />
+            )}
+            Tải xuống báo cáo
+          </Button>
         </div>
 
         {/* Mobile: 1st │ Desktop: col 1, row 2 */}
@@ -69,17 +93,37 @@ export const RecordDetailPage = () => {
 
         {/* Mobile: 3rd │ Desktop: col 1, row 3 */}
         {record.prescription && record.prescription.length > 0 && (
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3">
+          <div className="lg:col-span-7 lg:col-start-1">
             <PrescriptionTableSection prescription={record.prescription} />
           </div>
         )}
 
         {/* Mobile: 4th │ Desktop: col 1, row 4 */}
+        {ecgAbnormalStrips.length > 0 && (
+          <div className="hidden md:block lg:col-span-7 lg:col-start-1">
+            <EcgStripsSection
+              strips={ecgAbnormalStrips}
+              hasAlertSource={Boolean(record.alertId)}
+            />
+          </div>
+        )}
+
+        {/* Mobile: 5th │ Desktop: col 1, row 5 */}
         {attachments.length > 0 && (
           <div className="lg:col-span-7 lg:col-start-1 lg:row-start-4">
             <AttachmentsSection attachments={attachments} />
           </div>
         )}
+      </div>
+
+      {/* Floating Bottom Action Bar */}
+      <div className="fixed right-0 bottom-0 left-0 z-60 border-t border-gray-100 bg-white p-4 md:left-20 lg:hidden">
+        <Button
+          variant="teal_primary"
+          className="h-12 w-full rounded-full text-base! font-bold active:scale-[0.98]">
+          <Download className="size-5" strokeWidth="2.5" />
+          <span>Tải xuống báo cáo</span>
+        </Button>
       </div>
     </div>
   )

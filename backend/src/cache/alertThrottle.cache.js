@@ -4,7 +4,7 @@ import { redis } from '@/config'
  * Cache Alert Throttle (Chống tạo alert/email trùng lặp trong TTL) tránh spam alert/email
  */
 
-export const ALERT_THROTTLE_TTL_SEC = 30 * 60 // 30 minutes
+const ALERT_THROTTLE_TTL_SEC = 30 * 60 // 30 minutes
 
 const throttleKey = (patientId, alertType) =>
   `alert:throttle:${patientId}:${alertType}`

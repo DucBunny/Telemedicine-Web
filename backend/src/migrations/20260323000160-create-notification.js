@@ -20,7 +20,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       type: {
-        type: Sequelize.ENUM('alert', 'appointment', 'message'),
+        type: Sequelize.ENUM('alert', 'appointment', 'message', 'system'),
         allowNull: false,
       },
       title: {

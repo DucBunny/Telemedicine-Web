@@ -9,10 +9,7 @@ import type {
 import type { MedicalRecord } from '@/features/medicalRecords/types'
 
 import { useGetAppointmentsByPatientIdAndCurrentDoctor } from '@/features/appointments/hooks/useAppointmentQueries'
-import {
-  ECGChart,
-  VitalCardsGrid,
-} from '@/features/dashboard/components/patient'
+import { VitalCardsGrid } from '@/features/dashboard/components/patient'
 import { useGetRecordsByPatientIdAndCurrentDoctor } from '@/features/medicalRecords/hooks/useRecordQueries'
 import {
   AppointmentsHistoryTable,
@@ -23,6 +20,7 @@ import { useGetPatientDetail } from '@/features/patients/hooks/usePatientQueries
 import LoaderScreen from '@/components/common/Loader'
 import { Button } from '@/components/ui/button'
 import { usePagination } from '@/hooks/usePagination'
+import { selectUser, useAuthStore } from '@/stores/auth.store'
 
 type TabType = 'appointments' | 'medical-records'
 
@@ -31,6 +29,7 @@ export const PatientDetailPage = () => {
   const params = useParams({ from: '/doctor/patients/$patientId/' })
   const patientId = params.patientId ? Number.parseInt(params.patientId, 10) : 0
 
+  const doctor = useAuthStore(selectUser)
   const [activeTab, setActiveTab] = useState<TabType>('appointments')
 
   const appointmentsPagination = usePagination({
@@ -61,6 +60,9 @@ export const PatientDetailPage = () => {
     string | undefined
   >()
   const [recordsCreatedTo, setRecordsCreatedTo] = useState<string | undefined>()
+  const [recordsDoctorFilter, setRecordsDoctorFilter] = useState<
+    boolean | undefined
+  >(undefined)
 
   // Fetch patient detail
   const { data: patient, isLoading: isLoadingPatient } =
@@ -91,6 +93,7 @@ export const PatientDetailPage = () => {
     limit: recordsPagination.limit,
     createdFrom: recordsCreatedFrom,
     createdTo: recordsCreatedTo,
+    doctorId: recordsDoctorFilter ? doctor?.id : undefined,
   })
 
   const handleSelectRecord = (record: MedicalRecord) => {
@@ -119,9 +122,11 @@ export const PatientDetailPage = () => {
   const handleMedicalRecordsFiltersApply = (filters: {
     createdFrom?: string
     createdTo?: string
+    doctorFilter?: boolean
   }) => {
     setRecordsCreatedFrom(filters.createdFrom)
     setRecordsCreatedTo(filters.createdTo)
+    setRecordsDoctorFilter(filters.doctorFilter)
     recordsPagination.reset()
   }
 
@@ -146,9 +151,7 @@ export const PatientDetailPage = () => {
       <PatientInfoCard patient={patient} />
 
       {/* Vital Signs Cards */}
-      <VitalCardsGrid latestData={null} />
-
-      <ECGChart patientId={patientId} />
+      <VitalCardsGrid patientId={patientId} />
 
       {/* Filter Tabs */}
       <div className="flex gap-2 border-b border-slate-200 pb-4">
@@ -191,6 +194,7 @@ export const PatientDetailPage = () => {
           onSelectRecord={handleSelectRecord}
           createdFrom={recordsCreatedFrom}
           createdTo={recordsCreatedTo}
+          doctorFilter={recordsDoctorFilter}
           onApplyFilters={handleMedicalRecordsFiltersApply}
           pagination={recordsPagination}
         />

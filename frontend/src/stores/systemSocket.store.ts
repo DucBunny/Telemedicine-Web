@@ -13,6 +13,7 @@ import type {
 } from '@/sockets/socket.types'
 
 import { SYSTEM_EVENTS } from '@/sockets/socket.constants'
+import { destroySocket } from '@/sockets/socket.utils'
 import { useAuthStore } from '@/stores/auth.store'
 import { usePresenceStore } from '@/stores/presence.store'
 
@@ -148,7 +149,7 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
     const prev = get().socket
     if (prev?.connected) return
     if (prev) {
-      prev.disconnect()
+      destroySocket(prev)
       set({ socket: null, isConnected: false })
     }
 
@@ -252,11 +253,9 @@ export const useSystemSocketStore = create<SystemSocketStore>((set, get) => ({
 
   // Ngắt kết nối socket
   disconnect: () => {
-    const { socket } = get()
-    if (socket) {
-      socket.disconnect()
-      set({ socket: null, isConnected: false })
-    }
+    const socket = get().socket
+    if (socket) destroySocket(socket)
+    set({ socket: null, isConnected: false })
   },
 
   // Gửi sự kiện gửi cuộc gọi

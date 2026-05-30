@@ -1,10 +1,6 @@
-import { Link } from '@tanstack/react-router'
-import { UserRound } from 'lucide-react'
-
 import type { MedicalRecord } from '@/features/medicalRecords/types'
 
 import { StatusAvatar } from '@/components/common/StatusAvatar'
-import { Button } from '@/components/ui/button'
 import { calculateAge, formatShortDate, formatTime } from '@/lib/format-date'
 import { cn } from '@/lib/utils'
 import { usePresenceStore } from '@/stores/presence.store'
@@ -54,17 +50,6 @@ export const RecordPatientCard = ({ record }: RecordPatientCardProps) => {
             {subtitle || patient?.user.email || '—'}
           </p>
         </div>
-
-        <Link
-          to="/doctor/patients/$patientId"
-          params={{ patientId: String(patientId) }}>
-          <Button
-            size="icon-lg"
-            variant="teal_primary"
-            className="flex shrink-0 rounded-full">
-            <UserRound className="size-4" strokeWidth={2.5} />
-          </Button>
-        </Link>
       </div>
 
       <div className="mt-4 flex gap-3 border-t border-gray-100 pt-4">
@@ -80,6 +65,13 @@ export const RecordPatientCard = ({ record }: RecordPatientCardProps) => {
             {formatTime(record.createdAt)}
           </p>
         </div>
+      </div>
+
+      <div className="mt-2">
+        <p className="text-xs md:text-sm">Bác sĩ thực hiện</p>
+        <p className="text-sm font-semibold md:text-base">
+          {record.doctor?.degree}. {record.doctor?.user.fullName}
+        </p>
       </div>
     </div>
   )

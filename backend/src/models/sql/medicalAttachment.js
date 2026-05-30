@@ -9,6 +9,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'medicalRecordId',
         as: 'medicalRecord',
       })
+
+      // Tệp đính kèm thuộc về 1 Cảnh báo
+      MedicalAttachment.belongsTo(models.Alert, {
+        foreignKey: 'alertId',
+        as: 'alert',
+      })
     }
   }
 
@@ -16,7 +22,12 @@ module.exports = (sequelize, DataTypes) => {
     {
       medicalRecordId: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
+        unique: true,
+      },
+      alertId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
         unique: true,
       },
       fileName: {
@@ -28,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
       },
       fileType: {
         type: DataTypes.STRING,
+      },
+      category: {
+        type: DataTypes.ENUM('auto_ecg_report', 'other'), // Hiện tại chỉ có 2 loại: auto_ecg_report và other để phân biệt tệp đính kèm là từ báo cáo AutoECG hay từ người dùng upload, có thể phát triển trong tương lai
+        defaultValue: 'other',
       },
     },
     {

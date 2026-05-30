@@ -4,6 +4,7 @@ import { authorizeRoles } from '@/middlewares/role.middleware'
 import { validate } from '@/middlewares/validation.middleware'
 import {
   createMedicalRecordSchema,
+  exportMedicalReportSchema,
   getMedicalRecordByIdParamSchema,
   updateMedicalRecordSchema,
 } from '@/validations/medicalRecord.validation'
@@ -16,6 +17,14 @@ router.post(
   authorizeRoles(['doctor']),
   validate({ body: createMedicalRecordSchema }),
   medicalRecordController.createMedicalRecord,
+)
+
+// Export dynamic/cached ECG report
+router.post(
+  '/reports/export',
+  authorizeRoles(['doctor']),
+  validate({ body: exportMedicalReportSchema }),
+  medicalRecordController.exportMedicalReport,
 )
 
 // Get record by ID

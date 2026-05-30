@@ -56,6 +56,7 @@ Enum noti_type {
   alert
   appointment
   message
+  system
 }
 
 // ======================
@@ -280,11 +281,14 @@ Table medical_records {
 Table medical_attachments {             
   id int [pk, increment]                  
 
-  medical_record_id int [ref: > medical_records.id]   // Hồ sơ liên quan
+  medical_record_id int [ref: > medical_records.id, null]   // Hồ sơ liên quan
+  alert_id int [ref: > alerts.id, null]               // Cảnh báo liên quan
 
   file_name varchar                     // Tên file
   file_url varchar                      // Đường dẫn file
   file_type varchar                     // Loại file: image | pdf
+
+  category enum('auto_ecg_report', 'other') // Hiện tại chỉ có 2 loại: auto_ecg_report và other để phân biệt tệp đính kèm là từ báo cáo AutoECG hay từ người dùng upload, có thể phát triển trong tương lai
   uploaded_at timestamp                 // Thời điểm upload
 }
 
@@ -330,7 +334,7 @@ Table notifications {
 }
 
 // ----------------------------- MongoDB -----------------------------
-// // ECG gửi về qua MQTT
+// // Lưu trữ gói ECG thu được từ thiết bị
 // const ECGRawSchema = new mongoose.Schema(
 //   {
 //     timestamp: { type: Date, required: true },
@@ -338,8 +342,17 @@ Table notifications {
 //       patient_id: { type: Number, required: true },
 //       device_id: { type: Number, required: true },
 //     },
-//     ecg_packet: [Number], // Lưu trực tiếp mảng 187 điểm của 1 gói tin thu được tại thời điểm đó
-//     status: { type: String, enum: ['NORMAL', 'ABNORMAL'], default: 'NORMAL' },
+//     ecg_packet: { type: [Number], required: true }, // Lưu trực tiếp mảng 187 điểm của 1 gói tin thu được tại thời điểm đó
+//
+//     class_inference: {
+//       type: String,
+//       enum: ['N', 'S', 'V', 'F', 'Q'],
+//       required: true,
+//     }, // 5 class theo MIT-BIH
+//     is_abnormal: {
+//       type: Boolean,
+//       default: false,
+//     },
 //   },
 //   {
 //     timeseries: {
@@ -351,7 +364,39 @@ Table notifications {
 //   },
 // )
 //
-// // BPM, SpO2 gửi về qua MQTT
+// // Lưu trữ đoạn ECG bất thường
+// const ECGAbnormalStripSchema = new mongoose.Schema(
+//   {
+//     patient_id: { type: Number, required: true, index: true },
+//     alert_id: { type: Number, required: true, index: true },
+//
+//     // Trục thời gian của đoạn cắt (VD: 10 giây)
+//     strip_type: {
+//       type: String,
+//       enum: ['trigger', 'last_detected'],
+//       required: true,
+//     }, // Mỗi alert sẽ có 2 document riêng: trigger và last_detected
+//     reference_timestamp: { type: Date, required: true }, // Thời điểm chính xác xảy ra cảnh báo
+//     window_start: { type: Date, required: true }, // Thời điểm bắt đầu dải sóng (trigger - 5s)
+//     window_end: { type: Date, required: true }, // Thời điểm kết thúc dải sóng (trigger + 5s)
+//     duration_seconds: { type: Number, required: true }, // Mặc định là 10 (giây)
+//
+//     // Dữ liệu sóng đã được flatten thành 1 mảng duy nhất (~1870 phần tử)
+//     ecg_data: { type: [Number], required: true },
+//
+//     // Các class bất thường đã xuất hiện trong 10 giây này
+//     detected_classes: {
+//       type: [String],
+//       enum: ['S', 'V', 'F', 'Q'],
+//       default: [],
+//     },
+//   },
+//   {
+//     timestamps: { createdAt: 'created_at', updatedAt: false },
+//   },
+// )
+//
+// // Lưu trữ metrics (BPM, SpO2) thu được từ thiết bị
 // const HealthMetricSchema = new mongoose.Schema(
 //   {
 //     timestamp: { type: Date, required: true },

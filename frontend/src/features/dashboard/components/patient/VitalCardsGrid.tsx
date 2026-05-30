@@ -1,12 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { useMonitorEcgStream } from '@/features/dashboard/hooks/useMonitorEcgStream'
+import { cn } from '@/lib/utils'
 
-interface ECGChartProps {
+interface VitalCardsGridProps {
   patientId?: number
 }
 
-export const ECGChart = ({ patientId }: ECGChartProps) => {
+interface VitalInfo {
+  id: string
+  label: string
+  value: string | number
+  unit: string
+  icon: string
+  colorClass: string
+}
+
+export const VitalCardsGrid = ({ patientId }: VitalCardsGridProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   const dataQueue = useRef<Array<number>>([]) // Hàng đợi chứa mảng các con số
@@ -22,8 +32,11 @@ export const ECGChart = ({ patientId }: ECGChartProps) => {
   const [timeInference, setTimeInference] = useState<number | null>(null)
 
   const useLiveStream = Boolean(patientId)
-  /** Preload 2 gói MQTT (2 × 187 = 374 điểm) để chống network jitter */
-  const BUFFER_THRESHOLD = 187 * 2
+
+  /** Preload 2 gói MQTT để chống network jitter */
+  const ecgPacketSize = Number(import.meta.env.VITE_ECG_PACKET_SIZE)
+  const hasValidPacketSize = Number.isFinite(ecgPacketSize) && ecgPacketSize > 0
+  const BUFFER_THRESHOLD = hasValidPacketSize ? ecgPacketSize * 2 : 300
   const POINTS_PER_FRAME = 3
   const BUFFER_EMPTY_THRESHOLD_MS = 1000 // Đợi 1s trước khi báo "Mạng chậm"
 
@@ -143,9 +156,9 @@ export const ECGChart = ({ patientId }: ECGChartProps) => {
   }, [])
 
   return (
-    <div className="flex grid-cols-11 flex-col gap-3 md:gap-4 xl:grid xl:gap-3">
+    <div className="flex flex-col gap-3 md:gap-4">
       {/* Left */}
-      <div className="order-last col-span-9 rounded-2xl border border-gray-100 bg-white p-3 text-white shadow-sm xl:order-first">
+      <div className="order-last col-span-9 rounded-2xl border border-gray-100 bg-white p-3 text-white shadow-sm">
         <p className="mb-1 text-xs text-slate-500">{joinError ?? status}</p>
 
         {/* Container của Canvas với lưới y tế (Grid background) bằng Tailwind */}
@@ -172,34 +185,93 @@ export const ECGChart = ({ patientId }: ECGChartProps) => {
       </div>
 
       {/* Right */}
-      <div className="order-first col-span-2 flex gap-3 md:gap-4 xl:order-last xl:flex-col xl:gap-3">
+      <div className="order-first col-span-2 grid grid-cols-2 gap-3 md:flex md:gap-4">
         {/* Card 1: Phân loại nhịp */}
-        <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm">
-          <h3 className="text-sm font-medium text-slate-500 md:text-base">
-            Phân loại
-          </h3>
-          <p className="text-center text-xl font-bold text-slate-900">
-            {classInference}
-          </p>
-        </div>
+        <VitalCard
+          vital={{
+            id: '1',
+            label: 'Phân loại',
+            value: classInference,
+            unit: '',
+            icon: 'troubleshoot',
+            colorClass: 'bg-orange-50 text-orange-500',
+          }}
+          className="flex-1"
+        />
 
-        {/* Card 2: Thời gian Inference */}
-        <div className="flex flex-1 flex-col items-center justify-center gap-1 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm">
-          <h3 className="text-sm font-medium text-slate-500 md:text-base">
-            Thời gian AI
-          </h3>
-          <p className="text-xl font-bold text-slate-900">
-            {timeInference != null ? (
-              <>
-                {timeInference}{' '}
-                <span className="text-sm font-normal text-slate-400">ms</span>
-              </>
-            ) : (
-              '—'
-            )}
-          </p>
-        </div>
+        {/* Card 2: Thời gian AI */}
+        <VitalCard
+          vital={{
+            id: '1',
+            label: 'Thời gian AI',
+            value: timeInference ?? '—',
+            unit: 'ms',
+            icon: 'avg_time',
+            colorClass: 'bg-yellow-50 text-yellow-500',
+          }}
+          className="flex-1"
+        />
+
+        {/* Card 3: Nhịp tim */}
+        <VitalCard
+          vital={{
+            id: '1',
+            label: 'Nhịp tim',
+            value: '86',
+            unit: 'bpm',
+            icon: 'ecg_heart',
+            colorClass: 'bg-rose-50 text-rose-500',
+          }}
+          className="order-first flex-1 md:order-last"
+        />
+
+        {/* Card 4: SpO2 */}
+        <VitalCard
+          vital={{
+            id: '2',
+            label: 'SpO2',
+            value: '99',
+            unit: '%',
+            icon: 'spo2',
+            colorClass: 'bg-blue-50 text-blue-500',
+          }}
+          className="order-first flex-1 md:order-last"
+        />
       </div>
     </div>
   )
 }
+
+const VitalCard = ({
+  vital,
+  className,
+}: {
+  vital: VitalInfo
+  className?: string
+}) => (
+  <div
+    className={cn(
+      'relative flex flex-col justify-between rounded-2xl border border-gray-100 bg-white p-3 shadow-sm',
+      className,
+    )}>
+    <div className="mb-1 hidden items-center justify-center md:flex">
+      <div
+        className={`flex size-10 items-center justify-center rounded-full md:size-14 ${vital.colorClass}`}>
+        <span
+          className="material-symbols-outlined md:text-3xl!"
+          style={{ fontVariationSettings: '"FILL" 1' }}>
+          {vital.icon}
+        </span>
+      </div>
+    </div>
+
+    <p className="text-center text-sm font-medium text-slate-500">
+      {vital.label}
+    </p>
+
+    <div className="flex items-baseline justify-center gap-1">
+      <p className="text-xl font-bold text-slate-900">{vital.value}</p>
+      <span className="text-sm font-medium text-slate-400">{vital.unit}</span>
+    </div>
+  </div>
+)

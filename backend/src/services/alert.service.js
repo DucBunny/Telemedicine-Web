@@ -1,7 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
-import { clearThrottledAlertId } from '@/cache/alert-throttle.cache'
+import { clearThrottledAlertId } from '@/cache/alertThrottle.cache'
+import { env } from '@/config'
+import { flushPersistAbnormalStripNow } from '@/jobs/ecgAbnormalStrip.queue'
 import { sequelize } from '@/models/sql'
 import * as alertRepo from '@/repositories/alert.repo'
+import * as doctorRepo from '@/repositories/doctor.repo'
 import * as medicalRecordRepo from '@/repositories/medicalRecord.repo'
 import * as patientDoctorRepo from '@/repositories/patientDoctor.repo'
 import {
@@ -203,10 +206,48 @@ export const resolveAlert = async (
   // Xóa throttle alert để cho phép tạo alert mới nếu tái phát
   await clearThrottledAlertId(result.alert.patientId, result.alert.type)
 
+  // Lưu ECG strips ngay — không chờ job delay 30 phút sau lastDetectedAt
+  await flushPersistAbnormalStripNow(result.alert.id)
+
   // Gửi alert updated đến bác sĩ nhận thông báo
   await broadcastAlertUpdated(result.alert)
   return {
     alert: result.alert,
     medicalRecord: result.medicalRecord,
   }
+}
+
+/**
+ * Auto-resolve unresolved alerts by system bot after they have been stale too long
+ */
+export const autoResolveStaleAlerts = async ({
+  botDoctorId = env.SYSTEM_BOT_DOCTOR_ID,
+  olderThanHours,
+}) => {
+  const botDoctor = await doctorRepo.findByUserId(botDoctorId)
+  if (!botDoctor) {
+    console.warn(
+      `[Alert Service] Bot doctor ${botDoctorId} not found, skipping auto-resolve`,
+    )
+    return 0
+  }
+
+  const cutoff = new Date(Date.now() - olderThanHours * 60 * 60 * 1000)
+  const staleAlerts = await alertRepo.findStaleOpenAlerts(cutoff)
+
+  let resolvedCount = 0
+  for (const alert of staleAlerts) {
+    const resolvedAlert = await alertRepo.resolveByBot(
+      alert.id,
+      botDoctorId,
+      new Date(),
+    )
+    if (!resolvedAlert) continue
+
+    await clearThrottledAlertId(resolvedAlert.patientId, resolvedAlert.type)
+    await broadcastAlertUpdated(resolvedAlert)
+    resolvedCount += 1
+  }
+
+  return resolvedCount
 }

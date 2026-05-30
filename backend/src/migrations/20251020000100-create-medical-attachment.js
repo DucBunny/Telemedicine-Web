@@ -11,9 +11,19 @@ module.exports = {
       },
       medical_record_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'medical_records',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+      alert_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'alerts',
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -28,6 +38,10 @@ module.exports = {
       },
       file_type: {
         type: Sequelize.STRING,
+      },
+      category: {
+        type: Sequelize.ENUM('auto_ecg_report', 'other'),
+        defaultValue: 'other',
       },
       uploaded_at: {
         type: Sequelize.DATE,

@@ -92,6 +92,10 @@ export const NOTIFICATION_TYPE_FILTERS: Record<
     label: 'Tin nhắn',
     variant: 'teal_blur',
   },
+  system: {
+    label: 'Hệ thống',
+    variant: 'orange_blur',
+  },
 } as const
 
 export const BASE_MORNING_SLOTS: Array<TimeSlot> = [

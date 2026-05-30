@@ -12,6 +12,9 @@ import {
 export const getMedicalRecordsQuerySchema = paginationWithSearchSchema.extend({
   createdFrom: emptyStringToUndefined(datetimeStringSchema.optional()),
   createdTo: emptyStringToUndefined(datetimeStringSchema.optional()),
+  doctorId: emptyStringToUndefined(
+    intIdSchema('Doctor ID is invalid').optional(),
+  ),
 })
 
 /**
@@ -20,6 +23,21 @@ export const getMedicalRecordsQuerySchema = paginationWithSearchSchema.extend({
 export const getMedicalRecordByIdParamSchema = z.object({
   recordId: intIdSchema('Medical record ID is invalid'),
 })
+
+/**
+ * Export medical report body schema
+ */
+export const exportMedicalReportSchema = z
+  .object({
+    medicalRecordId: intIdSchema('Medical record ID is invalid').optional(),
+    alertId: intIdSchema('Alert ID is invalid').optional(),
+  })
+  .refine(
+    (data) => data.medicalRecordId !== undefined || data.alertId !== undefined,
+    {
+      message: 'medicalRecordId or alertId is required',
+    },
+  )
 
 /**
  * Create medical record body schema

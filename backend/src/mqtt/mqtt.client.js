@@ -33,9 +33,10 @@ export const connectMQTT = () => {
   mqttClient.on('message', async (topic, message) => {
     try {
       const payload = JSON.parse(message.toString())
-      if (payload?.content === 'telemetry') {
-        await processTelemetryMessage(payload)
-      }
+      // if (payload?.content === 'telemetry') {
+      await processTelemetryMessage(payload)
+      // console.log('payload', payload.data)
+      // }
     } catch (error) {
       console.error('MQTT message parse error:', error, 'topic:', topic)
     }

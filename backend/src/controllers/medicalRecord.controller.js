@@ -44,6 +44,31 @@ export const getMedicalRecordDetail = async (req, res, next) => {
 }
 
 /**
+ * Export cached/dynamic medical ECG report.
+ */
+export const exportMedicalReport = async (req, res, next) => {
+  try {
+    const { id: requesterDoctorId } = req.user
+    const { medicalRecordId, alertId } = req.body
+
+    const result = await medicalRecordService.exportMedicalReport({
+      medicalRecordId,
+      alertId,
+      requesterDoctorId,
+    })
+
+    res
+      .status(result.status === 'ready' ? StatusCodes.OK : StatusCodes.ACCEPTED)
+      .json({
+        success: true,
+        data: result,
+      })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
  * Get medical records by patient ID and current doctor ID
  * GET /me/patients/:patientId/medical-records
  */
@@ -55,12 +80,18 @@ export const getMedicalRecordsByPatientIdAndCurrentDoctor = async (
   try {
     const doctorId = req.user.id // from JWT token
     const { patientId } = req.params
-    const { page = 1, limit = 10, createdFrom, createdTo } = req.validatedQuery
+    const {
+      page = 1,
+      limit = 10,
+      createdFrom,
+      createdTo,
+      doctorId: doctorIdQuery,
+    } = req.validatedQuery
     const result =
       await medicalRecordService.getMedicalRecordByPatientIdAndDoctorId(
         patientId,
         doctorId,
-        { page, limit, createdFrom, createdTo },
+        { page, limit, createdFrom, createdTo, doctorIdQuery },
       )
     res.status(StatusCodes.OK).json({
       success: true,

@@ -1,6 +1,6 @@
 import type { User } from '@/features/auth/types/auth.types'
 
-export type NotificationType = 'alert' | 'appointment' | 'message'
+export type NotificationType = 'alert' | 'appointment' | 'message' | 'system'
 
 export interface Notification {
   id: number

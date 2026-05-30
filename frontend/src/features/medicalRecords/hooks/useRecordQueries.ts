@@ -74,6 +74,38 @@ export const useCreateRecord = () => {
 }
 
 /**
+ * Hook to request ECG report export for a medical record.
+ */
+export const useExportRecordReport = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (payload: { medicalRecordId?: number; alertId?: number }) =>
+      recordApi.exportReport(payload),
+    onSuccess: (result, variables) => {
+      if (variables.medicalRecordId) {
+        queryClient.invalidateQueries({
+          queryKey: RECORD_KEYS.detail(variables.medicalRecordId),
+        })
+      }
+
+      if (result.status === 'ready' && result.fileUrl) {
+        window.open(result.fileUrl, '_blank', 'noopener,noreferrer')
+        toast.success('Đã mở báo cáo có sẵn.')
+        return
+      }
+
+      toast.info(result.message || 'Đang tạo báo cáo...')
+    },
+    onError: (error) => {
+      const errorMessage = getErrorMessage(error)
+      toast.error(errorMessage || 'Không thể tạo báo cáo')
+    },
+    retry: false,
+  })
+}
+
+/**
  * Hook to update a medical record (doctor only)
  */
 export const useUpdateRecord = () => {

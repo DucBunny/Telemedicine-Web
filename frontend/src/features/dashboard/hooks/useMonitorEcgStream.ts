@@ -6,8 +6,6 @@ import {
   useMonitorSocketStore,
 } from '@/stores/monitorSocket.store'
 
-const ECG_PACKET_SIZE = 187
-
 export interface UseMonitorEcgStreamOptions {
   patientId?: number
   enabled?: boolean
@@ -26,6 +24,9 @@ export const useMonitorEcgStream = ({
   enabled = true,
   onPacket,
 }: UseMonitorEcgStreamOptions) => {
+  const ecgPacketSize = Number(import.meta.env.VITE_ECG_PACKET_SIZE)
+  const hasValidPacketSize = Number.isFinite(ecgPacketSize) && ecgPacketSize > 0
+
   const onPacketRef = useRef(onPacket)
   onPacketRef.current = onPacket
 
@@ -60,10 +61,12 @@ export const useMonitorEcgStream = ({
       if (payload.patientId !== patientId) return
       if (
         !Array.isArray(payload.packetEcg) ||
-        payload.packetEcg.length !== ECG_PACKET_SIZE
+        (hasValidPacketSize && payload.packetEcg.length !== ecgPacketSize)
       ) {
         return
       }
+
+      console.log('payload', payload.packetEcg.length, ecgPacketSize)
 
       onPacketRef.current?.({
         packetEcg: payload.packetEcg,

@@ -42,62 +42,70 @@ export const UpcomingAppointments = ({
       </div>
 
       <div className="divide-y divide-gray-100">
-        {appointments?.map((appt) => {
-          const isOnline = appt.type === 'online'
+        {appointments && appointments.length === 0 && (
+          <div className="py-6 text-center text-sm text-gray-600 lg:py-10">
+            Không có lịch hẹn sắp tới
+          </div>
+        )}
 
-          return (
-            <div
-              key={appt.id}
-              className="flex items-center justify-between p-3 transition hover:bg-gray-50 md:pl-6"
-              onDoubleClick={() => {
-                setSelectedAppointment(appt)
-                setIsDetailDialogOpen(true)
-              }}>
-              <div className="flex items-center space-x-3 md:space-x-4">
-                <SafeImage
-                  src={appt.patient?.user.avatar}
-                  alt={appt.patient?.user.fullName}
-                  className="size-10 rounded-lg bg-teal-50 md:size-14"
-                />
+        {appointments &&
+          appointments.length > 0 &&
+          appointments.map((appt) => {
+            const isOnline = appt.type === 'online'
 
-                <div className="flex flex-col gap-0.5">
-                  <h4 className="text-sm font-semibold text-gray-900 md:text-base">
-                    {appt.patient?.user.fullName}
-                  </h4>
+            return (
+              <div
+                key={appt.id}
+                className="flex items-center justify-between p-3 transition hover:bg-gray-50 md:pl-6"
+                onDoubleClick={() => {
+                  setSelectedAppointment(appt)
+                  setIsDetailDialogOpen(true)
+                }}>
+                <div className="flex items-center space-x-3 md:space-x-4">
+                  <SafeImage
+                    src={appt.patient?.user.avatar}
+                    alt={appt.patient?.user.fullName}
+                    className="size-10 rounded-lg bg-teal-50 md:size-14"
+                  />
 
-                  <p className="text-xs text-gray-500 md:text-sm">
-                    <span>
-                      {formatRelativeDate(appt.scheduledAt)},{' '}
-                      {formatTime(appt.scheduledAt)}
-                    </span>
-                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    <h4 className="text-sm font-semibold text-gray-900 md:text-base">
+                      {appt.patient?.user.fullName}
+                    </h4>
+
+                    <p className="text-xs text-gray-500 md:text-sm">
+                      <span>
+                        {formatRelativeDate(appt.scheduledAt)},{' '}
+                        {formatTime(appt.scheduledAt)}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Badge
+                    variant={isOnline ? 'orange_blur' : 'green_blur'}
+                    className="text-xs">
+                    {isOnline ? (
+                      <Video className="size-4!" />
+                    ) : (
+                      <Hospital className="size-4!" />
+                    )}
+                    {isOnline ? 'Online' : 'Trực tiếp'}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    className="hover:text-teal-primary text-gray-500 hover:bg-teal-50"
+                    onClick={() => {
+                      setSelectedAppointment(appt)
+                      setIsDetailDialogOpen(true)
+                    }}>
+                    <ChevronRight size={16} />
+                  </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2 md:gap-3">
-                <Badge
-                  variant={isOnline ? 'orange_blur' : 'green_blur'}
-                  className="text-xs">
-                  {isOnline ? (
-                    <Video className="size-4!" />
-                  ) : (
-                    <Hospital className="size-4!" />
-                  )}
-                  {isOnline ? 'Online' : 'Trực tiếp'}
-                </Badge>
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="hover:text-teal-primary text-gray-500 hover:bg-teal-50"
-                  onClick={() => {
-                    setSelectedAppointment(appt)
-                    setIsDetailDialogOpen(true)
-                  }}>
-                  <ChevronRight size={16} />
-                </Button>
-              </div>
-            </div>
-          )
-        })}
+            )
+          })}
       </div>
 
       <AppointmentDetailDialog

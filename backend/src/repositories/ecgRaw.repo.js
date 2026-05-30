@@ -8,59 +8,31 @@ export const create = async (data) => {
 }
 
 /**
- * Update or create ECG raw data by device ID and bucket start time
+ * Bulk insert ECG raw packets
  */
-export const updateOrCreateByDeviceIdAndBucket = async (
-  deviceId,
-  bucketStartTime,
-  { patientId, timestamp, ecg, mode },
-) => {
-  return await ECGRaw.findOneAndUpdate(
-    {
-      device_id: deviceId,
-      bucket_start_time: bucketStartTime,
-    },
-    {
-      // Chỉ set khi tạo mới
-      $setOnInsert: {
-        patient_id: patientId,
-        bucket_start_time: bucketStartTime,
-      },
-      // Thêm mẫu ECG mới vào mảng samples
-      $push: {
-        samples: {
-          ts: timestamp,
-          val: ecg,
-          status: mode,
-        },
-      },
-      // Tăng biến đếm số mẫu
-      $inc: {
-        count: 1,
-      },
-    },
-    {
-      upsert: true,
-      new: true,
-    },
-  )
+export const insertMany = async (docs, options = {}) => {
+  if (!docs?.length) return []
+  return await ECGRaw.insertMany(docs, {
+    ordered: false, // Don't wait for all inserts to complete before returning
+    ...options,
+  })
 }
 
 /**
- * Find ECG raw data by device ID and bucket range
+ * Find ECG raw packets by patient and time range
  */
-export const findByDeviceIdAndBucketRange = async (
-  deviceId,
+export const findByPatientIdAndTimeRange = async (
+  patientId,
   fromDate,
   toDate,
 ) => {
   return await ECGRaw.find({
-    device_id: deviceId,
-    bucket_start_time: {
+    'metadata.patient_id': patientId,
+    timestamp: {
       $gte: new Date(fromDate),
       $lte: new Date(toDate),
     },
   })
-    .sort({ bucket_start_time: 1 })
+    .sort({ timestamp: 1 })
     .lean()
 }

@@ -10,7 +10,6 @@ module.exports = {
       { type: queryInterface.sequelize.QueryTypes.SELECT },
     )
 
-    const now = new Date()
     const records = []
 
     appointments.forEach((appt) => {

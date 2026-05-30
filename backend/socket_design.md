@@ -1,85 +1,285 @@
-# Tài Liệu Quy Chuẩn WebSockets (Socket.IO)
+# Tài liệu WebSockets (Socket.IO) — GR2 Telehealth
 
-Tài liệu này quy định các nguyên tắc đặt tên (Naming Conventions) cho Room và Event trong toàn bộ hệ thống Telehealth. Bắt buộc tuân thủ để đảm bảo tính nhất quán giữa Frontend và Backend.
+Quy chuẩn **Namespace**, **Room**, **Event** và luồng dữ liệu thực tế giữa Backend ↔ Frontend.  
+Mọi chuỗi event/room phải lấy từ constants — không hard-code.
 
-## 1. Cấu Trúc Namespaces
-
-Hệ thống sử dụng Multiplexing chia làm 4 Namespaces độc lập:
-
-- `/system`: Quản lý trạng thái Online/Offline, Cảnh báo AI (Alerts), Lịch hẹn (Appointments) và Thông báo chung (Notifications). Nóng vai trò là "Global Hub".
-- `/chat`: Quản lý luồng tin nhắn giữa các User (Dữ liệu lưu MongoDB).
-- `/monitor`: Truyền phát (Stream) dữ liệu sinh tồn từ thiết bị IoT.
-
----
-
-## 2. Quy Tắc Đặt Tên Room (Room Naming - Theo chuẩn Redis)
-
-Mỗi Namespace có thể quản lý nhiều _Loại Phòng (Room Types)_ khác nhau.
-Cú pháp: `[phân_loại]:[ID_tuỳ_chọn]`
-
-| Namespace  | Loại Phòng (Object Key) | Cú pháp Room           | Ví dụ thực tế         | Mục đích                                                 |
-| :--------- | :---------------------- | :--------------------- | :-------------------- | :------------------------------------------------------- |
-| `/system`  | `PERSONAL`              | `user:{id}`            | `user:123`            | Thông báo đích danh (Alert cá nhân, Lịch hẹn).           |
-| `/system`  | `ROLE`                  | `role:{role}`          | `role:doctor`         | Thông báo tập thể (Báo họp giao ban cho toàn bộ bác sĩ). |
-| `/system`  | `GLOBAL`                | `system:global`        | `system:global`       | Báo bảo trì server cho tất cả mọi người.                 |
-| `/chat`    | `CONVERSATION`          | `conversation:{id}`    | `conversation:abc`    | Gửi tin nhắn trong 1 cuộc hội thoại.                     |
-| `/monitor` | `PATIENT`               | `monitor:patient:{id}` | `monitor:patient:789` | Stream ECG/SpO2 của bệnh nhân 789.                       |
+| Layer              | File constants                             |
+| ------------------ | ------------------------------------------ |
+| Backend            | `backend/src/sockets/socket.constants.js`  |
+| Frontend           | `frontend/src/sockets/socket.constants.ts` |
+| Payload types (FE) | `frontend/src/sockets/socket.types.ts`     |
 
 ---
 
-## 3. Quy Tắc Đặt Tên Event (Event Naming)
+## 1. Kiến trúc tổng quan
 
-Sử dụng định dạng: `[đối_tượng]:[hành_động]` (Snake case, toàn bộ viết thường).
+```
+Thiết bị IoT / Simulator (MQTT)
+        │
+        ▼
+  mqtt.client.js  →  telemetry.service.js
+        │                    │
+        │                    ├── class_inference = N  → /monitor  sensor:sync
+        │                    │                         → /system   alert:calm (pending)
+        │                    │
+        │                    └── class_inference ≠ N  → /monitor  sensor:sync
+        │                                              → /system   alert:flash | alert:warning
+        │                                              → MySQL + Redis throttle + Email
+        │
+        ▼
+  Socket.IO Server (HTTP + Redis Adapter)
+        │
+        ├── /system   — presence, alert, appointment, notification, call
+        ├── /chat     — tin nhắn (MongoDB)
+        └── /monitor  — stream ECG 187 điểm/gói
+```
 
-- **Client Emit:** Dùng động từ nguyên mẫu (VD: `message:send`, `room:join`).
-- **Server Emit:** Dùng động từ phân từ 2 / quá khứ / tính từ mô tả sự kiện đã xảy ra (VD: `message:new`, `alert:critical`).
+### Hạ tầng
 
-### 3.1. Namespace: `/system`
+- **Server:** `backend/src/sockets/index.js` — tạo `socketServer`, gắn Redis adapter (`@socket.io/redis-adapter`) để scale nhiều instance.
+- **Auth:** JWT trong `handshake.auth.token` — middleware `socket.auth.js` gắn `socket.user` cho cả 3 namespace.
+- **Emit từ service:** `getIo()` qua `io.instance.js` — tránh circular import (`emitters/*.js`).
+- **Handlers:** `handlers/system.handlers.js`, `chat.handlers.js`, `monitor.handlers.js`.
 
-| Event Name                         | Người Gửi | Mô tả / Payload                                  |
-| :--------------------------------- | :-------- | :----------------------------------------------- |
-| `room:join`                        | Client    | Yêu cầu join vào personal room khi vừa connect.  |
-| `presence:online`                  | Server    | User đã kết nối (Bắn cho các user khác biết).    |
-| `presence:offline`                 | Server    | User đã ngắt kết nối hoàn toàn.                  |
-| `alert:critical`                   | Server    | Cảnh báo y tế khẩn cấp đỏ.                       |
-| `alert:warning`                    | Server    | Cảnh báo y tế mức vàng.                          |
-| `alert:acknowledge`                | Client    | Bác sĩ xác nhận đang xử lý cảnh báo.             |
-| `appointment:created`              | Server    | Có lịch hẹn mới chờ duyệt.                       |
-| `appointment:updated`              | Server    | Lịch hẹn cập nhật.                               |
-| `notification:new`                 | Server    | Thông báo hệ thống chung.                        |
-| `notification:read`                | Client    | Đánh dấu đã đọc thông báo.                       |
-| `notification:unread_count_update` | Server    | Bắn số lượng thông báo chưa đọc để update badge. |
-| `call:invite`                      | Server    | Gửi cuộc gọi đến người nhận.                     |
-| `call:incoming`                    | Server    | Có cuộc gọi đến người nhận.                      |
-| `call:accept`                      | Client    | Chấp nhận cuộc gọi.                              |
-| `call:reject`                      | Client    | Từ chối cuộc gọi.                                |
-| `call:end`                         | Server    | Cuộc gọi đã kết thúc.                            |
+### Kết nối Frontend
 
-### 3.2. Namespace: `/chat`
-
-| Event Name     | Người Gửi | Mô tả / Payload                            |
-| :------------- | :-------- | :----------------------------------------- |
-| `room:join`    | Client    | Yêu cầu join vào phòng chat cụ thể.        |
-| `room:leave`   | Client    | Yêu cầu rời khỏi phòng chat.               |
-| `message:send` | Client    | Gửi 1 tin nhắn mới lên Server.             |
-| `message:new`  | Server    | Bắn tin nhắn mới cho các user trong phòng. |
-| `typing:start` | Client    | Bắt đầu gõ phím.                           |
-| `typing:stop`  | Client    | Ngừng gõ phím.                             |
-| `message:read` | Client    | Đánh dấu đã đọc tin nhắn.                  |
-
-### 3.3. Namespace: `/monitor`
-
-| Event Name         | Người Gửi  | Mô tả / Payload                          |
-| :----------------- | :--------- | :--------------------------------------- |
-| `room:join`        | Client     | Bác sĩ yêu cầu xem stream của bệnh nhân. |
-| `room:leave`       | Client     | Bác sĩ ngừng xem stream.                 |
-| `sensor:push_data` | Client/IoT | Thiết bị đẩy dữ liệu ECG/BPM lên Server. |
-| `sensor:data_sync` | Server     | Server phân phối data cho Bác sĩ xem.    |
+| Namespace  | Store / Hook             | Khi nào connect                                                     |
+| ---------- | ------------------------ | ------------------------------------------------------------------- |
+| `/system`  | `systemSocket.store.ts`  | Layout bác sĩ / bệnh nhân (global)                                  |
+| `/chat`    | `chatSocket.store.ts`    | Trang chat                                                          |
+| `/monitor` | `monitorSocket.store.ts` | Chỉ khi có chart ECG (`useMonitorEcgStream`) — tránh tốn tài nguyên |
 
 ---
 
-## 4. Best Practices (Quy tắc bắt buộc khi Code)
+## 2. Namespaces
 
-1. **Tuyệt đối không dùng hard-code (gõ text chay) cho Event/Room.**
-2. Mọi chuỗi ký tự phải được tham chiếu từ file `socketConstants.ts` ở Frontend và file tương đương ở Backend.
-3. Khi Backend bắt được sự kiện `disconnect` ở `/system`, phải check Redis (lệnh `SCARD`) trước khi emit `presence:offline` để đảm bảo người dùng đã đóng tất cả các tab.
+Hệ thống dùng **3 namespace**:
+
+| Namespace  | Vai trò                                                                   |
+| ---------- | ------------------------------------------------------------------------- |
+| `/system`  | Online/offline, cảnh báo AI, lịch hẹn, thông báo, signaling cuộc gọi Zego |
+| `/chat`    | Tin nhắn realtime (lưu MongoDB)                                           |
+| `/monitor` | Stream waveform ECG từ MQTT                                               |
+
+---
+
+## 3. Quy tắc đặt tên Room
+
+Cú pháp: `[phân_loại]:[id]` (chữ thường, dấu `:` phân tách).
+
+Định nghĩa trong `SOCKET_ROOMS` — helper function hoặc chuỗi tĩnh.
+
+| Namespace  | Key constants                | Room                   | Ví dụ                  | Dùng khi                                                               |
+| ---------- | ---------------------------- | ---------------------- | ---------------------- | ---------------------------------------------------------------------- |
+| `/system`  | `SYSTEM.PERSONAL(userId)`    | `user:{userId}`        | `user:42`              | **Chính:** alert, notification, appointment, call — emit tới từng user |
+| `/system`  | `SYSTEM.ROLE(role)`          | `role:{role}`          | `role:doctor`          | _Dự phòng_ — chưa dùng trong emitters hiện tại                         |
+| `/system`  | `SYSTEM.GLOBAL`              | `system:global`        | `system:global`        | _Dự phòng_ — broadcast toàn hệ thống                                   |
+| `/chat`    | `CHAT.CONVERSATION(id)`      | `conversation:{id}`    | `conversation:abc`     | Chat 1-1 / nhóm                                                        |
+| `/monitor` | `MONITOR.PATIENT(patientId)` | `monitor:patient:{id}` | `monitor:patient:7`    | Stream ECG — `patientId` = **user_id** bệnh nhân                       |
+| `/monitor` | `MONITOR.DEVICE(deviceId)`   | `monitor:device:{id}`  | `monitor:device:DEV_1` | _Tương lai_                                                            |
+
+### Join room
+
+| Namespace  | Auto-join                       | Client emit                                              |
+| ---------- | ------------------------------- | -------------------------------------------------------- |
+| `/system`  | Tự `join user:{id}` khi connect | `room:join` — join thêm room tùy chọn (log)              |
+| `/chat`    | Không                           | `room:join` → `conversation:{id}` (kiểm tra participant) |
+| `/monitor` | Không                           | `room:join` → `monitor:patient:{id}` (kiểm tra ACL)      |
+
+### ACL `/monitor`
+
+- **Bệnh nhân:** chỉ join `monitor:patient:{ownUserId}`.
+- **Bác sĩ:** join nếu có quan hệ trong `patient_doctors`.
+- Từ chối: server emit `room:join_rejected` (`INVALID_ROOM` | `FORBIDDEN` | `SERVER_ERROR`).
+
+---
+
+## 4. Quy tắc đặt tên Event
+
+Định dạng: `[entity]:[action]` (chữ thường, dấu `:`).
+
+- **Client → Server:** động từ / hành động (`message:send`, `room:join`, `call:invite`).
+- **Server → Client:** sự kiện đã xảy ra (`message:new`, `alert:updated`).
+
+Hằng số: `SYSTEM_EVENTS`, `CHAT_EVENTS`, `MONITOR_EVENTS`.
+
+---
+
+## 5. Namespace `/system`
+
+### 5.1. Presence (Redis)
+
+- Key: `presence:user:{userId}` — Set các `socket.id`.
+- TTL: 180s; gia hạn mỗi 60s khi socket `/system` còn sống.
+- **Online:** lần đầu có socket → `presence:online` tới `user:{relatedId}` (bác sĩ ↔ bệnh nhân liên quan).
+- **Offline:** `disconnect` → `SCARD` = 0 → `presence:offline`.
+
+| Event              | Hướng | Payload (tóm tắt) |
+| ------------------ | ----- | ----------------- |
+| `presence:online`  | S→C   | `{ userId }`      |
+| `presence:offline` | S→C   | `{ userId }`      |
+
+### 5.2. Alert (MQTT + MySQL + Redis throttle)
+
+**Nguồn:** `telemetry.service.js` + `alert.service.js`.
+
+| Event           | Hướng | Khi nào                                                               | Payload                                                      |
+| --------------- | ----- | --------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `alert:warning` | S→C   | **Alert mới** (insert DB + email lần đầu)                             | Object `Alert` đầy đủ (qua `notifyAlertCreated`)             |
+| `alert:flash`   | S→C   | Abnormal lặp lại **cùng alert** (pending) hoặc ngay sau tạo mới       | `{ alertId, patientId, type, anomalyCount, lastDetectedAt }` |
+| `alert:calm`    | S→C   | ECG **normal** (`class_inference = N`) — mỗi alert **pending** của BN | `{ alertId, patientId, type }`                               |
+| `alert:updated` | S→C   | Claim / release / resolve                                             | Object `Alert` cập nhật                                      |
+
+**Room:** `user:{doctorUserId}` — danh sách bác sĩ liên quan bệnh nhân (`patient_doctors`).
+
+**Logic gộp alert (cùng `type`, ví dụ `ecg_V`):**
+
+| Kịch bản                                  | Hành vi                                                                                      |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Khác `type`                               | Luôn tạo alert mới                                                                           |
+| Cùng `type`, `last_detected_at` ≤ 30 phút | Update `anomaly_count`, `last_detected_at`; `alert:flash` (nếu pending)                      |
+| Cùng `type`, > 30 phút im lặng            | Tạo alert mới                                                                                |
+| Redis throttle                            | Key `alert:throttle:{patientId}:{type}` — TTL 30 phút, **refresh** mỗi lần ghi nhận abnormal |
+
+**Frontend (bác sĩ — `DoctorLayout`):**
+
+- `alert:flash` → nháy đỏ (cooldown 3s/alert, duration 1.2s).
+- `alert:calm` → reset cooldown (cho phép nháy lại khi abnormal tiếp).
+- `alert:updated` + `handling` / `resolved` → dừng nháy vĩnh viễn alert đó.
+
+### 5.3. Appointment & Notification
+
+| Event                              | Hướng | Mô tả                                           |
+| ---------------------------------- | ----- | ----------------------------------------------- |
+| `appointment:created`              | S→C   | Lịch hẹn mới → `user:{id}` từng người liên quan |
+| `appointment:updated`              | S→C   | Cập nhật trạng thái lịch                        |
+| `notification:new`                 | S→C   | Thông báo hệ thống                              |
+| `notification:read`                | C↔S   | Đánh dấu đã đọc                                 |
+| `notification:unread_count_update` | S→C   | `{ count }` — badge                             |
+
+### 5.4. Telehealth call (Zego — trên `/system`)
+
+Signaling qua socket; media qua Zego SDK.
+
+| Event           | Hướng     | Mô tả                                                                                                              |
+| --------------- | --------- | ------------------------------------------------------------------------------------------------------------------ |
+| `call:invite`   | C→S       | Người gọi gửi — validate conversation, callLog, quyền                                                              |
+| `call:incoming` | S→C       | Tới `user:{peerUserId}` — `{ conversationId, zegoRoomId, callLogId, initiatorUserId, appointmentId?, fromAlert? }` |
+| `call:accept`   | C→S / S→C | Người nhận accept → notify caller                                                                                  |
+| `call:reject`   | C→S / S→C | Từ chối → notify caller                                                                                            |
+| `call:end`      | C→S / S→C | Kết thúc → notify peer                                                                                             |
+
+### 5.5. Room join tùy chọn
+
+| Event       | Hướng | Mô tả                                                     |
+| ----------- | ----- | --------------------------------------------------------- |
+| `room:join` | C→S   | Client gửi tên room bổ sung (ngoài auto-join `user:{id}`) |
+
+---
+
+## 6. Namespace `/chat`
+
+| Event                | Hướng | Mô tả                                              |
+| -------------------- | ----- | -------------------------------------------------- |
+| `room:join`          | C→S   | Join `conversation:{id}` — bắt buộc là participant |
+| `room:join_rejected` | S→C   | `INVALID_ROOM` \| `NOT_PARTICIPANT`                |
+| `room:leave`         | C→S   | Rời phòng                                          |
+| `message:send`       | C→S   | Gửi tin — lưu MongoDB                              |
+| `message:new`        | S→C   | Broadcast trong conversation                       |
+| `message:read`       | C→S   | Đánh dấu đã đọc                                    |
+| `typing:start`       | C→S   | Đang gõ                                            |
+| `typing:stop`        | C→S   | Ngừng gõ                                           |
+
+---
+
+## 7. Namespace `/monitor`
+
+### 7.1. Luồng dữ liệu MQTT → Socket
+
+1. Broker publish topic (env `MQTT_TOPIC`, ví dụ `+/server`).
+2. `processTelemetryMessage` — `content === 'telemetry'`.
+3. Resolve `device.id` → `patientId` (user_id BN).
+4. **Mọi** gói hợp lệ (`packet_ecg` length 187) → `emitEcgPacketToPatientMonitor`.
+
+| Event                | Hướng | Payload                                                                             |
+| -------------------- | ----- | ----------------------------------------------------------------------------------- |
+| `sensor:sync`        | S→C   | `{ patientId, deviceId, packetEcg[187], classInference, timeInference, timestamp }` |
+| `room:join`          | C→S   | `monitor:patient:{patientId}`                                                       |
+| `room:leave`         | C→S   | Rời phòng                                                                           |
+| `room:join_rejected` | S→C   | Lý do từ chối                                                                       |
+
+**Lưu ý:** Stream ECG chạy cho cả **normal** và **abnormal** để chart không bị đứt khi có cảnh báo.
+
+---
+
+## 8. Sơ đồ luồng Alert + Monitor (tóm tắt)
+
+```mermaid
+sequenceDiagram
+  participant Dev as Device/MQTT
+  participant BE as telemetry.service
+  participant DB as MySQL+Redis
+  participant Sys as /system
+  participant Mon as /monitor
+  participant FE as Doctor UI
+
+  Dev->>BE: telemetry (class_inference)
+  BE->>Mon: sensor:sync (always if 187 pts)
+  alt class = N
+    BE->>Sys: alert:calm (per pending alert)
+  else class != N
+    alt new or >30min gap
+      BE->>DB: INSERT alert + throttle
+      BE->>Sys: alert:warning + alert:flash
+    else same episode
+      BE->>DB: UPDATE anomaly_count
+      BE->>Sys: alert:flash (if pending)
+    end
+  end
+  Sys->>FE: flash / toast / invalidate queries
+  Mon->>FE: ECGChart buffer
+```
+
+---
+
+## 9. Cấu trúc thư mục Backend
+
+```
+backend/src/sockets/
+├── index.js              # Khởi tạo IO + Redis adapter + đăng ký handlers
+├── io.instance.js        # Singleton getIo / setIo
+├── socket.auth.js        # JWT middleware
+├── socket.constants.js   # SOCKET_ROOMS, *_EVENTS
+├── handlers/
+│   ├── system.handlers.js
+│   ├── chat.handlers.js
+│   └── monitor.handlers.js
+└── emitters/
+    ├── system.emitters.js
+    ├── chat.emitters.js
+    └── monitor.emitters.js
+```
+
+---
+
+## 10. Best practices
+
+1. **Không hard-code** event/room — dùng `socket.constants.js` / `socket.constants.ts`.
+2. **Emit qua emitters** từ service layer, không gọi `io` trực tiếp rải rác.
+3. **Presence:** chỉ emit `offline` khi `SCARD(presence:user:{id}) === 0` (đa tab).
+4. **Monitor:** luôn validate join server-side; không tin client gửi `patientId` tùy ý.
+5. **Alert flash** chỉ khi `status === 'pending'`; claim/resolve → `alert:updated`, FE dừng nháy.
+6. **FE monitor:** connect lazy theo page có chart; disconnect khi unmount.
+
+---
+
+## 11. Tham chiếu nhanh — Alert events
+
+| FE cần             | Event           | Ghi chú                        |
+| ------------------ | --------------- | ------------------------------ |
+| Toast + list mới   | `alert:warning` | Có email lần đầu               |
+| Nháy màn hình      | `alert:flash`   | Lặp abnormal, không insert mới |
+| Reset nháy (ECG N) | `alert:calm`    | Alert vẫn pending              |
+| Cập nhật bảng      | `alert:updated` | handling / resolved / release  |
+
+Constants backend: `ALERT_NEW` → `'alert:warning'` (tên event legacy, giữ để không breaking FE).

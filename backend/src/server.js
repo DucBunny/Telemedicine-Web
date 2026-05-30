@@ -3,7 +3,11 @@ import cors from 'cors'
 import express from 'express'
 import { connectMailer, connectMongoDB, connectMySQL, env } from '@/config'
 import { connectRabbitMQ } from '@/config/rabbitmq.config'
+import { startEcgAbnormalStripWorker } from '@/jobs/ecgAbnormalStrip.queue'
+import { scheduleEcgRawFlushJob } from '@/jobs/ecgRawFlush.job'
+import { startMedicalReportWorker } from '@/jobs/medicalReport.queue'
 import { schedulePendingAppointmentExpiryJob } from '@/jobs/pendingAppointments.job'
+import { scheduleStaleAlertAutoResolveJob } from '@/jobs/staleAlerts.job'
 import { errorConverter, errorHandler } from '@/middlewares/error.middleware'
 import { connectMQTT } from '@/mqtt/mqtt.client'
 import router from '@/routes/api'
@@ -39,13 +43,17 @@ socketServer.listen(port, async () => {
   await connectRabbitMQ()
 
   // Khởi động Mailer
-  connectMailer()
+  await connectMailer()
+
+  // Khởi động background worker / cron jobs
+  await startEcgAbnormalStripWorker()
+  await startMedicalReportWorker()
+  scheduleEcgRawFlushJob()
+  schedulePendingAppointmentExpiryJob()
+  scheduleStaleAlertAutoResolveJob()
 
   // Khởi động MQTT client
   connectMQTT()
-
-  // Khởi động cron job
-  schedulePendingAppointmentExpiryJob()
 
   console.log('All services started successfully')
 })

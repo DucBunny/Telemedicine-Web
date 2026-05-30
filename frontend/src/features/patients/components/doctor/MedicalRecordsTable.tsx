@@ -25,9 +25,11 @@ interface MedicalRecordsTableProps {
   onSelectRecord?: (record: MedicalRecord) => void
   createdFrom?: string
   createdTo?: string
+  doctorFilter?: boolean
   onApplyFilters: (filters: {
     createdFrom?: string
     createdTo?: string
+    doctorFilter?: boolean
   }) => void
   pagination: UsePaginationReturn
 }
@@ -39,6 +41,7 @@ export const MedicalRecordsTable = ({
   onSelectRecord,
   createdFrom,
   createdTo,
+  doctorFilter,
   onApplyFilters,
   pagination,
 }: MedicalRecordsTableProps) => {
@@ -66,6 +69,7 @@ export const MedicalRecordsTable = ({
           <MedicalRecordsFilters
             createdFrom={createdFrom}
             createdTo={createdTo}
+            doctorFilter={doctorFilter}
             onApplyFilters={onApplyFilters}
           />
         </div>
@@ -77,7 +81,8 @@ export const MedicalRecordsTable = ({
           <TableHeader className="bg-slate-50/80">
             <TableRow className="border-gray-100">
               <TableHead className="w-28">Ngày tạo</TableHead>
-              <TableHead className="w-20 text-center">Thời gian</TableHead>
+              <TableHead className="w-19 text-center">Thời gian</TableHead>
+              <TableHead className="w-40">Bác sĩ thực hiện</TableHead>
               <TableHead className="w-40">Chẩn đoán</TableHead>
               <TableHead className="w-60">Triệu chứng</TableHead>
               <TableHead className="w-26 text-right"></TableHead>
@@ -87,7 +92,7 @@ export const MedicalRecordsTable = ({
             {isLoading && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="py-8 text-center text-slate-500">
                   Đang tải dữ liệu...
                 </TableCell>
@@ -97,7 +102,7 @@ export const MedicalRecordsTable = ({
             {isError && !isLoading && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="py-8 text-center text-red-500">
                   Không thể tải lịch sử bệnh án.
                 </TableCell>
@@ -107,7 +112,7 @@ export const MedicalRecordsTable = ({
             {!isLoading && !isError && records.length === 0 && (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="py-8 text-center text-slate-500">
                   Chưa có hồ sơ bệnh án nào.
                 </TableCell>
@@ -124,6 +129,11 @@ export const MedicalRecordsTable = ({
                 {/* Cột Thời gian */}
                 <TableCell className="text-center text-slate-600">
                   {formatTime(record.createdAt)}
+                </TableCell>
+
+                {/* Cột Bác sĩ */}
+                <TableCell className="truncate">
+                  {record.doctor?.user.fullName}
                 </TableCell>
 
                 {/* Cột Chẩn đoán */}

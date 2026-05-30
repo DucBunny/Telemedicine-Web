@@ -119,8 +119,7 @@ export const findByPatientId = async (
  */
 export const findByPatientIdAndDoctorId = async (
   patientId,
-  doctorId,
-  { page = 1, limit = 10, createdFrom, createdTo },
+  { page = 1, limit = 10, createdFrom, createdTo, doctorIdQuery },
 ) => {
   const whereClause = {}
   if (createdFrom || createdTo) {
@@ -129,13 +128,29 @@ export const findByPatientIdAndDoctorId = async (
     if (createdTo) whereClause.createdAt[Op.lte] = new Date(createdTo)
   }
 
+  if (doctorIdQuery) {
+    whereClause.doctorId = doctorIdQuery
+  }
+
   return await findByOwner({
     where: {
       patientId,
-      doctorId,
       ...whereClause,
     },
-    include: [],
+    include: [
+      {
+        model: Doctor,
+        as: 'doctor',
+        attributes: ['degree'],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['fullName'],
+          },
+        ],
+      },
+    ],
     page,
     limit,
   })
@@ -150,6 +165,7 @@ export const findById = async (recordId) => {
       {
         model: Doctor,
         as: 'doctor',
+        attributes: ['degree'],
         include: [
           {
             model: User,

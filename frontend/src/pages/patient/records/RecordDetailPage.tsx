@@ -5,8 +5,8 @@ import {
   AttachmentsSection,
   ClinicalInfoSection,
   PrescriptionTableSection,
-  RecordDoctorCard,
-} from '@/features/medicalRecords/components/patient'
+} from '@/features/medicalRecords/components/common'
+import { RecordDoctorCard } from '@/features/medicalRecords/components/patient'
 import { useGetRecordById } from '@/features/medicalRecords/hooks/useRecordQueries'
 import LoaderScreen from '@/components/common/Loader'
 import { ChildPageHeader } from '@/components/common/PageHeader'
@@ -42,7 +42,7 @@ export const RecordDetailPage = () => {
     <div className="px-4">
       <ChildPageHeader title="Chi tiết hồ sơ" onBack={handleBack} />
 
-      <div className="space-y-3 pb-25 md:space-y-4 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0">
+      <div className="space-y-3 pb-25 md:space-y-4 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0 lg:pb-0">
         {/* Title row — col-span-2 */}
         <div className="flex items-center justify-between lg:col-span-12">
           <h2 className="text-3xl leading-tight font-bold">
@@ -58,7 +58,7 @@ export const RecordDetailPage = () => {
         </div>
 
         {/* Mobile: 1st │ Desktop: col 1, row 2 */}
-        <div className="lg:col-span-7 lg:col-start-1 lg:row-start-2">
+        <div className="lg:col-span-7 lg:col-start-1">
           <RecordDoctorCard record={record} />
         </div>
 
@@ -69,14 +69,14 @@ export const RecordDetailPage = () => {
 
         {/* Mobile: 3rd │ Desktop: col 1, row 3 */}
         {record.prescription && (
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3">
+          <div className="lg:col-span-7 lg:col-start-1">
             <PrescriptionTableSection prescription={record.prescription} />
           </div>
         )}
 
         {/* Mobile: 4th │ Desktop: col 1, row 4 */}
         {attachments.length > 0 && (
-          <div className="lg:col-span-7 lg:col-start-1 lg:row-start-4">
+          <div className="lg:col-span-7 lg:col-start-1">
             <AttachmentsSection attachments={attachments} />
           </div>
         )}

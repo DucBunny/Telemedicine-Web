@@ -1,4 +1,7 @@
-import type { MedicalRecord } from '@/features/medicalRecords/types'
+import type {
+  ExportMedicalReportResponse,
+  MedicalRecord,
+} from '@/features/medicalRecords/types'
 import type {
   CreateRecordBody,
   GetMyRecordsParams,
@@ -72,5 +75,19 @@ export const recordApi = {
     )
 
     return data
+  },
+
+  /**
+   * Request an ECG report export for a medical record or alert.
+   */
+  exportReport: async (payload: {
+    medicalRecordId?: number
+    alertId?: number
+  }) => {
+    const { data } = await apiClient.post<
+      ApiSuccessResponse<ExportMedicalReportResponse>
+    >(`${RECORD_BASE}/reports/export`, payload)
+
+    return data.data
   },
 }

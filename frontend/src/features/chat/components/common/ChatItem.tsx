@@ -1,7 +1,12 @@
+import { useMediaQuery } from 'usehooks-ts'
+
 import type { ChatConversation } from '@/features/chat/types'
 
 import { StatusAvatar } from '@/components/common/StatusAvatar'
-import { formatDistanceToNowWithSeconds } from '@/lib/format-date'
+import {
+  formatDateForChat,
+  formatDistanceToNowWithSeconds,
+} from '@/lib/format-date'
 import { cn } from '@/lib/utils'
 import { usePresenceStore } from '@/stores/presence.store'
 
@@ -20,6 +25,7 @@ export const ChatItem = ({
   const isUserOnline = usePresenceStore(
     (state) => !!state.onlineUsers[conversation.user.id],
   )
+  const isDesktop = useMediaQuery('(min-width: 1024px)')
 
   return (
     <div
@@ -45,20 +51,24 @@ export const ChatItem = ({
             className={cn('truncate text-base', hasUnread && 'font-semibold')}>
             {conversation.user.fullName}
           </h3>
-          <span className="ml-2 text-sm font-medium whitespace-nowrap">
-            {formatDistanceToNowWithSeconds(
-              conversation.lastMessage?.createdAt ?? '',
-            )}
-          </span>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-1">
           <p className={cn('truncate text-sm', hasUnread && 'font-semibold')}>
             {conversation.lastMessage?.message || 'Chưa có tin nhắn'}
           </p>
-          {hasUnread && (
-            <span className="size-3 shrink-0 rounded-full bg-blue-500" />
-          )}
+          ·
+          <span
+            className={cn(
+              'text-sm whitespace-nowrap',
+              hasUnread && 'font-semibold',
+            )}>
+            {isDesktop
+              ? formatDistanceToNowWithSeconds(
+                  conversation.lastMessage?.createdAt ?? '',
+                )
+              : formatDateForChat(conversation.lastMessage?.createdAt ?? '')}
+          </span>
         </div>
       </div>
     </div>

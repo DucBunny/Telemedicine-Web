@@ -9,6 +9,7 @@ export interface GetPatientMedicalRecordsParams extends PaginationParams {
   search?: string
   createdFrom?: string
   createdTo?: string
+  doctorId?: number
 }
 
 export interface CreateRecordBody {

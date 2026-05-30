@@ -12,6 +12,40 @@ interface RecentUsersListProps {
   onBookAction?: () => void
 }
 
+interface RecentUserItemProps {
+  conversation: ChatConversation
+  onClick: (conversationId: string) => void
+  className?: string
+}
+
+const RecentUserItem = ({
+  conversation,
+  onClick,
+  className,
+}: RecentUserItemProps) => {
+  const isUserOnline = usePresenceStore(
+    (state) => !!state.onlineUsers[conversation.user.id],
+  )
+
+  const nameParts = conversation.user.fullName.split(' ')
+  const firstName = nameParts[nameParts.length - 1]
+
+  return (
+    <div className={className}>
+      <StatusAvatar
+        isUserOnline={isUserOnline}
+        src={conversation.user.avatar}
+        alt={conversation.user.fullName}
+        className="size-14"
+        onClick={() => onClick(conversation.id)}
+      />
+      <span className="max-w-15 truncate text-center text-xs font-medium">
+        {firstName}
+      </span>
+    </div>
+  )
+}
+
 export const RecentUsersList = ({
   conversations,
   onClick,
@@ -36,34 +70,17 @@ export const RecentUsersList = ({
       )}
 
       {/* Danh sách người dùng */}
-      {conversations.map((conv) => {
-        const isUserOnline = usePresenceStore(
-          (state) => !!state.onlineUsers[conv.user.id],
-        )
-
-        const nameParts = conv.user.fullName.split(' ')
-        const firstName = nameParts[nameParts.length - 1]
-
-        return (
-          <div
-            key={conv.id}
-            className={cn(
-              'flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity last:me-4 hover:opacity-80 md:last:me-20 lg:last:me-4',
-              !onBookAction && 'first:ms-4',
-            )}>
-            <StatusAvatar
-              isUserOnline={isUserOnline}
-              src={conv.user.avatar}
-              alt={conv.user.fullName}
-              className="size-14"
-              onClick={() => onClick(conv.id)}
-            />
-            <span className="max-w-15 truncate text-center text-xs font-medium">
-              {firstName}
-            </span>
-          </div>
-        )
-      })}
+      {conversations.map((conv) => (
+        <RecentUserItem
+          key={conv.id}
+          conversation={conv}
+          onClick={onClick}
+          className={cn(
+            'flex min-w-15 cursor-pointer flex-col items-center gap-1 transition-opacity last:me-4 hover:opacity-80 md:last:me-20 lg:last:me-4',
+            !onBookAction && 'first:ms-4',
+          )}
+        />
+      ))}
     </div>
   )
 }

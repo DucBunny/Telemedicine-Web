@@ -131,7 +131,7 @@ export const AppointmentConfirmPage = () => {
         }
       />
 
-      <div className="space-y-3 pb-25 md:space-y-6 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0 xl:gap-6">
+      <div className="space-y-3 pb-25 md:space-y-6 lg:grid lg:grid-cols-12 lg:gap-4 lg:space-y-0 lg:pb-0 xl:gap-6">
         <div className="space-y-3 md:space-y-6 lg:col-span-8 xl:col-span-9">
           <AppointmentConfirmInfoCard
             doctor={doctor}

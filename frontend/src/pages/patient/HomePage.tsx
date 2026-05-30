@@ -9,10 +9,9 @@ import {
 } from '@/features/appointments/hooks/useAppointmentQueries'
 import {
   AppointmentCard,
-  ECGChart,
   ProfileCard,
   StatCards,
-  VitalCards,
+  VitalCardsGrid,
 } from '@/features/dashboard/components/patient'
 import { useGetUnreadNotificationCount } from '@/features/notifications/hooks/useNotificationQueries'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
@@ -37,19 +36,23 @@ export const HomePage = () => {
 
       <div className="grid grid-cols-1 gap-3 md:gap-6 lg:grid-cols-12">
         {/* Cột trái */}
-        <div className="flex flex-col gap-3 md:gap-4 lg:col-span-8">
+        <div className="flex flex-col gap-3 md:gap-4 lg:col-span-12">
           {/* Các thẻ chỉ số cơ bản */}
           <StatCards profileData={profileData} />
 
-          {/* Các thẻ chỉ số sức khỏe */}
-          <VitalCards latestData={null} />
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-slate-900">
+                Chỉ số sức khỏe
+              </h3>
+            </div>
 
-          {/* Biểu đồ ECG */}
-          <ECGChart patientId={user!.id} />
+            <VitalCardsGrid patientId={user!.id} />
+          </div>
         </div>
 
         {/* Cột phải */}
-        <div className="mb-3 flex flex-col gap-3 md:gap-6 lg:col-span-4">
+        {/* <div className="mb-3 flex flex-col gap-3 md:gap-6 lg:col-span-4">
           <Link to="/patient/appointments">
             <Button
               variant="teal_primary"
@@ -74,7 +77,7 @@ export const HomePage = () => {
               </p>
             )}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

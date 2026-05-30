@@ -23,6 +23,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { Switch } from '@/components/ui/switch'
 import {
   formatDateRangeLabel,
   formatTime,
@@ -33,6 +34,7 @@ import {
 export type MedicalRecordsFiltersApplyPayload = {
   createdFrom?: string
   createdTo?: string
+  doctorFilter?: boolean
 }
 
 interface MedicalRecordsFiltersSheetProps {
@@ -40,6 +42,7 @@ interface MedicalRecordsFiltersSheetProps {
   emptyDateRangeLabel?: string
   createdFrom?: string
   createdTo?: string
+  doctorFilter?: boolean
   onApplyFilters: (filters: MedicalRecordsFiltersApplyPayload) => void
   children: ReactElement
 }
@@ -49,6 +52,7 @@ export const MedicalRecordsFiltersSheet = ({
   emptyDateRangeLabel = 'Chọn khoảng thời gian',
   createdFrom,
   createdTo,
+  doctorFilter,
   onApplyFilters,
   children,
 }: MedicalRecordsFiltersSheetProps) => {
@@ -56,6 +60,7 @@ export const MedicalRecordsFiltersSheet = ({
   const [draftDateRange, setDraftDateRange] = useState<DateRange | undefined>()
   const [draftStartTime, setDraftStartTime] = useState('')
   const [draftEndTime, setDraftEndTime] = useState('')
+  const [draftDoctorFilter, setDraftDoctorFilter] = useState(false)
 
   // Handle draft state when the sheet is opened
   useEffect(() => {
@@ -71,7 +76,8 @@ export const MedicalRecordsFiltersSheet = ({
     )
     setDraftStartTime(createdFrom ? formatTime(createdFrom) : '')
     setDraftEndTime(createdTo ? formatTime(createdTo) : '')
-  }, [isSheetOpen, createdFrom, createdTo])
+    setDraftDoctorFilter(doctorFilter ?? false)
+  }, [isSheetOpen, createdFrom, createdTo, doctorFilter])
 
   // Check if the apply button is disabled
   const isApplyDisabled = useMemo(() => {
@@ -99,6 +105,7 @@ export const MedicalRecordsFiltersSheet = ({
       createdTo: draftDateRange?.to
         ? toUtcIsoFromVietnamLocal(draftDateRange.to, draftEndTime || '23:59')
         : undefined,
+      doctorFilter: draftDoctorFilter,
     })
     setIsSheetOpen(false)
   }
@@ -108,6 +115,7 @@ export const MedicalRecordsFiltersSheet = ({
     setDraftDateRange(undefined)
     setDraftStartTime('')
     setDraftEndTime('')
+    setDraftDoctorFilter(false)
   }
 
   return (
@@ -124,56 +132,72 @@ export const MedicalRecordsFiltersSheet = ({
           <SheetDescription />
         </SheetHeader>
 
-        <div className="grid flex-1 auto-rows-min">
+        <div className="grid flex-1 auto-rows-min gap-4">
           <div>
-            <Label className="text-sm! font-medium!">Thời gian tạo</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="lg"
-                  className="w-full justify-start gap-2 font-normal">
-                  <CalendarDays className="size-4 text-gray-500" />
-                  <span className="line-clamp-2 text-sm text-gray-700">
-                    {formatDateRangeLabel(draftDateRange, emptyDateRangeLabel)}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="max-w-sm p-0 sm:max-w-md"
-                align="start">
-                <Calendar
-                  mode="range"
-                  selected={draftDateRange}
-                  onSelect={setDraftDateRange}
-                  captionLayout="dropdown"
-                  locale={vi}
-                  className="w-full"
+            <div>
+              <Label className="text-sm! font-medium!">Thời gian tạo</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full justify-start gap-2 font-normal">
+                    <CalendarDays className="size-4 text-gray-500" />
+                    <span className="line-clamp-2 text-sm text-gray-700">
+                      {formatDateRangeLabel(
+                        draftDateRange,
+                        emptyDateRangeLabel,
+                      )}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="max-w-sm p-0 sm:max-w-md"
+                  align="start">
+                  <Calendar
+                    mode="range"
+                    selected={draftDateRange}
+                    onSelect={setDraftDateRange}
+                    captionLayout="dropdown"
+                    locale={vi}
+                    className="w-full"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="font-medium! text-gray-500!">Từ</Label>
+                <Input
+                  type="time"
+                  value={draftStartTime}
+                  onChange={(event) => setDraftStartTime(event.target.value)}
+                  className="shadow-xs"
                 />
-              </PopoverContent>
-            </Popover>
+              </div>
+              <div>
+                <Label className="font-medium! text-gray-500!">Đến</Label>
+                <Input
+                  type="time"
+                  value={draftEndTime}
+                  onChange={(event) => setDraftEndTime(event.target.value)}
+                  className="shadow-xs"
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="font-medium! text-gray-500!">Từ</Label>
-              <Input
-                type="time"
-                value={draftStartTime}
-                onChange={(event) => setDraftStartTime(event.target.value)}
-                className="shadow-xs"
-              />
-            </div>
-            <div>
-              <Label className="font-medium! text-gray-500!">Đến</Label>
-              <Input
-                type="time"
-                value={draftEndTime}
-                onChange={(event) => setDraftEndTime(event.target.value)}
-                className="shadow-xs"
-              />
-            </div>
+          <div className="mt-1 flex items-center gap-4">
+            <Label className="text-sm! font-medium!">
+              Được thực hiện bởi tôi
+            </Label>
+            <Switch
+              className="data-[state=checked]:bg-teal-primary"
+              checked={draftDoctorFilter}
+              onCheckedChange={setDraftDoctorFilter}
+            />
           </div>
         </div>
 

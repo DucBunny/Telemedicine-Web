@@ -3,8 +3,10 @@ import {
   getThrottledAlertId,
   refreshThrottleTTL,
   setThrottledAlertId,
-} from '@/cache/alert-throttle.cache'
+} from '@/cache/alertThrottle.cache'
+import { enqueueEcgRawPacket } from '@/cache/ecgRaw.cache'
 import { env } from '@/config'
+import { schedulePersistAbnormalStripJob } from '@/jobs/ecgAbnormalStrip.queue'
 import * as alertRepo from '@/repositories/alert.repo'
 import * as deviceRepo from '@/repositories/device.repo'
 import * as doctorRepo from '@/repositories/doctor.repo'
@@ -20,8 +22,8 @@ import {
 const ECG_CLASS_MESSAGES = {
   S: 'Phát hiện ngoại tâm thu trên thất (S)',
   V: 'Phát hiện ngoại tâm thu thất (V)',
-  F: 'Phát hiện nhịp fusion (F)',
-  Q: 'Phát hiện nhịp không phân loại (Q)',
+  F: 'Phát hiện nhịp hợp nhất (F)',
+  Q: 'Phát hiện nhịp không xác định (Q)',
 }
 
 const alertTypeFromClass = (classInference) =>
@@ -31,6 +33,38 @@ const buildAlertMessage = (classInference) =>
   ECG_CLASS_MESSAGES[classInference] ||
   `Phát hiện bất thường ECG (class: ${classInference})`
 
+// Xây dựng document ECG raw cho MongoDB
+const buildEcgRawDocument = (ctx, data, timestamp) => {
+  const packetEcg = data?.packet_ecg
+  const classInference = String(data?.class_inference || 'N').toUpperCase()
+
+  if (
+    !Array.isArray(packetEcg) ||
+    packetEcg.length !== Number.parseInt(env.ECG_PACKET_SIZE, 10)
+  )
+    return null
+
+  return {
+    timestamp,
+    metadata: {
+      patient_id: ctx.patientId,
+      device_id: ctx.deviceId,
+    },
+    ecg_packet: packetEcg,
+    class_inference: classInference,
+    is_abnormal: classInference !== 'N',
+  }
+}
+
+// Lên lịch job lưu ECG abnormal strip vào MongoDB
+const scheduleAbnormalStripPersistence = async (alert) => {
+  try {
+    await schedulePersistAbnormalStripJob(alert)
+  } catch (error) {
+    console.error('[Telemetry] Failed to schedule abnormal strip job:', error)
+  }
+}
+
 /**
  * Resolve device + patient từ gói telemetry
  * @param {object} data - Gói telemetry
@@ -39,7 +73,7 @@ const buildAlertMessage = (classInference) =>
  * const deviceContext = await resolveDeviceContext(data) => { deviceId: 1, patientId: 1 }
  */
 const resolveDeviceContext = async (data) => {
-  const deviceId = data?.id
+  const deviceId = Number.parseInt(data?.id, 10)
   if (!deviceId) return null
 
   const device = await deviceRepo.findById(deviceId)
@@ -54,29 +88,42 @@ const resolveDeviceContext = async (data) => {
 /**
  * Đẩy gói ECG lên /monitor (dùng cho cả N và bất thường để UI vẽ waveform)
  */
-const emitEcgToMonitor = (ctx, data, mqttTime) => {
+const emitEcgToMonitor = async (ctx, data, mqttTime) => {
   const {
     packet_ecg: packetEcg,
     class_inference: classInference,
     time_inference: timeInference,
   } = data
 
-  if (!Array.isArray(packetEcg) || packetEcg.length !== 187) return
+  if (
+    !Array.isArray(packetEcg) ||
+    packetEcg.length !== Number.parseInt(env.ECG_PACKET_SIZE, 10)
+  )
+    return
+
+  const timestamp = mqttTime ? new Date(mqttTime) : new Date()
 
   emitEcgPacketToPatientMonitor(ctx.patientId, {
     deviceId: ctx.deviceId,
     packetEcg,
     classInference: classInference || 'N',
     timeInference: timeInference ?? null,
-    timestamp: mqttTime ? new Date(mqttTime) : new Date(),
+    timestamp,
   })
+
+  try {
+    const ecgRawDocument = buildEcgRawDocument(ctx, data, timestamp)
+    if (ecgRawDocument) await enqueueEcgRawPacket(ecgRawDocument)
+  } catch (error) {
+    console.error('[Telemetry] Failed to buffer ECG raw packet:', error)
+  }
 }
 
 /**
  * Stream ECG bình thường → namespace /monitor
  */
 const handleNormalTelemetry = async (ctx, data, mqttTime) => {
-  emitEcgToMonitor(ctx, data, mqttTime)
+  await emitEcgToMonitor(ctx, data, mqttTime)
 
   const pendingAlerts = await alertRepo.findPendingByPatientId(ctx.patientId)
   if (!pendingAlerts.length) return
@@ -100,7 +147,7 @@ const handleNormalTelemetry = async (ctx, data, mqttTime) => {
  * ECG bất thường — alert + throttle Redis + socket/email
  */
 const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
-  emitEcgToMonitor(ctx, data, mqttTime)
+  await emitEcgToMonitor(ctx, data, mqttTime)
 
   const classInference = String(data.class_inference || '').toUpperCase()
   const alertType = alertTypeFromClass(classInference)
@@ -161,7 +208,7 @@ const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
 
   if (alertId) {
     // Cập nhật biến anomalyCount và lastDetectedAt
-    const updated = await alertRepo.recordAnomalyDetection(alertId)
+    const updated = await alertRepo.recordAnomalyDetection(alertId, now)
 
     // Nếu không cập nhật được → xóa throttle và return
     if (!updated) {
@@ -171,6 +218,7 @@ const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
 
     // Reset Redis TTL để đảm bảo tạo alert mới sau 30 phút từ lastDetectedAt
     await refreshThrottleTTL(ctx.patientId, alertType)
+    await scheduleAbnormalStripPersistence(updated)
 
     // Chỉ nháy khi pending (đang xử lý / đã resolve → không nháy)
     if (updated.status === 'pending') {
@@ -190,7 +238,7 @@ const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
     patientId: ctx.patientId,
     deviceId: ctx.deviceId,
     type: alertType,
-    value: data.time_inference ?? null,
+    value: null, // ECG value is not used for alert
     message: buildAlertMessage(classInference),
     triggerTimestamp: now,
     lastDetectedAt: now,
@@ -205,6 +253,7 @@ const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
     alert.id,
     env.ALERT_THROTTLE_TTL_SEC,
   )
+  await scheduleAbnormalStripPersistence(alert)
 
   const fullAlert = await alertRepo.findById(alert.id)
   await notifyAlertCreated(fullAlert)
@@ -235,9 +284,10 @@ const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
  * Xử lý gói telemetry từ MQTT (dac_ta_ban_tin_en.md)
  */
 export const processTelemetryMessage = async (payload) => {
-  if (payload?.content !== 'telemetry') return
+  // if (payload?.content !== 'telemetry') return
 
   const data = payload.data
+  // const data = payload
   if (!data) return
 
   const ctx = await resolveDeviceContext(data)

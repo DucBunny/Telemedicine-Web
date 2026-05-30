@@ -1,5 +1,8 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
+/**
+ * Lưu trữ metrics (BPM, SpO2) thu được từ thiết bị
+ */
 const HealthMetricSchema = new mongoose.Schema(
   {
     timestamp: { type: Date, required: true },

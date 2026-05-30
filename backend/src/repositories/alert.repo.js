@@ -90,10 +90,14 @@ export const findOpenByPatientAndType = async (
 /**
  * Cập nhật khi phát hiện lại trong cửa sổ throttle (không insert mới)
  */
-export const recordAnomalyDetection = async (alertId, options = {}) => {
+export const recordAnomalyDetection = async (
+  alertId,
+  detectedAt = new Date(),
+  options = {},
+) => {
   const [affectedCount] = await Alert.update(
     {
-      lastDetectedAt: new Date(),
+      lastDetectedAt: new Date(detectedAt),
       anomalyCount: Sequelize.literal('anomaly_count + 1'),
     },
     {
@@ -316,5 +320,48 @@ export const resolve = async (alertId, options = {}) => {
       ...options,
     },
   )
+  return affectedCount > 0 ? await findById(alertId, options) : null
+}
+
+/**
+ * Find unresolved alerts that have been stale since the provided cutoff
+ */
+export const findStaleOpenAlerts = async (cutoffDate, options = {}) => {
+  return await Alert.findAll({
+    where: {
+      status: { [Op.in]: ['pending', 'handling'] },
+      lastDetectedAt: {
+        [Op.lte]: new Date(cutoffDate),
+      },
+    },
+    order: [['lastDetectedAt', 'ASC']],
+    ...options,
+  })
+}
+
+/**
+ * Resolve alert by system bot without requiring manual handling first
+ */
+export const resolveByBot = async (
+  alertId,
+  botDoctorId,
+  resolvedAt = new Date(),
+  options = {},
+) => {
+  const [affectedCount] = await Alert.update(
+    {
+      status: 'resolved',
+      handledBy: botDoctorId,
+      resolvedAt,
+    },
+    {
+      where: {
+        id: alertId,
+        status: { [Op.in]: ['pending', 'handling'] },
+      },
+      ...options,
+    },
+  )
+
   return affectedCount > 0 ? await findById(alertId, options) : null
 }

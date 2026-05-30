@@ -189,17 +189,19 @@ export const AlertDetailDialog = ({
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
-                <Activity className="text-teal-primary size-4" />
+            {['spo2', 'bpm'].includes(alert.type) && (
+              <div className="flex items-start gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+                  <Activity className="text-teal-primary size-4" />
+                </div>
+                <div className="flex flex-1 flex-col border-b border-gray-200 pb-2 md:pb-3">
+                  <span className="text-xs text-gray-600">Giá trị đo</span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {formatAlertValue(alert.type, alert.value)}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-1 flex-col border-b border-gray-200 pb-2 md:pb-3">
-                <span className="text-xs text-gray-600">Giá trị đo</span>
-                <span className="text-sm font-bold text-gray-900">
-                  {formatAlertValue(alert.type, alert.value)}
-                </span>
-              </div>
-            </div>
+            )}
 
             <div className="flex items-start gap-3">
               <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">

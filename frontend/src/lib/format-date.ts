@@ -3,6 +3,8 @@ import {
   differenceInYears,
   format,
   formatDistanceToNow,
+  isThisISOWeek,
+  isThisYear,
   isToday,
   isTomorrow,
   isValid,
@@ -105,7 +107,7 @@ export function formatDateForApi(date: string | Date) {
 export function formatDistanceToNowWithSeconds(date: string | Date) {
   return formatDistanceToNow(parseDateInput(date), {
     includeSeconds: true,
-    addSuffix: true,
+    addSuffix: false,
     locale: vi,
   })
 }
@@ -190,4 +192,34 @@ export function formatDateRangeLabel(
   if (!range?.from && !range?.to) return emptyLabel
 
   return `${formatShortDate(range.from || '')} - ${formatShortDate(range.to || '')}`
+}
+
+/**
+ * Format a date for chat in Vietnamese locale.
+ * @param date
+ * @returns Formatted date for chat in Vietnamese locale (e.g., "HH:mm" if today, "dd/MM" if not today)
+ * @example formatDateForChat('2024-01-01T10:30:00') => "10:30" (as of 2024-01-01)
+ * @example formatDateForChat('2024-01-01') => "Thứ Hai" (as of 2024-01-02)
+ * @example formatDateForChat('2024-01-01') => "01/01" (as of 2024-02-01)
+ * @example formatDateForChat('2024-01-01') => "01/01/2024" (as of 2025-01-01)
+ */
+export function formatDateForChat(date: string | Date) {
+  if (isToday(parseDateInput(date)))
+    return format(parseDateInput(date), 'HH:mm', {
+      locale: vi,
+    })
+
+  if (isThisISOWeek(parseDateInput(date)))
+    return format(parseDateInput(date), 'EEEEEE', {
+      locale: vi,
+    })
+
+  if (isThisYear(parseDateInput(date)))
+    return format(parseDateInput(date), 'dd/MM', {
+      locale: vi,
+    })
+
+  return format(parseDateInput(date), 'dd/MM/yyyy', {
+    locale: vi,
+  })
 }

@@ -4,6 +4,7 @@ import { ChevronRight } from 'lucide-react'
 import type { DoctorStats } from '@/features/dashboard/types'
 import type { Doctor } from '@/features/doctors/types'
 
+import { useGetMyAlerts } from '@/features/alerts/hooks/useAlertQueries'
 import {
   useGetMyAppointments,
   useRealtimeAppointments,
@@ -17,7 +18,6 @@ import { useGetDashboardStats } from '@/features/dashboard/hooks/useGetStats'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
 import LoaderScreen from '@/components/common/Loader'
 import { Button } from '@/components/ui/button'
-import { getVietnamTodayUtcRange } from '@/lib/format-date'
 
 export const DashboardPage = () => {
   const { data: doctorProfile } = useGetProfile<Doctor>()
@@ -25,10 +25,16 @@ export const DashboardPage = () => {
     page: 1,
     limit: 5,
     status: ['confirmed'],
-    scheduledFrom: getVietnamTodayUtcRange().scheduledFrom,
-    scheduledTo: getVietnamTodayUtcRange().scheduledTo,
+    scheduledFrom: new Date().toISOString(),
   })
+  const { data: alertsData } = useGetMyAlerts({
+    page: 1,
+    limit: 5,
+    status: 'pending',
+  })
+
   useRealtimeAppointments()
+
   const { data: statsData, isLoading: isStatsLoading } =
     useGetDashboardStats<DoctorStats>()
 
@@ -48,16 +54,16 @@ export const DashboardPage = () => {
       {/* Stats Cards */}
       {isStatsLoading ? <LoaderScreen /> : <StatCards stats={statsData} />}
 
-      <div className="grid grid-cols-1 gap-3 md:gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 md:gap-6 lg:grid-cols-11 xl:grid-cols-3">
         {/* Main Column */}
-        <div className="space-y-3 md:space-y-6 lg:col-span-2">
+        <div className="space-y-3 md:space-y-6 lg:col-span-7 xl:col-span-2">
           {/* Upcoming Appointments */}
           <UpcomingAppointments appointments={appointmentsData?.data} />
         </div>
 
         {/* Alerts Column */}
-        <div className="order-first lg:order-last lg:col-span-1">
-          <AlertsCard />
+        <div className="order-first lg:order-last lg:col-span-4 xl:col-span-1">
+          <AlertsCard alerts={alertsData?.data} />
         </div>
       </div>
     </div>

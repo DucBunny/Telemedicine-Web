@@ -10,6 +10,7 @@ import type {
 } from '@/sockets/socket.types'
 
 import { CHAT_EVENTS, SOCKET_ROOMS } from '@/sockets/socket.constants'
+import { destroySocket } from '@/sockets/socket.utils'
 import { useAuthStore } from '@/stores/auth.store'
 
 interface ChatSocketStore {
@@ -83,7 +84,7 @@ export const useChatSocketStore = create<ChatSocketStore>((set, get) => ({
     const prev = get().socket
     if (prev?.connected) return
     if (prev) {
-      prev.disconnect()
+      destroySocket(prev)
       set({ socket: null, isConnected: false })
     }
 
@@ -140,7 +141,8 @@ export const useChatSocketStore = create<ChatSocketStore>((set, get) => ({
 
   // Ngắt kết nối socket
   disconnect: () => {
-    get().socket?.disconnect()
+    const socket = get().socket
+    if (socket) destroySocket(socket)
     set({ socket: null, isConnected: false, activeConversationId: null })
   },
 
