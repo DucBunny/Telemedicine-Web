@@ -1,30 +1,22 @@
-import { Link } from '@tanstack/react-router'
-import { CalendarPlus } from 'lucide-react'
-
 import type { Patient } from '@/features/patients/types'
 
+import { useRealtimeAppointments } from '@/features/appointments/hooks/useAppointmentQueries'
 import {
-  useGetMyAppointments,
-  useRealtimeAppointments,
-} from '@/features/appointments/hooks/useAppointmentQueries'
-import {
-  AppointmentCard,
   ProfileCard,
   StatCards,
   VitalCardsGrid,
 } from '@/features/dashboard/components/patient'
 import { useGetUnreadNotificationCount } from '@/features/notifications/hooks/useNotificationQueries'
 import { useGetProfile } from '@/features/profile/hooks/useProfileQueries'
-import { Button } from '@/components/ui/button'
 import { selectUser, useAuthStore } from '@/stores/auth.store'
 
 export const HomePage = () => {
   const { data: profileData } = useGetProfile<Patient>()
-  const { data: appointmentsData } = useGetMyAppointments({
-    page: 1,
-    limit: 3,
-    status: ['confirmed'],
-  })
+  // const { data: appointmentsData } = useGetMyAppointments({
+  //   page: 1,
+  //   limit: 3,
+  //   status: ['confirmed'],
+  // })
   useRealtimeAppointments()
   const { data: unreadCount } = useGetUnreadNotificationCount()
 
