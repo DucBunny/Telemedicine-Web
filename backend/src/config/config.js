@@ -8,7 +8,7 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
-    logging: false,
+    logging: process.env.DB_LOGGING === 'true',
     dialectOptions: {
       ssl: {
         require: true,
@@ -23,6 +23,7 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
+    logging: process.env.DB_LOGGING === 'true',
     dialectOptions: {
       ssl: {
         require: true,
@@ -37,6 +38,7 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT,
+    logging: process.env.DB_LOGGING === 'true',
     dialectOptions: {
       ssl: {
         require: true,

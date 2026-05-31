@@ -15,6 +15,7 @@ export const env = {
 
   DB_NAME: process.env.DB_NAME || 'telemedicine_db',
   DB_DIALECT: process.env.DB_DIALECT || 'mysql',
+  DB_LOGGING: process.env.DB_LOGGING === 'true',
 
   // MongoDB Atlas configuration
   MONGODB_DB_NAME: process.env.MONGODB_DB_NAME || 'telemedicine_nosql',
