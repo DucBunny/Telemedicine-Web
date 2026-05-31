@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useNavigate } from '@tanstack/react-router'
-import { Check, Ellipsis } from 'lucide-react'
-import { useMediaQuery } from 'usehooks-ts'
+import { Check } from 'lucide-react'
 
 import { NotificationItem } from '@/features/notifications/components/common/NotificationItem'
 import {
@@ -10,14 +9,8 @@ import {
   useMarkAllNotificationsAsRead,
 } from '@/features/notifications/hooks/useNotificationQueries'
 import LoaderScreen, { LoaderItem } from '@/components/common/Loader'
-import { ChildPageHeader, MainPageHeader } from '@/components/common/PageHeader'
+import { MainPageHeader } from '@/components/common/PageHeader'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 const filterOptions = [
   { id: 'all', label: 'Tất cả' },
@@ -26,7 +19,6 @@ const filterOptions = [
 
 export const NotificationsPage = () => {
   const navigate = useNavigate()
-  const isMobile = useMediaQuery('(max-width: 767px)')
 
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
 
@@ -65,28 +57,7 @@ export const NotificationsPage = () => {
 
   return (
     <div className="px-4">
-      {isMobile ? (
-        <ChildPageHeader
-          title="Thông báo"
-          onBack={handleBack}
-          rightAction={
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="icon" size="icon-lg">
-                  <Ellipsis />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => markAllAsRead()}>
-                  Đánh dấu tất cả là đã đọc
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          }
-        />
-      ) : (
-        <MainPageHeader title="Thông báo" onBack={handleBack} />
-      )}
+      <MainPageHeader title="Thông báo" onBack={handleBack} />
 
       {isError ? (
         <div className="flex h-64 items-center justify-center">

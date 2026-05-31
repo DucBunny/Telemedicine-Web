@@ -8,8 +8,8 @@ import * as doctorRepo from '@/repositories/doctor.repo'
 import * as medicalRecordRepo from '@/repositories/medicalRecord.repo'
 import * as patientDoctorRepo from '@/repositories/patientDoctor.repo'
 import {
-  emitAlertNewToDoctors,
-  emitAlertUpdateToDoctors,
+  emitAlertNewToUsers,
+  emitAlertUpdateToUsers,
 } from '@/sockets/emitters/system.emitters'
 import ApiError from '@/utils/api-error'
 
@@ -45,13 +45,33 @@ const getRecipientDoctorIds = async (alertId, patientId) => {
 }
 
 /**
+ * Build alert recipient user IDs
+ * @param {number[]} doctorUserIds
+ * @param {number} patientUserId
+ * @returns {number[]} recipientUserIds
+ * @example
+ * const recipientUserIds = buildAlertRecipientUserIds([1, 2, 3], 4) => [1, 2, 3, 4]
+ */
+const buildAlertRecipientUserIds = (doctorUserIds, patientUserId) => [
+  ...new Set(
+    [...(doctorUserIds ?? []), patientUserId].filter(
+      (id) => id != null && id !== '',
+    ),
+  ),
+]
+
+/**
  * Broadcast alert updated to doctors
  */
 const broadcastAlertUpdated = async (alert) => {
   const payload = serializeAlertPayload(alert)
   if (!payload) return
   const doctorIds = await getRecipientDoctorIds(alert.id, alert.patientId)
-  emitAlertUpdateToDoctors(doctorIds, payload)
+  const recipientUserIds = buildAlertRecipientUserIds(
+    doctorIds,
+    alert.patientId,
+  )
+  emitAlertUpdateToUsers(recipientUserIds, payload)
 }
 
 /**
@@ -61,7 +81,11 @@ export const notifyAlertCreated = async (alert) => {
   const payload = serializeAlertPayload(alert)
   if (!payload) return
   const doctorIds = await getRecipientDoctorIds(alert.id, alert.patientId)
-  emitAlertNewToDoctors(doctorIds, payload)
+  const recipientUserIds = buildAlertRecipientUserIds(
+    doctorIds,
+    alert.patientId,
+  )
+  emitAlertNewToUsers(recipientUserIds, payload)
 }
 
 /**

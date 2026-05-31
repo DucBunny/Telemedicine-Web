@@ -1,5 +1,16 @@
-import { formatDate } from 'date-fns'
+import { formatInTimeZone } from 'date-fns-tz'
 import { env, sendEmail } from '@/config'
+
+const formatAlertDateTime = (alert) => {
+  const raw = alert.triggerTimestamp || alert.createdAt
+  if (!raw) return '—'
+
+  return formatInTimeZone(
+    new Date(raw),
+    env.APP_TIME_ZONE,
+    'dd/MM/yyyy HH:mm:ss (zzz)',
+  )
+}
 
 /**
  * Gửi email cảnh báo cho danh sách bác sĩ (chỉ khi tạo alert mới)
@@ -10,6 +21,7 @@ export const sendAlertEmailToDoctors = async ({
   patientName,
 }) => {
   const subject = `[MedCare] Cảnh báo ECG — Bệnh nhân ${patientName || ''}`
+  const formattedTime = formatAlertDateTime(alert)
 
   // Nội dung text email (dùng cho email client không hỗ trợ HTML)
   const text = [
@@ -17,7 +29,7 @@ export const sendAlertEmailToDoctors = async ({
     `Bệnh nhân: ${patientName || alert.patientId}`,
     `Loại: ${alert.type}`,
     `Nội dung: ${alert.message}`,
-    `Thời điểm: ${alert.triggerTimestamp || alert.createdAt}`,
+    `Thời điểm: ${formattedTime}`,
     '',
     `Xem chi tiết: ${env.BASE_URL_FRONTEND}/doctor/alerts`,
   ].join('\n')
@@ -28,7 +40,7 @@ export const sendAlertEmailToDoctors = async ({
     <p><strong>Bệnh nhân:</strong> ${patientName || alert.patientId}</p>
     <p><strong>Loại:</strong> ${alert.type}</p>
     <p><strong>Nội dung:</strong> ${alert.message}</p>
-    <p><strong>Thời điểm:</strong> ${formatDate(alert.triggerTimestamp || alert.createdAt, 'dd/MM/yyyy HH:mm:ss')}</p>
+    <p><strong>Thời điểm:</strong> ${formattedTime}</p>
     <p><a href="${env.BASE_URL_FRONTEND}/doctor/alerts">Xem chi tiết</a></p>
   `
 

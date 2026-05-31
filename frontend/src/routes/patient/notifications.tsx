@@ -4,7 +4,4 @@ import { NotificationsPage } from '@/pages/patient/NotificationsPage'
 
 export const Route = createFileRoute('/patient/notifications')({
   component: NotificationsPage,
-  staticData: {
-    hideMobileNav: true,
-  },
 })

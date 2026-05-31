@@ -111,7 +111,9 @@ export const LoginForm = () => {
                 className={`h-14 w-full rounded-xl text-lg! font-bold hover:-translate-y-0.5 ${
                   !canSubmit ? 'cursor-not-allowed opacity-50' : ''
                 }`}>
-                {isSubmitting || isLoginPending ? 'Đang xử lý...' : 'Đăng nhập'}
+                {isSubmitting || isLoginPending
+                  ? 'Đang đăng nhập...'
+                  : 'Đăng nhập'}
               </Button>
             )}
           />

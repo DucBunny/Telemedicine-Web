@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useMatches } from '@tanstack/react-router'
 
+import { useRealtimeAlerts } from '@/features/alerts/hooks/useAlertQueries'
 import {
   useGetUnreadNotificationCount,
   useRealtimeNotifications,
@@ -19,6 +20,7 @@ export const PatientLayout = () => {
 
   // Listen for realtime notifications (sockets)
   useRealtimeNotifications()
+  useRealtimeAlerts()
 
   // Lấy số lượng thông báo chưa đọc từ API
   const { data: unreadCount = 0 } = useGetUnreadNotificationCount()

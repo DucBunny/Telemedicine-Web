@@ -35,13 +35,13 @@ export const MobileNav = ({ activeTab }: MobileNavProps) => {
 
                 <item.icon className="size-6" strokeWidth={isActive ? 3 : 2} />
 
-                <p
+                {/* <p
                   className={cn(
                     'text-center text-[10px] text-gray-400',
                     isActive && 'text-teal-primary',
                   )}>
                   {item.mobileLabel ?? item.label}
-                </p>
+                </p> */}
               </Button>
             </Link>
           )

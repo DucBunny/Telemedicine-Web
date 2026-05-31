@@ -61,6 +61,7 @@ export const PATIENT_NAVIGATION_ITEMS: Array<NavItem> = [
   {
     id: 'notifications',
     label: 'Thông báo',
+    mobileLabel: 'Thông báo',
     href: '/patient/notifications',
     icon: Bell,
   },

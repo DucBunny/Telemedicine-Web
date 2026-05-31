@@ -17,6 +17,7 @@ import type { ApiPaginatedResponse } from '@/types/api.type'
 
 import { alertApi } from '@/features/alerts/api/alert.api'
 import { getErrorMessage } from '@/lib/axios'
+import { useAuthStore } from '@/stores/auth.store'
 import {
   addAlertCalmListener,
   addAlertFlashListener,
@@ -124,6 +125,9 @@ export const useResolveAlert = () => {
     onSuccess: ({ alert }) => {
       patchAlertInListCaches(queryClient, alert)
       queryClient.invalidateQueries({ queryKey: ALERT_KEYS.lists() })
+      queryClient.invalidateQueries({
+        queryKey: ALERT_KEYS.healthHistoryLists(),
+      })
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })
       useTelehealthCallStore.getState().setActiveAlertForVisit(null)
       toast.success('Đã chốt ca và lưu hồ sơ bệnh án')
@@ -158,18 +162,25 @@ export const useRealtimeAlerts = (options?: {
     })
 
     const unsubscribeNew = addAlertNewListener((alert) => {
-      // if (showNewAlertToast) {
-      toast.error('Cảnh báo sức khỏe mới', {
-        description: alert.message,
-        duration: 8000,
-      })
-      // }
+      const role = useAuthStore.getState().user?.role
+      if (role === 'doctor') {
+        toast.error('Cảnh báo sức khỏe mới', {
+          description: alert.message,
+          duration: 8000,
+        })
+      }
       queryClient.invalidateQueries({ queryKey: ALERT_KEYS.lists() })
+      queryClient.invalidateQueries({
+        queryKey: ALERT_KEYS.healthHistoryLists(),
+      })
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })
     })
 
     const unsubscribeUpdate = addAlertUpdateListener((alert) => {
       patchAlertInListCaches(queryClient, alert)
+      queryClient.invalidateQueries({
+        queryKey: ALERT_KEYS.healthHistoryLists(),
+      })
       queryClient.invalidateQueries({ queryKey: ['dashboard', 'stats'] })
       if (alert.status === 'handling' || alert.status === 'resolved') {
         options?.onStopAlertFlash?.(alert.id)

@@ -1,20 +1,19 @@
 import { useNavigate } from '@tanstack/react-router'
-import { Activity, Heart } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
+import { HealthHistoryTimeline } from '@/features/alerts/components/patient'
 import { useGetMyHealthHistory } from '@/features/alerts/hooks/useAlertQueries'
-import { getPatientHealthHistoryMessage } from '@/features/alerts/utils/patient-health-history-message'
 import LoaderScreen from '@/components/common/Loader'
 import { ChildPageHeader, MainPageHeader } from '@/components/common/PageHeader'
 import { PaginationControls } from '@/components/common/PaginationControls'
 import { usePagination } from '@/hooks/usePagination'
-import { formatShortDate, formatTime } from '@/lib/format-date'
 
 export const HealthHistoryPage = () => {
   const navigate = useNavigate()
   const isMobile = useMediaQuery('(max-width: 767px)')
 
-  const p = usePagination({ initialPage: 1, initialLimit: 8 })
+  const p = usePagination({ initialPage: 1, initialLimit: 6 })
 
   const { data, isLoading, isError } = useGetMyHealthHistory({
     page: p.page,
@@ -38,38 +37,22 @@ export const HealthHistoryPage = () => {
       )}
 
       {isError ? (
-        <div className="flex h-64 items-center justify-center">
-          <p className="text-red-500">Không thể tải lịch sử sức khỏe</p>
-        </div>
+        <p className="flex flex-1 items-center justify-center py-12 text-sm text-red-500">
+          Không thể tải lịch sử sức khỏe
+        </p>
       ) : items.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-gray-100 bg-white p-10 text-center text-gray-500">
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 py-12 text-center text-slate-500">
           <Heart className="size-12 text-gray-300" />
-          <p>Chưa có mục nào trong lịch sử.</p>
+          <p className="text-sm">Chưa có sự kiện sức khỏe nào.</p>
         </div>
       ) : (
-        <ul className="flex-1 space-y-3">
-          {items.map((item) => (
-            <li
-              key={item.id}
-              className="flex gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="bg-teal-primary/10 text-teal-primary flex size-10 shrink-0 items-center justify-center rounded-full">
-                <Activity className="size-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm leading-relaxed text-gray-900">
-                  {getPatientHealthHistoryMessage(item)}
-                </p>
-                <p className="mt-2 text-xs text-slate-500">
-                  {formatShortDate(item.createdAt)} ·{' '}
-                  {formatTime(item.createdAt)}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <HealthHistoryTimeline
+          items={items}
+          className="flex-1 justify-between"
+        />
       )}
 
-      <div className="p-4 md:px-6">
+      <div className="py-4 md:px-2">
         {data && data.meta.total > 0 ? (
           <PaginationControls
             currentPage={p.page}

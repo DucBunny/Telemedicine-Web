@@ -1,12 +1,19 @@
 import { useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Bell } from 'lucide-react'
+import { Bell, LogOut } from 'lucide-react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import type { NavItem } from '@/types/navigation'
 
+import { useLogoutMutation } from '@/features/auth/hooks/useAuthMutations'
 import { SafeImage } from '@/components/common/SafeImage'
 import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Sidebar,
   SidebarContent,
@@ -32,6 +39,7 @@ export const PatientSidebar = ({
   unreadCount,
 }: PatientSidebarProps) => {
   const currentUser = useAuthStore(selectUser)
+  const { mutate: logout } = useLogoutMutation()
   const { setOpen } = useSidebar()
   const isTablet = useMediaQuery('(768px <= width < 1024px)')
   useEffect(() => {
@@ -103,20 +111,37 @@ export const PatientSidebar = ({
 
       <SidebarFooter className="border-t border-gray-100 p-4">
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center rounded-xl py-3 group-data-[collapsible=icon]:justify-center group-data-[state=expanded]:bg-gray-50 group-data-[state=expanded]:px-3">
-            <SafeImage
-              src={currentUser?.avatar}
-              alt={currentUser?.fullName}
-              className="size-10 rounded-full"
-            />
-            <div className="ml-3 overflow-hidden group-data-[collapsible=icon]:hidden">
-              <p className="truncate text-sm font-semibold text-gray-900">
-                {currentUser?.fullName}
-              </p>
-              <p className="text-xs font-medium text-gray-500">
-                ID: {currentUser?.id}
-              </p>
-            </div>
+          <SidebarMenuItem className="rounded-xl group-data-[state=expanded]:bg-gray-50">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  tooltip={currentUser?.fullName ?? 'Tài khoản'}
+                  className="h-16 px-0 py-3 group-data-[collapsible=icon]:justify-center group-data-[state=expanded]:px-3">
+                  <SafeImage
+                    src={currentUser?.avatar}
+                    alt={currentUser?.fullName}
+                    className="size-10 shrink-0 rounded-full"
+                  />
+                  <div className="ml-3 min-w-0 flex-1 overflow-hidden group-data-[collapsible=icon]:hidden">
+                    <p className="truncate text-sm font-semibold text-gray-900">
+                      {currentUser?.fullName}
+                    </p>
+                    <p className="text-xs font-medium text-gray-500">
+                      ID: {currentUser?.id}
+                    </p>
+                  </div>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-48">
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer gap-2 py-2.5 font-medium"
+                  onClick={() => logout()}>
+                  <LogOut className="size-5" />
+                  Đăng xuất
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

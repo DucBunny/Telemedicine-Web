@@ -128,12 +128,12 @@ export const emitAppointmentUpdateToUsers = (userIds, payload) => {
 }
 
 /**
- * Emit alert:warning đến danh sách bác sĩ liên quan
+ * Emit alert:warning đến danh sách user liên quan (bác sĩ và bệnh nhân)
  *
- * @param {number[]} doctorUserIds - user_id của các bác sĩ nhận cảnh báo
+ * @param {number[]} userIds - user_id của các user nhận cảnh báo (bác sĩ và bệnh nhân)
  * @param {object} payload - Dữ liệu cảnh báo
  */
-export const emitAlertNewToDoctors = (doctorUserIds, payload) => {
+export const emitAlertNewToUsers = (userIds, payload) => {
   const io = getIo()
 
   if (!io) {
@@ -141,15 +141,13 @@ export const emitAlertNewToDoctors = (doctorUserIds, payload) => {
     return
   }
 
-  doctorUserIds.forEach((userId) => {
+  userIds.forEach((userId) => {
     io.of('/system')
       .to(SOCKET_ROOMS.SYSTEM.PERSONAL(userId))
       .emit(SYSTEM_EVENTS.ALERT_NEW, payload)
   })
 
-  console.log(
-    `[System Emitter] alert:warning → ${doctorUserIds.length} doctor(s)`,
-  )
+  console.log(`[System Emitter] alert:warning → ${userIds.length} user(s)`)
 }
 
 /**
@@ -191,12 +189,12 @@ export const emitAlertFlashToDoctors = (doctorUserIds, payload) => {
 }
 
 /**
- * Emit alert:updated đến danh sách bác sĩ liên quan
+ * Emit alert:updated đến danh sách user liên quan (bác sĩ và bệnh nhân)
  *
- * @param {number[]} doctorUserIds - user_id của các bác sĩ nhận cảnh báo
+ * @param {number[]} userIds - user_id của các user nhận cảnh báo (bác sĩ và bệnh nhân)
  * @param {object} payload - Dữ liệu cảnh báo đã cập nhật
  */
-export const emitAlertUpdateToDoctors = (doctorUserIds, payload) => {
+export const emitAlertUpdateToUsers = (userIds, payload) => {
   const io = getIo()
 
   if (!io) {
@@ -206,13 +204,11 @@ export const emitAlertUpdateToDoctors = (doctorUserIds, payload) => {
     return
   }
 
-  doctorUserIds.forEach((userId) => {
+  userIds.forEach((userId) => {
     io.of('/system')
       .to(SOCKET_ROOMS.SYSTEM.PERSONAL(userId))
       .emit(SYSTEM_EVENTS.ALERT_UPDATE, payload)
   })
 
-  console.log(
-    `[System Emitter] alert:updated → ${doctorUserIds.length} doctor(s)`,
-  )
+  console.log(`[System Emitter] alert:updated → ${userIds.length} user(s)`)
 }

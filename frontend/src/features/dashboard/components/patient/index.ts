@@ -1,4 +1,5 @@
+export { AiInsightCards } from './ai-insight'
 export { AppointmentCard } from './AppointmentCard'
+export { HealthMonitorCard } from './HealthMonitorCard'
 export { ProfileCard } from './ProfileCard'
-export { StatCards } from './StatCards'
 export { VitalCardsGrid } from './VitalCardsGrid'
