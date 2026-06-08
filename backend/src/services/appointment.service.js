@@ -1,7 +1,7 @@
 import { format, getDay } from 'date-fns'
 import { formatInTimeZone } from 'date-fns-tz'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '@/config/env'
+import { env } from '@/config'
 import Conversation from '@/models/nosql/conversation'
 import Message from '@/models/nosql/message'
 import { sequelize } from '@/models/sql'

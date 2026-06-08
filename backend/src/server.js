@@ -2,7 +2,6 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import { connectMailer, connectMongoDB, connectMySQL, env } from '@/config'
-import { connectRabbitMQ } from '@/config/rabbitmq.config'
 import { startEcgAbnormalStripWorker } from '@/jobs/ecgAbnormalStrip.queue'
 import { scheduleEcgRawFlushJob } from '@/jobs/ecgRawFlush.job'
 import { startMedicalReportWorker } from '@/jobs/medicalReport.queue'
@@ -38,9 +37,6 @@ app.use(errorHandler)
 
 socketServer.listen(port, async () => {
   console.log(`Server is running on port http://localhost:${port}`)
-
-  // Khởi động RabbitMQ
-  await connectRabbitMQ()
 
   // Khởi động Mailer
   await connectMailer()

@@ -1,6 +1,6 @@
-import { Op } from 'sequelize'
 import { StatusCodes } from 'http-status-codes'
-import { env } from '@/config/env'
+import { Op } from 'sequelize'
+import { env } from '@/config'
 import { generateToken04 } from '@/lib/zego/zegoServerAssistant'
 import { CallLog, User } from '@/models/sql/index'
 import * as chatRepo from '@/repositories/chat.repo'

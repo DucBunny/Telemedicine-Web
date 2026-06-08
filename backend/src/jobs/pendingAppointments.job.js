@@ -1,5 +1,5 @@
 import cron from 'node-cron'
-import { env } from '@/config/env'
+import { env } from '@/config'
 import * as appointmentService from '@/services/appointment.service'
 
 /**

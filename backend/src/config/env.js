@@ -37,11 +37,6 @@ export const env = {
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
   JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE || '30d',
 
-  // RabbitMQ configuration
-  RABBITMQ_URL: process.env.RABBITMQ_URL, // AMQP Cloud or other managed RabbitMQ URL
-  RABBITMQ_HOST: process.env.RABBITMQ_HOST || 'localhost',
-  RABBITMQ_PORT: process.env.RABBITMQ_PORT || 5672,
-
   // MQTT configuration
   MQTT_BROKER: process.env.MQTT_BROKER || 'mqtt://broker.emqx.io',
   MQTT_PORT: process.env.MQTT_PORT || 1883,

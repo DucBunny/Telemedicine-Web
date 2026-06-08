@@ -3,7 +3,6 @@ import { QueryTypes } from 'sequelize'
 import { connectMongoDB, connectMySQL, sequelize } from '@/config'
 import ECGAbnormalStrip from '@/models/nosql/ecgAbnormalStrips'
 import ECGRaw from '@/models/nosql/ecgRaw'
-import HealthMetric from '@/models/nosql/healthMetrics'
 import {
   clearConversations,
   seedConversations,
@@ -21,7 +20,6 @@ async function main() {
     console.log('Clearing data...')
     await ECGAbnormalStrip.deleteMany({})
     await ECGRaw.deleteMany({})
-    await HealthMetric.deleteMany({})
 
     console.log('Seeding conversations...')
 

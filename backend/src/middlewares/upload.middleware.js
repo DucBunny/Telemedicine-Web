@@ -2,7 +2,13 @@ import multer from 'multer'
 import ApiError from '@/utils/api-error'
 
 // File MIME types
-const IMAGE_MIMES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+const IMAGE_MIMES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+]
 const DOCUMENT_MIMES = [
   'application/pdf',
   'application/msword',
