@@ -1,6 +1,2 @@
-# Utilities
-numpy
-pandas
-
 # MQTT
 paho-mqtt

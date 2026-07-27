@@ -1,99 +1,117 @@
+import json
+import random
 import threading
 import time
-import random
-import json
-import numpy as np
+
 import paho.mqtt.client as mqtt
+
 import config
 
 
 class VirtualESP32(threading.Thread):
-    def __init__(self, device_id, data_normal, data_sick):
+    def __init__(self, device_id, ecg_normal, ecg_abnormal):
         super().__init__()
         self.device_id = device_id
         self.mode = "NORMAL"
         self.running = True
 
-        # Store normal and sick data
-        self.data_normal = data_normal
-        self.data_sick = data_sick
+        self.ecg_normal = ecg_normal
+        self.ecg_abnormal = ecg_abnormal
+        self.device_numeric_id = int(device_id.split("_")[-1])
+        self.chunk_index = 0
+        self.abnormal_cycle = []
+        self.cycle_index = 0
 
-        # Each device has its own MQTT client
+        self.topic_pub = f"{device_id}/server"
+        self.topic_sub = f"server/{device_id}"
+
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, device_id)
         self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
         self.client.connect(config.BROKER, config.PORT, 60)
-        self.topic_pub = f"health/{device_id}/telemetry"
-
-        self.prev_bpm = random.randint(70, 80)
-        self.prev_spo2 = round(random.uniform(97.5, 98.5), 1)
-        self.prev_hrv = random.randint(55, 65)
 
     def on_connect(self, client, userdata, flags, reason_code, properties):
         if reason_code == 0:
             print(f"+ [{self.device_id}] Connected to Broker!")
+            client.subscribe(self.topic_sub)
         else:
             print(f"- [{self.device_id}] Connect failed: {reason_code}")
 
+    def on_message(self, client, userdata, msg):
+        try:
+            payload = json.loads(msg.payload.decode())
+            print(f"[{self.device_id}] Received: {payload.get('content')}")
+        except Exception as e:
+            print(f"[{self.device_id}] Message error: {e}")
+
     def set_mode(self, new_mode):
-        self.mode = new_mode
-        print(f"[{self.device_id}] Changed mode -> {new_mode}")
+        mode = (new_mode or "NORMAL").upper()
+        if mode not in ("NORMAL", "ABNORMAL"):
+            print(f"[{self.device_id}] Unknown mode: {new_mode}")
+            return
+        self.mode = mode
+        self.chunk_index = 0
+        self.abnormal_cycle = []
+        self.cycle_index = 0
+        print(f"[{self.device_id}] Changed mode -> {mode}")
 
-    def clamp(self, value, min_v, max_v):
-        return max(min_v, min(value, max_v))
+    def _envelope(self, content, data):
+        return {
+            "from": self.topic_pub,
+            "to": self.topic_sub,
+            "content": content,
+            "time": int(time.time() * 1000),
+            "data": data,
+        }
 
-    def generate_vital_signs(self):
-        # Generate vital signs based on the current mode
-        if self.mode == "DANGER":
-            bpm_min, bpm_max = 120, 160
-            spo2_min, spo2_max = 90, 94
-            hrv_min, hrv_max = 10, 30
-            bpm_delta = random.randint(-5, 6)
-            spo2_delta = round(random.uniform(-0.5, 0.5), 1)
-            hrv_delta = random.randint(-3, 3)
-            source = self.data_sick
+    def _build_abnormal_cycle(self):
+        cycle_len = config.ABNORMAL_CYCLE_BEATS
+        n_abnormal = random.randint(
+            config.ABNORMAL_BEATS_MIN, config.ABNORMAL_BEATS_MAX
+        )
+        abnormal_positions = set(random.sample(range(cycle_len), n_abnormal))
+
+        cycle = []
+        for i in range(cycle_len):
+            if i in abnormal_positions:
+                beat = random.choice(self.ecg_abnormal)
+            else:
+                beat = random.choice(self.ecg_normal)
+            cycle.append(beat)
+
+        print(
+            f"[{self.device_id}] ABNORMAL cycle: {cycle_len} beats "
+            f"({n_abnormal} V @ positions {sorted(abnormal_positions)})"
+        )
+        return cycle
+
+    def next_telemetry(self):
+        if self.mode == "ABNORMAL":
+            if not self.abnormal_cycle or self.cycle_index >= len(self.abnormal_cycle):
+                self.abnormal_cycle = self._build_abnormal_cycle()
+                self.cycle_index = 0
+            packet_ecg = self.abnormal_cycle[self.cycle_index]
+            self.cycle_index += 1
         else:
-            bpm_min, bpm_max = 60, 90
-            spo2_min, spo2_max = 97, 99
-            hrv_min, hrv_max = 50, 80
-            bpm_delta = random.randint(-2, 3)
-            spo2_delta = round(random.uniform(-0.2, 0.2), 1)
-            hrv_delta = random.randint(-2, 2)
-            source = self.data_normal
+            packet_ecg = self.ecg_normal[self.chunk_index]
+            self.chunk_index = (self.chunk_index + 1) % len(self.ecg_normal)
 
-            # Random walk
-            self.prev_bpm = self.clamp(self.prev_bpm + bpm_delta, bpm_min, bpm_max)
-            self.prev_spo2 = self.clamp(self.prev_spo2 + spo2_delta, spo2_min, spo2_max)
-            self.prev_hrv = self.clamp(self.prev_hrv + hrv_delta, hrv_min, hrv_max)
-
-        # Select a random row from the source data
-        row = source[random.randint(0, len(source) - 1)]
-
-        return (
-            self.prev_bpm,
-            round(self.prev_spo2, 1),
-            self.prev_hrv,
-            row[:-1],
-        )  # Exclude the label column
+        return self._envelope(
+            "telemetry",
+            {
+                "id": self.device_numeric_id,
+                "packet_ecg": packet_ecg,
+            },
+        )
 
     def run(self):
         self.client.loop_start()
-        print(f"{self.device_id} started sending...")
+        print(f"{self.device_id} started sending telemetry -> {self.topic_pub}")
 
         while self.running:
-            bpm, spo2, hrv, ecg = self.generate_vital_signs()
-
-            payload = {
-                "device_id": self.device_id,
-                "ts": int(time.time() * 1000),
-                "metrics": {"bpm": bpm, "spo2": spo2, "hrv": hrv},
-                "ecg": np.round(ecg, 4).tolist(),
-                "status": self.mode,
-            }
-
+            payload = self.next_telemetry()
             self.client.publish(self.topic_pub, json.dumps(payload))
-
-            delay = 0.5 if self.mode == "DANGER" else 1.0
-            time.sleep(delay + random.uniform(0.0, 0.2))
+            time.sleep(config.TELEMETRY_INTERVAL)
 
     def stop(self):
         self.running = False

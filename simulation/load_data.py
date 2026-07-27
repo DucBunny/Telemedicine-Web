@@ -1,22 +1,29 @@
-import pandas as pd
-import numpy as np
+import json
+
+import config
+
+BEAT_LEN = config.BEAT_LEN
 
 
-def load_data(filepath):
-    print(f"Loading data from {filepath}...")
-    try:
-        df = pd.read_csv(filepath, header=None)
-        all_data = df.values
+def load_ecg_chunks(filepath, beat_len=BEAT_LEN):
+    print(f"Loading ECG chunks from {filepath}...")
+    with open(filepath, encoding="utf-8") as f:
+        chunks = json.load(f)
 
-        # Separate normal and sick data
-        data_normal = all_data[all_data[:, -1] == 0]
-        data_sick = all_data[all_data[:, -1] > 0]
+    if not chunks:
+        raise ValueError("ECG chunks file is empty")
 
-        print("Database Loaded Successfully!")
-        return data_normal, data_sick
+    sample_len = len(chunks[0])
+    if sample_len != beat_len:
+        raise ValueError(
+            f"Expected {beat_len} samples per chunk, got {sample_len} in {filepath}"
+        )
 
-    except FileNotFoundError:
-        print("File not found! Generating dummy data.")
-        # Generate dummy data if file not found
-        dummy = [np.random.rand(188)]
-        return dummy, dummy
+    print(f"Loaded {len(chunks)} ECG chunks ({sample_len} samples each)")
+    return chunks
+
+
+def load_ecg_datasets(normal_path, abnormal_path, beat_len=BEAT_LEN):
+    return load_ecg_chunks(normal_path, beat_len), load_ecg_chunks(
+        abnormal_path, beat_len
+    )
