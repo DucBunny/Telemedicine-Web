@@ -15,8 +15,20 @@ const ECGRawSchema = new mongoose.Schema(
     class_inference: {
       type: String,
       enum: ['N', 'S', 'V', 'F', 'Q'],
-      required: true,
+      default: null,
     }, // 5 class theo MIT-BIH
+    inference_ready: {
+      type: Boolean,
+      default: true,
+    }, // false = warm-up / chưa đủ 5 beat
+    inference_latency_ms: {
+      type: Number,
+      default: null,
+    },
+    inference_confidence: {
+      type: Number,
+      default: null,
+    },
     is_abnormal: {
       type: Boolean,
       default: false,
@@ -33,7 +45,12 @@ const ECGRawSchema = new mongoose.Schema(
 )
 
 // Index để worker dễ dàng query các đoạn bất thường
-ECGRawSchema.index({ 'metadata.patient_id': 1, is_abnormal: 1, timestamp: 1 })
+ECGRawSchema.index({
+  'metadata.patient_id': 1,
+  inference_ready: 1,
+  is_abnormal: 1,
+  timestamp: 1,
+})
 
 // Index để query theo patient ID và timestamp
 ECGRawSchema.index({ 'metadata.patient_id': 1, timestamp: 1 })

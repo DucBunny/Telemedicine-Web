@@ -4,7 +4,7 @@ import { redis } from '@/config'
  * Cache Presence (Online/Offline) lưu trữ trạng thái online/offline của user
  */
 
-const PREFIX = 'presence:user:'
+const presenceKey = (userId) => `presence:user:${userId}`
 
 // TTL key presence; zombie keys sau crash/mất disconnect được Redis xóa sau khoảng này.
 export const PRESENCE_TTL_SECONDS = 180 // 3 minutes
@@ -17,7 +17,7 @@ export const PRESENCE_REFRESH_INTERVAL_MS = 60 * 1000 // 60 seconds = 1 minute
  */
 export const refreshTtl = async (userId) => {
   try {
-    const key = `${PREFIX}${userId}`
+    const key = presenceKey(userId)
     await redis.expire(key, PRESENCE_TTL_SECONDS)
   } catch (error) {
     console.error(
@@ -32,7 +32,7 @@ export const refreshTtl = async (userId) => {
  */
 export const addSocket = async (userId, socketId) => {
   try {
-    const key = `${PREFIX}${userId}`
+    const key = presenceKey(userId)
     await redis.sadd(key, socketId)
 
     // Đặt TTL để tự động xóa key nếu không còn socket nào hoạt động (phòng trường hợp server crash)
@@ -50,7 +50,7 @@ export const addSocket = async (userId, socketId) => {
  */
 export const removeSocket = async (userId, socketId) => {
   try {
-    const key = `${PREFIX}${userId}`
+    const key = presenceKey(userId)
     await redis.srem(key, socketId)
   } catch (error) {
     console.error(
@@ -65,7 +65,7 @@ export const removeSocket = async (userId, socketId) => {
  */
 export const isUserOnline = async (userId) => {
   try {
-    const key = `${PREFIX}${userId}`
+    const key = presenceKey(userId)
     const count = await redis.scard(key)
     return count > 0
   } catch (error) {
@@ -88,7 +88,7 @@ export const getMultipleUsersStatus = async (userIds) => {
     const pipeline = redis.pipeline()
 
     userIds.forEach((id) => {
-      pipeline.scard(`${PREFIX}${id}`)
+      pipeline.scard(presenceKey(id))
     })
 
     const results = await pipeline.exec()

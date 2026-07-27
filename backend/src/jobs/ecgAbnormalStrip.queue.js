@@ -18,11 +18,11 @@ const ECG_STRIP_DURATION_SEC = ECG_STRIP_WINDOW_SEC * 2
 const STRIP_JOB_OPTIONS = {
   attempts: 5,
   backoff: {
-    type: 'fixed',
+    type: 'fixed', // Giữ nguyên tốc độ backoff sau mỗi lần thử
     delay: 60 * 1000,
   },
-  removeOnComplete: true,
-  removeOnFail: 20,
+  removeOnComplete: true, // Xóa job sau khi hoàn thành (true)
+  removeOnFail: 20, // Xóa job sau khi thất bại (20 job)
 }
 
 // Kết nối Redis cho queue và worker
@@ -115,6 +115,7 @@ const extractDetectedClasses = (packets, alertType) => {
   const classes = [
     ...new Set(
       packets
+        .filter((packet) => packet.inference_ready !== false)
         .map((packet) => String(packet.class_inference || '').toUpperCase())
         .filter((className) => ['S', 'V', 'F', 'Q'].includes(className)),
     ),

@@ -347,8 +347,20 @@ Table notifications {
 //     class_inference: {
 //       type: String,
 //       enum: ['N', 'S', 'V', 'F', 'Q'],
-//       required: true,
+//       default: null,
 //     }, // 5 class theo MIT-BIH
+//     inference_ready: {
+//       type: Boolean,
+//       default: true,
+//     }, // false = warm-up / chưa đủ 5 beat
+//     inference_latency_ms: {
+//       type: Number,
+//       default: null,
+//     },
+//     inference_confidence: {
+//       type: Number,
+//       default: null,
+//     },
 //     is_abnormal: {
 //       type: Boolean,
 //       default: false,

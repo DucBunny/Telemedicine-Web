@@ -53,7 +53,6 @@ module.exports = {
       if (assignedDoctors.length === 0) continue
 
       const status = faker.helpers.arrayElement([
-        'pending',
         'handling',
         'resolved',
         'resolved',
@@ -69,7 +68,7 @@ module.exports = {
         ),
       }) // Xử lý trong vòng 30 phút sau khi cảnh báo
 
-      // Nếu bệnh án là Tim mạch -> Tạo cảnh báo nhịp tim (BPM)
+      // Nếu bệnh án là Tim mạch
       if (diag.includes('nhịp tim') || diag.includes('huyết áp')) {
         // 70% cơ hội xảy ra cảnh báo nếu đã có bệnh nền
         if (Math.random() > 0.3) {
@@ -77,12 +76,11 @@ module.exports = {
             patient_id: record.patient_id,
             device_id: devices.find((d) => d.assigned_to == record.patient_id)
               ?.id,
-            type: 'bpm',
-            value: faker.number.int({ min: 120, max: 150 }),
-            message: 'Nhịp tim tăng cao vượt ngưỡng an toàn',
+            type: 'ecg_S',
+            message: 'Phát hiện ngoại tâm thu trên thất (S)',
             trigger_timestamp: createdAt,
             last_detected_at: createdAt,
-            anomaly_count: faker.number.int({ min: 1, max: 10 }),
+            anomaly_count: faker.number.int({ min: 1, max: 5 }),
             status: status,
             handled_by:
               status !== 'pending'
@@ -94,7 +92,7 @@ module.exports = {
           }
         }
       }
-      // Nếu bệnh án là Hô hấp -> Tạo cảnh báo SpO2
+      // Nếu bệnh án là Hô hấp
       else if (
         diag.includes('phế quản') ||
         diag.includes('hô hấp') ||
@@ -105,12 +103,11 @@ module.exports = {
             patient_id: record.patient_id,
             device_id: devices.find((d) => d.assigned_to == record.patient_id)
               ?.id,
-            type: 'spo2',
-            value: faker.number.int({ min: 90, max: 93 }),
-            message: 'Nồng độ oxy trong máu thấp vượt ngưỡng an toàn',
+            type: 'ecg_F',
+            message: 'Phát hiện nhịp hỗn hợp (F)',
             trigger_timestamp: createdAt,
             last_detected_at: createdAt,
-            anomaly_count: faker.number.int({ min: 1, max: 10 }),
+            anomaly_count: faker.number.int({ min: 1, max: 5 }),
             status: status,
             handled_by:
               status !== 'pending'

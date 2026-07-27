@@ -4,9 +4,9 @@ import {
   refreshThrottleTTL,
   setThrottledAlertId,
 } from '@/cache/alertThrottle.cache'
-import { enqueueEcgRawPacket } from '@/cache/ecgRaw.cache'
 import { env } from '@/config'
 import { schedulePersistAbnormalStripJob } from '@/jobs/ecgAbnormalStrip.queue'
+import { enqueueEcgInferenceJob } from '@/jobs/ecgInference.queue'
 import * as alertRepo from '@/repositories/alert.repo'
 import * as deviceRepo from '@/repositories/device.repo'
 import * as doctorRepo from '@/repositories/doctor.repo'
@@ -32,29 +32,6 @@ const alertTypeFromClass = (classInference) =>
 const buildAlertMessage = (classInference) =>
   ECG_CLASS_MESSAGES[classInference] ||
   `Phát hiện bất thường ECG (class: ${classInference})`
-
-// Xây dựng document ECG raw cho MongoDB
-const buildEcgRawDocument = (ctx, data, timestamp) => {
-  const packetEcg = data?.packet_ecg
-  const classInference = String(data?.class_inference || 'N').toUpperCase()
-
-  if (
-    !Array.isArray(packetEcg) ||
-    packetEcg.length !== Number.parseInt(env.ECG_PACKET_SIZE, 10)
-  )
-    return null
-
-  return {
-    timestamp,
-    metadata: {
-      patient_id: ctx.patientId,
-      device_id: ctx.deviceId,
-    },
-    ecg_packet: packetEcg,
-    class_inference: classInference,
-    is_abnormal: classInference !== 'N',
-  }
-}
 
 // Lên lịch job lưu ECG abnormal strip vào MongoDB
 const scheduleAbnormalStripPersistence = async (alert) => {
@@ -86,44 +63,43 @@ const resolveDeviceContext = async (data) => {
 }
 
 /**
- * Đẩy gói ECG lên /monitor (dùng cho cả N và bất thường để UI vẽ waveform)
+ * Gửi gói ECG đến monitor của bệnh nhân.
  */
-const emitEcgToMonitor = async (ctx, data, mqttTime) => {
-  const {
-    packet_ecg: packetEcg,
-    class_inference: classInference,
-    time_inference: timeInference,
-  } = data
-
-  if (
-    !Array.isArray(packetEcg) ||
-    packetEcg.length !== Number.parseInt(env.ECG_PACKET_SIZE, 10)
-  )
-    return
-
-  const timestamp = mqttTime ? new Date(mqttTime) : new Date()
-
+const emitMonitorPacket = (ctx, payload) => {
   emitEcgPacketToPatientMonitor(ctx.patientId, {
     deviceId: ctx.deviceId,
-    packetEcg,
-    classInference: classInference || 'N',
-    timeInference: timeInference ?? null,
-    timestamp,
+    ...payload,
   })
-
-  try {
-    const ecgRawDocument = buildEcgRawDocument(ctx, data, timestamp)
-    if (ecgRawDocument) await enqueueEcgRawPacket(ecgRawDocument)
-  } catch (error) {
-    console.error('[Telemetry] Failed to buffer ECG raw packet:', error)
-  }
 }
 
 /**
- * Stream ECG bình thường → namespace /monitor
+ * Gói warmup: chỉ stream waveform, không phát hiện bất thường.
  */
-const handleNormalTelemetry = async (ctx, data, mqttTime) => {
-  await emitEcgToMonitor(ctx, data, mqttTime)
+export const handleWarmupPacket = async (
+  ctx,
+  { packetEcg, timestamp, beatCount, inferenceError },
+) => {
+  emitMonitorPacket(ctx, {
+    packetEcg,
+    classInference: null,
+    timeInference: null,
+    inferenceReady: false,
+    inferenceConfidence: null,
+    beatCount,
+    timestamp,
+  })
+
+  if (inferenceError)
+    console.warn(
+      `[Telemetry] Inference unavailable for device ${ctx.deviceId} (beat ${beatCount}): ${inferenceError}`,
+    )
+}
+
+/**
+ * Normal inference: monitor + calm pending alerts.
+ */
+export const handleNormalInference = async (ctx, socketPayload) => {
+  emitMonitorPacket(ctx, socketPayload)
 
   const pendingAlerts = await alertRepo.findPendingByPatientId(ctx.patientId)
   if (!pendingAlerts.length) return
@@ -144,14 +120,19 @@ const handleNormalTelemetry = async (ctx, data, mqttTime) => {
 }
 
 /**
- * ECG bất thường — alert + throttle Redis + socket/email
+ * Abnormal inference: monitor + alert throttle + socket/email.
  */
-const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
-  await emitEcgToMonitor(ctx, data, mqttTime)
+export const handleAbnormalInference = async (
+  ctx,
+  socketPayload,
+  classInference,
+) => {
+  emitMonitorPacket(ctx, socketPayload)
 
-  const classInference = String(data.class_inference || '').toUpperCase()
   const alertType = alertTypeFromClass(classInference)
-  const now = mqttTime ? new Date(mqttTime) : new Date()
+  const now = socketPayload.timestamp
+    ? new Date(socketPayload.timestamp)
+    : new Date()
   const doctorIds = await patientDoctorService.getRelatedUserIds(
     ctx.patientId,
     'patient',
@@ -281,14 +262,18 @@ const handleAbnormalTelemetry = async (ctx, data, mqttTime) => {
 }
 
 /**
- * Xử lý gói telemetry từ MQTT (dac_ta_ban_tin_en.md)
+ * MQTT telemetry: validate packet_ecg and enqueue BullMQ inference job.
  */
 export const processTelemetryMessage = async (payload) => {
-  // if (payload?.content !== 'telemetry') return
-
-  const data = payload.data
-  // const data = payload
+  const data = payload?.data
   if (!data) return
+
+  const packetEcg = data.packet_ecg
+  if (
+    !Array.isArray(packetEcg) ||
+    packetEcg.length !== Number.parseInt(env.ECG_PACKET_SIZE, 10)
+  )
+    return
 
   const ctx = await resolveDeviceContext(data)
   if (!ctx) {
@@ -296,12 +281,21 @@ export const processTelemetryMessage = async (payload) => {
     return
   }
 
-  const classInference = String(data.class_inference).toUpperCase()
-
-  if (classInference === 'N') {
-    await handleNormalTelemetry(ctx, data, payload.time)
-    return
+  // Parse timestamp: use epoch if synced, otherwise use server time
+  let timestampMs = Number(payload?.time)
+  // Check if it's epoch (> year 2020: 1577836800000) or millis() from ESP32 boot
+  const isEpochTime = timestampMs > 1577836800000 // 2020-01-01 00:00:00 UTC
+  if (!isEpochTime || !timestampMs) {
+    timestampMs = Date.now() // Fallback to server time
+    console.warn(
+      `[Telemetry] Device ${ctx.deviceId} time not synced (time=${payload?.time}), using server time`,
+    )
   }
 
-  await handleAbnormalTelemetry(ctx, data, payload.time)
+  await enqueueEcgInferenceJob({
+    deviceId: ctx.deviceId,
+    patientId: ctx.patientId,
+    packetEcg,
+    timestampMs,
+  })
 }

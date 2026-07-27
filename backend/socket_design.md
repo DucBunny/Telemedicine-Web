@@ -1,4 +1,4 @@
-# Tài liệu WebSockets (Socket.IO) — GR2 Telehealth
+# Tài liệu WebSockets (Socket.IO) — Telehealth
 
 Quy chuẩn **Namespace**, **Room**, **Event** và luồng dữ liệu thực tế giữa Backend ↔ Frontend.  
 Mọi chuỗi event/room phải lấy từ constants — không hard-code.

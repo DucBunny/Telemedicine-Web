@@ -63,8 +63,27 @@ export const env = {
   /*
    * Application configuration
    */
-  // Kích thước gói ECG (187 điểm)
+  // Kích thước gói ECG MQTT (187 điểm)
   ECG_PACKET_SIZE: Number(process.env.ECG_PACKET_SIZE ?? 187),
+  // Sliding window (độ dài cửa sổ trượt ECG)
+  ECG_SEQ_LEN: Number(process.env.ECG_SEQ_LEN ?? 5),
+  // Thời gian giữa 2 session ECG (30s)
+  ECG_SESSION_GAP_MS: Number(process.env.ECG_SESSION_GAP_MS ?? 30_000),
+  // Thời gian cache cửa sổ trượt (1 giờ)
+  ECG_SLIDING_STATE_TTL_SEC: Number(
+    process.env.ECG_SLIDING_STATE_TTL_SEC ?? 3600,
+  ),
+  // URL của service ECG inference
+  ECG_INFERENCE_URL: process.env.ECG_INFERENCE_URL || 'http://127.0.0.1:8000',
+  // Timeout của service ECG inference
+  ECG_INFERENCE_TIMEOUT_MS: Number(
+    process.env.ECG_INFERENCE_TIMEOUT_MS ?? 15_000,
+  ),
+  // Số lượng worker inference ECG đồng thời
+  ECG_INFERENCE_WORKER_CONCURRENCY: Number(
+    process.env.ECG_INFERENCE_WORKER_CONCURRENCY ?? 2,
+  ),
+
   // Thời gian cache throttle alert (30 phút)
   ALERT_THROTTLE_TTL_SEC: Number(process.env.ALERT_THROTTLE_TTL_SEC ?? 30 * 60), // 30 minutes
 

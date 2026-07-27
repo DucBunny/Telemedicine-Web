@@ -3,6 +3,7 @@ import cors from 'cors'
 import express from 'express'
 import { connectMailer, connectMongoDB, connectMySQL, env } from '@/config'
 import { startEcgAbnormalStripWorker } from '@/jobs/ecgAbnormalStrip.queue'
+import { startEcgInferenceWorker } from '@/jobs/ecgInference.queue'
 import { scheduleEcgRawFlushJob } from '@/jobs/ecgRawFlush.job'
 import { startMedicalReportWorker } from '@/jobs/medicalReport.queue'
 import { schedulePendingAppointmentExpiryJob } from '@/jobs/pendingAppointments.job'
@@ -43,6 +44,7 @@ socketServer.listen(port, async () => {
 
   // Khởi động background worker / cron jobs
   await startEcgAbnormalStripWorker()
+  await startEcgInferenceWorker()
   await startMedicalReportWorker()
   scheduleEcgRawFlushJob()
   schedulePendingAppointmentExpiryJob()
