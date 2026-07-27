@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 
 import { AiInsightCards } from '@/features/dashboard/components/patient/ai-insight'
 import { useMonitorEcgStream } from '@/features/dashboard/hooks/useMonitorEcgStream'
+import {
+  acValueToCanvasY,
+  packetToDisplayWaveform,
+  updateDisplayGain,
+} from '@/features/dashboard/utils/ecgDisplay'
 
 interface VitalCardsGridProps {
   patientId?: number
@@ -15,12 +20,14 @@ export const VitalCardsGrid = ({ patientId }: VitalCardsGridProps) => {
   const scanX = useRef<number>(0) // Tọa độ X hiện tại của nét vẽ
   const prevY = useRef<number>(0) // Tọa độ Y của điểm dữ liệu trước đó (để vẽ đường liên tục)
   const bufferEmptyTimeRef = useRef<number>(0) // Thời điểm buffer bắt đầu cạn
+  const displayGainRef = useRef<number>(0) // Gain Y ổn định, cập nhật theo từng gói MQTT
 
   const [status, setStatus] = useState<string>(
     patientId ? 'Đang kết nối...' : 'Không có dữ liệu',
   )
   const [classInference, setClassInference] = useState<string>('—')
   const [timeInference, setTimeInference] = useState<number | null>(null)
+  const [confidence, setConfidence] = useState<number | null>(null)
 
   const useLiveStream = Boolean(patientId)
 
@@ -28,25 +35,37 @@ export const VitalCardsGrid = ({ patientId }: VitalCardsGridProps) => {
   const ecgPacketSize = Number(import.meta.env.VITE_ECG_PACKET_SIZE)
   const hasValidPacketSize = Number.isFinite(ecgPacketSize) && ecgPacketSize > 0
   const BUFFER_THRESHOLD = hasValidPacketSize ? ecgPacketSize * 2 : 300
-  const POINTS_PER_FRAME = 3
+  const POINTS_PER_FRAME = hasValidPacketSize
+    ? Math.max(1, Math.floor(ecgPacketSize / 60))
+    : 5
   const BUFFER_EMPTY_THRESHOLD_MS = 1000 // Đợi 1s trước khi báo "Mạng chậm"
 
   const { isConnected, joinError } = useMonitorEcgStream({
     patientId,
     enabled: useLiveStream,
-    onPacket: ({ packetEcg, classInference: cls, timeInference: infMs }) => {
-      dataQueue.current.push(...packetEcg)
-      setClassInference(cls)
-      setTimeInference(infMs)
+    onPacket: ({
+      packetEcg,
+      classInference: cls,
+      timeInference: infMs,
+      inferenceReady,
+      inferenceConfidence: conf,
+    }) => {
+      const waveform = packetToDisplayWaveform(packetEcg)
+      displayGainRef.current = updateDisplayGain(
+        displayGainRef.current,
+        waveform,
+      )
+      dataQueue.current.push(...waveform)
+      if (inferenceReady !== false && cls) {
+        setClassInference(cls)
+        setTimeInference(infMs)
+        setConfidence(conf ?? null)
+      }
       if (!isPlaying.current && dataQueue.current.length >= BUFFER_THRESHOLD) {
         setStatus('Đang chạy Real-time')
       }
     },
   })
-
-  // Giới hạn giá trị ECG (0-255 cho dữ liệu 8-bit)
-  const MIN_ECG = 0
-  const MAX_ECG = 255
 
   useEffect(() => {
     if (!useLiveStream) return
@@ -74,13 +93,8 @@ export const VitalCardsGrid = ({ patientId }: VitalCardsGridProps) => {
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
 
-    // Hàm convert giá trị ECG thành tọa độ Y
-    const getScaledY = (value: number): number => {
-      let normalized = (value - MIN_ECG) / (MAX_ECG - MIN_ECG)
-      if (normalized > 1) normalized = 1
-      if (normalized < 0) normalized = 0
-      return height - normalized * height
-    }
+    const getScaledY = (acValue: number): number =>
+      acValueToCanvasY(acValue, displayGainRef.current, height)
 
     let animationFrameId: number
 
@@ -153,6 +167,7 @@ export const VitalCardsGrid = ({ patientId }: VitalCardsGridProps) => {
         patientId={patientId}
         classInference={classInference}
         timeInference={timeInference}
+        confidence={confidence ?? null}
       />
 
       {/* ECG Canvas */}

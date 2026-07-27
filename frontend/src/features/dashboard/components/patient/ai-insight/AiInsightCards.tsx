@@ -57,7 +57,7 @@ export const AiInsightCards = ({
     ? getClinicalAction(normalizedClass)
     : { action: '—', description: 'Chờ dữ liệu ECG từ thiết bị' }
   const resolvedConfidence =
-    confidence ?? (hasData ? (isNormal ? 98.6 : 82.4) : null)
+    confidence != null && confidence < 1 ? confidence * 100 : confidence
 
   return (
     <div

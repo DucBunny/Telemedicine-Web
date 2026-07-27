@@ -11,8 +11,10 @@ export interface UseMonitorEcgStreamOptions {
   enabled?: boolean
   onPacket?: (packet: {
     packetEcg: Array<number>
-    classInference: string
+    classInference: string | null
     timeInference: number | null
+    inferenceReady?: boolean
+    inferenceConfidence?: number | null
   }) => void
 }
 
@@ -68,8 +70,10 @@ export const useMonitorEcgStream = ({
 
       onPacketRef.current?.({
         packetEcg: payload.packetEcg,
-        classInference: payload.classInference,
+        classInference: payload.classInference ?? null,
         timeInference: payload.timeInference ?? null,
+        inferenceReady: payload.inferenceReady,
+        inferenceConfidence: payload.inferenceConfidence ?? null,
       })
     })
 

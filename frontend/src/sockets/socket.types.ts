@@ -89,8 +89,11 @@ export interface MonitorEcgSyncPayload {
   patientId: number
   deviceId: number
   packetEcg: Array<number>
-  classInference: string
+  classInference: string | null
   timeInference: number | null
+  inferenceReady?: boolean
+  inferenceConfidence?: number | null
+  beatCount?: number
   timestamp: string
 }
 

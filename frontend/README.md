@@ -1,310 +1,174 @@
-Welcome to your new TanStack app! 
+# MedCare — Frontend
 
-# Getting Started
+Giao diện web cho hệ thống telemedicine MedCare. Xây dựng bằng **React 19**, **Vite 7**, **TanStack Router**, **TanStack Query** và **Tailwind CSS 4**.
 
-To run this application:
+## Yêu cầu hệ thống
+
+
+| Thành phần      | Phiên bản khuyến nghị     |
+| --------------- | ------------------------- |
+| Node.js         | 20.x trở lên              |
+| npm             | 10.x trở lên              |
+| Backend MedCare | Đang chạy tại cổng `8080` |
+
+
+## Cài đặt nhanh
+
+### 1. Cài dependency
 
 ```bash
+cd frontend
 npm install
-npm run start
 ```
 
-# Building For Production
+### 2. Tạo file môi trường
 
-To build this application for production:
+```bash
+cp .env.example .env
+```
+
+Chỉnh sửa `.env`:
+
+```env
+# URL API backend (có prefix /api-v1)
+VITE_API_URL=http://localhost:8080/api-v1
+
+# URL Socket.IO (không có path — client tự nối namespace /system, /monitor, /chat)
+VITE_SOCKET_URL=http://localhost:8080
+
+# Kích thước gói ECG — phải khớp với ECG_PACKET_SIZE ở backend
+VITE_ECG_PACKET_SIZE=65
+```
+
+
+| Biến                   | Mô tả                                       |
+| ---------------------- | ------------------------------------------- |
+| `VITE_API_URL`         | Base URL cho HTTP API (`axios`)             |
+| `VITE_SOCKET_URL`      | Base URL cho Socket.IO                      |
+| `VITE_ECG_PACKET_SIZE` | Số điểm mỗi gói ECG hiển thị trên dashboard |
+
+
+> **Lưu ý:** `VITE_ECG_PACKET_SIZE` phải trùng với `ECG_PACKET_SIZE` trong `.env` của backend.
+
+### 3. Chạy development server
+
+```bash
+npm run dev
+```
+
+Ứng dụng mở tại **[http://localhost:3000](http://localhost:3000)**.
+
+Đảm bảo backend đã chạy và `BASE_URL_FRONTEND` trong backend trỏ về `http://localhost:3000` để CORS và cookie hoạt động đúng.
+
+## Build production
 
 ```bash
 npm run build
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+Kết quả build nằm trong thư mục `dist/`. Xem trước bản build:
 
 ```bash
-npm run test
+npm run preview
 ```
 
-## Styling
-
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-
-This project uses [eslint](https://eslint.org/) and [prettier](https://prettier.io/) for linting and formatting. Eslint is configured using [tanstack/eslint-config](https://tanstack.com/config/latest/docs/eslint). The following scripts are available:
+## Chạy bằng Docker
 
 ```bash
-npm run lint
-npm run format
-npm run check
+docker build -t medcare-frontend .
+docker run -p 3000:3000 medcare-frontend
 ```
 
+Image dùng nginx phục vụ static files từ `dist/`, lắng nghe cổng `3000`.
 
-## Shadcn
+> Biến môi trường `VITE_*` được nhúng lúc build. Khi deploy Docker, cần truyền build args hoặc build lại image với `.env` phù hợp.
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+## Scripts hữu ích
+
+
+| Lệnh              | Mô tả                                           |
+| ----------------- | ----------------------------------------------- |
+| `npm run dev`     | Chạy dev server (cổng 3000, bind mọi interface) |
+| `npm run build`   | Build production + kiểm tra TypeScript          |
+| `npm run preview` | Xem trước bản build local                       |
+| `npm run test`    | Chạy test với Vitest                            |
+| `npm run lint`    | Kiểm tra ESLint                                 |
+| `npm run format`  | Format với Prettier                             |
+| `npm run check`   | Format + lint fix                               |
+
+
+## Cấu trúc thư mục
+
+```
+frontend/
+├── src/
+│   ├── components/      # UI components dùng chung (shadcn/ui)
+│   ├── features/        # Tính năng theo domain (dashboard, auth...)
+│   ├── hooks/           # Custom React hooks
+│   ├── lib/             # Axios client, utils
+│   ├── routes/          # TanStack Router (file-based routing)
+│   ├── stores/          # Zustand stores (auth, socket...)
+│   └── types/           # TypeScript types
+├── public/              # Static assets
+├── .env.example
+├── capacitor.config.ts  # Cấu hình app mobile (Capacitor)
+├── Dockerfile
+├── nginx.conf
+└── vite.config.ts
+```
+
+## Kết nối với Backend
+
+Frontend giao tiếp với backend qua:
+
+- **REST API** — `VITE_API_URL` (ví dụ: `http://localhost:8080/api-v1`)
+- **Socket.IO** — 3 namespace:
+  - `/system` — Thông báo hệ thống
+  - `/monitor` — Stream ECG realtime
+  - `/chat` — Tin nhắn
+
+Cookie `refresh token` được gửi tự động (`withCredentials: true`).
+
+## Build ứng dụng mobile (Capacitor)
+
+Dự án hỗ trợ đóng gói thành app Android qua Capacitor:
 
 ```bash
-pnpm dlx shadcn@latest add button
+npm run build
+npx cap sync android
+npx cap open android
 ```
 
+Cấu hình app trong `[capacitor.config.ts](./capacitor.config.ts)`.
 
+## Xử lý sự cố
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+### Lỗi CORS hoặc cookie không lưu
 
-### Adding A Route
+- Kiểm tra `BASE_URL_FRONTEND` trong backend `.env` khớp với URL frontend (`http://localhost:3000`)
+- Truy cập frontend qua đúng URL đã cấu hình, không dùng IP khác nếu chưa cập nhật CORS
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+### Socket không kết nối
 
-TanStack will automatically generate the content of the route file for you.
+- Kiểm tra `VITE_SOCKET_URL` trỏ đúng cổng backend (`http://localhost:8080`)
+- Đảm bảo Redis đang chạy (backend dùng Redis adapter cho Socket.IO)
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+### API trả về 401 liên tục
 
-### Adding Links
+- Xóa cookie/local storage và đăng nhập lại
+- Kiểm tra backend đã migrate và seed dữ liệu user mẫu (`npm run db:reset` ở backend)
 
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
+### Biến môi trường không áp dụng
 
-```tsx
-import { Link } from "@tanstack/react-router";
-```
+Vite chỉ đọc biến có prefix `VITE_` lúc **khởi động** dev server. Sau khi sửa `.env`, cần restart `npm run dev`.
 
-Then anywhere in your JSX you can use it like so:
+## Công nghệ sử dụng
 
-```tsx
-<Link to="/about">About</Link>
-```
+- [Vite](https://vitejs.dev/) — Build tool
+- [TanStack Router](https://tanstack.com/router) — Routing
+- [TanStack Query](https://tanstack.com/query) — Data fetching & cache
+- [Tailwind CSS](https://tailwindcss.com/) — Styling
+- [shadcn/ui](https://ui.shadcn.com/) — Component library
+- [Zustand](https://zustand.docs.pmnd.rs/) — State management
+- [Socket.IO Client](https://socket.io/) — Realtime communication
 
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-npm install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).

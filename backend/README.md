@@ -19,6 +19,7 @@ API server cho hệ thống telemedicine MedCare. Xây dựng bằng **Node.js**
 ### 1. Clone và cài dependency
 
 ```bash
+cd backend
 npm install
 ```
 
