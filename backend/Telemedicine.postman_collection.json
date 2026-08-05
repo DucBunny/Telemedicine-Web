@@ -1,0 +1,2587 @@
+{
+  "info": {
+    "_postman_id": "795a92fa-41ed-43e2-aff0-3318c387b896",
+    "name": "Telemedicine",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "39528217"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// 1. Parse JSON trả về\r",
+                  "var jsonData = pm.response.json();\r",
+                  "\r",
+                  "// 2. Kiểm tra success và lấy accessToken đúng đường dẫn: data.accessToken\r",
+                  "if (jsonData.success && jsonData.data && jsonData.data.accessToken) {\r",
+                  "    \r",
+                  "    // Lưu accessToken vào biến môi trường (Environment)\r",
+                  "    pm.environment.set(\"accessToken\", jsonData.data.accessToken);\r",
+                  "    \r",
+                  "    console.log(\"Login thành công. Đã cập nhật accessToken!\");\r",
+                  "} else {\r",
+                  "    console.log(\"Login thất bại hoặc không tìm thấy token.\");\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "username",
+                  "value": "doctor4@gmail.com",
+                  "type": "text",
+                  "uuid": "43f52b36-cd26-4165-8d05-73803edd8954"
+                },
+                {
+                  "key": "username",
+                  "value": "doctor3@gmail.com",
+                  "type": "text",
+                  "uuid": "43f52b36-cd26-4165-8d05-73803edd8954",
+                  "disabled": true
+                },
+                {
+                  "key": "username",
+                  "value": "patient53@gmail.com",
+                  "type": "text",
+                  "uuid": "43f52b36-cd26-4165-8d05-73803edd8954",
+                  "disabled": true
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text",
+                  "uuid": "76b94ce7-b384-4474-bef5-b3f4e75dd8d0"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}auth/login",
+              "host": [
+                "{{base_url}}auth"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "email",
+                  "value": "test1@gmail.com",
+                  "type": "text",
+                  "uuid": "43f52b36-cd26-4165-8d05-73803edd8954"
+                },
+                {
+                  "key": "password",
+                  "value": "123456",
+                  "type": "text",
+                  "uuid": "76b94ce7-b384-4474-bef5-b3f4e75dd8d0"
+                },
+                {
+                  "key": "fullName",
+                  "value": "test",
+                  "type": "text",
+                  "uuid": "f51617b1-e4b8-49f4-84c8-23bf250b37c6"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "0912345670",
+                  "type": "text",
+                  "uuid": "b7d86c42-2b96-477c-af7c-1f8f9877b488"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}auth/register",
+              "host": [
+                "{{base_url}}auth"
+              ],
+              "path": [
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{base_url}}auth/refresh-token",
+              "host": [
+                "{{base_url}}auth"
+              ],
+              "path": [
+                "refresh-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{base_url}}auth/logout",
+              "host": [
+                "{{base_url}}auth"
+              ],
+              "path": [
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "noauth"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "stats",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/stats",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "All Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}users/?role=doctor&search=P",
+              "host": [
+                "{{base_url}}users"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "doctor"
+                },
+                {
+                  "key": "search",
+                  "value": "P"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/profile",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Related Users Presence",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/presence",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "presence"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{base_url}}me/profile",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "profile"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Update My Profile - Patient",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"user\": {\r\n        \"fullName\": \"Dương Mạnh Thành\",\r\n        \"phoneNumber\": \"0350885305\",\r\n        \"email\": \"patient1@gmail.com\"\r\n    },\r\n    \"dateOfBirth\": \"1986-03-27\",\r\n    \"gender\": \"male\",\r\n    \"address\": \"Số 151 đường Tăng Minh Cảnh, Nha Trang\",\r\n    \"height\": 174,\r\n    \"weight\": 53,\r\n    \"bloodType\": \"A+\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}me/profile",
+                  "host": [
+                    "{{base_url}}me"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            },
+            {
+              "name": "Update My Profile - Patient New Account",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "bloodType",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "725f0305-6f45-4067-acb6-cb540f1ed9ce"
+                    },
+                    {
+                      "key": "height",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "b856b31a-5536-4633-a6a7-e75777cfa672"
+                    },
+                    {
+                      "key": "weight",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "efcb2f65-5e6c-42bf-8edf-b1317f704a58"
+                    },
+                    {
+                      "key": "medicalHistory",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "675c8d6f-2b5b-4676-8a0b-4c51529d6a92"
+                    },
+                    {
+                      "key": "address",
+                      "value": "",
+                      "type": "text",
+                      "uuid": "0fed6465-51d7-4d11-91b3-b0970661e2dd"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}me/profile",
+                  "host": [
+                    "{{base_url}}me"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            },
+            {
+              "name": "Update My Profile - Doctor",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"user\": {\r\n        \"fullName\": \"Bùi Bích Thu\",\r\n        \"phoneNumber\": \"0364055983\",\r\n        \"email\": \"doctor1@gmail.com\"\r\n    },\r\n    \"address\": \"Bệnh viện Chợ Rẫy\",\r\n    \"degree\": \"BSCKII\",\r\n    \"experienceYears\": 15,\r\n    \"bio\": \"Bác sĩ có nhiều năm kinh nghiệm tại các bệnh viện lớn. Tốt nghiệp loại giỏi tại Đại học Y Hà Nội.\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}me/profile",
+                  "host": [
+                    "{{base_url}}me"
+                  ],
+                  "path": [
+                    "profile"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "currentPassword",
+                  "value": "123456",
+                  "type": "text",
+                  "uuid": "d59fa7d7-8088-42be-8567-ccdbc5d636d4"
+                },
+                {
+                  "key": "newPassword",
+                  "value": "123456",
+                  "type": "text",
+                  "uuid": "1206fa60-5df7-46a4-a956-9bee96422dff"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}me/change-password",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "change-password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "devices",
+      "item": [
+        {
+          "name": "All Devices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}devices/",
+              "host": [
+                "{{base_url}}devices"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "doctors",
+      "item": [
+        {
+          "name": "Doctor Detail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}doctors/2",
+              "host": [
+                "{{base_url}}doctors"
+              ],
+              "path": [
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "All Doctors",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}doctors/?specialtyId=1&search=bạc",
+              "host": [
+                "{{base_url}}doctors"
+              ],
+              "path": [
+                ""
+              ],
+              "query": [
+                {
+                  "key": "specialtyId",
+                  "value": "1"
+                },
+                {
+                  "key": "search",
+                  "value": "bạc"
+                },
+                {
+                  "key": "page",
+                  "value": "2",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "3",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "patients",
+      "item": [
+        {
+          "name": "My Patients",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/patients?limit=2&page=1",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "patients"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "2"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "bloodType",
+                  "value": "A%2B",
+                  "description": "'+' use %2B, '-' use '-' or %2D",
+                  "disabled": true
+                },
+                {
+                  "key": "gender",
+                  "value": "male",
+                  "disabled": true
+                },
+                {
+                  "key": "dobFrom",
+                  "value": "1983-01-01",
+                  "disabled": true
+                },
+                {
+                  "key": "dobTo",
+                  "value": "1983-12-31",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patient Detail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}patients/:id",
+              "host": [
+                "{{base_url}}patients"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "60"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "alerts",
+      "item": [
+        {
+          "name": "My Alerts",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/alerts?limit=10&page=1&handledBy=",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "alerts"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "search",
+                  "value": "Phương",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "resolved",
+                  "description": "pending, handling, resolved",
+                  "disabled": true
+                },
+                {
+                  "key": "handledBy",
+                  "value": ""
+                },
+                {
+                  "key": "createdFrom",
+                  "value": "2026-05-18T00:00:00.000Z",
+                  "disabled": true
+                },
+                {
+                  "key": "createdTo",
+                  "value": "2026-05-18T23:00:00.000Z",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "appointments",
+      "item": [
+        {
+          "name": "My Appointments",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/appointments?limit=5&page=2",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "confirmed",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "type",
+                  "value": "online",
+                  "disabled": true
+                },
+                {
+                  "key": "scheduledFrom",
+                  "value": "2026-03-31T18:00:00.000Z",
+                  "disabled": true
+                },
+                {
+                  "key": "scheduledTo",
+                  "value": "2026-04-30T06:00:00.000Z",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Appointment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "cancelReason",
+                  "value": "Bận việc đột xuất",
+                  "type": "text",
+                  "uuid": "f88f053f-6abf-41d1-9bff-53a406049a1a"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}appointments/:id/cancel",
+              "host": [
+                "{{base_url}}appointments"
+              ],
+              "path": [
+                ":id",
+                "cancel"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Slots",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{base_url}}appointments/available-slots?doctorId=2&date=2026-05-15",
+              "host": [
+                "{{base_url}}appointments"
+              ],
+              "path": [
+                "available-slots"
+              ],
+              "query": [
+                {
+                  "key": "doctorId",
+                  "value": "2"
+                },
+                {
+                  "key": "date",
+                  "value": "2026-05-15"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Appointment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "doctorId",
+                  "value": "2",
+                  "type": "text",
+                  "uuid": "ec4b6530-dcbc-4c91-9e97-524b787b5683"
+                },
+                {
+                  "key": "patientId",
+                  "value": "52",
+                  "type": "text",
+                  "uuid": "ec4b6530-dcbc-4c91-9e97-524b787b5683",
+                  "disabled": true
+                },
+                {
+                  "key": "scheduledAt",
+                  "value": "2026-05-13T01:00:00.000Z",
+                  "type": "text",
+                  "uuid": "51ab65e4-402f-48fa-a816-d729d6f4a72e"
+                },
+                {
+                  "key": "durationMinutes",
+                  "value": "30",
+                  "type": "text",
+                  "uuid": "b79a268a-c074-4a0b-b584-d3585d3e9080"
+                },
+                {
+                  "key": "type",
+                  "value": "online",
+                  "type": "text",
+                  "uuid": "ca07bf49-2e2a-4cf6-8ac2-38a1a90d7f2a"
+                },
+                {
+                  "key": "reason",
+                  "value": "test123",
+                  "type": "text",
+                  "uuid": "951feb98-032b-4ca3-9770-48b69faf84bb"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}appointments/",
+              "host": [
+                "{{base_url}}appointments"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Appointments By Patient ID & Current Doctor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/patients/:patientId/appointments?limit=5&page=1",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "patients",
+                ":patientId",
+                "appointments"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "status",
+                  "value": "completed",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "confirmed ",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "type",
+                  "value": "online",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "scheduledFrom",
+                  "value": "2026-03-31T18:00:00.000Z",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "scheduledTo",
+                  "value": "2026-04-30T06:00:00.000Z",
+                  "type": "text",
+                  "disabled": true
+                }
+              ],
+              "variable": [
+                {
+                  "key": "patientId",
+                  "value": "52"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "medical records",
+      "item": [
+        {
+          "name": "My Medical Records",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/medical-records?limit=3&page=1&search=",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "medical-records"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "3"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Medical Record for Doctor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "patientId",
+                  "value": "52",
+                  "type": "text"
+                },
+                {
+                  "key": "appointmentId",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "diagnosis",
+                  "value": "test call",
+                  "type": "text"
+                },
+                {
+                  "key": "notes",
+                  "value": "test call",
+                  "type": "text"
+                },
+                {
+                  "key": "symptoms",
+                  "value": "test call",
+                  "type": "text"
+                },
+                {
+                  "key": "treatmentPlan",
+                  "value": "test call",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}medical-records",
+              "host": [
+                "{{base_url}}medical-records"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Medical Record for Doctor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "diagnosis",
+                  "value": "test call 2",
+                  "type": "text"
+                },
+                {
+                  "key": "notes",
+                  "value": "test call",
+                  "type": "text"
+                },
+                {
+                  "key": "symptoms",
+                  "value": "test call",
+                  "type": "text"
+                },
+                {
+                  "key": "treatmentPlan",
+                  "value": "test call",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}medical-records/:recordId",
+              "host": [
+                "{{base_url}}medical-records"
+              ],
+              "path": [
+                ":recordId"
+              ],
+              "variable": [
+                {
+                  "key": "recordId",
+                  "value": "30002"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Medical Record Detail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}medical-records/:id",
+              "host": [
+                "{{base_url}}medical-records"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "30001"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Medical Records By Patient ID & Current Doctor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/patients/:patientId/medical-records?limit=20&page=1",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "patients",
+                ":patientId",
+                "medical-records"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "patientId",
+                  "value": "54"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "chat",
+      "item": [
+        {
+          "name": "My Conversations",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}chat/conversations?limit=5&search=thái",
+              "host": [
+                "{{base_url}}chat"
+              ],
+              "path": [
+                "conversations"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "nextCursor",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "search",
+                  "value": "thái"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Detail",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}chat/conversations/:conversationId",
+              "host": [
+                "{{base_url}}chat"
+              ],
+              "path": [
+                "conversations",
+                ":conversationId"
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "6a04c74d136c992a27fd2528"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Message On Conversation",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}chat/conversations/:conversationId/messages?limit=15&nextCursor=",
+              "host": [
+                "{{base_url}}chat"
+              ],
+              "path": [
+                "conversations",
+                ":conversationId",
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "15"
+                },
+                {
+                  "key": "nextCursor",
+                  "value": ""
+                }
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "6a0832cfe02541b2e813ad71"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation by 2 User Ids",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}chat/users/:userId/conversations",
+              "host": [
+                "{{base_url}}chat"
+              ],
+              "path": [
+                "users",
+                ":userId",
+                "conversations"
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "52"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Conversation as Read",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}chat/conversations/:conversationId/read-all",
+              "host": [
+                "{{base_url}}chat"
+              ],
+              "path": [
+                "conversations",
+                ":conversationId",
+                "read-all"
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "6a04c74d136c992a27fd2528"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "conversationId",
+                  "value": "69d38311c89f6ceefd7eaaee",
+                  "type": "text",
+                  "uuid": "56e26a2e-d4dc-4095-80cb-7364a501c143"
+                },
+                {
+                  "key": "message",
+                  "value": "test 3",
+                  "type": "text",
+                  "uuid": "d1580017-2d53-4436-ae9c-f57580570341"
+                },
+                {
+                  "key": "type",
+                  "value": "text",
+                  "type": "text",
+                  "uuid": "7c1af3c1-d28a-4ba7-8df4-59625b2576db"
+                },
+                {
+                  "key": "fileUrl",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "468ae413-fb03-4d90-8eb5-5316242be708",
+                  "disabled": true
+                },
+                {
+                  "key": "fileName",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "77d4a735-8f93-453a-85c9-1e628fc14857",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}chat/messages",
+              "host": [
+                "{{base_url}}chat"
+              ],
+              "path": [
+                "messages"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "call",
+      "item": [
+        {
+          "name": "Get Zego Kit Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}calls/conversations/:conversationId/zego-kit-token?callLogId=60006",
+              "host": [
+                "{{base_url}}calls"
+              ],
+              "path": [
+                "conversations",
+                ":conversationId",
+                "zego-kit-token"
+              ],
+              "query": [
+                {
+                  "key": "callLogId",
+                  "value": "60006"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "6a04c74d136c992a27fd2528"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Call Log Id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}calls/conversations/:conversationId/calls",
+              "host": [
+                "{{base_url}}calls"
+              ],
+              "path": [
+                "conversations",
+                ":conversationId",
+                "calls"
+              ],
+              "variable": [
+                {
+                  "key": "conversationId",
+                  "value": "6a04c74d136c992a27fd2528"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "notifications",
+      "item": [
+        {
+          "name": "My Notifications",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}me/notifications?nextCursor=&limit=6",
+              "host": [
+                "{{base_url}}me"
+              ],
+              "path": [
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "nextCursor",
+                  "value": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "6"
+                },
+                {
+                  "key": "isRead",
+                  "value": "true",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unread Count",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}notifications/unread-count",
+              "host": [
+                "{{base_url}}notifications"
+              ],
+              "path": [
+                "unread-count"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}notifications/:id/read",
+              "host": [
+                "{{base_url}}notifications"
+              ],
+              "path": [
+                ":id",
+                "read"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark as Unread",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}notifications/:id/unread",
+              "host": [
+                "{{base_url}}notifications"
+              ],
+              "path": [
+                ":id",
+                "unread"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}notifications/read-all",
+              "host": [
+                "{{base_url}}notifications"
+              ],
+              "path": [
+                "read-all"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}notifications/:id",
+              "host": [
+                "{{base_url}}notifications"
+              ],
+              "path": [
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "specialties",
+      "item": [
+        {
+          "name": "All Specialties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}specialties/",
+              "host": [
+                "{{base_url}}specialties"
+              ],
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Specialty Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}specialties/:specialtyId",
+              "host": [
+                "{{base_url}}specialties"
+              ],
+              "path": [
+                ":specialtyId"
+              ],
+              "variable": [
+                {
+                  "key": "specialtyId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "uploads",
+      "item": [
+        {
+          "name": "Upload Avatar",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "",
+                  "type": "file",
+                  "uuid": "0d743bbd-e6c0-473f-b3e5-584adbc9cbf9",
+                  "value": null
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}uploads/avatar",
+              "host": [
+                "{{base_url}}uploads"
+              ],
+              "path": [
+                "avatar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Model AI",
+      "item": [
+        {
+          "name": "http://127.0.0.1:8000/predict",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"packets\": [\r\n    [\r\n      133, 134, 134, 136, 137, 138, 138, 137, 137, 137, 137, 137, 137, 137, 137, 137,\r\n    137, 137, 137, 137, 137, 136, 136, 136, 137, 137, 136, 134, 133, 133, 133, 133,\r\n    131, 129, 128, 128, 127, 126, 126, 126, 126, 126, 125, 125, 125, 125, 125, 125,\r\n    125, 126, 128, 129, 129, 129, 129, 129, 129, 129, 129, 128, 126, 125, 124, 124,\r\n    126, 127, 127, 127, 126, 126, 125, 124, 122, 122, 124, 126, 126, 126, 127, 129,\r\n    129, 129, 129, 129, 130, 132, 132, 132, 132, 132, 132, 130, 128, 128, 128, 128,\r\n    125, 122, 122, 122, 123, 123, 123, 123, 123, 123, 123, 123, 123, 122, 122, 122,\r\n    123, 128, 134, 146, 164, 183, 199, 200, 187, 159, 131, 112, 104, 103, 102, 99,\r\n    99, 100, 107, 115, 121, 123, 123, 123, 122, 122, 122, 124, 125, 125, 125, 127,\r\n    128, 129, 129, 129, 130, 133, 134, 134, 133, 132, 132, 132, 132, 133, 135, 136,\r\n    137, 137, 137, 138, 140, 141, 141, 141, 141, 141, 140, 140, 139, 139, 139, 139,\r\n    138, 136, 136, 136, 136, 136, 136, 137, 137, 137, 135\r\n    ],\r\n    [\r\n      132, 132, 132, 132, 131, 129, 128, 127, 126, 126, 125, 125, 125, 125, 125, 125,\r\n    125, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126,\r\n    126, 127, 127, 127, 127, 127, 127, 125, 125, 125, 125, 125, 125, 125, 125, 125,\r\n    126, 126, 126, 127, 128, 129, 129, 129, 131, 132, 132, 132, 132, 132, 132, 131,\r\n    129, 127, 127, 127, 127, 125, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123,\r\n    121, 121, 121, 121, 121, 122, 126, 133, 145, 162, 183, 200, 202, 190, 162, 133,\r\n    113, 103, 98, 96, 96, 98, 105, 112, 119, 121, 121, 121, 121, 121, 121, 122,\r\n    123, 124, 124, 124, 126, 127, 127, 127, 127, 128, 130, 130, 130, 130, 130, 132,\r\n    133, 133, 133, 134, 134, 134, 134, 134, 136, 137, 137, 137, 137, 138, 139, 139,\r\n    139, 138, 138, 138, 138, 136, 136, 136, 136, 136, 135, 134, 134, 134, 134, 134,\r\n    133, 132, 131, 130, 127, 127, 127, 127, 127, 125, 124, 124, 124, 124, 124, 124,\r\n    124, 124, 124, 124, 124, 124, 124, 125, 125, 125, 125\r\n    ],\r\n    [\r\n      125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 124, 124, 124, 124,\r\n    124, 124, 124, 124, 124, 124, 123, 122, 122, 122, 122, 122, 123, 124, 126, 127,\r\n    127, 127, 127, 129, 130, 131, 131, 131, 131, 131, 129, 128, 128, 127, 126, 123,\r\n    123, 123, 123, 123, 122, 122, 122, 122, 122, 122, 122, 122, 121, 120, 120, 120,\r\n    123, 126, 132, 142, 162, 184, 201, 203, 189, 162, 135, 114, 102, 96, 95, 96,\r\n    100, 107, 113, 119, 122, 122, 122, 121, 121, 122, 122, 122, 122, 123, 125, 126,\r\n    126, 126, 126, 127, 129, 130, 130, 130, 130, 130, 131, 131, 132, 133, 133, 133,\r\n    133, 133, 134, 136, 136, 136, 136, 137, 138, 138, 137, 137, 137, 136, 136, 134,\r\n    134, 134, 134, 134, 133, 133, 133, 133, 133, 133, 132, 132, 131, 129, 127, 126,\r\n    126, 126, 125, 124, 123, 123, 122, 122, 121, 121, 121, 121, 121, 121, 121, 121,\r\n    121, 121, 121, 121, 122, 123, 123, 123, 123, 123, 123, 123, 122, 122, 122, 122,\r\n    122, 122, 122, 122, 122, 122, 120, 120, 120, 120, 120\r\n    ],\r\n    [\r\n      120, 120, 120, 120, 119, 118, 118, 120, 122, 122, 122, 123, 124, 125, 125, 125,\r\n    126, 127, 128, 128, 128, 128, 127, 127, 125, 123, 123, 122, 121, 119, 118, 118,\r\n    118, 118, 118, 118, 119, 120, 120, 119, 116, 115, 116, 118, 121, 123, 128, 140,\r\n    157, 178, 192, 195, 184, 160, 133, 112, 101, 96, 95, 95, 95, 102, 110, 117,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 120, 122, 122, 122, 123, 124, 125, 126,\r\n    126, 127, 128, 128, 128, 127, 128, 130, 130, 130, 130, 130, 131, 132, 132, 132,\r\n    133, 134, 135, 135, 135, 135, 135, 135, 135, 134, 134, 134, 133, 132, 130, 130,\r\n    130, 130, 130, 130, 130, 130, 130, 129, 127, 127, 126, 125, 123, 121, 121, 121,\r\n    121, 121, 120, 120, 120, 120, 120, 119, 119, 119, 120, 120, 120, 120, 120, 120,\r\n    120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 118, 118, 118, 118, 118, 118,\r\n    118, 119, 121, 121, 121, 122, 122, 123, 123, 125, 127\r\n    ],\r\n    [\r\n    128, 128, 127, 125, 125, 125, 124, 123, 122, 122, 121, 120, 117, 116, 116, 116,\r\n    117, 117, 117, 117, 118, 118, 117, 114, 114, 114, 117, 120, 125, 136, 152, 173,\r\n    188, 193, 185, 163, 136, 112, 99, 94, 93, 93, 93, 97, 105, 113, 118, 118,\r\n    118, 118, 118, 118, 118, 118, 119, 120, 121, 121, 121, 122, 124, 124, 124, 124,\r\n    124, 126, 127, 127, 127, 127, 128, 129, 129, 129, 131, 131, 131, 131, 131, 133,\r\n    134, 135, 135, 135, 135, 135, 135, 134, 133, 133, 133, 132, 132, 132, 132, 132,\r\n    132, 131, 131, 131, 131, 131, 129, 126, 125, 124, 124, 122, 121, 121, 121, 120,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 120, 120, 120,\r\n    120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 119, 119,\r\n    119, 119, 119, 119, 119, 119, 119, 118, 117, 117, 117, 117, 117, 117, 117, 119,\r\n    121, 122, 122, 122, 122, 123, 125, 125, 126, 127, 127, 127, 125, 124, 124, 124,\r\n    123, 120, 119, 119, 119, 119, 118, 118, 118, 118, 118\r\n    ]\r\n  ],\r\n  \"normalized\": true\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://127.0.0.1:8000/predict",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "predict"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "187 samples",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"packets\": [\r\n    [\r\n      133, 134, 134, 136, 137, 138, 138, 137, 137, 137, 137, 137, 137, 137, 137, 137,\r\n    137, 137, 137, 137, 137, 136, 136, 136, 137, 137, 136, 134, 133, 133, 133, 133,\r\n    131, 129, 128, 128, 127, 126, 126, 126, 126, 126, 125, 125, 125, 125, 125, 125,\r\n    125, 126, 128, 129, 129, 129, 129, 129, 129, 129, 129, 128, 126, 125, 124, 124,\r\n    126, 127, 127, 127, 126, 126, 125, 124, 122, 122, 124, 126, 126, 126, 127, 129,\r\n    129, 129, 129, 129, 130, 132, 132, 132, 132, 132, 132, 130, 128, 128, 128, 128,\r\n    125, 122, 122, 122, 123, 123, 123, 123, 123, 123, 123, 123, 123, 122, 122, 122,\r\n    123, 128, 134, 146, 164, 183, 199, 200, 187, 159, 131, 112, 104, 103, 102, 99,\r\n    99, 100, 107, 115, 121, 123, 123, 123, 122, 122, 122, 124, 125, 125, 125, 127,\r\n    128, 129, 129, 129, 130, 133, 134, 134, 133, 132, 132, 132, 132, 133, 135, 136,\r\n    137, 137, 137, 138, 140, 141, 141, 141, 141, 141, 140, 140, 139, 139, 139, 139,\r\n    138, 136, 136, 136, 136, 136, 136, 137, 137, 137, 135\r\n    ],\r\n    [\r\n      132, 132, 132, 132, 131, 129, 128, 127, 126, 126, 125, 125, 125, 125, 125, 125,\r\n    125, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126,\r\n    126, 127, 127, 127, 127, 127, 127, 125, 125, 125, 125, 125, 125, 125, 125, 125,\r\n    126, 126, 126, 127, 128, 129, 129, 129, 131, 132, 132, 132, 132, 132, 132, 131,\r\n    129, 127, 127, 127, 127, 125, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123,\r\n    121, 121, 121, 121, 121, 122, 126, 133, 145, 162, 183, 200, 202, 190, 162, 133,\r\n    113, 103, 98, 96, 96, 98, 105, 112, 119, 121, 121, 121, 121, 121, 121, 122,\r\n    123, 124, 124, 124, 126, 127, 127, 127, 127, 128, 130, 130, 130, 130, 130, 132,\r\n    133, 133, 133, 134, 134, 134, 134, 134, 136, 137, 137, 137, 137, 138, 139, 139,\r\n    139, 138, 138, 138, 138, 136, 136, 136, 136, 136, 135, 134, 134, 134, 134, 134,\r\n    133, 132, 131, 130, 127, 127, 127, 127, 127, 125, 124, 124, 124, 124, 124, 124,\r\n    124, 124, 124, 124, 124, 124, 124, 125, 125, 125, 125\r\n    ],\r\n    [\r\n      125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 124, 124, 124, 124,\r\n    124, 124, 124, 124, 124, 124, 123, 122, 122, 122, 122, 122, 123, 124, 126, 127,\r\n    127, 127, 127, 129, 130, 131, 131, 131, 131, 131, 129, 128, 128, 127, 126, 123,\r\n    123, 123, 123, 123, 122, 122, 122, 122, 122, 122, 122, 122, 121, 120, 120, 120,\r\n    123, 126, 132, 142, 162, 184, 201, 203, 189, 162, 135, 114, 102, 96, 95, 96,\r\n    100, 107, 113, 119, 122, 122, 122, 121, 121, 122, 122, 122, 122, 123, 125, 126,\r\n    126, 126, 126, 127, 129, 130, 130, 130, 130, 130, 131, 131, 132, 133, 133, 133,\r\n    133, 133, 134, 136, 136, 136, 136, 137, 138, 138, 137, 137, 137, 136, 136, 134,\r\n    134, 134, 134, 134, 133, 133, 133, 133, 133, 133, 132, 132, 131, 129, 127, 126,\r\n    126, 126, 125, 124, 123, 123, 122, 122, 121, 121, 121, 121, 121, 121, 121, 121,\r\n    121, 121, 121, 121, 122, 123, 123, 123, 123, 123, 123, 123, 122, 122, 122, 122,\r\n    122, 122, 122, 122, 122, 122, 120, 120, 120, 120, 120\r\n    ],\r\n    [\r\n      120, 120, 120, 120, 119, 118, 118, 120, 122, 122, 122, 123, 124, 125, 125, 125,\r\n    126, 127, 128, 128, 128, 128, 127, 127, 125, 123, 123, 122, 121, 119, 118, 118,\r\n    118, 118, 118, 118, 119, 120, 120, 119, 116, 115, 116, 118, 121, 123, 128, 140,\r\n    157, 178, 192, 195, 184, 160, 133, 112, 101, 96, 95, 95, 95, 102, 110, 117,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 120, 122, 122, 122, 123, 124, 125, 126,\r\n    126, 127, 128, 128, 128, 127, 128, 130, 130, 130, 130, 130, 131, 132, 132, 132,\r\n    133, 134, 135, 135, 135, 135, 135, 135, 135, 134, 134, 134, 133, 132, 130, 130,\r\n    130, 130, 130, 130, 130, 130, 130, 129, 127, 127, 126, 125, 123, 121, 121, 121,\r\n    121, 121, 120, 120, 120, 120, 120, 119, 119, 119, 120, 120, 120, 120, 120, 120,\r\n    120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 118, 118, 118, 118, 118, 118,\r\n    118, 119, 121, 121, 121, 122, 122, 123, 123, 125, 127\r\n    ],\r\n    [\r\n    128, 128, 127, 125, 125, 125, 124, 123, 122, 122, 121, 120, 117, 116, 116, 116,\r\n    117, 117, 117, 117, 118, 118, 117, 114, 114, 114, 117, 120, 125, 136, 152, 173,\r\n    188, 193, 185, 163, 136, 112, 99, 94, 93, 93, 93, 97, 105, 113, 118, 118,\r\n    118, 118, 118, 118, 118, 118, 119, 120, 121, 121, 121, 122, 124, 124, 124, 124,\r\n    124, 126, 127, 127, 127, 127, 128, 129, 129, 129, 131, 131, 131, 131, 131, 133,\r\n    134, 135, 135, 135, 135, 135, 135, 134, 133, 133, 133, 132, 132, 132, 132, 132,\r\n    132, 131, 131, 131, 131, 131, 129, 126, 125, 124, 124, 122, 121, 121, 121, 120,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 120, 120, 120,\r\n    120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 119, 119,\r\n    119, 119, 119, 119, 119, 119, 119, 118, 117, 117, 117, 117, 117, 117, 117, 119,\r\n    121, 122, 122, 122, 122, 123, 125, 125, 126, 127, 127, 127, 125, 124, 124, 124,\r\n    123, 120, 119, 119, 119, 119, 118, 118, 118, 118, 118\r\n    ]\r\n  ],\r\n  \"normalized\": true\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://127.0.0.1:8000/predict",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "predict"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            },
+            {
+              "name": "65 samples",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"packets\": [\r\n    [\r\n        49, 25, 31, 29, 31, 27, 31, 28, 32, 31, 38, 33, 41, 39, 44, 36, 38, 31, 32,\r\n        28, 32, 29, 33, 28, 33, 31, 36, 29, 24, 28, 116, 238, 230, 59, 5, 22, 18,\r\n        36, 37, 41, 38, 43, 41, 44, 42, 45, 43, 47, 45, 49, 49, 50, 50, 51, 54, 55,\r\n        58, 59, 63, 65, 72, 71, 82, 79, 96\r\n    ],\r\n    [\r\n        13, 1, 8, 3, 6, 2, 5, 1, 7, 2, 10, 8, 16, 17, 27, 25, 27, 19, 17, 8, 8, 5,\r\n        6, 5, 5, 8, 8, 9, 7, 53, 130, 235, 228, 84, 12, 8, 6, 7, 3, 5, 1, 3, 4, 7,\r\n        5, 7, 9, 11, 19, 22, 30, 32, 38, 43, 52, 54, 66, 63, 71, 69, 74, 64, 61, 45,\r\n        45\r\n    ],\r\n    [\r\n        91, 89, 83, 98, 92, 90, 101, 87, 86, 98, 98, 107, 80, 107, 82, 78, 110, 57,\r\n        58, 70, 78, 71, 78, 76, 80, 77, 82, 85, 83, 108, 177, 245, 242, 152, 22, 8,\r\n        37, 66, 84, 76, 75, 80, 89, 90, 100, 114, 94, 107, 112, 130, 137, 129, 143,\r\n        147, 141, 155, 151, 141, 139, 129, 103, 102, 102, 101, 90\r\n    ],\r\n    [\r\n        21, 5, 10, 5, 8, 6, 5, 7, 5, 5, 6, 9, 7, 10, 9, 13, 11, 16, 11, 13, 10, 14,\r\n        10, 16, 14, 16, 16, 22, 39, 88, 162, 237, 234, 112, 13, 9, 19, 8, 11, 3, 7,\r\n        4, 9, 4, 8, 4, 7, 5, 7, 2, 5, 4, 6, 7, 10, 14, 16, 22, 24, 31, 33, 38, 40,\r\n        43, 46\r\n    ],\r\n    [\r\n        73, 85, 78, 82, 77, 80, 76, 80, 78, 81, 79, 81, 79, 81, 79, 82, 78, 81, 79,\r\n        81, 83, 84, 85, 89, 93, 101, 119, 140, 165, 175, 199, 221, 252, 245, 227,\r\n        214, 212, 217, 231, 177, 99, 58, 48, 38, 35, 30, 27, 26, 22, 21, 16, 14, 10,\r\n        9, 5, 4, 1, 3, 0, 5, 6, 14, 19, 33, 40\r\n    ]\r\n  ],\r\n  \"normalized\": true\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://127.0.0.1:8000/predict",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "predict"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            },
+            {
+              "name": "http://127.0.0.1:8000/predict",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"packets\": \r\n    [\r\n        [\r\n            0.46293309330940247, 0.4694792330265045, 0.4663226008415222,\r\n            0.4681173861026764, 0.4694904386997223, 0.47376757860183716,\r\n            0.4744267761707306, 0.4763154089450836, 0.47760728001594543,\r\n            0.4783251881599426, 0.4770079255104065, 0.47672179341316223,\r\n            0.47658079862594604, 0.4767194986343384, 0.4807220697402954,\r\n            0.4747016429901123, 0.4715651869773865, 0.4672599136829376,\r\n            0.4664371907711029, 0.46612685918807983, 0.46705830097198486,\r\n            0.46505817770957947, 0.4655441343784332, 0.46525493264198303,\r\n            0.4653676748275757, 0.4656643867492676, 0.46068426966667175,\r\n            0.45478683710098267, 0.44697707891464233, 0.46446743607521057,\r\n            0.5120792984962463, 0.5823509693145752, 0.5474265217781067,\r\n            0.45966801047325134, 0.45613622665405273, 0.46192556619644165,\r\n            0.4619295597076416, 0.4625849723815918, 0.46058809757232666,\r\n            0.4616626799106598, 0.4599887430667877, 0.46162912249565125,\r\n            0.45948806405067444, 0.461808443069458, 0.4602232575416565,\r\n            0.46170657873153687, 0.4603780508041382, 0.46150830388069153,\r\n            0.46012669801712036, 0.4601719379425049, 0.45964014530181885,\r\n            0.4598805904388428, 0.4615158140659332, 0.4606715142726898,\r\n            0.46042922139167786, 0.45933520793914795, 0.45991459488868713,\r\n            0.45970019698143005, 0.46131405234336853, 0.46078240871429443,\r\n            0.46132123470306396, 0.458932101726532, 0.4598594903945923,\r\n            0.4571954905986786, 0.4576881527900696\r\n        ],\r\n        [\r\n            0.46587640047073364, 0.47000688314437866, 0.46798160672187805,\r\n            0.46976563334465027, 0.47003573179244995, 0.4724106788635254,\r\n            0.4749533534049988, 0.47581198811531067, 0.4782402217388153,\r\n            0.4796488881111145, 0.4797758162021637, 0.4774416983127594,\r\n            0.47761526703834534, 0.4769304394721985, 0.4796934127807617,\r\n            0.47333773970603943, 0.47007524967193604, 0.46823346614837646,\r\n            0.46829554438591003, 0.46653470396995544, 0.4683353900909424,\r\n            0.46725156903266907, 0.46675577759742737, 0.46667057275772095,\r\n            0.4666801393032074, 0.46683400869369507, 0.46326854825019836,\r\n            0.4554399847984314, 0.44802960753440857, 0.46437370777130127,\r\n            0.5137988328933716, 0.5823959708213806, 0.5722383856773376,\r\n            0.474916011095047, 0.45666778087615967, 0.465884804725647,\r\n            0.4626461863517761, 0.464611679315567, 0.4628147482872009,\r\n            0.46399062871932983, 0.4621478319168091, 0.4626883566379547,\r\n            0.46084484457969666, 0.46227288246154785, 0.46123263239860535,\r\n            0.4619748294353485, 0.4613358974456787, 0.46296384930610657,\r\n            0.4629290699958801, 0.4634994566440582, 0.4637617766857147,\r\n            0.46311450004577637, 0.46325093507766724, 0.46250349283218384,\r\n            0.4631296694278717, 0.4621550440788269, 0.4632147550582886,\r\n            0.4626181125640869, 0.4641822576522827, 0.4637461006641388,\r\n            0.4644363224506378, 0.4617362916469574, 0.46408334374427795,\r\n            0.4619263708591461, 0.4626530706882477\r\n        ],\r\n        [\r\n            0.4640580117702484, 0.4663941562175751, 0.4661632776260376,\r\n            0.46581023931503296, 0.46604466438293457, 0.470931738615036,\r\n            0.4706389904022217, 0.47381314635276794, 0.47412049770355225,\r\n            0.4761296808719635, 0.4743894338607788, 0.47537165880203247,\r\n            0.4720240533351898, 0.4747743010520935, 0.4752315282821655,\r\n            0.47199827432632446, 0.4670121967792511, 0.4658738374710083,\r\n            0.46294593811035156, 0.4655272960662842, 0.46403172612190247,\r\n            0.46515092253685, 0.46309027075767517, 0.46449747681617737,\r\n            0.462097704410553, 0.4629911780357361, 0.4588143527507782,\r\n            0.45088300108909607, 0.44417375326156616, 0.4651542007923126,\r\n            0.5179967284202576, 0.5821205973625183, 0.5529495477676392,\r\n            0.4584736227989197, 0.45447203516960144, 0.45927390456199646,\r\n            0.4615139663219452, 0.458554208278656, 0.4598952531814575,\r\n            0.45883750915527344, 0.4603343904018402, 0.45966485142707825,\r\n            0.46232447028160095, 0.46071210503578186, 0.4618276059627533,\r\n            0.4603727161884308, 0.4615040719509125, 0.4601903557777405,\r\n            0.46093517541885376, 0.4605965316295624, 0.4602499008178711,\r\n            0.4602408707141876, 0.4611894488334656, 0.4607129395008087,\r\n            0.46195724606513977, 0.46133673191070557, 0.4602546691894531,\r\n            0.4604964554309845, 0.4602400064468384, 0.4608311057090759,\r\n            0.45877695083618164, 0.4608211815357208, 0.4583958089351654,\r\n            0.4608316719532013, 0.4583139717578888\r\n        ],\r\n        [\r\n            0.48313337564468384,0.4763154089450836,0.48155298829078674,0.4814830720424652,0.4803951382637024,0.47894352674484253,0.480131596326828,0.47765204310417175,0.47847574949264526,0.47611504793167114,0.4774230718612671,0.47456005215644836,0.4771052598953247,0.4756212532520294,0.47630488872528076,0.47379305958747864,0.47600096464157104,0.47303080558776855,0.4739863872528076,0.47208237648010254,0.47217148542404175,0.47030583024024963,0.4683372974395752,0.46517446637153625,0.4663931727409363,0.4685056507587433,0.4657697081565857,0.45756644010543823,0.438498318195343,0.4118070602416992,0.38692882657051086,0.37576964497566223,0.3622977137565613,0.38015836477279663,0.40146446228027344,0.4043864607810974,0.40425166487693787,0.41117894649505615,0.4127318263053894,0.4347246289253235,0.4570271670818329,0.4707978069782257,0.4825083613395691,0.4888794720172882,0.49089670181274414,0.4939092695713043,0.4955711364746094,0.4988919198513031,0.5008465647697449,0.5025206208229065,0.505885899066925,0.5070515871047974,0.5113059282302856,0.5122548937797546,0.5167819857597351,0.5154085755348206,0.5187243819236755,0.5166581273078918,0.5192245244979858,0.5156151056289673,0.5169558525085449,0.5119301080703735,0.5125398635864258,0.5052622556686401,0.5072362422943115\r\n        ],\r\n        [\r\n            0.4978090226650238, 0.4436631202697754, 0.46146270632743835,\r\n            0.4569491446018219, 0.46432235836982727, 0.4627256691455841,\r\n            0.46988776326179504, 0.4680614769458771, 0.47240522503852844,\r\n            0.4702271819114685, 0.47228825092315674, 0.469104528427124,\r\n            0.47138097882270813, 0.4691493809223175, 0.4720774292945862,\r\n            0.4686085283756256, 0.4715476930141449, 0.46794217824935913,\r\n            0.47025927901268005, 0.4660279452800751, 0.4688732624053955,\r\n            0.4659138321876526, 0.4683833420276642, 0.4648405909538269,\r\n            0.4649498164653778, 0.45983824133872986, 0.45423373579978943,\r\n            0.44779425859451294, 0.4104536771774292, 0.32192718982696533,\r\n            0.26257628202438354, 0.23629529774188995, 0.24414873123168945,\r\n            0.27860066294670105, 0.34221091866493225, 0.401797354221344,\r\n            0.4530695378780365, 0.47428712248802185, 0.4826216995716095,\r\n            0.4928830564022064, 0.4980369508266449, 0.5032820105552673,\r\n            0.5090373158454895, 0.5139922499656677, 0.5135849118232727,\r\n            0.5162889957427979, 0.5206810832023621, 0.5247278213500977,\r\n            0.5286073088645935, 0.525100588798523, 0.5250141024589539,\r\n            0.5254194140434265, 0.5287236571311951, 0.53156977891922,\r\n            0.5378995537757874, 0.5405868291854858, 0.5498265624046326,\r\n            0.5551069974899292, 0.5665249824523926, 0.5697420835494995,\r\n            0.5828803777694702, 0.5827191472053528, 0.5963653326034546,\r\n            0.5857153534889221, 0.6052842140197754\r\n        ]\r\n    ],\r\n  \"normalized\": true\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://127.0.0.1:8000/predict",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "predict"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "",
+              "header": [],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": ""
+            },
+            {
+              "name": "http://127.0.0.1:8000/predict",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"packets\": [\r\n    [\r\n      133, 134, 134, 136, 137, 138, 138, 137, 137, 137, 137, 137, 137, 137, 137, 137,\r\n    137, 137, 137, 137, 137, 136, 136, 136, 137, 137, 136, 134, 133, 133, 133, 133,\r\n    131, 129, 128, 128, 127, 126, 126, 126, 126, 126, 125, 125, 125, 125, 125, 125,\r\n    125, 126, 128, 129, 129, 129, 129, 129, 129, 129, 129, 128, 126, 125, 124, 124,\r\n    126, 127, 127, 127, 126, 126, 125, 124, 122, 122, 124, 126, 126, 126, 127, 129,\r\n    129, 129, 129, 129, 130, 132, 132, 132, 132, 132, 132, 130, 128, 128, 128, 128,\r\n    125, 122, 122, 122, 123, 123, 123, 123, 123, 123, 123, 123, 123, 122, 122, 122,\r\n    123, 128, 134, 146, 164, 183, 199, 200, 187, 159, 131, 112, 104, 103, 102, 99,\r\n    99, 100, 107, 115, 121, 123, 123, 123, 122, 122, 122, 124, 125, 125, 125, 127,\r\n    128, 129, 129, 129, 130, 133, 134, 134, 133, 132, 132, 132, 132, 133, 135, 136,\r\n    137, 137, 137, 138, 140, 141, 141, 141, 141, 141, 140, 140, 139, 139, 139, 139,\r\n    138, 136, 136, 136, 136, 136, 136, 137, 137, 137, 135\r\n    ],\r\n    [\r\n      132, 132, 132, 132, 131, 129, 128, 127, 126, 126, 125, 125, 125, 125, 125, 125,\r\n    125, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126, 126,\r\n    126, 127, 127, 127, 127, 127, 127, 125, 125, 125, 125, 125, 125, 125, 125, 125,\r\n    126, 126, 126, 127, 128, 129, 129, 129, 131, 132, 132, 132, 132, 132, 132, 131,\r\n    129, 127, 127, 127, 127, 125, 123, 123, 123, 123, 123, 123, 123, 123, 123, 123,\r\n    121, 121, 121, 121, 121, 122, 126, 133, 145, 162, 183, 200, 202, 190, 162, 133,\r\n    113, 103, 98, 96, 96, 98, 105, 112, 119, 121, 121, 121, 121, 121, 121, 122,\r\n    123, 124, 124, 124, 126, 127, 127, 127, 127, 128, 130, 130, 130, 130, 130, 132,\r\n    133, 133, 133, 134, 134, 134, 134, 134, 136, 137, 137, 137, 137, 138, 139, 139,\r\n    139, 138, 138, 138, 138, 136, 136, 136, 136, 136, 135, 134, 134, 134, 134, 134,\r\n    133, 132, 131, 130, 127, 127, 127, 127, 127, 125, 124, 124, 124, 124, 124, 124,\r\n    124, 124, 124, 124, 124, 124, 124, 125, 125, 125, 125\r\n    ],\r\n    [\r\n      125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 124, 124, 124, 124,\r\n    124, 124, 124, 124, 124, 124, 123, 122, 122, 122, 122, 122, 123, 124, 126, 127,\r\n    127, 127, 127, 129, 130, 131, 131, 131, 131, 131, 129, 128, 128, 127, 126, 123,\r\n    123, 123, 123, 123, 122, 122, 122, 122, 122, 122, 122, 122, 121, 120, 120, 120,\r\n    123, 126, 132, 142, 162, 184, 201, 203, 189, 162, 135, 114, 102, 96, 95, 96,\r\n    100, 107, 113, 119, 122, 122, 122, 121, 121, 122, 122, 122, 122, 123, 125, 126,\r\n    126, 126, 126, 127, 129, 130, 130, 130, 130, 130, 131, 131, 132, 133, 133, 133,\r\n    133, 133, 134, 136, 136, 136, 136, 137, 138, 138, 137, 137, 137, 136, 136, 134,\r\n    134, 134, 134, 134, 133, 133, 133, 133, 133, 133, 132, 132, 131, 129, 127, 126,\r\n    126, 126, 125, 124, 123, 123, 122, 122, 121, 121, 121, 121, 121, 121, 121, 121,\r\n    121, 121, 121, 121, 122, 123, 123, 123, 123, 123, 123, 123, 122, 122, 122, 122,\r\n    122, 122, 122, 122, 122, 122, 120, 120, 120, 120, 120\r\n    ],\r\n    [\r\n      120, 120, 120, 120, 119, 118, 118, 120, 122, 122, 122, 123, 124, 125, 125, 125,\r\n    126, 127, 128, 128, 128, 128, 127, 127, 125, 123, 123, 122, 121, 119, 118, 118,\r\n    118, 118, 118, 118, 119, 120, 120, 119, 116, 115, 116, 118, 121, 123, 128, 140,\r\n    157, 178, 192, 195, 184, 160, 133, 112, 101, 96, 95, 95, 95, 102, 110, 117,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 120, 122, 122, 122, 123, 124, 125, 126,\r\n    126, 127, 128, 128, 128, 127, 128, 130, 130, 130, 130, 130, 131, 132, 132, 132,\r\n    133, 134, 135, 135, 135, 135, 135, 135, 135, 134, 134, 134, 133, 132, 130, 130,\r\n    130, 130, 130, 130, 130, 130, 130, 129, 127, 127, 126, 125, 123, 121, 121, 121,\r\n    121, 121, 120, 120, 120, 120, 120, 119, 119, 119, 120, 120, 120, 120, 120, 120,\r\n    120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 118, 118, 118, 118, 118, 118,\r\n    118, 119, 121, 121, 121, 122, 122, 123, 123, 125, 127\r\n    ],\r\n    [\r\n    128, 128, 127, 125, 125, 125, 124, 123, 122, 122, 121, 120, 117, 116, 116, 116,\r\n    117, 117, 117, 117, 118, 118, 117, 114, 114, 114, 117, 120, 125, 136, 152, 173,\r\n    188, 193, 185, 163, 136, 112, 99, 94, 93, 93, 93, 97, 105, 113, 118, 118,\r\n    118, 118, 118, 118, 118, 118, 119, 120, 121, 121, 121, 122, 124, 124, 124, 124,\r\n    124, 126, 127, 127, 127, 127, 128, 129, 129, 129, 131, 131, 131, 131, 131, 133,\r\n    134, 135, 135, 135, 135, 135, 135, 134, 133, 133, 133, 132, 132, 132, 132, 132,\r\n    132, 131, 131, 131, 131, 131, 129, 126, 125, 124, 124, 122, 121, 121, 121, 120,\r\n    119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 119, 120, 120, 120,\r\n    120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 119, 119,\r\n    119, 119, 119, 119, 119, 119, 119, 118, 117, 117, 117, 117, 117, 117, 117, 119,\r\n    121, 122, 122, 122, 122, 123, 125, 125, 126, 127, 127, 127, 125, 124, 124, 124,\r\n    123, 120, 119, 119, 119, 119, 118, 118, 118, 118, 118\r\n    ]\r\n  ],\r\n  \"normalized\": true\r\n}\r\n",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://127.0.0.1:8000/predict",
+                  "protocol": "http",
+                  "host": [
+                    "127",
+                    "0",
+                    "0",
+                    "1"
+                  ],
+                  "port": "8000",
+                  "path": [
+                    "predict"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
+        },
+        {
+          "name": "http://127.0.0.1:8000/health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://127.0.0.1:8000/health",
+              "protocol": "http",
+              "host": [
+                "127",
+                "0",
+                "0",
+                "1"
+              ],
+              "port": "8000",
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": ""
+    }
+  ]
+}
